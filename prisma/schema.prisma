@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model GilmoursProduct {
+  id          String   @id @default(cuid())
+  sku         String   @unique
+  brand       String
+  description String
+  packSize    String
+  uom         String
+  price       Float
+  quantity    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BidfoodProduct {
+  id            String   @id @default(uuid())
+  productCode   String   @unique
+  brand         String
+  description   String
+  packSize      String
+  ctnQty        String
+  uom           String
+  qty           Int
+  lastPricePaid Float
+  totalExGST    Float
+  contains      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model OtherProduct {
+  id          String   @id @default(uuid())
+  name        String
+  supplier    String
+  description String
+  cost        Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Supplier {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  contactName   String?
+  contactNumber String?
+  contactEmail  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Component {
+  id             String   @id @default(uuid())
+  name           String   @unique
+  description    String
+  ingredients    Json
+  totalCost      Float
+  hasGluten      Boolean  @default(false)
+  hasDairy       Boolean  @default(false)
+  hasSoy         Boolean  @default(false)
+  hasOnionGarlic Boolean  @default(false)
+  hasSesame      Boolean  @default(false)
+  hasNuts        Boolean  @default(false)
+  hasEgg         Boolean  @default(false)
+  isVegetarian   Boolean  @default(false)
+  isVegan        Boolean  @default(false)
+  isHalal        Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  description   String
+  addon         String?
+  handle        String?
+  meat1         String?
+  meat2         String?
+  option1       String?
+  option2       String?
+  serveware     String?
+  timerA        Int?
+  timerB        Int?
+  skuSearch     String?
+  variantSku    String?
+  ingredients   Json
+  totalCost     Float    @default(0)
+  sellingPrice  Float?
+  realizedMargin Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

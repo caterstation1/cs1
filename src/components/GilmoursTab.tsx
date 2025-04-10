@@ -1,0 +1,176 @@
+'use client'
+
+import { useRef } from 'react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { GilmoursProduct, GilmoursProductMap } from "@/lib/types"
+import { Dispatch, SetStateAction } from 'react'
+
+interface GilmoursTabProps {
+  products: GilmoursProduct[]
+  setProducts: Dispatch<SetStateAction<GilmoursProduct[]>>
+  isLoading: boolean
+  error: string | null
+}
+
+export function GilmoursTab({ products, setProducts, isLoading, error }: GilmoursTabProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const text = await file.text()
+    const rows = text.split('\n').map(row => row.split(','))
+    const headers = rows[0].map(header => header.toLowerCase().trim())
+    
+    // Find column indices
+    const skuIndex = headers.findIndex(h => h.includes('sku'))
+    const brandIndex = headers.findIndex(h => h.includes('brand'))
+    const descIndex = headers.findIndex(h => h.includes('description') || h.includes('desc'))
+    const packIndex = headers.findIndex(h => h.includes('pack') && h.includes('size'))
+    const uomIndex = headers.findIndex(h => h.includes('uom') || h.includes('unit'))
+    const priceIndex = headers.findIndex(h => h.includes('price'))
+    const qtyIndex = headers.findIndex(h => h.includes('qty') || h.includes('quantity'))
+
+    // Helper function to clean field values
+    const cleanField = (value: string | undefined): string => {
+      if (!value) return ''
+      return value.replace(/^["']|["']$/g, '').trim()
+    }
+
+    // Helper function to parse numbers safely
+    const parseNumber = (value: string | undefined, isInteger = false): number => {
+      if (!value) return 0
+      const cleaned = cleanField(value)
+      if (!cleaned) return 0
+      
+      const parsed = isInteger ? parseInt(cleaned, 10) : parseFloat(cleaned)
+      return isNaN(parsed) ? 0 : parsed
+    }
+
+    // Create a map of existing products
+    const productMap = new Map(products.map(p => [p.sku, p]))
+
+    // Process rows
+    const newProducts = rows.slice(1).reduce((acc: GilmoursProductMap, row) => {
+      if (row.length < headers.length) return acc // Skip invalid rows
+
+      const sku = cleanField(row[skuIndex])
+      if (!sku) return acc
+
+      const product: GilmoursProduct = {
+        sku,
+        brand: cleanField(row[brandIndex]),
+        description: cleanField(row[descIndex]),
+        packSize: cleanField(row[packIndex]),
+        uom: cleanField(row[uomIndex]),
+        price: parseNumber(row[priceIndex]),
+        quantity: parseNumber(row[qtyIndex], true),
+      }
+
+      acc.set(sku, product)
+      return acc
+    }, productMap)
+
+    const productsArray = Array.from(newProducts.values())
+    
+    // Save to database via API
+    try {
+      const response = await fetch('/api/gilmours', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productsArray),
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to save products')
+      }
+      
+      // Update local state with the response from the server
+      const savedProducts = await response.json()
+      setProducts(savedProducts)
+    } catch (error) {
+      console.error('Error saving products:', error)
+      // Still update local state even if API call fails
+      setProducts(productsArray)
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+      <div className="flex items-center gap-4">
+        <Input
+          type="file"
+          accept=".csv"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+        />
+        <Button
+          onClick={() => fileInputRef.current?.click()}
+        >
+          Upload CSV
+        </Button>
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>SKU</TableHead>
+              <TableHead>Brand</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Pack Size</TableHead>
+              <TableHead>UoM</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Quantity</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-4">
+                  Loading products...
+                </TableCell>
+              </TableRow>
+            ) : products.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-4">
+                  No products found. Upload a CSV file to get started.
+                </TableCell>
+              </TableRow>
+            ) : (
+              products.map((product) => (
+                <TableRow key={product.sku}>
+                  <TableCell>{product.sku}</TableCell>
+                  <TableCell>{product.brand}</TableCell>
+                  <TableCell>{product.description}</TableCell>
+                  <TableCell>{product.packSize}</TableCell>
+                  <TableCell>{product.uom}</TableCell>
+                  <TableCell>${product.price.toFixed(2)}</TableCell>
+                  <TableCell>{product.quantity}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  )
+} 
