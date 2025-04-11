@@ -6,15 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { IngredientSelector } from './IngredientSelector';
 import { Upload, ArrowUpDown } from 'lucide-react';
 
 // Define the product schema
 const productSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().min(1, 'Description is required'),
+  id: z.string().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
   addon: z.string().optional(),
   handle: z.string().optional(),
   meat1: z.string().optional(),
@@ -33,7 +34,7 @@ const productSchema = z.object({
     cost: z.number(),
     source: z.enum(['Gilmours', 'Bidfood', 'Other', 'Components', 'Products']),
     unit: z.string(),
-  })),
+  })).optional(),
   sellingPrice: z.number().nullable().optional(),
   allergenFree: z.boolean().optional(),
   glutenFree: z.boolean().optional(),
@@ -128,6 +129,7 @@ export function ProductsTab({ products: initialProducts, setProducts, isLoading,
       kosher: false,
       sellingPrice: 0,
     },
+    mode: 'onChange',
   });
 
   const fetchProducts = async () => {
@@ -142,20 +144,14 @@ export function ProductsTab({ products: initialProducts, setProducts, isLoading,
     }
   };
 
-  const onSubmit = async (values: ProductFormData) => {
+  const onSubmit = async (data: ProductFormData) => {
     try {
-      setIsSubmitting(true);
-      setError(null);
-
-      // Prepare the data to send
       const dataToSend = {
-        ...values,
-        // Include the id if we're editing an existing product
-        ...(editingProduct ? { id: editingProduct.id } : {}),
-        // Ensure optional fields are properly handled
-        timerA: values.timerA || undefined,
-        timerB: values.timerB || undefined,
-        sellingPrice: values.sellingPrice || undefined,
+        ...data,
+        ingredients: data.ingredients || [],
+        timerA: data.timerA || null,
+        timerB: data.timerB || null,
+        sellingPrice: data.sellingPrice || null,
       };
 
       const response = await fetch('/api/products', {
@@ -167,62 +163,57 @@ export function ProductsTab({ products: initialProducts, setProducts, isLoading,
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save product');
+        throw new Error('Failed to save product');
       }
 
       const savedProduct = await response.json();
       
       if (editingProduct) {
-        // Update existing product in the list
         setProducts(products.map(p => p.id === savedProduct.id ? savedProduct : p));
       } else {
-        // Add new product to the list
         setProducts([...products, savedProduct]);
       }
-      
+
       setIsDialogOpen(false);
       form.reset();
-    } catch (err) {
-      console.error('Error saving product:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred while saving the product');
-    } finally {
-      setIsSubmitting(false);
+      setEditingProduct(null);
+    } catch (error) {
+      console.error('Error saving product:', error);
+      setError(error instanceof Error ? error.message : 'An error occurred while saving the product');
     }
   };
 
+  useEffect(() => {
+    if (!isDialogOpen) {
+      form.reset();
+      setEditingProduct(null);
+    }
+  }, [isDialogOpen, form]);
+
   const handleAdd = () => {
+    form.reset({});
     setEditingProduct(null);
-    form.reset();
     setIsDialogOpen(true);
   };
 
   const handleEdit = (product: Product) => {
+    console.log('Editing product:', product);
+    
+    const productWithDefaults = {
+      ...product,
+      ingredients: product.ingredients?.map(i => ({
+        ...i,
+        unit: i.unit || 'g',
+        source: i.source || 'Other', // fallback if source isn't valid
+      })) || [],
+      timerA: product.timerA || null,
+      timerB: product.timerB || null,
+      sellingPrice: product.sellingPrice || null,
+    };
+    
+    console.log('Product with defaults:', productWithDefaults);
+    form.reset(productWithDefaults);
     setEditingProduct(product);
-    form.reset({
-      name: product.name,
-      description: product.description,
-      addon: product.addon || '',
-      handle: product.handle || '',
-      meat1: product.meat1 || '',
-      meat2: product.meat2 || '',
-      option1: product.option1 || '',
-      option2: product.option2 || '',
-      serveware: product.serveware || '',
-      timerA: product.timerA || undefined,
-      timerB: product.timerB || undefined,
-      skuSearch: product.skuSearch || '',
-      variantSku: product.variantSku || '',
-      ingredients: product.ingredients || [],
-      sellingPrice: product.sellingPrice || undefined,
-      allergenFree: product.allergenFree || false,
-      glutenFree: product.glutenFree || false,
-      dairyFree: product.dairyFree || false,
-      vegetarian: product.vegetarian || false,
-      vegan: product.vegan || false,
-      halal: product.halal || false,
-      kosher: product.kosher || false,
-    });
     setIsDialogOpen(true);
   };
 
@@ -251,7 +242,6 @@ export function ProductsTab({ products: initialProducts, setProducts, isLoading,
       const result = await response.json();
       setUploadResult(result);
       
-      // Refresh the products list
       await fetchProducts();
     } catch (err) {
       console.error('Error uploading products:', err);
@@ -400,9 +390,12 @@ export function ProductsTab({ products: initialProducts, setProducts, isLoading,
       </Table>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingProduct ? 'Edit Product' : 'Add Product'}</DialogTitle>
+            <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+            <DialogDescription>
+              {editingProduct ? 'Update the product details below.' : 'Fill in the product details below.'}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

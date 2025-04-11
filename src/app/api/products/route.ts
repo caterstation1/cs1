@@ -75,8 +75,9 @@ const ingredientSchema = z.object({
 
 // Define the product schema
 const productSchema = z.object({
-  name: z.string(),
-  description: z.string(),
+  id: z.string().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
   addon: z.string().optional(),
   handle: z.string().optional(),
   meat1: z.string().optional(),
@@ -84,12 +85,12 @@ const productSchema = z.object({
   option1: z.string().optional(),
   option2: z.string().optional(),
   serveware: z.string().optional(),
-  timerA: z.number().optional(),
-  timerB: z.number().optional(),
+  timerA: z.number().nullable().optional(),
+  timerB: z.number().nullable().optional(),
   skuSearch: z.string().optional(),
   variantSku: z.string().optional(),
-  ingredients: z.array(ingredientSchema),
-  sellingPrice: z.number().optional(),
+  ingredients: z.array(ingredientSchema).optional(),
+  sellingPrice: z.number().nullable().optional(),
 });
 
 // Define the CSV product schema
@@ -151,7 +152,7 @@ export async function POST(request: Request) {
     const validatedData = productSchema.parse(body);
     
     // Calculate total cost
-    const totalCost = calculateTotalCost(validatedData.ingredients);
+    const totalCost = calculateTotalCost(validatedData.ingredients || []);
     
     // Check if this is an update (has id) or a new product
     if (body.id) {
@@ -165,9 +166,6 @@ export async function POST(request: Request) {
             ? ((validatedData.sellingPrice - totalCost) / validatedData.sellingPrice) * 100
             : null,
         },
-      }).catch(error => {
-        console.error('Error updating product in database:', error);
-        throw new Error('Failed to update product in database');
       });
       
       return NextResponse.json(product);
@@ -181,24 +179,15 @@ export async function POST(request: Request) {
             ? ((validatedData.sellingPrice - totalCost) / validatedData.sellingPrice) * 100
             : null,
         },
-      }).catch(error => {
-        console.error('Error creating product in database:', error);
-        throw new Error('Failed to create product in database');
       });
       
       return NextResponse.json(product);
     }
   } catch (error) {
     console.error('Error creating/updating product:', error);
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid product data', details: error.errors },
-        { status: 400 }
-      );
-    }
     return NextResponse.json(
-      { error: 'Failed to create/update product', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
+      { error: error instanceof Error ? error.message : 'Invalid product data' },
+      { status: 400 }
     );
   }
 }

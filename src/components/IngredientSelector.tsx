@@ -123,7 +123,10 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
       id: item.id,
       name: item.name || item.description,
       quantity: 1,
-      cost: item.price || item.cost || item.lastPricePaid || 0,
+      cost: item.price ?? 
+            item.cost ?? 
+            item.lastPricePaid ?? 
+            (item.source === 'Components' ? item.totalCost : 0),
       unit: item.uom || 'unit',
     }
 

@@ -79,8 +79,8 @@ model Component {
 
 model Product {
   id             String   @id @default(uuid())
-  name           String   @unique
-  description    String
+  name           String?
+  description    String?
   addon          String?
   handle         String?
   meat1          String?
@@ -92,10 +92,27 @@ model Product {
   timerB         Int?
   skuSearch      String?
   variantSku     String?
-  ingredients    Json
+  ingredients    Json?
   totalCost      Float    @default(0)
   sellingPrice   Float?
   realizedMargin Float?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model Staff {
+  id               String    @id @default(uuid())
+  firstName        String
+  lastName         String
+  phone            String
+  email            String    @unique
+  payRate          Float
+  accessLevel      String // 'basic', 'admin', 'owner'
+  isDriver         Boolean   @default(false)
+  password         String? // Hashed password
+  resetToken       String?   @unique // For password reset
+  resetTokenExpiry DateTime? // When the reset token expires
+  lastLogin        DateTime? // Track last login time
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }

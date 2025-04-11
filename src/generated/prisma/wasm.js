@@ -206,12 +206,34 @@ exports.Prisma.ProductScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.StaffScalarFieldEnum = {
+  id: 'id',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  phone: 'phone',
+  email: 'email',
+  payRate: 'payRate',
+  accessLevel: 'accessLevel',
+  isDriver: 'isDriver',
+  password: 'password',
+  resetToken: 'resetToken',
+  resetTokenExpiry: 'resetTokenExpiry',
+  lastLogin: 'lastLogin',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -238,7 +260,8 @@ exports.Prisma.ModelName = {
   OtherProduct: 'OtherProduct',
   Supplier: 'Supplier',
   Component: 'Component',
-  Product: 'Product'
+  Product: 'Product',
+  Staff: 'Staff'
 };
 
 /**
