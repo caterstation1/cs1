@@ -1,14 +1,15 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { Toaster } from '@/components/ui/toaster'
 import { Nav } from '@/components/ui/nav'
+import { Toaster } from '@/components/ui/toaster'
+import { Providers } from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'CaterStation',
-  description: 'Catering Management System',
+  description: 'Catering management system',
 }
 
 export default function RootLayout({
@@ -19,11 +20,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Nav />
-        <main className="container mx-auto py-6">
-          {children}
-        </main>
-        <Toaster />
+        <Providers>
+          <Nav />
+          <main className="container mx-auto py-6">
+            {children}
+          </main>
+          <Toaster />
+        </Providers>
       </body>
     </html>
   )

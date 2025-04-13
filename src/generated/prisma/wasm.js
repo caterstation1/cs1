@@ -215,10 +215,68 @@ exports.Prisma.StaffScalarFieldEnum = {
   payRate: 'payRate',
   accessLevel: 'accessLevel',
   isDriver: 'isDriver',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastLogin: 'lastLogin',
   password: 'password',
   resetToken: 'resetToken',
-  resetTokenExpiry: 'resetTokenExpiry',
-  lastLogin: 'lastLogin',
+  resetTokenExpiry: 'resetTokenExpiry'
+};
+
+exports.Prisma.ShiftScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  clockIn: 'clockIn',
+  clockOut: 'clockOut',
+  totalHours: 'totalHours',
+  date: 'date',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ShopifyOrderScalarFieldEnum = {
+  id: 'id',
+  shopifyId: 'shopifyId',
+  orderNumber: 'orderNumber',
+  customerId: 'customerId',
+  email: 'email',
+  phone: 'phone',
+  deliveryDate: 'deliveryDate',
+  deliveryTime: 'deliveryTime',
+  deliveryAddress: 'deliveryAddress',
+  deliveryNotes: 'deliveryNotes',
+  status: 'status',
+  totalPrice: 'totalPrice',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastSyncedAt: 'lastSyncedAt',
+  isModified: 'isModified',
+  modifications: 'modifications'
+};
+
+exports.Prisma.ShopifyLineItemScalarFieldEnum = {
+  id: 'id',
+  shopifyId: 'shopifyId',
+  orderId: 'orderId',
+  productId: 'productId',
+  productTitle: 'productTitle',
+  variantId: 'variantId',
+  variantTitle: 'variantTitle',
+  quantity: 'quantity',
+  price: 'price',
+  modifications: 'modifications',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ShopifyCustomerScalarFieldEnum = {
+  id: 'id',
+  shopifyId: 'shopifyId',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  phone: 'phone',
+  defaultAddress: 'defaultAddress',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -261,7 +319,11 @@ exports.Prisma.ModelName = {
   Supplier: 'Supplier',
   Component: 'Component',
   Product: 'Product',
-  Staff: 'Staff'
+  Staff: 'Staff',
+  Shift: 'Shift',
+  ShopifyOrder: 'ShopifyOrder',
+  ShopifyLineItem: 'ShopifyLineItem',
+  ShopifyCustomer: 'ShopifyCustomer'
 };
 
 /**

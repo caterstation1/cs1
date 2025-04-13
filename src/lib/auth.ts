@@ -3,6 +3,8 @@ import { compare, hash } from 'bcrypt'
 import { sign, verify } from 'jsonwebtoken'
 import { randomBytes } from 'crypto'
 import nodemailer from 'nodemailer'
+import type { NextAuthOptions } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
 
 // Create a transporter using Gmail SMTP
 const transporter = nodemailer.createTransport({
@@ -15,6 +17,75 @@ const transporter = nodemailer.createTransport({
 
 // JWT secret - in production, use an environment variable
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+
+// NextAuth configuration
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        const staff = await prisma.staff.findUnique({
+          where: { email: credentials.email as string }
+        })
+
+        if (!staff || !staff.password) {
+          return null
+        }
+
+        const isValid = await comparePasswords(credentials.password as string, staff.password)
+
+        if (!isValid) {
+          return null
+        }
+
+        // Update last login
+        await prisma.staff.update({
+          where: { id: staff.id },
+          data: { lastLogin: new Date() }
+        })
+
+        return {
+          id: staff.id,
+          email: staff.email,
+          name: `${staff.firstName} ${staff.lastName}`,
+          accessLevel: staff.accessLevel
+        }
+      }
+    })
+  ],
+  secret: JWT_SECRET,
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  pages: {
+    signIn: '/login',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.accessLevel = (user as any).accessLevel
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string
+        session.user.accessLevel = token.accessLevel as string
+      }
+      return session
+    }
+  }
+}
 
 // Generate a random token for password reset
 export function generateResetToken(): string {
@@ -116,7 +187,7 @@ export async function sendLoginInvitation(staffId: string): Promise<{ success: b
       return { success: true }
     } catch (emailError) {
       console.error('Error sending email:', emailError)
-      // Even if email fails, we'll return success since the token is set
+      // Even if email fails, we'll still return success since the token is set
       // The reset link is logged for development
       return { success: true }
     }

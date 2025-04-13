@@ -9,6 +9,7 @@ export function Nav() {
 
   const links = [
     { href: '/staff', label: 'Staff' },
+    { href: '/roster', label: 'Roster' },
     { href: '/products', label: 'Products' },
     { href: '/components', label: 'Components' },
     { href: '/ingredients', label: 'Ingredients' },

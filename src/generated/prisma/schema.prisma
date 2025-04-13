@@ -107,12 +107,86 @@ model Staff {
   phone            String
   email            String    @unique
   payRate          Float
-  accessLevel      String // 'basic', 'admin', 'owner'
+  accessLevel      String
   isDriver         Boolean   @default(false)
-  password         String? // Hashed password
-  resetToken       String?   @unique // For password reset
-  resetTokenExpiry DateTime? // When the reset token expires
-  lastLogin        DateTime? // Track last login time
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  lastLogin        DateTime?
+  password         String?
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
+  shifts           Shift[]
+}
+
+model Shift {
+  id         String    @id @default(uuid())
+  staffId    String
+  clockIn    DateTime
+  clockOut   DateTime?
+  totalHours Float?
+  date       DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  staff      Staff     @relation(fields: [staffId], references: [id])
+
+  @@index([staffId])
+  @@index([date])
+}
+
+model ShopifyOrder {
+  id              String            @id @default(uuid())
+  shopifyId       String            @unique
+  orderNumber     String
+  customerId      String
+  customer        ShopifyCustomer   @relation(fields: [customerId], references: [id])
+  email           String
+  phone           String?
+  deliveryDate    DateTime
+  deliveryTime    String?
+  deliveryAddress String
+  deliveryNotes   String?
+  status          String
+  totalPrice      Float
+  lineItems       ShopifyLineItem[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  lastSyncedAt    DateTime          @default(now())
+  isModified      Boolean           @default(false)
+  modifications   Json?
+
+  @@index([deliveryDate])
+  @@index([shopifyId])
+}
+
+model ShopifyLineItem {
+  id            String       @id @default(uuid())
+  shopifyId     String       @unique
+  orderId       String
+  order         ShopifyOrder @relation(fields: [orderId], references: [id])
+  productId     String
+  productTitle  String
+  variantId     String?
+  variantTitle  String?
+  quantity      Int
+  price         Float
+  modifications Json?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([orderId])
+}
+
+model ShopifyCustomer {
+  id             String         @id @default(uuid())
+  shopifyId      String         @unique
+  email          String
+  firstName      String?
+  lastName       String?
+  phone          String?
+  defaultAddress String?
+  orders         ShopifyOrder[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([shopifyId])
 }
