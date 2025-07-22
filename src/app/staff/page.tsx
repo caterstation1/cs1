@@ -132,7 +132,7 @@ export default function StaffPage() {
               <TableCell>{member.email}</TableCell>
               <TableCell>{member.phone}</TableCell>
               <TableCell>{member.accessLevel}</TableCell>
-              <TableCell>${member.payRate.toFixed(2)}</TableCell>
+              <TableCell>${member.payRate ? member.payRate.toFixed(2) : '0.00'}</TableCell>
               <TableCell>{member.isDriver ? 'Yes' : 'No'}</TableCell>
               <TableCell>
                 <div className="flex gap-2">

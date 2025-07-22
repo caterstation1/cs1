@@ -1,21 +1,13 @@
-import { PrismaClient } from '@/generated/prisma'
+// Firestore-compatible stub to replace Prisma
+// This prevents build errors while we migrate to Firestore
 
-// PrismaClient is attached to the `global` object in development to prevent
-// exhausting your database connection limit.
-const globalForPrisma = global as unknown as { prisma: PrismaClient }
-
-// Initialize PrismaClient
-let prisma: PrismaClient
-
-if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient()
-} else {
-  if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = new PrismaClient({
-      log: ['query', 'error', 'warn'],
-    })
-  }
-  prisma = globalForPrisma.prisma
-}
-
-export { prisma } 
+export const prisma = {
+  // Stub methods that might be called during build
+  $connect: async () => {},
+  $disconnect: async () => {},
+  $queryRaw: async () => [],
+  $executeRaw: async () => 0,
+  
+  // Add any other methods that might be called
+  // These will be replaced by actual Firestore adapters
+} as any; 

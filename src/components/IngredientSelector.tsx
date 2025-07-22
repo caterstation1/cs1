@@ -79,20 +79,27 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
             try {
               const response = await fetch(endpoint)
               if (!response.ok) {
-                console.warn(`Failed to fetch ${source} items`)
+                console.warn(`Failed to fetch ${source} items:`, response.status, response.statusText)
                 return []
               }
 
               const data = await response.json()
-              return data
-                .filter((item: any) => 
-                  item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  item.description?.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((item: any) => ({
-                  ...item,
-                  source: source as Ingredient['source']
-                }))
+              
+              // Filter based on search term
+              const filteredData = data.filter((item: any) => {
+                const searchLower = searchTerm.toLowerCase()
+                const nameMatch = item.name?.toLowerCase().includes(searchLower)
+                const descriptionMatch = item.description?.toLowerCase().includes(searchLower)
+                const skuMatch = item.sku?.toLowerCase().includes(searchLower)
+                const productCodeMatch = item.productCode?.toLowerCase().includes(searchLower)
+                
+                return nameMatch || descriptionMatch || skuMatch || productCodeMatch
+              })
+              
+              return filteredData.map((item: any) => ({
+                ...item,
+                source: source as Ingredient['source']
+              }))
             } catch (err) {
               console.warn(`Error fetching ${source} items:`, err)
               return []
@@ -105,6 +112,8 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
         const uniqueResults = Array.from(
           new Map(allResults.map(item => [item.id, item])).values()
         )
+        
+        console.log(`Search results for "${searchTerm}":`, uniqueResults.length, 'items found')
         setSearchResults(uniqueResults)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to search ingredients')
@@ -118,17 +127,23 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
   }, [searchTerm])
 
   const addIngredient = (item: any) => {
+    console.log('Adding ingredient:', item)
+    
     const newIngredient: Ingredient = {
       source: item.source,
       id: item.id,
-      name: item.name || item.description,
+      name: item.name || item.description || 'Unknown Item',
       quantity: 1,
-      cost: item.price ?? 
-            item.cost ?? 
-            item.lastPricePaid ?? 
-            (item.source === 'Components' ? item.totalCost : 0),
+      cost: item.source === 'Products' 
+        ? (item.cost !== undefined ? item.cost : 0)  // Use cost field for products, default to 0 if not set
+        : (item.price ?? 
+           item.cost ?? 
+           item.lastPricePaid ?? 
+           (item.source === 'Components' ? item.totalCost : 0)),
       unit: item.uom || 'unit',
     }
+
+    console.log('Created ingredient:', newIngredient)
 
     const updatedIngredients = [...ingredients, newIngredient]
     setIngredients(updatedIngredients)
@@ -226,7 +241,10 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
                   </TableCell>
                   <TableCell>{result.source}</TableCell>
                   <TableCell>
-                    ${(result.price || result.cost || result.lastPricePaid || 0).toFixed(2)}
+                    ${(result.source === 'Products' 
+                      ? (result.cost !== undefined ? result.cost : 0)
+                      : (result.price || result.cost || result.lastPricePaid || 0)
+                    ).toFixed(2)}
                   </TableCell>
                   <TableCell>
                     <Button

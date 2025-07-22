@@ -3,25 +3,25 @@ import { sendLoginInvitation } from '@/lib/auth'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('Received invite request for staff ID:', params.id)
-    const result = await sendLoginInvitation(params.id)
-    
-    if (!result.success) {
-      console.error('Failed to send invitation:', result.error)
+    const { id } = await params
+    console.log('Received invite request for staff ID:', id)
+    const result = await sendLoginInvitation(id)
+
+    if (result.success) {
+      return NextResponse.json({ success: true, message: 'Invitation sent successfully' })
+    } else {
       return NextResponse.json(
         { error: result.error || 'Failed to send invitation' },
         { status: 500 }
       )
     }
-
-    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error in invite route:', error)
+    console.error('Error sending invitation:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to send invitation' },
       { status: 500 }
     )
   }

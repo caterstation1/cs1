@@ -122,7 +122,7 @@ export function EditShiftDialog({ shift, open, onOpenChange, onShiftUpdated }: E
         <DialogHeader>
           <DialogTitle>Edit Shift</DialogTitle>
           <DialogDescription>
-            Update the details of this shift. Click save when you're done.
+            Update the details of this shift. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

@@ -165,7 +165,17 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess }: EditSt
                 <FormItem>
                   <FormLabel>Pay Rate</FormLabel>
                   <FormControl>
-                    <Input {...field} type="number" step="0.01" min="0" />
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      min="0"
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                        field.onChange(value);
+                      }}
+                      value={field.value || ''}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,41 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
 
-export async function PUT(
+export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Get the current user's session
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    // Get the staff member
-    const staff = await prisma.staff.findUnique({
-      where: { email: session.user.email }
-    })
-
-    if (!staff) {
-      return NextResponse.json(
-        { error: 'Staff member not found' },
-        { status: 404 }
-      )
-    }
-
-    // Get the shift ID from the URL
-    const shiftId = params.id
-
-    // Get the shift
+    const { id } = await params
     const shift = await prisma.shift.findUnique({
-      where: { id: shiftId }
+      where: { id },
+      include: {
+        staff: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        }
+      }
     })
 
     if (!shift) {
@@ -45,50 +28,68 @@ export async function PUT(
       )
     }
 
-    // Verify the shift belongs to the current user
-    if (shift.staffId !== staff.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized to edit this shift' },
-        { status: 403 }
-      )
-    }
+    return NextResponse.json(shift)
+  } catch (error) {
+    console.error('Error fetching shift:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch shift' },
+      { status: 500 }
+    )
+  }
+}
 
-    // Get the request body
-    const body = await request.json()
-    const { clockIn, clockOut, date } = body
-
-    // Validate the data
-    if (!clockIn || !date) {
-      return NextResponse.json(
-        { error: 'Clock in time and date are required' },
-        { status: 400 }
-      )
-    }
-
-    // Calculate total hours if clock out is provided
-    let totalHours = null
-    if (clockOut) {
-      const clockOutDate = new Date(clockOut)
-      const clockInDate = new Date(clockIn)
-      totalHours = Math.round((clockOutDate.getTime() - clockInDate.getTime()) / (1000 * 60 * 60) * 100) / 100
-    }
-
-    // Update the shift
-    const updatedShift = await prisma.shift.update({
-      where: { id: shiftId },
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const data = await request.json()
+    
+    const shift = await prisma.shift.update({
+      where: { id },
       data: {
-        clockIn: new Date(clockIn),
-        clockOut: clockOut ? new Date(clockOut) : null,
-        date: new Date(date),
-        totalHours
+        clockIn: data.clockIn ? new Date(data.clockIn) : undefined,
+        clockOut: data.clockOut ? new Date(data.clockOut) : undefined,
+        totalHours: data.totalHours
+      },
+      include: {
+        staff: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        }
       }
     })
 
-    return NextResponse.json(updatedShift)
+    return NextResponse.json(shift)
   } catch (error) {
     console.error('Error updating shift:', error)
     return NextResponse.json(
       { error: 'Failed to update shift' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    await prisma.shift.delete({
+      where: { id }
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting shift:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete shift' },
       { status: 500 }
     )
   }

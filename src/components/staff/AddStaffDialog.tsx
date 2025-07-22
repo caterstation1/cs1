@@ -37,7 +37,7 @@ const formSchema = z.object({
   email: z.string().email('Invalid email address'),
   payRate: z.number().min(0, 'Pay rate must be positive'),
   accessLevel: z.enum(['basic', 'admin', 'owner']),
-  isDriver: z.boolean().default(false),
+  isDriver: z.boolean(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -157,16 +157,20 @@ export function AddStaffDialog({ open, onOpenChange, onSuccess }: AddStaffDialog
             <FormField
               control={form.control}
               name="payRate"
-              render={({ field: { onChange, ...field } }) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Pay Rate</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="number"
-                      step="0.01"
+                    <Input 
+                      type="number" 
+                      step="0.01" 
                       min="0"
-                      onChange={(e) => onChange(parseFloat(e.target.value))}
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                        field.onChange(value);
+                      }}
+                      value={field.value || ''}
                     />
                   </FormControl>
                   <FormMessage />

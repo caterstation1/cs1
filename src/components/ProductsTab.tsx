@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,487 +8,534 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { ArrowUpDown, Edit, ExternalLink, Settings, RefreshCw, Loader2 } from 'lucide-react';
 import { IngredientSelector } from './IngredientSelector';
-import { Upload, ArrowUpDown } from 'lucide-react';
+import { SetRuleModal } from './SetRuleModal';
+import { ManageRulesModal } from './ManageRulesModal';
+import { debounce } from 'lodash';
 
-// Define the product schema
-const productSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().optional(),
-  description: z.string().optional(),
-  addon: z.string().optional(),
-  handle: z.string().optional(),
+// Shopify product type
+interface ShopifyProduct {
+  product_id: string;
+  product_title: string;
+  handle: string;
+  variant_id: string;
+  variant_title: string;
+  sku: string | null;
+  price: number;
+  inventoryQuantity: number;
+  shopify_title: string;
+  shopify_variant_title: string;
+  shopify_sku: string | null;
+  shopify_price: number;
+  shopify_inventory: number;
+  meat1: string | null;
+  meat2: string | null;
+  option1: string | null;
+  option2: string | null;
+  serveware: string | null;
+  timerA: number | null;
+  timerB: number | null;
+  ingredients: any | null;
+  totalCost: number;
+  hasCustomData: boolean;
+  customDataId: string | null;
+  displayName: string | null;
+}
+
+// Form data schema
+const customDataSchema = z.object({
+  displayName: z.string().optional(),
   meat1: z.string().optional(),
   meat2: z.string().optional(),
+  timer1: z.number().nullable().optional(),
+  timer2: z.number().nullable().optional(),
   option1: z.string().optional(),
   option2: z.string().optional(),
-  serveware: z.string().optional(),
-  timerA: z.number().nullable().optional(),
-  timerB: z.number().nullable().optional(),
-  skuSearch: z.string().optional(),
-  variantSku: z.string().optional(),
-  ingredients: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    quantity: z.number(),
-    cost: z.number(),
-    source: z.enum(['Gilmours', 'Bidfood', 'Other', 'Components', 'Products']),
-    unit: z.string(),
-  })).optional(),
-  sellingPrice: z.number().nullable().optional(),
-  allergenFree: z.boolean().optional(),
-  glutenFree: z.boolean().optional(),
-  dairyFree: z.boolean().optional(),
-  vegetarian: z.boolean().optional(),
-  vegan: z.boolean().optional(),
-  halal: z.boolean().optional(),
-  kosher: z.boolean().optional(),
+  serveware: z.boolean().optional(),
+  ingredients: z.any().optional(),
+  totalCost: z.number().optional(),
 });
 
-type ProductFormData = z.infer<typeof productSchema>;
+type CustomDataFormData = z.infer<typeof customDataSchema>;
 
-export type Product = ProductFormData & {
-  id: string;
-  totalCost: number;
-  realizedMargin?: number;
-};
-
-interface ProductsTabProps {
-  products: Product[];
-  setProducts: (products: Product[]) => void;
-  isLoading: boolean;
-  error: string | null;
-}
-
-interface IngredientSelectorProps {
-  ingredients: ProductFormData['ingredients'];
-  onIngredientsChange: (ingredients: ProductFormData['ingredients']) => void;
-}
-
-export function ProductsTab({ products: initialProducts, setProducts, isLoading, error: externalError }: ProductsTabProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(externalError);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadResult, setUploadResult] = useState<{ imported: number; failed: number } | null>(null);
-  const [sortColumn, setSortColumn] = useState<keyof Product | null>(null);
+export function ProductsTab() {
+  const [products, setProducts] = useState<ShopifyProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isApplyingRules, setIsApplyingRules] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState<keyof ShopifyProduct>('shopify_title');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [products, setLocalProducts] = useState<Product[]>(initialProducts);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<ShopifyProduct | null>(null);
+  const [isSetRuleModalOpen, setIsSetRuleModalOpen] = useState(false);
+  const [isManageRulesModalOpen, setIsManageRulesModalOpen] = useState(false);
 
-  useEffect(() => {
-    setLocalProducts(initialProducts);
-  }, [initialProducts]);
-
-  const handleSort = (column: keyof Product) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  };
-
-  const sortedProducts = [...products].sort((a, b) => {
-    if (!sortColumn) return 0;
-
-    const aValue = a[sortColumn];
-    const bValue = b[sortColumn];
-
-    if (aValue === null || aValue === undefined) return sortDirection === 'asc' ? 1 : -1;
-    if (bValue === null || bValue === undefined) return sortDirection === 'asc' ? -1 : 1;
-
-    if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortDirection === 'asc' 
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
+  // Memoize the filtered and sorted products to prevent unnecessary re-renders
+  const filteredAndSortedProducts = useMemo(() => {
+    // Ensure products is always an array
+    const productsArray = Array.isArray(products) ? products : [];
+    let filtered = productsArray;
+    
+    if (searchTerm) {
+      filtered = productsArray.filter(product => 
+        product.shopify_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.shopify_variant_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.displayName && product.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
     }
 
-    if (typeof aValue === 'number' && typeof bValue === 'number') {
-      return sortDirection === 'asc' 
-        ? aValue - bValue
-        : bValue - aValue;
-    }
-
+    return filtered.sort((a, b) => {
+      const aValue = a[sortField as keyof ShopifyProduct];
+      const bValue = b[sortField as keyof ShopifyProduct];
+      
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
     return 0;
   });
+  }, [products, searchTerm, sortField, sortDirection]);
 
-  const form = useForm<ProductFormData>({
-    resolver: zodResolver(productSchema),
+  // Debounced search handler
+  const debouncedSetSearchTerm = useCallback(
+    debounce((value: string) => {
+      setSearchTerm(value);
+    }, 300),
+    []
+  );
+
+  const form = useForm<CustomDataFormData>({
+    resolver: zodResolver(customDataSchema),
     defaultValues: {
-      name: '',
-      description: '',
+      displayName: '',
+      meat1: '',
+      meat2: '',
+      timer1: null,
+      timer2: null,
+      option1: '',
+      option2: '',
+      serveware: false,
       ingredients: [],
-      addon: '',
-      allergenFree: false,
-      glutenFree: false,
-      dairyFree: false,
-      vegetarian: false,
-      vegan: false,
-      halal: false,
-      kosher: false,
-      sellingPrice: 0,
+      totalCost: 0,
     },
-    mode: 'onChange',
   });
 
-  const fetchProducts = async () => {
+  // Fetch products function
+  const fetchProducts = useCallback(async () => {
     try {
-      const response = await fetch('/api/products');
-      if (!response.ok) throw new Error('Failed to fetch products');
+      const response = await fetch('/api/shopify/products');
+      if (response.ok) {
       const data = await response.json();
-      setProducts(data);
+        
+        // Extract variants array from the response object
+        const productsArray = data.variants || (Array.isArray(data) ? data : []);
+        
+        // Ensure we always set an array
+        setProducts(Array.isArray(productsArray) ? productsArray : []);
+      } else {
+        console.error('Failed to fetch products:', response.status, response.statusText);
+        setProducts([]);
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
-      setError('Failed to load products');
+      setProducts([]);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  const onSubmit = async (data: ProductFormData) => {
+  // Sync products function
+  const syncProducts = useCallback(async () => {
+    setIsSyncing(true);
     try {
-      const dataToSend = {
-        ...data,
-        ingredients: data.ingredients || [],
-        timerA: data.timerA || null,
-        timerB: data.timerB || null,
-        sellingPrice: data.sellingPrice || null,
-      };
-
-      const response = await fetch('/api/products', {
+      const response = await fetch('/api/shopify/products', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Products synced successfully:', result);
+        await fetchProducts(); // Refresh the products list
+      } else {
+        console.error('❌ Failed to sync products');
+      }
+    } catch (error) {
+      console.error('❌ Error syncing products:', error);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [fetchProducts]);
+
+  const applyRules = useCallback(async () => {
+    setIsApplyingRules(true);
+    try {
+      console.log('🚀 Manually applying rules to all products...');
+      const response = await fetch('/api/product-rules/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'apply-all' })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Rules applied successfully:', result);
+        await fetchProducts(); // Refresh the products list
+        alert(`Rules applied successfully! ${result.result.updated} products updated, ${result.result.errors} errors.`);
+      } else {
+        console.error('❌ Failed to apply rules');
+        alert('Failed to apply rules. Check console for details.');
+      }
+    } catch (error) {
+      console.error('❌ Error applying rules:', error);
+      alert('Error applying rules. Check console for details.');
+    } finally {
+      setIsApplyingRules(false);
+    }
+  }, [fetchProducts]);
+
+  // Fetch products on component mount
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const handleSort = useCallback((key: string) => {
+    setSortField(key as keyof ShopifyProduct);
+    setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+  }, []);
+
+  const handleEdit = useCallback((product: ShopifyProduct) => {
+    setEditingProduct(product);
+    
+    // Pre-fill form with existing data
+    const formData = {
+      displayName: product.displayName || '',
+      meat1: product.meat1 || '',
+      meat2: product.meat2 || '',
+      timer1: product.timerA || null,
+      timer2: product.timerB || null,
+      option1: product.option1 || '',
+      option2: product.option2 || '',
+      serveware: product.serveware === 'Yes' || product.serveware === 'true' || (typeof product.serveware === 'boolean' && product.serveware),
+      ingredients: product.ingredients || [],
+      totalCost: product.totalCost || 0,
+    };
+
+    form.reset(formData);
+    setIsDialogOpen(true);
+  }, [form]);
+
+  const handleSaveProduct = useCallback(async (data: CustomDataFormData) => {
+    if (!editingProduct) return;
+
+    try {
+      const response = await fetch('/api/shopify/products/custom-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          variantId: editingProduct.variant_id,
+          ...data
+        })
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to save product');
-      }
-
-      const savedProduct = await response.json();
-      
-      if (editingProduct) {
-        setProducts(products.map(p => p.id === savedProduct.id ? savedProduct : p));
+      if (response.ok) {
+        console.log('✅ Product saved successfully, refreshing data...');
+        
+        // Refresh the products data from the server to ensure we have the latest data
+        await fetchProducts();
+        
+        setIsDialogOpen(false);
+        setEditingProduct(null);
       } else {
-        setProducts([...products, savedProduct]);
+        const errorData = await response.json();
+        console.error('Failed to save product:', errorData);
+        alert(`Failed to save product: ${errorData.error || 'Unknown error'}`);
       }
-
-      setIsDialogOpen(false);
-      form.reset();
-      setEditingProduct(null);
     } catch (error) {
       console.error('Error saving product:', error);
-      setError(error instanceof Error ? error.message : 'An error occurred while saving the product');
+      alert('Error saving product. Please try again.');
     }
-  };
+  }, [editingProduct, fetchProducts]);
 
-  useEffect(() => {
-    if (!isDialogOpen) {
-      form.reset();
-      setEditingProduct(null);
-    }
-  }, [isDialogOpen, form]);
-
-  const handleAdd = () => {
-    form.reset({});
-    setEditingProduct(null);
-    setIsDialogOpen(true);
-  };
-
-  const handleEdit = (product: Product) => {
-    console.log('Editing product:', product);
-    
-    const productWithDefaults = {
-      ...product,
-      ingredients: product.ingredients?.map(i => ({
-        ...i,
-        unit: i.unit || 'g',
-        source: i.source || 'Other', // fallback if source isn't valid
-      })) || [],
-      timerA: product.timerA || null,
-      timerB: product.timerB || null,
-      sellingPrice: product.sellingPrice || null,
-    };
-    
-    console.log('Product with defaults:', productWithDefaults);
-    form.reset(productWithDefaults);
-    setEditingProduct(product);
-    setIsDialogOpen(true);
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setIsUploading(true);
-      setError(null);
-      setUploadResult(null);
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/products', {
-        method: 'PUT',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to upload products');
-      }
-
-      const result = await response.json();
-      setUploadResult(result);
-      
-      await fetchProducts();
-    } catch (err) {
-      console.error('Error uploading products:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred during upload');
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  if (isLoading) {
+    return <div className="flex items-center justify-center p-8">Loading products...</div>;
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Products</h2>
         <div className="flex gap-2">
-          <div className="relative">
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleFileUpload}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              disabled={isUploading}
-            />
-            <Button variant="outline" disabled={isUploading}>
-              <Upload className="mr-2 h-4 w-4" />
-              {isUploading ? 'Uploading...' : 'Upload CSV'}
+          <Input
+            placeholder="Search products..."
+            onChange={(e) => debouncedSetSearchTerm(e.target.value)}
+            className="w-64"
+          />
+          <Button 
+            onClick={syncProducts}
+            disabled={isSyncing}
+            variant="outline"
+            className="flex items-center gap-1"
+          >
+            {isSyncing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            {isSyncing ? 'Syncing...' : 'Sync Products'}
+          </Button>
+          <Button 
+            onClick={applyRules}
+            disabled={isApplyingRules}
+            variant="outline"
+            className="flex items-center gap-1"
+          >
+            {isApplyingRules ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Settings className="h-4 w-4" />
+            )}
+            {isApplyingRules ? 'Applying Rules...' : 'Apply Rules'}
+          </Button>
+          <Button 
+            onClick={() => setIsSetRuleModalOpen(true)}
+            className="flex items-center gap-1"
+          >
+            <Settings className="h-4 w-4" />
+            Set Rule
+          </Button>
+          <Button 
+            onClick={() => setIsManageRulesModalOpen(true)}
+            variant="outline"
+            className="flex items-center gap-1"
+          >
+            <Settings className="h-4 w-4" />
+            Manage Rules
             </Button>
-          </div>
-          <Button onClick={handleAdd}>Add Product</Button>
         </div>
       </div>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
-
-      {uploadResult && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-          Successfully imported {uploadResult.imported} products.
-          {uploadResult.failed > 0 && ` Failed to import ${uploadResult.failed} products.`}
-        </div>
-      )}
-
+      <div className="border rounded-lg">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead 
-              className="cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('name')}
-            >
-              <div className="flex items-center gap-1">
-                Name
-                {sortColumn === 'name' && (
-                  <ArrowUpDown className={`h-4 w-4 ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                )}
-              </div>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('shopify_title')}
+                  className="flex items-center gap-1"
+                >
+                  Product Name
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
             </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('description')}
-            >
-              <div className="flex items-center gap-1">
-                Description
-                {sortColumn === 'description' && (
-                  <ArrowUpDown className={`h-4 w-4 ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                )}
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('addon')}
-            >
-              <div className="flex items-center gap-1">
-                Addon
-                {sortColumn === 'addon' && (
-                  <ArrowUpDown className={`h-4 w-4 ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                )}
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('variantSku')}
-            >
-              <div className="flex items-center gap-1">
-                Variant SKU
-                {sortColumn === 'variantSku' && (
-                  <ArrowUpDown className={`h-4 w-4 ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                )}
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('totalCost')}
-            >
-              <div className="flex items-center gap-1">
-                Total Cost
-                {sortColumn === 'totalCost' && (
-                  <ArrowUpDown className={`h-4 w-4 ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                )}
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('sellingPrice')}
-            >
-              <div className="flex items-center gap-1">
-                Selling Price
-                {sortColumn === 'sellingPrice' && (
-                  <ArrowUpDown className={`h-4 w-4 ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                )}
-              </div>
-            </TableHead>
-            <TableHead 
-              className="cursor-pointer hover:bg-gray-100"
-              onClick={() => handleSort('realizedMargin')}
-            >
-              <div className="flex items-center gap-1">
-                Realized Margin
-                {sortColumn === 'realizedMargin' && (
-                  <ArrowUpDown className={`h-4 w-4 ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                )}
-              </div>
-            </TableHead>
+              <TableHead>Variant</TableHead>
+              <TableHead>SKU</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Inventory</TableHead>
+              <TableHead>Custom Data</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedProducts.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell>{product.name}</TableCell>
-              <TableCell>{product.description}</TableCell>
-              <TableCell>{product.addon || '-'}</TableCell>
-              <TableCell>{product.variantSku || '-'}</TableCell>
-              <TableCell>${product.totalCost?.toFixed(2) || '0.00'}</TableCell>
-              <TableCell>${product.sellingPrice?.toFixed(2) || '-'}</TableCell>
-              <TableCell>{product.realizedMargin ? `${product.realizedMargin.toFixed(1)}%` : '-'}</TableCell>
+            {filteredAndSortedProducts.map((product) => (
+              <TableRow key={product.variant_id} className="cursor-pointer" onClick={() => handleEdit(product)}>
+                <TableCell>
+                  <div>
+                    <div className="font-medium">{product.shopify_title}</div>
+                    {product.displayName && (
+                      <div className="text-sm text-gray-500">{product.displayName}</div>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>{product.shopify_variant_title}</TableCell>
+                <TableCell>{product.shopify_sku}</TableCell>
+                <TableCell>${product.shopify_price}</TableCell>
+                <TableCell>{product.shopify_inventory}</TableCell>
+                <TableCell>
+                  {product.hasCustomData && (
+                    <Badge variant="secondary">Has Custom Data</Badge>
+                  )}
+                </TableCell>
               <TableCell>
-                <Button variant="outline" onClick={() => handleEdit(product)}>
-                  Edit
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(product);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
                 </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      </div>
 
+      {/* Edit Modal */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+            <DialogTitle>Edit Product</DialogTitle>
             <DialogDescription>
-              {editingProduct ? 'Update the product details below.' : 'Fill in the product details below.'}
+              {editingProduct && (
+                <div className="space-y-2">
+                  <div><strong>Shopify Product:</strong> {editingProduct.shopify_title}</div>
+                  <div><strong>Variant:</strong> {editingProduct.shopify_variant_title}</div>
+                  <div><strong>SKU:</strong> {editingProduct.shopify_sku}</div>
+                  <div><strong>Price:</strong> ${editingProduct.shopify_price}</div>
+                  {editingProduct.option1 && <div><strong>Option 1:</strong> {editingProduct.option1}</div>}
+                  {editingProduct.option2 && <div><strong>Option 2:</strong> {editingProduct.option2}</div>}
+                </div>
+              )}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
+          <form onSubmit={form.handleSubmit(handleSaveProduct)} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" {...form.register('name')} />
+                <Label htmlFor="displayName">Display Name</Label>
+                <Input
+                  id="displayName"
+                  {...form.register('displayName')}
+                  placeholder="Custom display name"
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" {...form.register('description')} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="addon">Addon</Label>
-                <Input id="addon" {...form.register('addon')} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="handle">Handle</Label>
-                <Input id="handle" {...form.register('handle')} />
-              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="meat1">Meat 1</Label>
-                <Input id="meat1" {...form.register('meat1')} />
+                <Input
+                  id="meat1"
+                  {...form.register('meat1')}
+                  placeholder="e.g., Chicken, Beef"
+                />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="meat2">Meat 2</Label>
-                <Input id="meat2" {...form.register('meat2')} />
+                <Input
+                  id="meat2"
+                  {...form.register('meat2')}
+                  placeholder="e.g., Pork, Lamb"
+                />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timer1">Timer 1 (minutes)</Label>
+                <Input 
+                  id="timer1"
+                  type="number" 
+                  {...form.register('timer1', { valueAsNumber: true })}
+                  placeholder="e.g., 30"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timer2">Timer 2 (minutes)</Label>
+                <Input 
+                  id="timer2"
+                  type="number" 
+                  {...form.register('timer2', { valueAsNumber: true })}
+                  placeholder="e.g., 45"
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="option1">Option 1</Label>
-                <Input id="option1" {...form.register('option1')} />
+                <Input
+                  id="option1"
+                  {...form.register('option1')}
+                  placeholder="e.g., Gluten Free"
+                />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="option2">Option 2</Label>
-                <Input id="option2" {...form.register('option2')} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="serveware">Serveware</Label>
-                <Input id="serveware" {...form.register('serveware')} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="timerA">Timer A (minutes)</Label>
-                <Input 
-                  id="timerA" 
-                  type="number" 
-                  {...form.register('timerA', { valueAsNumber: true })} 
+                <Input
+                  id="option2"
+                  {...form.register('option2')}
+                  placeholder="e.g., Dairy Free"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="timerB">Timer B (minutes)</Label>
+                <Label htmlFor="totalCost">Total Cost</Label>
                 <Input 
-                  id="timerB" 
-                  type="number" 
-                  {...form.register('timerB', { valueAsNumber: true })} 
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="skuSearch">SKU Search</Label>
-                <Input id="skuSearch" {...form.register('skuSearch')} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="variantSku">Variant SKU</Label>
-                <Input id="variantSku" {...form.register('variantSku')} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="sellingPrice">Selling Price</Label>
-                <Input 
-                  id="sellingPrice" 
+                  id="totalCost"
                   type="number" 
                   step="0.01"
-                  {...form.register('sellingPrice', { valueAsNumber: true })} 
+                  {...form.register('totalCost', { valueAsNumber: true })}
+                  placeholder="0.00"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="serveware">Serveware</Label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="serveware"
+                    type="checkbox"
+                    {...form.register('serveware')}
+                    className="rounded"
+                  />
+                  <span>Include serveware</span>
+                </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Ingredients</Label>
+              <Label>Ingredients & Components</Label>
               <IngredientSelector
-                initialIngredients={form.watch('ingredients')}
-                onIngredientsChange={(newIngredients) => form.setValue('ingredients', newIngredients)}
+                onIngredientsChange={(ingredients) => {
+                  form.setValue('ingredients', ingredients);
+                  // Calculate total cost from ingredients
+                  const totalCost = ingredients.reduce((sum, ingredient) => {
+                    return sum + (ingredient.cost * ingredient.quantity);
+                  }, 0);
+                  form.setValue('totalCost', totalCost);
+                }}
+                initialIngredients={form.watch('ingredients') || []}
               />
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+              >
                 Cancel
               </Button>
-              <Button type="submit">
-                {editingProduct ? 'Update' : 'Create'} Product
-              </Button>
+              <Button type="submit">Save Changes</Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Set Rule Modal */}
+      <SetRuleModal 
+        isOpen={isSetRuleModalOpen}
+        onClose={() => setIsSetRuleModalOpen(false)}
+        onRuleApplied={(result) => {
+          console.log('Rule applied:', result);
+          // Refresh products to show updated data
+          fetchProducts();
+        }}
+      />
+
+      {/* Manage Rules Modal */}
+      <ManageRulesModal 
+        isOpen={isManageRulesModalOpen}
+        onClose={() => setIsManageRulesModalOpen(false)}
+        onRulesUpdated={() => {
+          // Refresh products to show updated data
+          fetchProducts();
+        }}
+      />
     </div>
   );
 } 

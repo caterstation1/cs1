@@ -4,13 +4,30 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     const staff = await prisma.staff.findMany({
-      orderBy: {
-        firstName: 'asc',
+      where: {
+        isActive: true
       },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        email: true,
+        isDriver: true,
+        isActive: true
+      },
+      orderBy: {
+        firstName: 'asc'
+      }
     })
-    return NextResponse.json(staff)
+
+    return NextResponse.json(staff, {
+      headers: {
+        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300'
+      }
+    })
   } catch (error) {
-    console.error('Failed to fetch staff:', error)
+    console.error('Error fetching staff:', error)
     return NextResponse.json(
       { error: 'Failed to fetch staff' },
       { status: 500 }

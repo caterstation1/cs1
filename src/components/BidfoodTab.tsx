@@ -311,6 +311,7 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
               <TableHead>UOM</TableHead>
               <TableHead>Qty</TableHead>
               <TableHead>Last Price Paid</TableHead>
+              <TableHead>Qualified Price</TableHead>
               <TableHead>Total Ex GST</TableHead>
               <TableHead>Contains</TableHead>
             </TableRow>
@@ -339,6 +340,12 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
                   <TableCell>{product.uom}</TableCell>
                   <TableCell>{product.qty}</TableCell>
                   <TableCell>${product.lastPricePaid.toFixed(2)}</TableCell>
+                  <TableCell>
+                    ${(product.uom.toLowerCase() === 'carton' 
+                      ? (product.lastPricePaid / Number(product.ctnQty || 1))
+                      : product.lastPricePaid
+                    ).toFixed(2)}
+                  </TableCell>
                   <TableCell>${product.totalExGST.toFixed(2)}</TableCell>
                   <TableCell>{simplifyAllergens(product.contains)}</TableCell>
                 </TableRow>

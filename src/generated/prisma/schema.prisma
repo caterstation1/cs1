@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -92,101 +92,282 @@ model Product {
   timerB         Int?
   skuSearch      String?
   variantSku     String?
+  variant_title  String?
   ingredients    Json?
   totalCost      Float    @default(0)
   sellingPrice   Float?
   realizedMargin Float?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  // @deprecated - Use ProductCustomData instead
+}
+
+model ProductCustomData {
+  id          String   @id @default(uuid())
+  variantId   String   @unique // Shopify variant_id (e.g., 43025217388799)
+  meat1       String?
+  meat2       String?
+  option1     String?
+  option2     String?
+  serveware   String?
+  timerA      Int?
+  timerB      Int?
+  ingredients Json? // Your costing/components breakdown
+  totalCost   Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([variantId])
+}
+
+model ProductWithCustomData {
+  id        String   @id @default(cuid())
+  variantId String   @unique // Shopify variant_id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Shopify data (read-only, synced from Shopify)
+  shopifyProductId String
+  shopifySku       String?
+  shopifyName      String
+  shopifyTitle     String
+  shopifyPrice     Decimal
+  shopifyInventory Int
+
+  // Custom operational data (editable)
+  displayName String?
+  meat1       String?
+  meat2       String?
+  timer1      Int?
+  timer2      Int?
+  option1     String?
+  option2     String?
+  serveware   Boolean @default(false)
+  isDraft     Boolean @default(false)
+  ingredients Json? // Components/ingredients breakdown
+  totalCost   Float   @default(0)
+
+  // Components relationship (we'll implement this later)
+  // components ProductComponent[]
+
+  @@map("product_with_custom_data")
+}
+
+model ProductRule {
+  id          String  @id @default(cuid())
+  name        String // Human-readable rule name
+  description String? // Optional description
+  isActive    Boolean @default(true)
+  priority    Int     @default(0) // Higher priority rules run first
+
+  // Rule conditions (what to match in variant title)
+  matchPattern String // Text pattern to match (case-insensitive)
+  matchType    String @default("contains") // contains, startsWith, endsWith, exact, regex
+
+  // Rule actions (what to set when matched)
+  setDisplayName String?
+  setMeat1       String?
+  setMeat2       String?
+  setTimer1      Int?
+  setTimer2      Int?
+  setOption1     String?
+  setOption2     String?
+  setServeware   Boolean?
+
+  // Ingredient rules (new fields)
+  setIngredients Json? // Array of ingredients to add
+  setTotalCost   Float? // Total cost to set
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product_rules")
 }
 
 model Staff {
-  id               String    @id @default(uuid())
-  firstName        String
-  lastName         String
-  phone            String
-  email            String    @unique
-  payRate          Float
-  accessLevel      String
-  isDriver         Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  lastLogin        DateTime?
-  password         String?
-  resetToken       String?   @unique
-  resetTokenExpiry DateTime?
-  shifts           Shift[]
+  id                String             @id @default(uuid())
+  firstName         String
+  lastName          String
+  phone             String
+  email             String             @unique
+  payRate           Float
+  accessLevel       String // staff, manager, admin, owner
+  isDriver          Boolean            @default(false)
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  lastLogin         DateTime?
+  password          String?
+  resetToken        String?            @unique
+  resetTokenExpiry  DateTime?
+  shifts            Shift[]
+  rosterAssignments RosterAssignment[]
 }
 
+// New: Shift Types for roster management
+model ShiftType {
+  id                String             @id @default(uuid())
+  name              String // e.g.,Morning", Afternoon", "Full Day", Delivery"
+  startTime         String // Format: HH:MM" (e.g., 7007  endTime   String   // Format: HH:MM" (e.g., 15, "15  color     String   @default("#3B82) // Hex color for UI
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  rosterAssignments RosterAssignment[]
+}
+
+// New: Roster Assignments
+model RosterAssignment {
+  id          String     @id @default(uuid())
+  staffId     String
+  shiftTypeId String? // Made optional
+  startTime   String? // Custom start time (HH:MM format)
+  endTime     String? // Custom end time (HH:MM format)
+  date        DateTime // Date of the shift
+  notes       String? // Optional notes for the shift
+  assignedBy  String // Staff ID who made the assignment
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  staff       Staff      @relation(fields: [staffId], references: [id])
+  shiftType   ShiftType? @relation(fields: [shiftTypeId], references: [id]) // Made optional
+
+  @@index([staffId])
+  @@index([date])
+  @@index([shiftTypeId])
+}
+
+// Enhanced: Shift model (existing but with new fields)
 model Shift {
-  id         String    @id @default(uuid())
-  staffId    String
-  clockIn    DateTime
-  clockOut   DateTime?
-  totalHours Float?
-  date       DateTime
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  staff      Staff     @relation(fields: [staffId], references: [id])
+  id             String          @id @default(uuid())
+  staffId        String
+  clockIn        DateTime
+  clockOut       DateTime?
+  totalHours     Float?
+  date           DateTime
+  mileage        Float? // Kilometers driven
+  notes          String? // Staff notes about the shift
+  status         String          @default("active") // active, completed, edited
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  staff          Staff           @relation(fields: [staffId], references: [id])
+  reimbursements Reimbursement[]
 
   @@index([staffId])
   @@index([date])
 }
 
-model ShopifyOrder {
-  id              String            @id @default(uuid())
-  shopifyId       String            @unique
-  orderNumber     String
-  customerId      String
-  customer        ShopifyCustomer   @relation(fields: [customerId], references: [id])
-  email           String
-  phone           String?
-  deliveryDate    DateTime
-  deliveryTime    String?
-  deliveryAddress String
-  deliveryNotes   String?
-  status          String
-  totalPrice      Float
-  lineItems       ShopifyLineItem[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  lastSyncedAt    DateTime          @default(now())
-  isModified      Boolean           @default(false)
-  modifications   Json?
+// New: Reimbursements
+model Reimbursement {
+  id          String   @id @default(uuid())
+  shiftId     String
+  amount      Float
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  shift       Shift    @relation(fields: [shiftId], references: [id])
 
-  @@index([deliveryDate])
-  @@index([shopifyId])
+  @@index([shiftId])
 }
 
-model ShopifyLineItem {
-  id            String       @id @default(uuid())
-  shopifyId     String       @unique
-  orderId       String
-  order         ShopifyOrder @relation(fields: [orderId], references: [id])
-  productId     String
-  productTitle  String
-  variantId     String?
-  variantTitle  String?
-  quantity      Int
-  price         Float
-  modifications Json?
+model Order {
+  id                   String    @id @default(uuid())
+  shopifyId            String    @unique
+  orderNumber          Int
+  createdAt            DateTime
+  updatedAt            DateTime
+  processedAt          DateTime?
+  cancelledAt          DateTime?
+  closedAt             DateTime?
+  totalPrice           Float
+  subtotalPrice        Float
+  totalTax             Float
+  currency             String
+  financialStatus      String
+  fulfillmentStatus    String?
+  tags                 String?
+  note                 String?
+  customerEmail        String
+  customerFirstName    String
+  customerLastName     String
+  customerPhone        String?
+  shippingAddress      Json?
+  billingAddress       Json?
+  lineItems            Json
+  source               String    @default("shopify")
+  hasLocalEdits        Boolean   @default(false)
+  syncedAt             DateTime  @default(now())
+  dbCreatedAt          DateTime  @default(now())
+  dbUpdatedAt          DateTime  @updatedAt
+  noteAttributes       Json?
+  deliveryDate         String?
+  deliveryTime         String?
+  pickupDate           String?
+  pickupTime           String?
+  deliveryInstructions String?
+  travelTime           String?
+  leaveTime            String?
+  driverId             String?
+  isDispatched         Boolean   @default(false)
+  lastSmsSent          DateTime?
+  smsHistory           Json?
+
+  @@index([orderNumber])
+  @@index([createdAt])
+  @@index([customerEmail])
+}
+
+model ShopifyOrder {
+  id            String       @id
+  rawData       Json // Complete Shopify order data
+  syncedAt      DateTime
+  parsedOrder   ParsedOrder?
+  parsedOrderId String?      @unique
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-
-  @@index([orderId])
 }
 
-model ShopifyCustomer {
-  id             String         @id @default(uuid())
-  shopifyId      String         @unique
-  email          String
-  firstName      String?
-  lastName       String?
-  phone          String?
-  defaultAddress String?
-  orders         ShopifyOrder[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+model ParsedOrder {
+  id              String           @id
+  shopifyOrder    ShopifyOrder     @relation(fields: [shopifyOrderId], references: [id])
+  shopifyOrderId  String           @unique
+  orderNumber     String
+  deliveryTime    String // Format: "HH:MM"
+  deliveryDate    DateTime
+  deliveryAddress Json // Structured address data
+  customerName    String
+  customerCompany String?
+  customerPhone   String
+  orderNotes      String?
+  travelTime      Int? // In minutes
+  leaveTime       String? // Format: "HH:MM"
+  driverId        String?
+  isDispatched    Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  lineItems       ParsedLineItem[]
+}
 
-  @@index([shopifyId])
+model ParsedLineItem {
+  id            String      @id
+  parsedOrder   ParsedOrder @relation(fields: [parsedOrderId], references: [id])
+  parsedOrderId String
+  sku           String
+  title         String
+  quantity      Int
+  price         String
+  // Product details from our database
+  handle        String?
+  meat1         String?
+  meat2         String?
+  serveware     String?
+  ovenTimer1    Int?
+  ovenTimer2    Int?
+  option1       String?
+  option2       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([parsedOrderId])
+  @@index([sku])
 }

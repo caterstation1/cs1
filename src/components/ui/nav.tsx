@@ -10,9 +10,13 @@ export function Nav() {
   const links = [
     { href: '/staff', label: 'Staff' },
     { href: '/roster', label: 'Roster' },
+    { href: '/timesheet', label: 'Timesheet' },
     { href: '/products', label: 'Products' },
     { href: '/components', label: 'Components' },
     { href: '/ingredients', label: 'Ingredients' },
+    { href: '/calendar', label: 'Calendar' },
+    { href: '/orders', label: 'All Orders' },
+    { href: '/realtime-orders', label: 'Realtime Orders' },
   ]
 
   return (

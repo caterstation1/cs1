@@ -4,6 +4,8 @@ import './globals.css'
 import { Nav } from '@/components/ui/nav'
 import { Toaster } from '@/components/ui/toaster'
 import { Providers } from './providers'
+import { ShopifySyncProvider } from '@/components/shopify-sync/shopify-sync-provider'
+import { SyncMonitor } from '@/components/shopify-sync/sync-monitor'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,13 +22,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
-          <Nav />
-          <main className="container mx-auto py-6">
-            {children}
-          </main>
-          <Toaster />
-        </Providers>
+        <ShopifySyncProvider>
+          <Providers>
+            <Nav />
+            <main className="w-full px-6 py-6">
+              {children}
+            </main>
+            <Toaster />
+            <SyncMonitor />
+          </Providers>
+        </ShopifySyncProvider>
       </body>
     </html>
   )

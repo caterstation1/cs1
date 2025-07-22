@@ -44,30 +44,65 @@ export type Component = $Result.DefaultSelection<Prisma.$ComponentPayload>
  */
 export type Product = $Result.DefaultSelection<Prisma.$ProductPayload>
 /**
+ * Model ProductCustomData
+ * 
+ */
+export type ProductCustomData = $Result.DefaultSelection<Prisma.$ProductCustomDataPayload>
+/**
+ * Model ProductWithCustomData
+ * 
+ */
+export type ProductWithCustomData = $Result.DefaultSelection<Prisma.$ProductWithCustomDataPayload>
+/**
+ * Model ProductRule
+ * 
+ */
+export type ProductRule = $Result.DefaultSelection<Prisma.$ProductRulePayload>
+/**
  * Model Staff
  * 
  */
 export type Staff = $Result.DefaultSelection<Prisma.$StaffPayload>
+/**
+ * Model ShiftType
+ * 
+ */
+export type ShiftType = $Result.DefaultSelection<Prisma.$ShiftTypePayload>
+/**
+ * Model RosterAssignment
+ * 
+ */
+export type RosterAssignment = $Result.DefaultSelection<Prisma.$RosterAssignmentPayload>
 /**
  * Model Shift
  * 
  */
 export type Shift = $Result.DefaultSelection<Prisma.$ShiftPayload>
 /**
+ * Model Reimbursement
+ * 
+ */
+export type Reimbursement = $Result.DefaultSelection<Prisma.$ReimbursementPayload>
+/**
+ * Model Order
+ * 
+ */
+export type Order = $Result.DefaultSelection<Prisma.$OrderPayload>
+/**
  * Model ShopifyOrder
  * 
  */
 export type ShopifyOrder = $Result.DefaultSelection<Prisma.$ShopifyOrderPayload>
 /**
- * Model ShopifyLineItem
+ * Model ParsedOrder
  * 
  */
-export type ShopifyLineItem = $Result.DefaultSelection<Prisma.$ShopifyLineItemPayload>
+export type ParsedOrder = $Result.DefaultSelection<Prisma.$ParsedOrderPayload>
 /**
- * Model ShopifyCustomer
+ * Model ParsedLineItem
  * 
  */
-export type ShopifyCustomer = $Result.DefaultSelection<Prisma.$ShopifyCustomerPayload>
+export type ParsedLineItem = $Result.DefaultSelection<Prisma.$ParsedLineItemPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -255,6 +290,36 @@ export class PrismaClient<
   get product(): Prisma.ProductDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.productCustomData`: Exposes CRUD operations for the **ProductCustomData** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductCustomData
+    * const productCustomData = await prisma.productCustomData.findMany()
+    * ```
+    */
+  get productCustomData(): Prisma.ProductCustomDataDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productWithCustomData`: Exposes CRUD operations for the **ProductWithCustomData** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductWithCustomData
+    * const productWithCustomData = await prisma.productWithCustomData.findMany()
+    * ```
+    */
+  get productWithCustomData(): Prisma.ProductWithCustomDataDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.productRule`: Exposes CRUD operations for the **ProductRule** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductRules
+    * const productRules = await prisma.productRule.findMany()
+    * ```
+    */
+  get productRule(): Prisma.ProductRuleDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.staff`: Exposes CRUD operations for the **Staff** model.
     * Example usage:
     * ```ts
@@ -263,6 +328,26 @@ export class PrismaClient<
     * ```
     */
   get staff(): Prisma.StaffDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.shiftType`: Exposes CRUD operations for the **ShiftType** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ShiftTypes
+    * const shiftTypes = await prisma.shiftType.findMany()
+    * ```
+    */
+  get shiftType(): Prisma.ShiftTypeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.rosterAssignment`: Exposes CRUD operations for the **RosterAssignment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more RosterAssignments
+    * const rosterAssignments = await prisma.rosterAssignment.findMany()
+    * ```
+    */
+  get rosterAssignment(): Prisma.RosterAssignmentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.shift`: Exposes CRUD operations for the **Shift** model.
@@ -275,6 +360,26 @@ export class PrismaClient<
   get shift(): Prisma.ShiftDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.reimbursement`: Exposes CRUD operations for the **Reimbursement** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Reimbursements
+    * const reimbursements = await prisma.reimbursement.findMany()
+    * ```
+    */
+  get reimbursement(): Prisma.ReimbursementDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.order`: Exposes CRUD operations for the **Order** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Orders
+    * const orders = await prisma.order.findMany()
+    * ```
+    */
+  get order(): Prisma.OrderDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.shopifyOrder`: Exposes CRUD operations for the **ShopifyOrder** model.
     * Example usage:
     * ```ts
@@ -285,24 +390,24 @@ export class PrismaClient<
   get shopifyOrder(): Prisma.ShopifyOrderDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.shopifyLineItem`: Exposes CRUD operations for the **ShopifyLineItem** model.
+   * `prisma.parsedOrder`: Exposes CRUD operations for the **ParsedOrder** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ShopifyLineItems
-    * const shopifyLineItems = await prisma.shopifyLineItem.findMany()
+    * // Fetch zero or more ParsedOrders
+    * const parsedOrders = await prisma.parsedOrder.findMany()
     * ```
     */
-  get shopifyLineItem(): Prisma.ShopifyLineItemDelegate<ExtArgs, ClientOptions>;
+  get parsedOrder(): Prisma.ParsedOrderDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.shopifyCustomer`: Exposes CRUD operations for the **ShopifyCustomer** model.
+   * `prisma.parsedLineItem`: Exposes CRUD operations for the **ParsedLineItem** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ShopifyCustomers
-    * const shopifyCustomers = await prisma.shopifyCustomer.findMany()
+    * // Fetch zero or more ParsedLineItems
+    * const parsedLineItems = await prisma.parsedLineItem.findMany()
     * ```
     */
-  get shopifyCustomer(): Prisma.ShopifyCustomerDelegate<ExtArgs, ClientOptions>;
+  get parsedLineItem(): Prisma.ParsedLineItemDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -361,8 +466,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.6.0
-   * Query Engine version: f676762280b54cd07c770017ed3711ddde35f37a
+   * Prisma Client JS version: 6.12.0
+   * Query Engine version: 8047c96bbd92db98a2abc7c9323ce77c02c89dbc
    */
   export type PrismaVersion = {
     client: string
@@ -749,11 +854,18 @@ export namespace Prisma {
     Supplier: 'Supplier',
     Component: 'Component',
     Product: 'Product',
+    ProductCustomData: 'ProductCustomData',
+    ProductWithCustomData: 'ProductWithCustomData',
+    ProductRule: 'ProductRule',
     Staff: 'Staff',
+    ShiftType: 'ShiftType',
+    RosterAssignment: 'RosterAssignment',
     Shift: 'Shift',
+    Reimbursement: 'Reimbursement',
+    Order: 'Order',
     ShopifyOrder: 'ShopifyOrder',
-    ShopifyLineItem: 'ShopifyLineItem',
-    ShopifyCustomer: 'ShopifyCustomer'
+    ParsedOrder: 'ParsedOrder',
+    ParsedLineItem: 'ParsedLineItem'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -772,7 +884,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "supplier" | "component" | "product" | "staff" | "shift" | "shopifyOrder" | "shopifyLineItem" | "shopifyCustomer"
+      modelProps: "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "supplier" | "component" | "product" | "productCustomData" | "productWithCustomData" | "productRule" | "staff" | "shiftType" | "rosterAssignment" | "shift" | "reimbursement" | "order" | "shopifyOrder" | "parsedOrder" | "parsedLineItem"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1220,6 +1332,228 @@ export namespace Prisma {
           }
         }
       }
+      ProductCustomData: {
+        payload: Prisma.$ProductCustomDataPayload<ExtArgs>
+        fields: Prisma.ProductCustomDataFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductCustomDataFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductCustomDataFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductCustomDataFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductCustomDataFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload>
+          }
+          findMany: {
+            args: Prisma.ProductCustomDataFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload>[]
+          }
+          create: {
+            args: Prisma.ProductCustomDataCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload>
+          }
+          createMany: {
+            args: Prisma.ProductCustomDataCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductCustomDataCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductCustomDataDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload>
+          }
+          update: {
+            args: Prisma.ProductCustomDataUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductCustomDataDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductCustomDataUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductCustomDataUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductCustomDataUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductCustomDataPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductCustomDataAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductCustomData>
+          }
+          groupBy: {
+            args: Prisma.ProductCustomDataGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductCustomDataGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductCustomDataCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductCustomDataCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductWithCustomData: {
+        payload: Prisma.$ProductWithCustomDataPayload<ExtArgs>
+        fields: Prisma.ProductWithCustomDataFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductWithCustomDataFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductWithCustomDataFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductWithCustomDataFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductWithCustomDataFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload>
+          }
+          findMany: {
+            args: Prisma.ProductWithCustomDataFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload>[]
+          }
+          create: {
+            args: Prisma.ProductWithCustomDataCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload>
+          }
+          createMany: {
+            args: Prisma.ProductWithCustomDataCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductWithCustomDataCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductWithCustomDataDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload>
+          }
+          update: {
+            args: Prisma.ProductWithCustomDataUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductWithCustomDataDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductWithCustomDataUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductWithCustomDataUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductWithCustomDataUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductWithCustomDataPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductWithCustomDataAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductWithCustomData>
+          }
+          groupBy: {
+            args: Prisma.ProductWithCustomDataGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductWithCustomDataGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductWithCustomDataCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductWithCustomDataCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProductRule: {
+        payload: Prisma.$ProductRulePayload<ExtArgs>
+        fields: Prisma.ProductRuleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductRuleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductRuleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload>
+          }
+          findFirst: {
+            args: Prisma.ProductRuleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductRuleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload>
+          }
+          findMany: {
+            args: Prisma.ProductRuleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload>[]
+          }
+          create: {
+            args: Prisma.ProductRuleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload>
+          }
+          createMany: {
+            args: Prisma.ProductRuleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductRuleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload>[]
+          }
+          delete: {
+            args: Prisma.ProductRuleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload>
+          }
+          update: {
+            args: Prisma.ProductRuleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductRuleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductRuleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProductRuleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload>[]
+          }
+          upsert: {
+            args: Prisma.ProductRuleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductRulePayload>
+          }
+          aggregate: {
+            args: Prisma.ProductRuleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProductRule>
+          }
+          groupBy: {
+            args: Prisma.ProductRuleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductRuleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductRuleCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductRuleCountAggregateOutputType> | number
+          }
+        }
+      }
       Staff: {
         payload: Prisma.$StaffPayload<ExtArgs>
         fields: Prisma.StaffFieldRefs
@@ -1291,6 +1625,154 @@ export namespace Prisma {
           count: {
             args: Prisma.StaffCountArgs<ExtArgs>
             result: $Utils.Optional<StaffCountAggregateOutputType> | number
+          }
+        }
+      }
+      ShiftType: {
+        payload: Prisma.$ShiftTypePayload<ExtArgs>
+        fields: Prisma.ShiftTypeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ShiftTypeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ShiftTypeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload>
+          }
+          findFirst: {
+            args: Prisma.ShiftTypeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ShiftTypeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload>
+          }
+          findMany: {
+            args: Prisma.ShiftTypeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload>[]
+          }
+          create: {
+            args: Prisma.ShiftTypeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload>
+          }
+          createMany: {
+            args: Prisma.ShiftTypeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ShiftTypeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload>[]
+          }
+          delete: {
+            args: Prisma.ShiftTypeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload>
+          }
+          update: {
+            args: Prisma.ShiftTypeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload>
+          }
+          deleteMany: {
+            args: Prisma.ShiftTypeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ShiftTypeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ShiftTypeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload>[]
+          }
+          upsert: {
+            args: Prisma.ShiftTypeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTypePayload>
+          }
+          aggregate: {
+            args: Prisma.ShiftTypeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateShiftType>
+          }
+          groupBy: {
+            args: Prisma.ShiftTypeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ShiftTypeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ShiftTypeCountArgs<ExtArgs>
+            result: $Utils.Optional<ShiftTypeCountAggregateOutputType> | number
+          }
+        }
+      }
+      RosterAssignment: {
+        payload: Prisma.$RosterAssignmentPayload<ExtArgs>
+        fields: Prisma.RosterAssignmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.RosterAssignmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.RosterAssignmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload>
+          }
+          findFirst: {
+            args: Prisma.RosterAssignmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.RosterAssignmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload>
+          }
+          findMany: {
+            args: Prisma.RosterAssignmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload>[]
+          }
+          create: {
+            args: Prisma.RosterAssignmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload>
+          }
+          createMany: {
+            args: Prisma.RosterAssignmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.RosterAssignmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload>[]
+          }
+          delete: {
+            args: Prisma.RosterAssignmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload>
+          }
+          update: {
+            args: Prisma.RosterAssignmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.RosterAssignmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.RosterAssignmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.RosterAssignmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.RosterAssignmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentPayload>
+          }
+          aggregate: {
+            args: Prisma.RosterAssignmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRosterAssignment>
+          }
+          groupBy: {
+            args: Prisma.RosterAssignmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RosterAssignmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.RosterAssignmentCountArgs<ExtArgs>
+            result: $Utils.Optional<RosterAssignmentCountAggregateOutputType> | number
           }
         }
       }
@@ -1368,6 +1850,154 @@ export namespace Prisma {
           }
         }
       }
+      Reimbursement: {
+        payload: Prisma.$ReimbursementPayload<ExtArgs>
+        fields: Prisma.ReimbursementFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReimbursementFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReimbursementFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload>
+          }
+          findFirst: {
+            args: Prisma.ReimbursementFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReimbursementFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload>
+          }
+          findMany: {
+            args: Prisma.ReimbursementFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload>[]
+          }
+          create: {
+            args: Prisma.ReimbursementCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload>
+          }
+          createMany: {
+            args: Prisma.ReimbursementCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReimbursementCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload>[]
+          }
+          delete: {
+            args: Prisma.ReimbursementDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload>
+          }
+          update: {
+            args: Prisma.ReimbursementUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReimbursementDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReimbursementUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReimbursementUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload>[]
+          }
+          upsert: {
+            args: Prisma.ReimbursementUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReimbursementPayload>
+          }
+          aggregate: {
+            args: Prisma.ReimbursementAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReimbursement>
+          }
+          groupBy: {
+            args: Prisma.ReimbursementGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReimbursementGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReimbursementCountArgs<ExtArgs>
+            result: $Utils.Optional<ReimbursementCountAggregateOutputType> | number
+          }
+        }
+      }
+      Order: {
+        payload: Prisma.$OrderPayload<ExtArgs>
+        fields: Prisma.OrderFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OrderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          findFirst: {
+            args: Prisma.OrderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          findMany: {
+            args: Prisma.OrderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>[]
+          }
+          create: {
+            args: Prisma.OrderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          createMany: {
+            args: Prisma.OrderCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OrderCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>[]
+          }
+          delete: {
+            args: Prisma.OrderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          update: {
+            args: Prisma.OrderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrderDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrderUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OrderUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>[]
+          }
+          upsert: {
+            args: Prisma.OrderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          aggregate: {
+            args: Prisma.OrderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrder>
+          }
+          groupBy: {
+            args: Prisma.OrderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrderGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrderCountArgs<ExtArgs>
+            result: $Utils.Optional<OrderCountAggregateOutputType> | number
+          }
+        }
+      }
       ShopifyOrder: {
         payload: Prisma.$ShopifyOrderPayload<ExtArgs>
         fields: Prisma.ShopifyOrderFieldRefs
@@ -1442,151 +2072,151 @@ export namespace Prisma {
           }
         }
       }
-      ShopifyLineItem: {
-        payload: Prisma.$ShopifyLineItemPayload<ExtArgs>
-        fields: Prisma.ShopifyLineItemFieldRefs
+      ParsedOrder: {
+        payload: Prisma.$ParsedOrderPayload<ExtArgs>
+        fields: Prisma.ParsedOrderFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ShopifyLineItemFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload> | null
+            args: Prisma.ParsedOrderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ShopifyLineItemFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload>
+            args: Prisma.ParsedOrderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload>
           }
           findFirst: {
-            args: Prisma.ShopifyLineItemFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload> | null
+            args: Prisma.ParsedOrderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ShopifyLineItemFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload>
+            args: Prisma.ParsedOrderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload>
           }
           findMany: {
-            args: Prisma.ShopifyLineItemFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload>[]
+            args: Prisma.ParsedOrderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload>[]
           }
           create: {
-            args: Prisma.ShopifyLineItemCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload>
+            args: Prisma.ParsedOrderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload>
           }
           createMany: {
-            args: Prisma.ShopifyLineItemCreateManyArgs<ExtArgs>
+            args: Prisma.ParsedOrderCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ShopifyLineItemCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload>[]
+            args: Prisma.ParsedOrderCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload>[]
           }
           delete: {
-            args: Prisma.ShopifyLineItemDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload>
+            args: Prisma.ParsedOrderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload>
           }
           update: {
-            args: Prisma.ShopifyLineItemUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload>
+            args: Prisma.ParsedOrderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload>
           }
           deleteMany: {
-            args: Prisma.ShopifyLineItemDeleteManyArgs<ExtArgs>
+            args: Prisma.ParsedOrderDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ShopifyLineItemUpdateManyArgs<ExtArgs>
+            args: Prisma.ParsedOrderUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.ShopifyLineItemUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload>[]
+            args: Prisma.ParsedOrderUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload>[]
           }
           upsert: {
-            args: Prisma.ShopifyLineItemUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyLineItemPayload>
+            args: Prisma.ParsedOrderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedOrderPayload>
           }
           aggregate: {
-            args: Prisma.ShopifyLineItemAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateShopifyLineItem>
+            args: Prisma.ParsedOrderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateParsedOrder>
           }
           groupBy: {
-            args: Prisma.ShopifyLineItemGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ShopifyLineItemGroupByOutputType>[]
+            args: Prisma.ParsedOrderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ParsedOrderGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ShopifyLineItemCountArgs<ExtArgs>
-            result: $Utils.Optional<ShopifyLineItemCountAggregateOutputType> | number
+            args: Prisma.ParsedOrderCountArgs<ExtArgs>
+            result: $Utils.Optional<ParsedOrderCountAggregateOutputType> | number
           }
         }
       }
-      ShopifyCustomer: {
-        payload: Prisma.$ShopifyCustomerPayload<ExtArgs>
-        fields: Prisma.ShopifyCustomerFieldRefs
+      ParsedLineItem: {
+        payload: Prisma.$ParsedLineItemPayload<ExtArgs>
+        fields: Prisma.ParsedLineItemFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ShopifyCustomerFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload> | null
+            args: Prisma.ParsedLineItemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ShopifyCustomerFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload>
+            args: Prisma.ParsedLineItemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload>
           }
           findFirst: {
-            args: Prisma.ShopifyCustomerFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload> | null
+            args: Prisma.ParsedLineItemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ShopifyCustomerFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload>
+            args: Prisma.ParsedLineItemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload>
           }
           findMany: {
-            args: Prisma.ShopifyCustomerFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload>[]
+            args: Prisma.ParsedLineItemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload>[]
           }
           create: {
-            args: Prisma.ShopifyCustomerCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload>
+            args: Prisma.ParsedLineItemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload>
           }
           createMany: {
-            args: Prisma.ShopifyCustomerCreateManyArgs<ExtArgs>
+            args: Prisma.ParsedLineItemCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ShopifyCustomerCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload>[]
+            args: Prisma.ParsedLineItemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload>[]
           }
           delete: {
-            args: Prisma.ShopifyCustomerDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload>
+            args: Prisma.ParsedLineItemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload>
           }
           update: {
-            args: Prisma.ShopifyCustomerUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload>
+            args: Prisma.ParsedLineItemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload>
           }
           deleteMany: {
-            args: Prisma.ShopifyCustomerDeleteManyArgs<ExtArgs>
+            args: Prisma.ParsedLineItemDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ShopifyCustomerUpdateManyArgs<ExtArgs>
+            args: Prisma.ParsedLineItemUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.ShopifyCustomerUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload>[]
+            args: Prisma.ParsedLineItemUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload>[]
           }
           upsert: {
-            args: Prisma.ShopifyCustomerUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShopifyCustomerPayload>
+            args: Prisma.ParsedLineItemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ParsedLineItemPayload>
           }
           aggregate: {
-            args: Prisma.ShopifyCustomerAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateShopifyCustomer>
+            args: Prisma.ParsedLineItemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateParsedLineItem>
           }
           groupBy: {
-            args: Prisma.ShopifyCustomerGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ShopifyCustomerGroupByOutputType>[]
+            args: Prisma.ParsedLineItemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ParsedLineItemGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ShopifyCustomerCountArgs<ExtArgs>
-            result: $Utils.Optional<ShopifyCustomerCountAggregateOutputType> | number
+            args: Prisma.ParsedLineItemCountArgs<ExtArgs>
+            result: $Utils.Optional<ParsedLineItemCountAggregateOutputType> | number
           }
         }
       }
@@ -1680,11 +2310,18 @@ export namespace Prisma {
     supplier?: SupplierOmit
     component?: ComponentOmit
     product?: ProductOmit
+    productCustomData?: ProductCustomDataOmit
+    productWithCustomData?: ProductWithCustomDataOmit
+    productRule?: ProductRuleOmit
     staff?: StaffOmit
+    shiftType?: ShiftTypeOmit
+    rosterAssignment?: RosterAssignmentOmit
     shift?: ShiftOmit
+    reimbursement?: ReimbursementOmit
+    order?: OrderOmit
     shopifyOrder?: ShopifyOrderOmit
-    shopifyLineItem?: ShopifyLineItemOmit
-    shopifyCustomer?: ShopifyCustomerOmit
+    parsedOrder?: ParsedOrderOmit
+    parsedLineItem?: ParsedLineItemOmit
   }
 
   /* Types for Logging */
@@ -1780,10 +2417,12 @@ export namespace Prisma {
 
   export type StaffCountOutputType = {
     shifts: number
+    rosterAssignments: number
   }
 
   export type StaffCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     shifts?: boolean | StaffCountOutputTypeCountShiftsArgs
+    rosterAssignments?: boolean | StaffCountOutputTypeCountRosterAssignmentsArgs
   }
 
   // Custom InputTypes
@@ -1804,66 +2443,104 @@ export namespace Prisma {
     where?: ShiftWhereInput
   }
 
+  /**
+   * StaffCountOutputType without action
+   */
+  export type StaffCountOutputTypeCountRosterAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RosterAssignmentWhereInput
+  }
+
 
   /**
-   * Count Type ShopifyOrderCountOutputType
+   * Count Type ShiftTypeCountOutputType
    */
 
-  export type ShopifyOrderCountOutputType = {
+  export type ShiftTypeCountOutputType = {
+    rosterAssignments: number
+  }
+
+  export type ShiftTypeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rosterAssignments?: boolean | ShiftTypeCountOutputTypeCountRosterAssignmentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ShiftTypeCountOutputType without action
+   */
+  export type ShiftTypeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTypeCountOutputType
+     */
+    select?: ShiftTypeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ShiftTypeCountOutputType without action
+   */
+  export type ShiftTypeCountOutputTypeCountRosterAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RosterAssignmentWhereInput
+  }
+
+
+  /**
+   * Count Type ShiftCountOutputType
+   */
+
+  export type ShiftCountOutputType = {
+    reimbursements: number
+  }
+
+  export type ShiftCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reimbursements?: boolean | ShiftCountOutputTypeCountReimbursementsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ShiftCountOutputType without action
+   */
+  export type ShiftCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftCountOutputType
+     */
+    select?: ShiftCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ShiftCountOutputType without action
+   */
+  export type ShiftCountOutputTypeCountReimbursementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReimbursementWhereInput
+  }
+
+
+  /**
+   * Count Type ParsedOrderCountOutputType
+   */
+
+  export type ParsedOrderCountOutputType = {
     lineItems: number
   }
 
-  export type ShopifyOrderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    lineItems?: boolean | ShopifyOrderCountOutputTypeCountLineItemsArgs
+  export type ParsedOrderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    lineItems?: boolean | ParsedOrderCountOutputTypeCountLineItemsArgs
   }
 
   // Custom InputTypes
   /**
-   * ShopifyOrderCountOutputType without action
+   * ParsedOrderCountOutputType without action
    */
-  export type ShopifyOrderCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyOrderCountOutputType
+     * Select specific fields to fetch from the ParsedOrderCountOutputType
      */
-    select?: ShopifyOrderCountOutputTypeSelect<ExtArgs> | null
+    select?: ParsedOrderCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * ShopifyOrderCountOutputType without action
+   * ParsedOrderCountOutputType without action
    */
-  export type ShopifyOrderCountOutputTypeCountLineItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ShopifyLineItemWhereInput
-  }
-
-
-  /**
-   * Count Type ShopifyCustomerCountOutputType
-   */
-
-  export type ShopifyCustomerCountOutputType = {
-    orders: number
-  }
-
-  export type ShopifyCustomerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    orders?: boolean | ShopifyCustomerCountOutputTypeCountOrdersArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * ShopifyCustomerCountOutputType without action
-   */
-  export type ShopifyCustomerCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ShopifyCustomerCountOutputType
-     */
-    select?: ShopifyCustomerCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * ShopifyCustomerCountOutputType without action
-   */
-  export type ShopifyCustomerCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ShopifyOrderWhereInput
+  export type ParsedOrderCountOutputTypeCountLineItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ParsedLineItemWhereInput
   }
 
 
@@ -2808,6 +3485,7 @@ export namespace Prisma {
      * The data used to create many GilmoursProducts.
      */
     data: GilmoursProductCreateManyInput | GilmoursProductCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -2826,6 +3504,7 @@ export namespace Prisma {
      * The data used to create many GilmoursProducts.
      */
     data: GilmoursProductCreateManyInput | GilmoursProductCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -3947,6 +4626,7 @@ export namespace Prisma {
      * The data used to create many BidfoodProducts.
      */
     data: BidfoodProductCreateManyInput | BidfoodProductCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -3965,6 +4645,7 @@ export namespace Prisma {
      * The data used to create many BidfoodProducts.
      */
     data: BidfoodProductCreateManyInput | BidfoodProductCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -5000,6 +5681,7 @@ export namespace Prisma {
      * The data used to create many OtherProducts.
      */
     data: OtherProductCreateManyInput | OtherProductCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -5018,6 +5700,7 @@ export namespace Prisma {
      * The data used to create many OtherProducts.
      */
     data: OtherProductCreateManyInput | OtherProductCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -6019,6 +6702,7 @@ export namespace Prisma {
      * The data used to create many Suppliers.
      */
     data: SupplierCreateManyInput | SupplierCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -6037,6 +6721,7 @@ export namespace Prisma {
      * The data used to create many Suppliers.
      */
     data: SupplierCreateManyInput | SupplierCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -7198,6 +7883,7 @@ export namespace Prisma {
      * The data used to create many Components.
      */
     data: ComponentCreateManyInput | ComponentCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -7216,6 +7902,7 @@ export namespace Prisma {
      * The data used to create many Components.
      */
     data: ComponentCreateManyInput | ComponentCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -7400,6 +8087,7 @@ export namespace Prisma {
     timerB: number | null
     skuSearch: string | null
     variantSku: string | null
+    variant_title: string | null
     totalCost: number | null
     sellingPrice: number | null
     realizedMargin: number | null
@@ -7422,6 +8110,7 @@ export namespace Prisma {
     timerB: number | null
     skuSearch: string | null
     variantSku: string | null
+    variant_title: string | null
     totalCost: number | null
     sellingPrice: number | null
     realizedMargin: number | null
@@ -7444,6 +8133,7 @@ export namespace Prisma {
     timerB: number
     skuSearch: number
     variantSku: number
+    variant_title: number
     ingredients: number
     totalCost: number
     sellingPrice: number
@@ -7485,6 +8175,7 @@ export namespace Prisma {
     timerB?: true
     skuSearch?: true
     variantSku?: true
+    variant_title?: true
     totalCost?: true
     sellingPrice?: true
     realizedMargin?: true
@@ -7507,6 +8198,7 @@ export namespace Prisma {
     timerB?: true
     skuSearch?: true
     variantSku?: true
+    variant_title?: true
     totalCost?: true
     sellingPrice?: true
     realizedMargin?: true
@@ -7529,6 +8221,7 @@ export namespace Prisma {
     timerB?: true
     skuSearch?: true
     variantSku?: true
+    variant_title?: true
     ingredients?: true
     totalCost?: true
     sellingPrice?: true
@@ -7639,6 +8332,7 @@ export namespace Prisma {
     timerB: number | null
     skuSearch: string | null
     variantSku: string | null
+    variant_title: string | null
     ingredients: JsonValue | null
     totalCost: number
     sellingPrice: number | null
@@ -7681,6 +8375,7 @@ export namespace Prisma {
     timerB?: boolean
     skuSearch?: boolean
     variantSku?: boolean
+    variant_title?: boolean
     ingredients?: boolean
     totalCost?: boolean
     sellingPrice?: boolean
@@ -7704,6 +8399,7 @@ export namespace Prisma {
     timerB?: boolean
     skuSearch?: boolean
     variantSku?: boolean
+    variant_title?: boolean
     ingredients?: boolean
     totalCost?: boolean
     sellingPrice?: boolean
@@ -7727,6 +8423,7 @@ export namespace Prisma {
     timerB?: boolean
     skuSearch?: boolean
     variantSku?: boolean
+    variant_title?: boolean
     ingredients?: boolean
     totalCost?: boolean
     sellingPrice?: boolean
@@ -7750,6 +8447,7 @@ export namespace Prisma {
     timerB?: boolean
     skuSearch?: boolean
     variantSku?: boolean
+    variant_title?: boolean
     ingredients?: boolean
     totalCost?: boolean
     sellingPrice?: boolean
@@ -7758,7 +8456,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "addon" | "handle" | "meat1" | "meat2" | "option1" | "option2" | "serveware" | "timerA" | "timerB" | "skuSearch" | "variantSku" | "ingredients" | "totalCost" | "sellingPrice" | "realizedMargin" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "addon" | "handle" | "meat1" | "meat2" | "option1" | "option2" | "serveware" | "timerA" | "timerB" | "skuSearch" | "variantSku" | "variant_title" | "ingredients" | "totalCost" | "sellingPrice" | "realizedMargin" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 
   export type $ProductPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Product"
@@ -7778,6 +8476,7 @@ export namespace Prisma {
       timerB: number | null
       skuSearch: string | null
       variantSku: string | null
+      variant_title: string | null
       ingredients: Prisma.JsonValue | null
       totalCost: number
       sellingPrice: number | null
@@ -8221,6 +8920,7 @@ export namespace Prisma {
     readonly timerB: FieldRef<"Product", 'Int'>
     readonly skuSearch: FieldRef<"Product", 'String'>
     readonly variantSku: FieldRef<"Product", 'String'>
+    readonly variant_title: FieldRef<"Product", 'String'>
     readonly ingredients: FieldRef<"Product", 'Json'>
     readonly totalCost: FieldRef<"Product", 'Float'>
     readonly sellingPrice: FieldRef<"Product", 'Float'>
@@ -8432,6 +9132,7 @@ export namespace Prisma {
      * The data used to create many Products.
      */
     data: ProductCreateManyInput | ProductCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -8450,6 +9151,7 @@ export namespace Prisma {
      * The data used to create many Products.
      */
     data: ProductCreateManyInput | ProductCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -8592,6 +9294,3611 @@ export namespace Prisma {
 
 
   /**
+   * Model ProductCustomData
+   */
+
+  export type AggregateProductCustomData = {
+    _count: ProductCustomDataCountAggregateOutputType | null
+    _avg: ProductCustomDataAvgAggregateOutputType | null
+    _sum: ProductCustomDataSumAggregateOutputType | null
+    _min: ProductCustomDataMinAggregateOutputType | null
+    _max: ProductCustomDataMaxAggregateOutputType | null
+  }
+
+  export type ProductCustomDataAvgAggregateOutputType = {
+    timerA: number | null
+    timerB: number | null
+    totalCost: number | null
+  }
+
+  export type ProductCustomDataSumAggregateOutputType = {
+    timerA: number | null
+    timerB: number | null
+    totalCost: number | null
+  }
+
+  export type ProductCustomDataMinAggregateOutputType = {
+    id: string | null
+    variantId: string | null
+    meat1: string | null
+    meat2: string | null
+    option1: string | null
+    option2: string | null
+    serveware: string | null
+    timerA: number | null
+    timerB: number | null
+    totalCost: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductCustomDataMaxAggregateOutputType = {
+    id: string | null
+    variantId: string | null
+    meat1: string | null
+    meat2: string | null
+    option1: string | null
+    option2: string | null
+    serveware: string | null
+    timerA: number | null
+    timerB: number | null
+    totalCost: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductCustomDataCountAggregateOutputType = {
+    id: number
+    variantId: number
+    meat1: number
+    meat2: number
+    option1: number
+    option2: number
+    serveware: number
+    timerA: number
+    timerB: number
+    ingredients: number
+    totalCost: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ProductCustomDataAvgAggregateInputType = {
+    timerA?: true
+    timerB?: true
+    totalCost?: true
+  }
+
+  export type ProductCustomDataSumAggregateInputType = {
+    timerA?: true
+    timerB?: true
+    totalCost?: true
+  }
+
+  export type ProductCustomDataMinAggregateInputType = {
+    id?: true
+    variantId?: true
+    meat1?: true
+    meat2?: true
+    option1?: true
+    option2?: true
+    serveware?: true
+    timerA?: true
+    timerB?: true
+    totalCost?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductCustomDataMaxAggregateInputType = {
+    id?: true
+    variantId?: true
+    meat1?: true
+    meat2?: true
+    option1?: true
+    option2?: true
+    serveware?: true
+    timerA?: true
+    timerB?: true
+    totalCost?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductCustomDataCountAggregateInputType = {
+    id?: true
+    variantId?: true
+    meat1?: true
+    meat2?: true
+    option1?: true
+    option2?: true
+    serveware?: true
+    timerA?: true
+    timerB?: true
+    ingredients?: true
+    totalCost?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ProductCustomDataAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductCustomData to aggregate.
+     */
+    where?: ProductCustomDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductCustomData to fetch.
+     */
+    orderBy?: ProductCustomDataOrderByWithRelationInput | ProductCustomDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductCustomDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductCustomData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductCustomData.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductCustomData
+    **/
+    _count?: true | ProductCustomDataCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProductCustomDataAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProductCustomDataSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductCustomDataMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductCustomDataMaxAggregateInputType
+  }
+
+  export type GetProductCustomDataAggregateType<T extends ProductCustomDataAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductCustomData]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductCustomData[P]>
+      : GetScalarType<T[P], AggregateProductCustomData[P]>
+  }
+
+
+
+
+  export type ProductCustomDataGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductCustomDataWhereInput
+    orderBy?: ProductCustomDataOrderByWithAggregationInput | ProductCustomDataOrderByWithAggregationInput[]
+    by: ProductCustomDataScalarFieldEnum[] | ProductCustomDataScalarFieldEnum
+    having?: ProductCustomDataScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductCustomDataCountAggregateInputType | true
+    _avg?: ProductCustomDataAvgAggregateInputType
+    _sum?: ProductCustomDataSumAggregateInputType
+    _min?: ProductCustomDataMinAggregateInputType
+    _max?: ProductCustomDataMaxAggregateInputType
+  }
+
+  export type ProductCustomDataGroupByOutputType = {
+    id: string
+    variantId: string
+    meat1: string | null
+    meat2: string | null
+    option1: string | null
+    option2: string | null
+    serveware: string | null
+    timerA: number | null
+    timerB: number | null
+    ingredients: JsonValue | null
+    totalCost: number
+    createdAt: Date
+    updatedAt: Date
+    _count: ProductCustomDataCountAggregateOutputType | null
+    _avg: ProductCustomDataAvgAggregateOutputType | null
+    _sum: ProductCustomDataSumAggregateOutputType | null
+    _min: ProductCustomDataMinAggregateOutputType | null
+    _max: ProductCustomDataMaxAggregateOutputType | null
+  }
+
+  type GetProductCustomDataGroupByPayload<T extends ProductCustomDataGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductCustomDataGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductCustomDataGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductCustomDataGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductCustomDataGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductCustomDataSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    variantId?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    option1?: boolean
+    option2?: boolean
+    serveware?: boolean
+    timerA?: boolean
+    timerB?: boolean
+    ingredients?: boolean
+    totalCost?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["productCustomData"]>
+
+  export type ProductCustomDataSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    variantId?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    option1?: boolean
+    option2?: boolean
+    serveware?: boolean
+    timerA?: boolean
+    timerB?: boolean
+    ingredients?: boolean
+    totalCost?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["productCustomData"]>
+
+  export type ProductCustomDataSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    variantId?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    option1?: boolean
+    option2?: boolean
+    serveware?: boolean
+    timerA?: boolean
+    timerB?: boolean
+    ingredients?: boolean
+    totalCost?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["productCustomData"]>
+
+  export type ProductCustomDataSelectScalar = {
+    id?: boolean
+    variantId?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    option1?: boolean
+    option2?: boolean
+    serveware?: boolean
+    timerA?: boolean
+    timerB?: boolean
+    ingredients?: boolean
+    totalCost?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ProductCustomDataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "variantId" | "meat1" | "meat2" | "option1" | "option2" | "serveware" | "timerA" | "timerB" | "ingredients" | "totalCost" | "createdAt" | "updatedAt", ExtArgs["result"]["productCustomData"]>
+
+  export type $ProductCustomDataPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductCustomData"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      variantId: string
+      meat1: string | null
+      meat2: string | null
+      option1: string | null
+      option2: string | null
+      serveware: string | null
+      timerA: number | null
+      timerB: number | null
+      ingredients: Prisma.JsonValue | null
+      totalCost: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["productCustomData"]>
+    composites: {}
+  }
+
+  type ProductCustomDataGetPayload<S extends boolean | null | undefined | ProductCustomDataDefaultArgs> = $Result.GetResult<Prisma.$ProductCustomDataPayload, S>
+
+  type ProductCustomDataCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductCustomDataFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductCustomDataCountAggregateInputType | true
+    }
+
+  export interface ProductCustomDataDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductCustomData'], meta: { name: 'ProductCustomData' } }
+    /**
+     * Find zero or one ProductCustomData that matches the filter.
+     * @param {ProductCustomDataFindUniqueArgs} args - Arguments to find a ProductCustomData
+     * @example
+     * // Get one ProductCustomData
+     * const productCustomData = await prisma.productCustomData.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductCustomDataFindUniqueArgs>(args: SelectSubset<T, ProductCustomDataFindUniqueArgs<ExtArgs>>): Prisma__ProductCustomDataClient<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductCustomData that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductCustomDataFindUniqueOrThrowArgs} args - Arguments to find a ProductCustomData
+     * @example
+     * // Get one ProductCustomData
+     * const productCustomData = await prisma.productCustomData.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductCustomDataFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductCustomDataFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductCustomDataClient<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductCustomData that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCustomDataFindFirstArgs} args - Arguments to find a ProductCustomData
+     * @example
+     * // Get one ProductCustomData
+     * const productCustomData = await prisma.productCustomData.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductCustomDataFindFirstArgs>(args?: SelectSubset<T, ProductCustomDataFindFirstArgs<ExtArgs>>): Prisma__ProductCustomDataClient<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductCustomData that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCustomDataFindFirstOrThrowArgs} args - Arguments to find a ProductCustomData
+     * @example
+     * // Get one ProductCustomData
+     * const productCustomData = await prisma.productCustomData.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductCustomDataFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductCustomDataFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductCustomDataClient<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductCustomData that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCustomDataFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductCustomData
+     * const productCustomData = await prisma.productCustomData.findMany()
+     * 
+     * // Get first 10 ProductCustomData
+     * const productCustomData = await prisma.productCustomData.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productCustomDataWithIdOnly = await prisma.productCustomData.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductCustomDataFindManyArgs>(args?: SelectSubset<T, ProductCustomDataFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductCustomData.
+     * @param {ProductCustomDataCreateArgs} args - Arguments to create a ProductCustomData.
+     * @example
+     * // Create one ProductCustomData
+     * const ProductCustomData = await prisma.productCustomData.create({
+     *   data: {
+     *     // ... data to create a ProductCustomData
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductCustomDataCreateArgs>(args: SelectSubset<T, ProductCustomDataCreateArgs<ExtArgs>>): Prisma__ProductCustomDataClient<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductCustomData.
+     * @param {ProductCustomDataCreateManyArgs} args - Arguments to create many ProductCustomData.
+     * @example
+     * // Create many ProductCustomData
+     * const productCustomData = await prisma.productCustomData.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductCustomDataCreateManyArgs>(args?: SelectSubset<T, ProductCustomDataCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductCustomData and returns the data saved in the database.
+     * @param {ProductCustomDataCreateManyAndReturnArgs} args - Arguments to create many ProductCustomData.
+     * @example
+     * // Create many ProductCustomData
+     * const productCustomData = await prisma.productCustomData.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductCustomData and only return the `id`
+     * const productCustomDataWithIdOnly = await prisma.productCustomData.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductCustomDataCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductCustomDataCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductCustomData.
+     * @param {ProductCustomDataDeleteArgs} args - Arguments to delete one ProductCustomData.
+     * @example
+     * // Delete one ProductCustomData
+     * const ProductCustomData = await prisma.productCustomData.delete({
+     *   where: {
+     *     // ... filter to delete one ProductCustomData
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductCustomDataDeleteArgs>(args: SelectSubset<T, ProductCustomDataDeleteArgs<ExtArgs>>): Prisma__ProductCustomDataClient<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductCustomData.
+     * @param {ProductCustomDataUpdateArgs} args - Arguments to update one ProductCustomData.
+     * @example
+     * // Update one ProductCustomData
+     * const productCustomData = await prisma.productCustomData.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductCustomDataUpdateArgs>(args: SelectSubset<T, ProductCustomDataUpdateArgs<ExtArgs>>): Prisma__ProductCustomDataClient<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductCustomData.
+     * @param {ProductCustomDataDeleteManyArgs} args - Arguments to filter ProductCustomData to delete.
+     * @example
+     * // Delete a few ProductCustomData
+     * const { count } = await prisma.productCustomData.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductCustomDataDeleteManyArgs>(args?: SelectSubset<T, ProductCustomDataDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductCustomData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCustomDataUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductCustomData
+     * const productCustomData = await prisma.productCustomData.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductCustomDataUpdateManyArgs>(args: SelectSubset<T, ProductCustomDataUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductCustomData and returns the data updated in the database.
+     * @param {ProductCustomDataUpdateManyAndReturnArgs} args - Arguments to update many ProductCustomData.
+     * @example
+     * // Update many ProductCustomData
+     * const productCustomData = await prisma.productCustomData.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductCustomData and only return the `id`
+     * const productCustomDataWithIdOnly = await prisma.productCustomData.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductCustomDataUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductCustomDataUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductCustomData.
+     * @param {ProductCustomDataUpsertArgs} args - Arguments to update or create a ProductCustomData.
+     * @example
+     * // Update or create a ProductCustomData
+     * const productCustomData = await prisma.productCustomData.upsert({
+     *   create: {
+     *     // ... data to create a ProductCustomData
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductCustomData we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductCustomDataUpsertArgs>(args: SelectSubset<T, ProductCustomDataUpsertArgs<ExtArgs>>): Prisma__ProductCustomDataClient<$Result.GetResult<Prisma.$ProductCustomDataPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductCustomData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCustomDataCountArgs} args - Arguments to filter ProductCustomData to count.
+     * @example
+     * // Count the number of ProductCustomData
+     * const count = await prisma.productCustomData.count({
+     *   where: {
+     *     // ... the filter for the ProductCustomData we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductCustomDataCountArgs>(
+      args?: Subset<T, ProductCustomDataCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductCustomDataCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductCustomData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCustomDataAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductCustomDataAggregateArgs>(args: Subset<T, ProductCustomDataAggregateArgs>): Prisma.PrismaPromise<GetProductCustomDataAggregateType<T>>
+
+    /**
+     * Group by ProductCustomData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCustomDataGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductCustomDataGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductCustomDataGroupByArgs['orderBy'] }
+        : { orderBy?: ProductCustomDataGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductCustomDataGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductCustomDataGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductCustomData model
+   */
+  readonly fields: ProductCustomDataFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductCustomData.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductCustomDataClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductCustomData model
+   */
+  interface ProductCustomDataFieldRefs {
+    readonly id: FieldRef<"ProductCustomData", 'String'>
+    readonly variantId: FieldRef<"ProductCustomData", 'String'>
+    readonly meat1: FieldRef<"ProductCustomData", 'String'>
+    readonly meat2: FieldRef<"ProductCustomData", 'String'>
+    readonly option1: FieldRef<"ProductCustomData", 'String'>
+    readonly option2: FieldRef<"ProductCustomData", 'String'>
+    readonly serveware: FieldRef<"ProductCustomData", 'String'>
+    readonly timerA: FieldRef<"ProductCustomData", 'Int'>
+    readonly timerB: FieldRef<"ProductCustomData", 'Int'>
+    readonly ingredients: FieldRef<"ProductCustomData", 'Json'>
+    readonly totalCost: FieldRef<"ProductCustomData", 'Float'>
+    readonly createdAt: FieldRef<"ProductCustomData", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductCustomData", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductCustomData findUnique
+   */
+  export type ProductCustomDataFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductCustomData to fetch.
+     */
+    where: ProductCustomDataWhereUniqueInput
+  }
+
+  /**
+   * ProductCustomData findUniqueOrThrow
+   */
+  export type ProductCustomDataFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductCustomData to fetch.
+     */
+    where: ProductCustomDataWhereUniqueInput
+  }
+
+  /**
+   * ProductCustomData findFirst
+   */
+  export type ProductCustomDataFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductCustomData to fetch.
+     */
+    where?: ProductCustomDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductCustomData to fetch.
+     */
+    orderBy?: ProductCustomDataOrderByWithRelationInput | ProductCustomDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductCustomData.
+     */
+    cursor?: ProductCustomDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductCustomData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductCustomData.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductCustomData.
+     */
+    distinct?: ProductCustomDataScalarFieldEnum | ProductCustomDataScalarFieldEnum[]
+  }
+
+  /**
+   * ProductCustomData findFirstOrThrow
+   */
+  export type ProductCustomDataFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductCustomData to fetch.
+     */
+    where?: ProductCustomDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductCustomData to fetch.
+     */
+    orderBy?: ProductCustomDataOrderByWithRelationInput | ProductCustomDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductCustomData.
+     */
+    cursor?: ProductCustomDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductCustomData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductCustomData.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductCustomData.
+     */
+    distinct?: ProductCustomDataScalarFieldEnum | ProductCustomDataScalarFieldEnum[]
+  }
+
+  /**
+   * ProductCustomData findMany
+   */
+  export type ProductCustomDataFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductCustomData to fetch.
+     */
+    where?: ProductCustomDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductCustomData to fetch.
+     */
+    orderBy?: ProductCustomDataOrderByWithRelationInput | ProductCustomDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductCustomData.
+     */
+    cursor?: ProductCustomDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductCustomData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductCustomData.
+     */
+    skip?: number
+    distinct?: ProductCustomDataScalarFieldEnum | ProductCustomDataScalarFieldEnum[]
+  }
+
+  /**
+   * ProductCustomData create
+   */
+  export type ProductCustomDataCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ProductCustomData.
+     */
+    data: XOR<ProductCustomDataCreateInput, ProductCustomDataUncheckedCreateInput>
+  }
+
+  /**
+   * ProductCustomData createMany
+   */
+  export type ProductCustomDataCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductCustomData.
+     */
+    data: ProductCustomDataCreateManyInput | ProductCustomDataCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductCustomData createManyAndReturn
+   */
+  export type ProductCustomDataCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductCustomData.
+     */
+    data: ProductCustomDataCreateManyInput | ProductCustomDataCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductCustomData update
+   */
+  export type ProductCustomDataUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ProductCustomData.
+     */
+    data: XOR<ProductCustomDataUpdateInput, ProductCustomDataUncheckedUpdateInput>
+    /**
+     * Choose, which ProductCustomData to update.
+     */
+    where: ProductCustomDataWhereUniqueInput
+  }
+
+  /**
+   * ProductCustomData updateMany
+   */
+  export type ProductCustomDataUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductCustomData.
+     */
+    data: XOR<ProductCustomDataUpdateManyMutationInput, ProductCustomDataUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductCustomData to update
+     */
+    where?: ProductCustomDataWhereInput
+    /**
+     * Limit how many ProductCustomData to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductCustomData updateManyAndReturn
+   */
+  export type ProductCustomDataUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductCustomData.
+     */
+    data: XOR<ProductCustomDataUpdateManyMutationInput, ProductCustomDataUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductCustomData to update
+     */
+    where?: ProductCustomDataWhereInput
+    /**
+     * Limit how many ProductCustomData to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductCustomData upsert
+   */
+  export type ProductCustomDataUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ProductCustomData to update in case it exists.
+     */
+    where: ProductCustomDataWhereUniqueInput
+    /**
+     * In case the ProductCustomData found by the `where` argument doesn't exist, create a new ProductCustomData with this data.
+     */
+    create: XOR<ProductCustomDataCreateInput, ProductCustomDataUncheckedCreateInput>
+    /**
+     * In case the ProductCustomData was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductCustomDataUpdateInput, ProductCustomDataUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductCustomData delete
+   */
+  export type ProductCustomDataDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter which ProductCustomData to delete.
+     */
+    where: ProductCustomDataWhereUniqueInput
+  }
+
+  /**
+   * ProductCustomData deleteMany
+   */
+  export type ProductCustomDataDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductCustomData to delete
+     */
+    where?: ProductCustomDataWhereInput
+    /**
+     * Limit how many ProductCustomData to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductCustomData without action
+   */
+  export type ProductCustomDataDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCustomData
+     */
+    select?: ProductCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductCustomData
+     */
+    omit?: ProductCustomDataOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductWithCustomData
+   */
+
+  export type AggregateProductWithCustomData = {
+    _count: ProductWithCustomDataCountAggregateOutputType | null
+    _avg: ProductWithCustomDataAvgAggregateOutputType | null
+    _sum: ProductWithCustomDataSumAggregateOutputType | null
+    _min: ProductWithCustomDataMinAggregateOutputType | null
+    _max: ProductWithCustomDataMaxAggregateOutputType | null
+  }
+
+  export type ProductWithCustomDataAvgAggregateOutputType = {
+    shopifyPrice: Decimal | null
+    shopifyInventory: number | null
+    timer1: number | null
+    timer2: number | null
+    totalCost: number | null
+  }
+
+  export type ProductWithCustomDataSumAggregateOutputType = {
+    shopifyPrice: Decimal | null
+    shopifyInventory: number | null
+    timer1: number | null
+    timer2: number | null
+    totalCost: number | null
+  }
+
+  export type ProductWithCustomDataMinAggregateOutputType = {
+    id: string | null
+    variantId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    shopifyProductId: string | null
+    shopifySku: string | null
+    shopifyName: string | null
+    shopifyTitle: string | null
+    shopifyPrice: Decimal | null
+    shopifyInventory: number | null
+    displayName: string | null
+    meat1: string | null
+    meat2: string | null
+    timer1: number | null
+    timer2: number | null
+    option1: string | null
+    option2: string | null
+    serveware: boolean | null
+    isDraft: boolean | null
+    totalCost: number | null
+  }
+
+  export type ProductWithCustomDataMaxAggregateOutputType = {
+    id: string | null
+    variantId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    shopifyProductId: string | null
+    shopifySku: string | null
+    shopifyName: string | null
+    shopifyTitle: string | null
+    shopifyPrice: Decimal | null
+    shopifyInventory: number | null
+    displayName: string | null
+    meat1: string | null
+    meat2: string | null
+    timer1: number | null
+    timer2: number | null
+    option1: string | null
+    option2: string | null
+    serveware: boolean | null
+    isDraft: boolean | null
+    totalCost: number | null
+  }
+
+  export type ProductWithCustomDataCountAggregateOutputType = {
+    id: number
+    variantId: number
+    createdAt: number
+    updatedAt: number
+    shopifyProductId: number
+    shopifySku: number
+    shopifyName: number
+    shopifyTitle: number
+    shopifyPrice: number
+    shopifyInventory: number
+    displayName: number
+    meat1: number
+    meat2: number
+    timer1: number
+    timer2: number
+    option1: number
+    option2: number
+    serveware: number
+    isDraft: number
+    ingredients: number
+    totalCost: number
+    _all: number
+  }
+
+
+  export type ProductWithCustomDataAvgAggregateInputType = {
+    shopifyPrice?: true
+    shopifyInventory?: true
+    timer1?: true
+    timer2?: true
+    totalCost?: true
+  }
+
+  export type ProductWithCustomDataSumAggregateInputType = {
+    shopifyPrice?: true
+    shopifyInventory?: true
+    timer1?: true
+    timer2?: true
+    totalCost?: true
+  }
+
+  export type ProductWithCustomDataMinAggregateInputType = {
+    id?: true
+    variantId?: true
+    createdAt?: true
+    updatedAt?: true
+    shopifyProductId?: true
+    shopifySku?: true
+    shopifyName?: true
+    shopifyTitle?: true
+    shopifyPrice?: true
+    shopifyInventory?: true
+    displayName?: true
+    meat1?: true
+    meat2?: true
+    timer1?: true
+    timer2?: true
+    option1?: true
+    option2?: true
+    serveware?: true
+    isDraft?: true
+    totalCost?: true
+  }
+
+  export type ProductWithCustomDataMaxAggregateInputType = {
+    id?: true
+    variantId?: true
+    createdAt?: true
+    updatedAt?: true
+    shopifyProductId?: true
+    shopifySku?: true
+    shopifyName?: true
+    shopifyTitle?: true
+    shopifyPrice?: true
+    shopifyInventory?: true
+    displayName?: true
+    meat1?: true
+    meat2?: true
+    timer1?: true
+    timer2?: true
+    option1?: true
+    option2?: true
+    serveware?: true
+    isDraft?: true
+    totalCost?: true
+  }
+
+  export type ProductWithCustomDataCountAggregateInputType = {
+    id?: true
+    variantId?: true
+    createdAt?: true
+    updatedAt?: true
+    shopifyProductId?: true
+    shopifySku?: true
+    shopifyName?: true
+    shopifyTitle?: true
+    shopifyPrice?: true
+    shopifyInventory?: true
+    displayName?: true
+    meat1?: true
+    meat2?: true
+    timer1?: true
+    timer2?: true
+    option1?: true
+    option2?: true
+    serveware?: true
+    isDraft?: true
+    ingredients?: true
+    totalCost?: true
+    _all?: true
+  }
+
+  export type ProductWithCustomDataAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductWithCustomData to aggregate.
+     */
+    where?: ProductWithCustomDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductWithCustomData to fetch.
+     */
+    orderBy?: ProductWithCustomDataOrderByWithRelationInput | ProductWithCustomDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductWithCustomDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductWithCustomData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductWithCustomData.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductWithCustomData
+    **/
+    _count?: true | ProductWithCustomDataCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProductWithCustomDataAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProductWithCustomDataSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductWithCustomDataMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductWithCustomDataMaxAggregateInputType
+  }
+
+  export type GetProductWithCustomDataAggregateType<T extends ProductWithCustomDataAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductWithCustomData]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductWithCustomData[P]>
+      : GetScalarType<T[P], AggregateProductWithCustomData[P]>
+  }
+
+
+
+
+  export type ProductWithCustomDataGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductWithCustomDataWhereInput
+    orderBy?: ProductWithCustomDataOrderByWithAggregationInput | ProductWithCustomDataOrderByWithAggregationInput[]
+    by: ProductWithCustomDataScalarFieldEnum[] | ProductWithCustomDataScalarFieldEnum
+    having?: ProductWithCustomDataScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductWithCustomDataCountAggregateInputType | true
+    _avg?: ProductWithCustomDataAvgAggregateInputType
+    _sum?: ProductWithCustomDataSumAggregateInputType
+    _min?: ProductWithCustomDataMinAggregateInputType
+    _max?: ProductWithCustomDataMaxAggregateInputType
+  }
+
+  export type ProductWithCustomDataGroupByOutputType = {
+    id: string
+    variantId: string
+    createdAt: Date
+    updatedAt: Date
+    shopifyProductId: string
+    shopifySku: string | null
+    shopifyName: string
+    shopifyTitle: string
+    shopifyPrice: Decimal
+    shopifyInventory: number
+    displayName: string | null
+    meat1: string | null
+    meat2: string | null
+    timer1: number | null
+    timer2: number | null
+    option1: string | null
+    option2: string | null
+    serveware: boolean
+    isDraft: boolean
+    ingredients: JsonValue | null
+    totalCost: number
+    _count: ProductWithCustomDataCountAggregateOutputType | null
+    _avg: ProductWithCustomDataAvgAggregateOutputType | null
+    _sum: ProductWithCustomDataSumAggregateOutputType | null
+    _min: ProductWithCustomDataMinAggregateOutputType | null
+    _max: ProductWithCustomDataMaxAggregateOutputType | null
+  }
+
+  type GetProductWithCustomDataGroupByPayload<T extends ProductWithCustomDataGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductWithCustomDataGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductWithCustomDataGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductWithCustomDataGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductWithCustomDataGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductWithCustomDataSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    variantId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shopifyProductId?: boolean
+    shopifySku?: boolean
+    shopifyName?: boolean
+    shopifyTitle?: boolean
+    shopifyPrice?: boolean
+    shopifyInventory?: boolean
+    displayName?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    timer1?: boolean
+    timer2?: boolean
+    option1?: boolean
+    option2?: boolean
+    serveware?: boolean
+    isDraft?: boolean
+    ingredients?: boolean
+    totalCost?: boolean
+  }, ExtArgs["result"]["productWithCustomData"]>
+
+  export type ProductWithCustomDataSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    variantId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shopifyProductId?: boolean
+    shopifySku?: boolean
+    shopifyName?: boolean
+    shopifyTitle?: boolean
+    shopifyPrice?: boolean
+    shopifyInventory?: boolean
+    displayName?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    timer1?: boolean
+    timer2?: boolean
+    option1?: boolean
+    option2?: boolean
+    serveware?: boolean
+    isDraft?: boolean
+    ingredients?: boolean
+    totalCost?: boolean
+  }, ExtArgs["result"]["productWithCustomData"]>
+
+  export type ProductWithCustomDataSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    variantId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shopifyProductId?: boolean
+    shopifySku?: boolean
+    shopifyName?: boolean
+    shopifyTitle?: boolean
+    shopifyPrice?: boolean
+    shopifyInventory?: boolean
+    displayName?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    timer1?: boolean
+    timer2?: boolean
+    option1?: boolean
+    option2?: boolean
+    serveware?: boolean
+    isDraft?: boolean
+    ingredients?: boolean
+    totalCost?: boolean
+  }, ExtArgs["result"]["productWithCustomData"]>
+
+  export type ProductWithCustomDataSelectScalar = {
+    id?: boolean
+    variantId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shopifyProductId?: boolean
+    shopifySku?: boolean
+    shopifyName?: boolean
+    shopifyTitle?: boolean
+    shopifyPrice?: boolean
+    shopifyInventory?: boolean
+    displayName?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    timer1?: boolean
+    timer2?: boolean
+    option1?: boolean
+    option2?: boolean
+    serveware?: boolean
+    isDraft?: boolean
+    ingredients?: boolean
+    totalCost?: boolean
+  }
+
+  export type ProductWithCustomDataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "variantId" | "createdAt" | "updatedAt" | "shopifyProductId" | "shopifySku" | "shopifyName" | "shopifyTitle" | "shopifyPrice" | "shopifyInventory" | "displayName" | "meat1" | "meat2" | "timer1" | "timer2" | "option1" | "option2" | "serveware" | "isDraft" | "ingredients" | "totalCost", ExtArgs["result"]["productWithCustomData"]>
+
+  export type $ProductWithCustomDataPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductWithCustomData"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      variantId: string
+      createdAt: Date
+      updatedAt: Date
+      shopifyProductId: string
+      shopifySku: string | null
+      shopifyName: string
+      shopifyTitle: string
+      shopifyPrice: Prisma.Decimal
+      shopifyInventory: number
+      displayName: string | null
+      meat1: string | null
+      meat2: string | null
+      timer1: number | null
+      timer2: number | null
+      option1: string | null
+      option2: string | null
+      serveware: boolean
+      isDraft: boolean
+      ingredients: Prisma.JsonValue | null
+      totalCost: number
+    }, ExtArgs["result"]["productWithCustomData"]>
+    composites: {}
+  }
+
+  type ProductWithCustomDataGetPayload<S extends boolean | null | undefined | ProductWithCustomDataDefaultArgs> = $Result.GetResult<Prisma.$ProductWithCustomDataPayload, S>
+
+  type ProductWithCustomDataCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductWithCustomDataFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductWithCustomDataCountAggregateInputType | true
+    }
+
+  export interface ProductWithCustomDataDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductWithCustomData'], meta: { name: 'ProductWithCustomData' } }
+    /**
+     * Find zero or one ProductWithCustomData that matches the filter.
+     * @param {ProductWithCustomDataFindUniqueArgs} args - Arguments to find a ProductWithCustomData
+     * @example
+     * // Get one ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductWithCustomDataFindUniqueArgs>(args: SelectSubset<T, ProductWithCustomDataFindUniqueArgs<ExtArgs>>): Prisma__ProductWithCustomDataClient<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductWithCustomData that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductWithCustomDataFindUniqueOrThrowArgs} args - Arguments to find a ProductWithCustomData
+     * @example
+     * // Get one ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductWithCustomDataFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductWithCustomDataFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductWithCustomDataClient<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductWithCustomData that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductWithCustomDataFindFirstArgs} args - Arguments to find a ProductWithCustomData
+     * @example
+     * // Get one ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductWithCustomDataFindFirstArgs>(args?: SelectSubset<T, ProductWithCustomDataFindFirstArgs<ExtArgs>>): Prisma__ProductWithCustomDataClient<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductWithCustomData that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductWithCustomDataFindFirstOrThrowArgs} args - Arguments to find a ProductWithCustomData
+     * @example
+     * // Get one ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductWithCustomDataFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductWithCustomDataFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductWithCustomDataClient<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductWithCustomData that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductWithCustomDataFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.findMany()
+     * 
+     * // Get first 10 ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productWithCustomDataWithIdOnly = await prisma.productWithCustomData.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductWithCustomDataFindManyArgs>(args?: SelectSubset<T, ProductWithCustomDataFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductWithCustomData.
+     * @param {ProductWithCustomDataCreateArgs} args - Arguments to create a ProductWithCustomData.
+     * @example
+     * // Create one ProductWithCustomData
+     * const ProductWithCustomData = await prisma.productWithCustomData.create({
+     *   data: {
+     *     // ... data to create a ProductWithCustomData
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductWithCustomDataCreateArgs>(args: SelectSubset<T, ProductWithCustomDataCreateArgs<ExtArgs>>): Prisma__ProductWithCustomDataClient<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductWithCustomData.
+     * @param {ProductWithCustomDataCreateManyArgs} args - Arguments to create many ProductWithCustomData.
+     * @example
+     * // Create many ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductWithCustomDataCreateManyArgs>(args?: SelectSubset<T, ProductWithCustomDataCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductWithCustomData and returns the data saved in the database.
+     * @param {ProductWithCustomDataCreateManyAndReturnArgs} args - Arguments to create many ProductWithCustomData.
+     * @example
+     * // Create many ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductWithCustomData and only return the `id`
+     * const productWithCustomDataWithIdOnly = await prisma.productWithCustomData.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductWithCustomDataCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductWithCustomDataCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductWithCustomData.
+     * @param {ProductWithCustomDataDeleteArgs} args - Arguments to delete one ProductWithCustomData.
+     * @example
+     * // Delete one ProductWithCustomData
+     * const ProductWithCustomData = await prisma.productWithCustomData.delete({
+     *   where: {
+     *     // ... filter to delete one ProductWithCustomData
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductWithCustomDataDeleteArgs>(args: SelectSubset<T, ProductWithCustomDataDeleteArgs<ExtArgs>>): Prisma__ProductWithCustomDataClient<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductWithCustomData.
+     * @param {ProductWithCustomDataUpdateArgs} args - Arguments to update one ProductWithCustomData.
+     * @example
+     * // Update one ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductWithCustomDataUpdateArgs>(args: SelectSubset<T, ProductWithCustomDataUpdateArgs<ExtArgs>>): Prisma__ProductWithCustomDataClient<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductWithCustomData.
+     * @param {ProductWithCustomDataDeleteManyArgs} args - Arguments to filter ProductWithCustomData to delete.
+     * @example
+     * // Delete a few ProductWithCustomData
+     * const { count } = await prisma.productWithCustomData.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductWithCustomDataDeleteManyArgs>(args?: SelectSubset<T, ProductWithCustomDataDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductWithCustomData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductWithCustomDataUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductWithCustomDataUpdateManyArgs>(args: SelectSubset<T, ProductWithCustomDataUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductWithCustomData and returns the data updated in the database.
+     * @param {ProductWithCustomDataUpdateManyAndReturnArgs} args - Arguments to update many ProductWithCustomData.
+     * @example
+     * // Update many ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductWithCustomData and only return the `id`
+     * const productWithCustomDataWithIdOnly = await prisma.productWithCustomData.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductWithCustomDataUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductWithCustomDataUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductWithCustomData.
+     * @param {ProductWithCustomDataUpsertArgs} args - Arguments to update or create a ProductWithCustomData.
+     * @example
+     * // Update or create a ProductWithCustomData
+     * const productWithCustomData = await prisma.productWithCustomData.upsert({
+     *   create: {
+     *     // ... data to create a ProductWithCustomData
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductWithCustomData we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductWithCustomDataUpsertArgs>(args: SelectSubset<T, ProductWithCustomDataUpsertArgs<ExtArgs>>): Prisma__ProductWithCustomDataClient<$Result.GetResult<Prisma.$ProductWithCustomDataPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductWithCustomData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductWithCustomDataCountArgs} args - Arguments to filter ProductWithCustomData to count.
+     * @example
+     * // Count the number of ProductWithCustomData
+     * const count = await prisma.productWithCustomData.count({
+     *   where: {
+     *     // ... the filter for the ProductWithCustomData we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductWithCustomDataCountArgs>(
+      args?: Subset<T, ProductWithCustomDataCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductWithCustomDataCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductWithCustomData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductWithCustomDataAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductWithCustomDataAggregateArgs>(args: Subset<T, ProductWithCustomDataAggregateArgs>): Prisma.PrismaPromise<GetProductWithCustomDataAggregateType<T>>
+
+    /**
+     * Group by ProductWithCustomData.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductWithCustomDataGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductWithCustomDataGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductWithCustomDataGroupByArgs['orderBy'] }
+        : { orderBy?: ProductWithCustomDataGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductWithCustomDataGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductWithCustomDataGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductWithCustomData model
+   */
+  readonly fields: ProductWithCustomDataFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductWithCustomData.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductWithCustomDataClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductWithCustomData model
+   */
+  interface ProductWithCustomDataFieldRefs {
+    readonly id: FieldRef<"ProductWithCustomData", 'String'>
+    readonly variantId: FieldRef<"ProductWithCustomData", 'String'>
+    readonly createdAt: FieldRef<"ProductWithCustomData", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductWithCustomData", 'DateTime'>
+    readonly shopifyProductId: FieldRef<"ProductWithCustomData", 'String'>
+    readonly shopifySku: FieldRef<"ProductWithCustomData", 'String'>
+    readonly shopifyName: FieldRef<"ProductWithCustomData", 'String'>
+    readonly shopifyTitle: FieldRef<"ProductWithCustomData", 'String'>
+    readonly shopifyPrice: FieldRef<"ProductWithCustomData", 'Decimal'>
+    readonly shopifyInventory: FieldRef<"ProductWithCustomData", 'Int'>
+    readonly displayName: FieldRef<"ProductWithCustomData", 'String'>
+    readonly meat1: FieldRef<"ProductWithCustomData", 'String'>
+    readonly meat2: FieldRef<"ProductWithCustomData", 'String'>
+    readonly timer1: FieldRef<"ProductWithCustomData", 'Int'>
+    readonly timer2: FieldRef<"ProductWithCustomData", 'Int'>
+    readonly option1: FieldRef<"ProductWithCustomData", 'String'>
+    readonly option2: FieldRef<"ProductWithCustomData", 'String'>
+    readonly serveware: FieldRef<"ProductWithCustomData", 'Boolean'>
+    readonly isDraft: FieldRef<"ProductWithCustomData", 'Boolean'>
+    readonly ingredients: FieldRef<"ProductWithCustomData", 'Json'>
+    readonly totalCost: FieldRef<"ProductWithCustomData", 'Float'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductWithCustomData findUnique
+   */
+  export type ProductWithCustomDataFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductWithCustomData to fetch.
+     */
+    where: ProductWithCustomDataWhereUniqueInput
+  }
+
+  /**
+   * ProductWithCustomData findUniqueOrThrow
+   */
+  export type ProductWithCustomDataFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductWithCustomData to fetch.
+     */
+    where: ProductWithCustomDataWhereUniqueInput
+  }
+
+  /**
+   * ProductWithCustomData findFirst
+   */
+  export type ProductWithCustomDataFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductWithCustomData to fetch.
+     */
+    where?: ProductWithCustomDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductWithCustomData to fetch.
+     */
+    orderBy?: ProductWithCustomDataOrderByWithRelationInput | ProductWithCustomDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductWithCustomData.
+     */
+    cursor?: ProductWithCustomDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductWithCustomData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductWithCustomData.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductWithCustomData.
+     */
+    distinct?: ProductWithCustomDataScalarFieldEnum | ProductWithCustomDataScalarFieldEnum[]
+  }
+
+  /**
+   * ProductWithCustomData findFirstOrThrow
+   */
+  export type ProductWithCustomDataFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductWithCustomData to fetch.
+     */
+    where?: ProductWithCustomDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductWithCustomData to fetch.
+     */
+    orderBy?: ProductWithCustomDataOrderByWithRelationInput | ProductWithCustomDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductWithCustomData.
+     */
+    cursor?: ProductWithCustomDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductWithCustomData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductWithCustomData.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductWithCustomData.
+     */
+    distinct?: ProductWithCustomDataScalarFieldEnum | ProductWithCustomDataScalarFieldEnum[]
+  }
+
+  /**
+   * ProductWithCustomData findMany
+   */
+  export type ProductWithCustomDataFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductWithCustomData to fetch.
+     */
+    where?: ProductWithCustomDataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductWithCustomData to fetch.
+     */
+    orderBy?: ProductWithCustomDataOrderByWithRelationInput | ProductWithCustomDataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductWithCustomData.
+     */
+    cursor?: ProductWithCustomDataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductWithCustomData from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductWithCustomData.
+     */
+    skip?: number
+    distinct?: ProductWithCustomDataScalarFieldEnum | ProductWithCustomDataScalarFieldEnum[]
+  }
+
+  /**
+   * ProductWithCustomData create
+   */
+  export type ProductWithCustomDataCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ProductWithCustomData.
+     */
+    data: XOR<ProductWithCustomDataCreateInput, ProductWithCustomDataUncheckedCreateInput>
+  }
+
+  /**
+   * ProductWithCustomData createMany
+   */
+  export type ProductWithCustomDataCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductWithCustomData.
+     */
+    data: ProductWithCustomDataCreateManyInput | ProductWithCustomDataCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductWithCustomData createManyAndReturn
+   */
+  export type ProductWithCustomDataCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductWithCustomData.
+     */
+    data: ProductWithCustomDataCreateManyInput | ProductWithCustomDataCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductWithCustomData update
+   */
+  export type ProductWithCustomDataUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ProductWithCustomData.
+     */
+    data: XOR<ProductWithCustomDataUpdateInput, ProductWithCustomDataUncheckedUpdateInput>
+    /**
+     * Choose, which ProductWithCustomData to update.
+     */
+    where: ProductWithCustomDataWhereUniqueInput
+  }
+
+  /**
+   * ProductWithCustomData updateMany
+   */
+  export type ProductWithCustomDataUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductWithCustomData.
+     */
+    data: XOR<ProductWithCustomDataUpdateManyMutationInput, ProductWithCustomDataUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductWithCustomData to update
+     */
+    where?: ProductWithCustomDataWhereInput
+    /**
+     * Limit how many ProductWithCustomData to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductWithCustomData updateManyAndReturn
+   */
+  export type ProductWithCustomDataUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductWithCustomData.
+     */
+    data: XOR<ProductWithCustomDataUpdateManyMutationInput, ProductWithCustomDataUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductWithCustomData to update
+     */
+    where?: ProductWithCustomDataWhereInput
+    /**
+     * Limit how many ProductWithCustomData to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductWithCustomData upsert
+   */
+  export type ProductWithCustomDataUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ProductWithCustomData to update in case it exists.
+     */
+    where: ProductWithCustomDataWhereUniqueInput
+    /**
+     * In case the ProductWithCustomData found by the `where` argument doesn't exist, create a new ProductWithCustomData with this data.
+     */
+    create: XOR<ProductWithCustomDataCreateInput, ProductWithCustomDataUncheckedCreateInput>
+    /**
+     * In case the ProductWithCustomData was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductWithCustomDataUpdateInput, ProductWithCustomDataUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductWithCustomData delete
+   */
+  export type ProductWithCustomDataDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+    /**
+     * Filter which ProductWithCustomData to delete.
+     */
+    where: ProductWithCustomDataWhereUniqueInput
+  }
+
+  /**
+   * ProductWithCustomData deleteMany
+   */
+  export type ProductWithCustomDataDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductWithCustomData to delete
+     */
+    where?: ProductWithCustomDataWhereInput
+    /**
+     * Limit how many ProductWithCustomData to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductWithCustomData without action
+   */
+  export type ProductWithCustomDataDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductWithCustomData
+     */
+    select?: ProductWithCustomDataSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductWithCustomData
+     */
+    omit?: ProductWithCustomDataOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProductRule
+   */
+
+  export type AggregateProductRule = {
+    _count: ProductRuleCountAggregateOutputType | null
+    _avg: ProductRuleAvgAggregateOutputType | null
+    _sum: ProductRuleSumAggregateOutputType | null
+    _min: ProductRuleMinAggregateOutputType | null
+    _max: ProductRuleMaxAggregateOutputType | null
+  }
+
+  export type ProductRuleAvgAggregateOutputType = {
+    priority: number | null
+    setTimer1: number | null
+    setTimer2: number | null
+    setTotalCost: number | null
+  }
+
+  export type ProductRuleSumAggregateOutputType = {
+    priority: number | null
+    setTimer1: number | null
+    setTimer2: number | null
+    setTotalCost: number | null
+  }
+
+  export type ProductRuleMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    isActive: boolean | null
+    priority: number | null
+    matchPattern: string | null
+    matchType: string | null
+    setDisplayName: string | null
+    setMeat1: string | null
+    setMeat2: string | null
+    setTimer1: number | null
+    setTimer2: number | null
+    setOption1: string | null
+    setOption2: string | null
+    setServeware: boolean | null
+    setTotalCost: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductRuleMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    isActive: boolean | null
+    priority: number | null
+    matchPattern: string | null
+    matchType: string | null
+    setDisplayName: string | null
+    setMeat1: string | null
+    setMeat2: string | null
+    setTimer1: number | null
+    setTimer2: number | null
+    setOption1: string | null
+    setOption2: string | null
+    setServeware: boolean | null
+    setTotalCost: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProductRuleCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    isActive: number
+    priority: number
+    matchPattern: number
+    matchType: number
+    setDisplayName: number
+    setMeat1: number
+    setMeat2: number
+    setTimer1: number
+    setTimer2: number
+    setOption1: number
+    setOption2: number
+    setServeware: number
+    setIngredients: number
+    setTotalCost: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ProductRuleAvgAggregateInputType = {
+    priority?: true
+    setTimer1?: true
+    setTimer2?: true
+    setTotalCost?: true
+  }
+
+  export type ProductRuleSumAggregateInputType = {
+    priority?: true
+    setTimer1?: true
+    setTimer2?: true
+    setTotalCost?: true
+  }
+
+  export type ProductRuleMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    isActive?: true
+    priority?: true
+    matchPattern?: true
+    matchType?: true
+    setDisplayName?: true
+    setMeat1?: true
+    setMeat2?: true
+    setTimer1?: true
+    setTimer2?: true
+    setOption1?: true
+    setOption2?: true
+    setServeware?: true
+    setTotalCost?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductRuleMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    isActive?: true
+    priority?: true
+    matchPattern?: true
+    matchType?: true
+    setDisplayName?: true
+    setMeat1?: true
+    setMeat2?: true
+    setTimer1?: true
+    setTimer2?: true
+    setOption1?: true
+    setOption2?: true
+    setServeware?: true
+    setTotalCost?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProductRuleCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    isActive?: true
+    priority?: true
+    matchPattern?: true
+    matchType?: true
+    setDisplayName?: true
+    setMeat1?: true
+    setMeat2?: true
+    setTimer1?: true
+    setTimer2?: true
+    setOption1?: true
+    setOption2?: true
+    setServeware?: true
+    setIngredients?: true
+    setTotalCost?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ProductRuleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductRule to aggregate.
+     */
+    where?: ProductRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductRules to fetch.
+     */
+    orderBy?: ProductRuleOrderByWithRelationInput | ProductRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProductRules
+    **/
+    _count?: true | ProductRuleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProductRuleAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProductRuleSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductRuleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductRuleMaxAggregateInputType
+  }
+
+  export type GetProductRuleAggregateType<T extends ProductRuleAggregateArgs> = {
+        [P in keyof T & keyof AggregateProductRule]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProductRule[P]>
+      : GetScalarType<T[P], AggregateProductRule[P]>
+  }
+
+
+
+
+  export type ProductRuleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductRuleWhereInput
+    orderBy?: ProductRuleOrderByWithAggregationInput | ProductRuleOrderByWithAggregationInput[]
+    by: ProductRuleScalarFieldEnum[] | ProductRuleScalarFieldEnum
+    having?: ProductRuleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductRuleCountAggregateInputType | true
+    _avg?: ProductRuleAvgAggregateInputType
+    _sum?: ProductRuleSumAggregateInputType
+    _min?: ProductRuleMinAggregateInputType
+    _max?: ProductRuleMaxAggregateInputType
+  }
+
+  export type ProductRuleGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    isActive: boolean
+    priority: number
+    matchPattern: string
+    matchType: string
+    setDisplayName: string | null
+    setMeat1: string | null
+    setMeat2: string | null
+    setTimer1: number | null
+    setTimer2: number | null
+    setOption1: string | null
+    setOption2: string | null
+    setServeware: boolean | null
+    setIngredients: JsonValue | null
+    setTotalCost: number | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ProductRuleCountAggregateOutputType | null
+    _avg: ProductRuleAvgAggregateOutputType | null
+    _sum: ProductRuleSumAggregateOutputType | null
+    _min: ProductRuleMinAggregateOutputType | null
+    _max: ProductRuleMaxAggregateOutputType | null
+  }
+
+  type GetProductRuleGroupByPayload<T extends ProductRuleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductRuleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductRuleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductRuleGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductRuleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductRuleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    isActive?: boolean
+    priority?: boolean
+    matchPattern?: boolean
+    matchType?: boolean
+    setDisplayName?: boolean
+    setMeat1?: boolean
+    setMeat2?: boolean
+    setTimer1?: boolean
+    setTimer2?: boolean
+    setOption1?: boolean
+    setOption2?: boolean
+    setServeware?: boolean
+    setIngredients?: boolean
+    setTotalCost?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["productRule"]>
+
+  export type ProductRuleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    isActive?: boolean
+    priority?: boolean
+    matchPattern?: boolean
+    matchType?: boolean
+    setDisplayName?: boolean
+    setMeat1?: boolean
+    setMeat2?: boolean
+    setTimer1?: boolean
+    setTimer2?: boolean
+    setOption1?: boolean
+    setOption2?: boolean
+    setServeware?: boolean
+    setIngredients?: boolean
+    setTotalCost?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["productRule"]>
+
+  export type ProductRuleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    isActive?: boolean
+    priority?: boolean
+    matchPattern?: boolean
+    matchType?: boolean
+    setDisplayName?: boolean
+    setMeat1?: boolean
+    setMeat2?: boolean
+    setTimer1?: boolean
+    setTimer2?: boolean
+    setOption1?: boolean
+    setOption2?: boolean
+    setServeware?: boolean
+    setIngredients?: boolean
+    setTotalCost?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["productRule"]>
+
+  export type ProductRuleSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    isActive?: boolean
+    priority?: boolean
+    matchPattern?: boolean
+    matchType?: boolean
+    setDisplayName?: boolean
+    setMeat1?: boolean
+    setMeat2?: boolean
+    setTimer1?: boolean
+    setTimer2?: boolean
+    setOption1?: boolean
+    setOption2?: boolean
+    setServeware?: boolean
+    setIngredients?: boolean
+    setTotalCost?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ProductRuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "isActive" | "priority" | "matchPattern" | "matchType" | "setDisplayName" | "setMeat1" | "setMeat2" | "setTimer1" | "setTimer2" | "setOption1" | "setOption2" | "setServeware" | "setIngredients" | "setTotalCost" | "createdAt" | "updatedAt", ExtArgs["result"]["productRule"]>
+
+  export type $ProductRulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProductRule"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      isActive: boolean
+      priority: number
+      matchPattern: string
+      matchType: string
+      setDisplayName: string | null
+      setMeat1: string | null
+      setMeat2: string | null
+      setTimer1: number | null
+      setTimer2: number | null
+      setOption1: string | null
+      setOption2: string | null
+      setServeware: boolean | null
+      setIngredients: Prisma.JsonValue | null
+      setTotalCost: number | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["productRule"]>
+    composites: {}
+  }
+
+  type ProductRuleGetPayload<S extends boolean | null | undefined | ProductRuleDefaultArgs> = $Result.GetResult<Prisma.$ProductRulePayload, S>
+
+  type ProductRuleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProductRuleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProductRuleCountAggregateInputType | true
+    }
+
+  export interface ProductRuleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductRule'], meta: { name: 'ProductRule' } }
+    /**
+     * Find zero or one ProductRule that matches the filter.
+     * @param {ProductRuleFindUniqueArgs} args - Arguments to find a ProductRule
+     * @example
+     * // Get one ProductRule
+     * const productRule = await prisma.productRule.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductRuleFindUniqueArgs>(args: SelectSubset<T, ProductRuleFindUniqueArgs<ExtArgs>>): Prisma__ProductRuleClient<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProductRule that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProductRuleFindUniqueOrThrowArgs} args - Arguments to find a ProductRule
+     * @example
+     * // Get one ProductRule
+     * const productRule = await prisma.productRule.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductRuleFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductRuleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductRuleClient<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductRule that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductRuleFindFirstArgs} args - Arguments to find a ProductRule
+     * @example
+     * // Get one ProductRule
+     * const productRule = await prisma.productRule.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductRuleFindFirstArgs>(args?: SelectSubset<T, ProductRuleFindFirstArgs<ExtArgs>>): Prisma__ProductRuleClient<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProductRule that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductRuleFindFirstOrThrowArgs} args - Arguments to find a ProductRule
+     * @example
+     * // Get one ProductRule
+     * const productRule = await prisma.productRule.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductRuleFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductRuleFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductRuleClient<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProductRules that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductRuleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProductRules
+     * const productRules = await prisma.productRule.findMany()
+     * 
+     * // Get first 10 ProductRules
+     * const productRules = await prisma.productRule.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productRuleWithIdOnly = await prisma.productRule.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductRuleFindManyArgs>(args?: SelectSubset<T, ProductRuleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProductRule.
+     * @param {ProductRuleCreateArgs} args - Arguments to create a ProductRule.
+     * @example
+     * // Create one ProductRule
+     * const ProductRule = await prisma.productRule.create({
+     *   data: {
+     *     // ... data to create a ProductRule
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductRuleCreateArgs>(args: SelectSubset<T, ProductRuleCreateArgs<ExtArgs>>): Prisma__ProductRuleClient<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProductRules.
+     * @param {ProductRuleCreateManyArgs} args - Arguments to create many ProductRules.
+     * @example
+     * // Create many ProductRules
+     * const productRule = await prisma.productRule.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductRuleCreateManyArgs>(args?: SelectSubset<T, ProductRuleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProductRules and returns the data saved in the database.
+     * @param {ProductRuleCreateManyAndReturnArgs} args - Arguments to create many ProductRules.
+     * @example
+     * // Create many ProductRules
+     * const productRule = await prisma.productRule.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProductRules and only return the `id`
+     * const productRuleWithIdOnly = await prisma.productRule.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductRuleCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductRuleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProductRule.
+     * @param {ProductRuleDeleteArgs} args - Arguments to delete one ProductRule.
+     * @example
+     * // Delete one ProductRule
+     * const ProductRule = await prisma.productRule.delete({
+     *   where: {
+     *     // ... filter to delete one ProductRule
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductRuleDeleteArgs>(args: SelectSubset<T, ProductRuleDeleteArgs<ExtArgs>>): Prisma__ProductRuleClient<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProductRule.
+     * @param {ProductRuleUpdateArgs} args - Arguments to update one ProductRule.
+     * @example
+     * // Update one ProductRule
+     * const productRule = await prisma.productRule.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductRuleUpdateArgs>(args: SelectSubset<T, ProductRuleUpdateArgs<ExtArgs>>): Prisma__ProductRuleClient<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProductRules.
+     * @param {ProductRuleDeleteManyArgs} args - Arguments to filter ProductRules to delete.
+     * @example
+     * // Delete a few ProductRules
+     * const { count } = await prisma.productRule.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductRuleDeleteManyArgs>(args?: SelectSubset<T, ProductRuleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductRuleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProductRules
+     * const productRule = await prisma.productRule.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductRuleUpdateManyArgs>(args: SelectSubset<T, ProductRuleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProductRules and returns the data updated in the database.
+     * @param {ProductRuleUpdateManyAndReturnArgs} args - Arguments to update many ProductRules.
+     * @example
+     * // Update many ProductRules
+     * const productRule = await prisma.productRule.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProductRules and only return the `id`
+     * const productRuleWithIdOnly = await prisma.productRule.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProductRuleUpdateManyAndReturnArgs>(args: SelectSubset<T, ProductRuleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProductRule.
+     * @param {ProductRuleUpsertArgs} args - Arguments to update or create a ProductRule.
+     * @example
+     * // Update or create a ProductRule
+     * const productRule = await prisma.productRule.upsert({
+     *   create: {
+     *     // ... data to create a ProductRule
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProductRule we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductRuleUpsertArgs>(args: SelectSubset<T, ProductRuleUpsertArgs<ExtArgs>>): Prisma__ProductRuleClient<$Result.GetResult<Prisma.$ProductRulePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProductRules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductRuleCountArgs} args - Arguments to filter ProductRules to count.
+     * @example
+     * // Count the number of ProductRules
+     * const count = await prisma.productRule.count({
+     *   where: {
+     *     // ... the filter for the ProductRules we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductRuleCountArgs>(
+      args?: Subset<T, ProductRuleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductRuleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProductRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductRuleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductRuleAggregateArgs>(args: Subset<T, ProductRuleAggregateArgs>): Prisma.PrismaPromise<GetProductRuleAggregateType<T>>
+
+    /**
+     * Group by ProductRule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductRuleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductRuleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductRuleGroupByArgs['orderBy'] }
+        : { orderBy?: ProductRuleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductRuleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductRuleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProductRule model
+   */
+  readonly fields: ProductRuleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProductRule.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductRuleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProductRule model
+   */
+  interface ProductRuleFieldRefs {
+    readonly id: FieldRef<"ProductRule", 'String'>
+    readonly name: FieldRef<"ProductRule", 'String'>
+    readonly description: FieldRef<"ProductRule", 'String'>
+    readonly isActive: FieldRef<"ProductRule", 'Boolean'>
+    readonly priority: FieldRef<"ProductRule", 'Int'>
+    readonly matchPattern: FieldRef<"ProductRule", 'String'>
+    readonly matchType: FieldRef<"ProductRule", 'String'>
+    readonly setDisplayName: FieldRef<"ProductRule", 'String'>
+    readonly setMeat1: FieldRef<"ProductRule", 'String'>
+    readonly setMeat2: FieldRef<"ProductRule", 'String'>
+    readonly setTimer1: FieldRef<"ProductRule", 'Int'>
+    readonly setTimer2: FieldRef<"ProductRule", 'Int'>
+    readonly setOption1: FieldRef<"ProductRule", 'String'>
+    readonly setOption2: FieldRef<"ProductRule", 'String'>
+    readonly setServeware: FieldRef<"ProductRule", 'Boolean'>
+    readonly setIngredients: FieldRef<"ProductRule", 'Json'>
+    readonly setTotalCost: FieldRef<"ProductRule", 'Float'>
+    readonly createdAt: FieldRef<"ProductRule", 'DateTime'>
+    readonly updatedAt: FieldRef<"ProductRule", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProductRule findUnique
+   */
+  export type ProductRuleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductRule to fetch.
+     */
+    where: ProductRuleWhereUniqueInput
+  }
+
+  /**
+   * ProductRule findUniqueOrThrow
+   */
+  export type ProductRuleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductRule to fetch.
+     */
+    where: ProductRuleWhereUniqueInput
+  }
+
+  /**
+   * ProductRule findFirst
+   */
+  export type ProductRuleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductRule to fetch.
+     */
+    where?: ProductRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductRules to fetch.
+     */
+    orderBy?: ProductRuleOrderByWithRelationInput | ProductRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductRules.
+     */
+    cursor?: ProductRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductRules.
+     */
+    distinct?: ProductRuleScalarFieldEnum | ProductRuleScalarFieldEnum[]
+  }
+
+  /**
+   * ProductRule findFirstOrThrow
+   */
+  export type ProductRuleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductRule to fetch.
+     */
+    where?: ProductRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductRules to fetch.
+     */
+    orderBy?: ProductRuleOrderByWithRelationInput | ProductRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProductRules.
+     */
+    cursor?: ProductRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductRules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProductRules.
+     */
+    distinct?: ProductRuleScalarFieldEnum | ProductRuleScalarFieldEnum[]
+  }
+
+  /**
+   * ProductRule findMany
+   */
+  export type ProductRuleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * Filter, which ProductRules to fetch.
+     */
+    where?: ProductRuleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProductRules to fetch.
+     */
+    orderBy?: ProductRuleOrderByWithRelationInput | ProductRuleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProductRules.
+     */
+    cursor?: ProductRuleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProductRules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProductRules.
+     */
+    skip?: number
+    distinct?: ProductRuleScalarFieldEnum | ProductRuleScalarFieldEnum[]
+  }
+
+  /**
+   * ProductRule create
+   */
+  export type ProductRuleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ProductRule.
+     */
+    data: XOR<ProductRuleCreateInput, ProductRuleUncheckedCreateInput>
+  }
+
+  /**
+   * ProductRule createMany
+   */
+  export type ProductRuleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProductRules.
+     */
+    data: ProductRuleCreateManyInput | ProductRuleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductRule createManyAndReturn
+   */
+  export type ProductRuleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProductRules.
+     */
+    data: ProductRuleCreateManyInput | ProductRuleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProductRule update
+   */
+  export type ProductRuleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ProductRule.
+     */
+    data: XOR<ProductRuleUpdateInput, ProductRuleUncheckedUpdateInput>
+    /**
+     * Choose, which ProductRule to update.
+     */
+    where: ProductRuleWhereUniqueInput
+  }
+
+  /**
+   * ProductRule updateMany
+   */
+  export type ProductRuleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProductRules.
+     */
+    data: XOR<ProductRuleUpdateManyMutationInput, ProductRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductRules to update
+     */
+    where?: ProductRuleWhereInput
+    /**
+     * Limit how many ProductRules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductRule updateManyAndReturn
+   */
+  export type ProductRuleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * The data used to update ProductRules.
+     */
+    data: XOR<ProductRuleUpdateManyMutationInput, ProductRuleUncheckedUpdateManyInput>
+    /**
+     * Filter which ProductRules to update
+     */
+    where?: ProductRuleWhereInput
+    /**
+     * Limit how many ProductRules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductRule upsert
+   */
+  export type ProductRuleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ProductRule to update in case it exists.
+     */
+    where: ProductRuleWhereUniqueInput
+    /**
+     * In case the ProductRule found by the `where` argument doesn't exist, create a new ProductRule with this data.
+     */
+    create: XOR<ProductRuleCreateInput, ProductRuleUncheckedCreateInput>
+    /**
+     * In case the ProductRule was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductRuleUpdateInput, ProductRuleUncheckedUpdateInput>
+  }
+
+  /**
+   * ProductRule delete
+   */
+  export type ProductRuleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+    /**
+     * Filter which ProductRule to delete.
+     */
+    where: ProductRuleWhereUniqueInput
+  }
+
+  /**
+   * ProductRule deleteMany
+   */
+  export type ProductRuleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProductRules to delete
+     */
+    where?: ProductRuleWhereInput
+    /**
+     * Limit how many ProductRules to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProductRule without action
+   */
+  export type ProductRuleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductRule
+     */
+    select?: ProductRuleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProductRule
+     */
+    omit?: ProductRuleOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model Staff
    */
 
@@ -8620,6 +12927,7 @@ export namespace Prisma {
     payRate: number | null
     accessLevel: string | null
     isDriver: boolean | null
+    isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     lastLogin: Date | null
@@ -8637,6 +12945,7 @@ export namespace Prisma {
     payRate: number | null
     accessLevel: string | null
     isDriver: boolean | null
+    isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     lastLogin: Date | null
@@ -8654,6 +12963,7 @@ export namespace Prisma {
     payRate: number
     accessLevel: number
     isDriver: number
+    isActive: number
     createdAt: number
     updatedAt: number
     lastLogin: number
@@ -8681,6 +12991,7 @@ export namespace Prisma {
     payRate?: true
     accessLevel?: true
     isDriver?: true
+    isActive?: true
     createdAt?: true
     updatedAt?: true
     lastLogin?: true
@@ -8698,6 +13009,7 @@ export namespace Prisma {
     payRate?: true
     accessLevel?: true
     isDriver?: true
+    isActive?: true
     createdAt?: true
     updatedAt?: true
     lastLogin?: true
@@ -8715,6 +13027,7 @@ export namespace Prisma {
     payRate?: true
     accessLevel?: true
     isDriver?: true
+    isActive?: true
     createdAt?: true
     updatedAt?: true
     lastLogin?: true
@@ -8819,6 +13132,7 @@ export namespace Prisma {
     payRate: number
     accessLevel: string
     isDriver: boolean
+    isActive: boolean
     createdAt: Date
     updatedAt: Date
     lastLogin: Date | null
@@ -8855,6 +13169,7 @@ export namespace Prisma {
     payRate?: boolean
     accessLevel?: boolean
     isDriver?: boolean
+    isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     lastLogin?: boolean
@@ -8862,6 +13177,7 @@ export namespace Prisma {
     resetToken?: boolean
     resetTokenExpiry?: boolean
     shifts?: boolean | Staff$shiftsArgs<ExtArgs>
+    rosterAssignments?: boolean | Staff$rosterAssignmentsArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["staff"]>
 
@@ -8874,6 +13190,7 @@ export namespace Prisma {
     payRate?: boolean
     accessLevel?: boolean
     isDriver?: boolean
+    isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     lastLogin?: boolean
@@ -8891,6 +13208,7 @@ export namespace Prisma {
     payRate?: boolean
     accessLevel?: boolean
     isDriver?: boolean
+    isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     lastLogin?: boolean
@@ -8908,6 +13226,7 @@ export namespace Prisma {
     payRate?: boolean
     accessLevel?: boolean
     isDriver?: boolean
+    isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     lastLogin?: boolean
@@ -8916,9 +13235,10 @@ export namespace Prisma {
     resetTokenExpiry?: boolean
   }
 
-  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "firstName" | "lastName" | "phone" | "email" | "payRate" | "accessLevel" | "isDriver" | "createdAt" | "updatedAt" | "lastLogin" | "password" | "resetToken" | "resetTokenExpiry", ExtArgs["result"]["staff"]>
+  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "firstName" | "lastName" | "phone" | "email" | "payRate" | "accessLevel" | "isDriver" | "isActive" | "createdAt" | "updatedAt" | "lastLogin" | "password" | "resetToken" | "resetTokenExpiry", ExtArgs["result"]["staff"]>
   export type StaffInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     shifts?: boolean | Staff$shiftsArgs<ExtArgs>
+    rosterAssignments?: boolean | Staff$rosterAssignmentsArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StaffIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -8928,6 +13248,7 @@ export namespace Prisma {
     name: "Staff"
     objects: {
       shifts: Prisma.$ShiftPayload<ExtArgs>[]
+      rosterAssignments: Prisma.$RosterAssignmentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8938,6 +13259,7 @@ export namespace Prisma {
       payRate: number
       accessLevel: string
       isDriver: boolean
+      isActive: boolean
       createdAt: Date
       updatedAt: Date
       lastLogin: Date | null
@@ -9339,6 +13661,7 @@ export namespace Prisma {
   export interface Prisma__StaffClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     shifts<T extends Staff$shiftsArgs<ExtArgs> = {}>(args?: Subset<T, Staff$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    rosterAssignments<T extends Staff$rosterAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, Staff$rosterAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9376,6 +13699,7 @@ export namespace Prisma {
     readonly payRate: FieldRef<"Staff", 'Float'>
     readonly accessLevel: FieldRef<"Staff", 'String'>
     readonly isDriver: FieldRef<"Staff", 'Boolean'>
+    readonly isActive: FieldRef<"Staff", 'Boolean'>
     readonly createdAt: FieldRef<"Staff", 'DateTime'>
     readonly updatedAt: FieldRef<"Staff", 'DateTime'>
     readonly lastLogin: FieldRef<"Staff", 'DateTime'>
@@ -9611,6 +13935,7 @@ export namespace Prisma {
      * The data used to create many Staff.
      */
     data: StaffCreateManyInput | StaffCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -9629,6 +13954,7 @@ export namespace Prisma {
      * The data used to create many Staff.
      */
     data: StaffCreateManyInput | StaffCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -9792,6 +14118,30 @@ export namespace Prisma {
   }
 
   /**
+   * Staff.rosterAssignments
+   */
+  export type Staff$rosterAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    where?: RosterAssignmentWhereInput
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    cursor?: RosterAssignmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
+  }
+
+  /**
    * Staff without action
    */
   export type StaffDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9811,6 +14161,2239 @@ export namespace Prisma {
 
 
   /**
+   * Model ShiftType
+   */
+
+  export type AggregateShiftType = {
+    _count: ShiftTypeCountAggregateOutputType | null
+    _min: ShiftTypeMinAggregateOutputType | null
+    _max: ShiftTypeMaxAggregateOutputType | null
+  }
+
+  export type ShiftTypeMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    startTime: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShiftTypeMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    startTime: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShiftTypeCountAggregateOutputType = {
+    id: number
+    name: number
+    startTime: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ShiftTypeMinAggregateInputType = {
+    id?: true
+    name?: true
+    startTime?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShiftTypeMaxAggregateInputType = {
+    id?: true
+    name?: true
+    startTime?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShiftTypeCountAggregateInputType = {
+    id?: true
+    name?: true
+    startTime?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ShiftTypeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ShiftType to aggregate.
+     */
+    where?: ShiftTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShiftTypes to fetch.
+     */
+    orderBy?: ShiftTypeOrderByWithRelationInput | ShiftTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ShiftTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShiftTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShiftTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ShiftTypes
+    **/
+    _count?: true | ShiftTypeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ShiftTypeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ShiftTypeMaxAggregateInputType
+  }
+
+  export type GetShiftTypeAggregateType<T extends ShiftTypeAggregateArgs> = {
+        [P in keyof T & keyof AggregateShiftType]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateShiftType[P]>
+      : GetScalarType<T[P], AggregateShiftType[P]>
+  }
+
+
+
+
+  export type ShiftTypeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShiftTypeWhereInput
+    orderBy?: ShiftTypeOrderByWithAggregationInput | ShiftTypeOrderByWithAggregationInput[]
+    by: ShiftTypeScalarFieldEnum[] | ShiftTypeScalarFieldEnum
+    having?: ShiftTypeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ShiftTypeCountAggregateInputType | true
+    _min?: ShiftTypeMinAggregateInputType
+    _max?: ShiftTypeMaxAggregateInputType
+  }
+
+  export type ShiftTypeGroupByOutputType = {
+    id: string
+    name: string
+    startTime: string
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: ShiftTypeCountAggregateOutputType | null
+    _min: ShiftTypeMinAggregateOutputType | null
+    _max: ShiftTypeMaxAggregateOutputType | null
+  }
+
+  type GetShiftTypeGroupByPayload<T extends ShiftTypeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ShiftTypeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ShiftTypeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ShiftTypeGroupByOutputType[P]>
+            : GetScalarType<T[P], ShiftTypeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ShiftTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    startTime?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    rosterAssignments?: boolean | ShiftType$rosterAssignmentsArgs<ExtArgs>
+    _count?: boolean | ShiftTypeCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["shiftType"]>
+
+  export type ShiftTypeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    startTime?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["shiftType"]>
+
+  export type ShiftTypeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    startTime?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["shiftType"]>
+
+  export type ShiftTypeSelectScalar = {
+    id?: boolean
+    name?: boolean
+    startTime?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ShiftTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "startTime" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["shiftType"]>
+  export type ShiftTypeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rosterAssignments?: boolean | ShiftType$rosterAssignmentsArgs<ExtArgs>
+    _count?: boolean | ShiftTypeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ShiftTypeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ShiftTypeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $ShiftTypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ShiftType"
+    objects: {
+      rosterAssignments: Prisma.$RosterAssignmentPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      startTime: string
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["shiftType"]>
+    composites: {}
+  }
+
+  type ShiftTypeGetPayload<S extends boolean | null | undefined | ShiftTypeDefaultArgs> = $Result.GetResult<Prisma.$ShiftTypePayload, S>
+
+  type ShiftTypeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ShiftTypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ShiftTypeCountAggregateInputType | true
+    }
+
+  export interface ShiftTypeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ShiftType'], meta: { name: 'ShiftType' } }
+    /**
+     * Find zero or one ShiftType that matches the filter.
+     * @param {ShiftTypeFindUniqueArgs} args - Arguments to find a ShiftType
+     * @example
+     * // Get one ShiftType
+     * const shiftType = await prisma.shiftType.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ShiftTypeFindUniqueArgs>(args: SelectSubset<T, ShiftTypeFindUniqueArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ShiftType that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ShiftTypeFindUniqueOrThrowArgs} args - Arguments to find a ShiftType
+     * @example
+     * // Get one ShiftType
+     * const shiftType = await prisma.shiftType.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ShiftTypeFindUniqueOrThrowArgs>(args: SelectSubset<T, ShiftTypeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ShiftType that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTypeFindFirstArgs} args - Arguments to find a ShiftType
+     * @example
+     * // Get one ShiftType
+     * const shiftType = await prisma.shiftType.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ShiftTypeFindFirstArgs>(args?: SelectSubset<T, ShiftTypeFindFirstArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ShiftType that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTypeFindFirstOrThrowArgs} args - Arguments to find a ShiftType
+     * @example
+     * // Get one ShiftType
+     * const shiftType = await prisma.shiftType.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ShiftTypeFindFirstOrThrowArgs>(args?: SelectSubset<T, ShiftTypeFindFirstOrThrowArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ShiftTypes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTypeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ShiftTypes
+     * const shiftTypes = await prisma.shiftType.findMany()
+     * 
+     * // Get first 10 ShiftTypes
+     * const shiftTypes = await prisma.shiftType.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const shiftTypeWithIdOnly = await prisma.shiftType.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ShiftTypeFindManyArgs>(args?: SelectSubset<T, ShiftTypeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ShiftType.
+     * @param {ShiftTypeCreateArgs} args - Arguments to create a ShiftType.
+     * @example
+     * // Create one ShiftType
+     * const ShiftType = await prisma.shiftType.create({
+     *   data: {
+     *     // ... data to create a ShiftType
+     *   }
+     * })
+     * 
+     */
+    create<T extends ShiftTypeCreateArgs>(args: SelectSubset<T, ShiftTypeCreateArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ShiftTypes.
+     * @param {ShiftTypeCreateManyArgs} args - Arguments to create many ShiftTypes.
+     * @example
+     * // Create many ShiftTypes
+     * const shiftType = await prisma.shiftType.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ShiftTypeCreateManyArgs>(args?: SelectSubset<T, ShiftTypeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ShiftTypes and returns the data saved in the database.
+     * @param {ShiftTypeCreateManyAndReturnArgs} args - Arguments to create many ShiftTypes.
+     * @example
+     * // Create many ShiftTypes
+     * const shiftType = await prisma.shiftType.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ShiftTypes and only return the `id`
+     * const shiftTypeWithIdOnly = await prisma.shiftType.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ShiftTypeCreateManyAndReturnArgs>(args?: SelectSubset<T, ShiftTypeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ShiftType.
+     * @param {ShiftTypeDeleteArgs} args - Arguments to delete one ShiftType.
+     * @example
+     * // Delete one ShiftType
+     * const ShiftType = await prisma.shiftType.delete({
+     *   where: {
+     *     // ... filter to delete one ShiftType
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ShiftTypeDeleteArgs>(args: SelectSubset<T, ShiftTypeDeleteArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ShiftType.
+     * @param {ShiftTypeUpdateArgs} args - Arguments to update one ShiftType.
+     * @example
+     * // Update one ShiftType
+     * const shiftType = await prisma.shiftType.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ShiftTypeUpdateArgs>(args: SelectSubset<T, ShiftTypeUpdateArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ShiftTypes.
+     * @param {ShiftTypeDeleteManyArgs} args - Arguments to filter ShiftTypes to delete.
+     * @example
+     * // Delete a few ShiftTypes
+     * const { count } = await prisma.shiftType.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ShiftTypeDeleteManyArgs>(args?: SelectSubset<T, ShiftTypeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ShiftTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTypeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ShiftTypes
+     * const shiftType = await prisma.shiftType.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ShiftTypeUpdateManyArgs>(args: SelectSubset<T, ShiftTypeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ShiftTypes and returns the data updated in the database.
+     * @param {ShiftTypeUpdateManyAndReturnArgs} args - Arguments to update many ShiftTypes.
+     * @example
+     * // Update many ShiftTypes
+     * const shiftType = await prisma.shiftType.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ShiftTypes and only return the `id`
+     * const shiftTypeWithIdOnly = await prisma.shiftType.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ShiftTypeUpdateManyAndReturnArgs>(args: SelectSubset<T, ShiftTypeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ShiftType.
+     * @param {ShiftTypeUpsertArgs} args - Arguments to update or create a ShiftType.
+     * @example
+     * // Update or create a ShiftType
+     * const shiftType = await prisma.shiftType.upsert({
+     *   create: {
+     *     // ... data to create a ShiftType
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ShiftType we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ShiftTypeUpsertArgs>(args: SelectSubset<T, ShiftTypeUpsertArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ShiftTypes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTypeCountArgs} args - Arguments to filter ShiftTypes to count.
+     * @example
+     * // Count the number of ShiftTypes
+     * const count = await prisma.shiftType.count({
+     *   where: {
+     *     // ... the filter for the ShiftTypes we want to count
+     *   }
+     * })
+    **/
+    count<T extends ShiftTypeCountArgs>(
+      args?: Subset<T, ShiftTypeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ShiftTypeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ShiftType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTypeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ShiftTypeAggregateArgs>(args: Subset<T, ShiftTypeAggregateArgs>): Prisma.PrismaPromise<GetShiftTypeAggregateType<T>>
+
+    /**
+     * Group by ShiftType.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTypeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ShiftTypeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ShiftTypeGroupByArgs['orderBy'] }
+        : { orderBy?: ShiftTypeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ShiftTypeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetShiftTypeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ShiftType model
+   */
+  readonly fields: ShiftTypeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ShiftType.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ShiftTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    rosterAssignments<T extends ShiftType$rosterAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, ShiftType$rosterAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ShiftType model
+   */
+  interface ShiftTypeFieldRefs {
+    readonly id: FieldRef<"ShiftType", 'String'>
+    readonly name: FieldRef<"ShiftType", 'String'>
+    readonly startTime: FieldRef<"ShiftType", 'String'>
+    readonly isActive: FieldRef<"ShiftType", 'Boolean'>
+    readonly createdAt: FieldRef<"ShiftType", 'DateTime'>
+    readonly updatedAt: FieldRef<"ShiftType", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ShiftType findUnique
+   */
+  export type ShiftTypeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftType to fetch.
+     */
+    where: ShiftTypeWhereUniqueInput
+  }
+
+  /**
+   * ShiftType findUniqueOrThrow
+   */
+  export type ShiftTypeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftType to fetch.
+     */
+    where: ShiftTypeWhereUniqueInput
+  }
+
+  /**
+   * ShiftType findFirst
+   */
+  export type ShiftTypeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftType to fetch.
+     */
+    where?: ShiftTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShiftTypes to fetch.
+     */
+    orderBy?: ShiftTypeOrderByWithRelationInput | ShiftTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ShiftTypes.
+     */
+    cursor?: ShiftTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShiftTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShiftTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ShiftTypes.
+     */
+    distinct?: ShiftTypeScalarFieldEnum | ShiftTypeScalarFieldEnum[]
+  }
+
+  /**
+   * ShiftType findFirstOrThrow
+   */
+  export type ShiftTypeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftType to fetch.
+     */
+    where?: ShiftTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShiftTypes to fetch.
+     */
+    orderBy?: ShiftTypeOrderByWithRelationInput | ShiftTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ShiftTypes.
+     */
+    cursor?: ShiftTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShiftTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShiftTypes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ShiftTypes.
+     */
+    distinct?: ShiftTypeScalarFieldEnum | ShiftTypeScalarFieldEnum[]
+  }
+
+  /**
+   * ShiftType findMany
+   */
+  export type ShiftTypeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftTypes to fetch.
+     */
+    where?: ShiftTypeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShiftTypes to fetch.
+     */
+    orderBy?: ShiftTypeOrderByWithRelationInput | ShiftTypeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ShiftTypes.
+     */
+    cursor?: ShiftTypeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShiftTypes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShiftTypes.
+     */
+    skip?: number
+    distinct?: ShiftTypeScalarFieldEnum | ShiftTypeScalarFieldEnum[]
+  }
+
+  /**
+   * ShiftType create
+   */
+  export type ShiftTypeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ShiftType.
+     */
+    data: XOR<ShiftTypeCreateInput, ShiftTypeUncheckedCreateInput>
+  }
+
+  /**
+   * ShiftType createMany
+   */
+  export type ShiftTypeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ShiftTypes.
+     */
+    data: ShiftTypeCreateManyInput | ShiftTypeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ShiftType createManyAndReturn
+   */
+  export type ShiftTypeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * The data used to create many ShiftTypes.
+     */
+    data: ShiftTypeCreateManyInput | ShiftTypeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ShiftType update
+   */
+  export type ShiftTypeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ShiftType.
+     */
+    data: XOR<ShiftTypeUpdateInput, ShiftTypeUncheckedUpdateInput>
+    /**
+     * Choose, which ShiftType to update.
+     */
+    where: ShiftTypeWhereUniqueInput
+  }
+
+  /**
+   * ShiftType updateMany
+   */
+  export type ShiftTypeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ShiftTypes.
+     */
+    data: XOR<ShiftTypeUpdateManyMutationInput, ShiftTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which ShiftTypes to update
+     */
+    where?: ShiftTypeWhereInput
+    /**
+     * Limit how many ShiftTypes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShiftType updateManyAndReturn
+   */
+  export type ShiftTypeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * The data used to update ShiftTypes.
+     */
+    data: XOR<ShiftTypeUpdateManyMutationInput, ShiftTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which ShiftTypes to update
+     */
+    where?: ShiftTypeWhereInput
+    /**
+     * Limit how many ShiftTypes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShiftType upsert
+   */
+  export type ShiftTypeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ShiftType to update in case it exists.
+     */
+    where: ShiftTypeWhereUniqueInput
+    /**
+     * In case the ShiftType found by the `where` argument doesn't exist, create a new ShiftType with this data.
+     */
+    create: XOR<ShiftTypeCreateInput, ShiftTypeUncheckedCreateInput>
+    /**
+     * In case the ShiftType was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ShiftTypeUpdateInput, ShiftTypeUncheckedUpdateInput>
+  }
+
+  /**
+   * ShiftType delete
+   */
+  export type ShiftTypeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    /**
+     * Filter which ShiftType to delete.
+     */
+    where: ShiftTypeWhereUniqueInput
+  }
+
+  /**
+   * ShiftType deleteMany
+   */
+  export type ShiftTypeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ShiftTypes to delete
+     */
+    where?: ShiftTypeWhereInput
+    /**
+     * Limit how many ShiftTypes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShiftType.rosterAssignments
+   */
+  export type ShiftType$rosterAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    where?: RosterAssignmentWhereInput
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    cursor?: RosterAssignmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * ShiftType without action
+   */
+  export type ShiftTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model RosterAssignment
+   */
+
+  export type AggregateRosterAssignment = {
+    _count: RosterAssignmentCountAggregateOutputType | null
+    _min: RosterAssignmentMinAggregateOutputType | null
+    _max: RosterAssignmentMaxAggregateOutputType | null
+  }
+
+  export type RosterAssignmentMinAggregateOutputType = {
+    id: string | null
+    staffId: string | null
+    shiftTypeId: string | null
+    startTime: string | null
+    endTime: string | null
+    date: Date | null
+    notes: string | null
+    assignedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RosterAssignmentMaxAggregateOutputType = {
+    id: string | null
+    staffId: string | null
+    shiftTypeId: string | null
+    startTime: string | null
+    endTime: string | null
+    date: Date | null
+    notes: string | null
+    assignedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RosterAssignmentCountAggregateOutputType = {
+    id: number
+    staffId: number
+    shiftTypeId: number
+    startTime: number
+    endTime: number
+    date: number
+    notes: number
+    assignedBy: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type RosterAssignmentMinAggregateInputType = {
+    id?: true
+    staffId?: true
+    shiftTypeId?: true
+    startTime?: true
+    endTime?: true
+    date?: true
+    notes?: true
+    assignedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RosterAssignmentMaxAggregateInputType = {
+    id?: true
+    staffId?: true
+    shiftTypeId?: true
+    startTime?: true
+    endTime?: true
+    date?: true
+    notes?: true
+    assignedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RosterAssignmentCountAggregateInputType = {
+    id?: true
+    staffId?: true
+    shiftTypeId?: true
+    startTime?: true
+    endTime?: true
+    date?: true
+    notes?: true
+    assignedBy?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type RosterAssignmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RosterAssignment to aggregate.
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignments to fetch.
+     */
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: RosterAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned RosterAssignments
+    **/
+    _count?: true | RosterAssignmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: RosterAssignmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: RosterAssignmentMaxAggregateInputType
+  }
+
+  export type GetRosterAssignmentAggregateType<T extends RosterAssignmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateRosterAssignment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRosterAssignment[P]>
+      : GetScalarType<T[P], AggregateRosterAssignment[P]>
+  }
+
+
+
+
+  export type RosterAssignmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RosterAssignmentWhereInput
+    orderBy?: RosterAssignmentOrderByWithAggregationInput | RosterAssignmentOrderByWithAggregationInput[]
+    by: RosterAssignmentScalarFieldEnum[] | RosterAssignmentScalarFieldEnum
+    having?: RosterAssignmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: RosterAssignmentCountAggregateInputType | true
+    _min?: RosterAssignmentMinAggregateInputType
+    _max?: RosterAssignmentMaxAggregateInputType
+  }
+
+  export type RosterAssignmentGroupByOutputType = {
+    id: string
+    staffId: string
+    shiftTypeId: string | null
+    startTime: string | null
+    endTime: string | null
+    date: Date
+    notes: string | null
+    assignedBy: string
+    createdAt: Date
+    updatedAt: Date
+    _count: RosterAssignmentCountAggregateOutputType | null
+    _min: RosterAssignmentMinAggregateOutputType | null
+    _max: RosterAssignmentMaxAggregateOutputType | null
+  }
+
+  type GetRosterAssignmentGroupByPayload<T extends RosterAssignmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<RosterAssignmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof RosterAssignmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], RosterAssignmentGroupByOutputType[P]>
+            : GetScalarType<T[P], RosterAssignmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type RosterAssignmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    staffId?: boolean
+    shiftTypeId?: boolean
+    startTime?: boolean
+    endTime?: boolean
+    date?: boolean
+    notes?: boolean
+    assignedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["rosterAssignment"]>
+
+  export type RosterAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    staffId?: boolean
+    shiftTypeId?: boolean
+    startTime?: boolean
+    endTime?: boolean
+    date?: boolean
+    notes?: boolean
+    assignedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["rosterAssignment"]>
+
+  export type RosterAssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    staffId?: boolean
+    shiftTypeId?: boolean
+    startTime?: boolean
+    endTime?: boolean
+    date?: boolean
+    notes?: boolean
+    assignedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["rosterAssignment"]>
+
+  export type RosterAssignmentSelectScalar = {
+    id?: boolean
+    staffId?: boolean
+    shiftTypeId?: boolean
+    startTime?: boolean
+    endTime?: boolean
+    date?: boolean
+    notes?: boolean
+    assignedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type RosterAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffId" | "shiftTypeId" | "startTime" | "endTime" | "date" | "notes" | "assignedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["rosterAssignment"]>
+  export type RosterAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }
+  export type RosterAssignmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }
+  export type RosterAssignmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }
+
+  export type $RosterAssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RosterAssignment"
+    objects: {
+      staff: Prisma.$StaffPayload<ExtArgs>
+      shiftType: Prisma.$ShiftTypePayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      staffId: string
+      shiftTypeId: string | null
+      startTime: string | null
+      endTime: string | null
+      date: Date
+      notes: string | null
+      assignedBy: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["rosterAssignment"]>
+    composites: {}
+  }
+
+  type RosterAssignmentGetPayload<S extends boolean | null | undefined | RosterAssignmentDefaultArgs> = $Result.GetResult<Prisma.$RosterAssignmentPayload, S>
+
+  type RosterAssignmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RosterAssignmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RosterAssignmentCountAggregateInputType | true
+    }
+
+  export interface RosterAssignmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RosterAssignment'], meta: { name: 'RosterAssignment' } }
+    /**
+     * Find zero or one RosterAssignment that matches the filter.
+     * @param {RosterAssignmentFindUniqueArgs} args - Arguments to find a RosterAssignment
+     * @example
+     * // Get one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends RosterAssignmentFindUniqueArgs>(args: SelectSubset<T, RosterAssignmentFindUniqueArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one RosterAssignment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {RosterAssignmentFindUniqueOrThrowArgs} args - Arguments to find a RosterAssignment
+     * @example
+     * // Get one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends RosterAssignmentFindUniqueOrThrowArgs>(args: SelectSubset<T, RosterAssignmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RosterAssignment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentFindFirstArgs} args - Arguments to find a RosterAssignment
+     * @example
+     * // Get one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends RosterAssignmentFindFirstArgs>(args?: SelectSubset<T, RosterAssignmentFindFirstArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RosterAssignment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentFindFirstOrThrowArgs} args - Arguments to find a RosterAssignment
+     * @example
+     * // Get one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends RosterAssignmentFindFirstOrThrowArgs>(args?: SelectSubset<T, RosterAssignmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more RosterAssignments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all RosterAssignments
+     * const rosterAssignments = await prisma.rosterAssignment.findMany()
+     * 
+     * // Get first 10 RosterAssignments
+     * const rosterAssignments = await prisma.rosterAssignment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const rosterAssignmentWithIdOnly = await prisma.rosterAssignment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends RosterAssignmentFindManyArgs>(args?: SelectSubset<T, RosterAssignmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a RosterAssignment.
+     * @param {RosterAssignmentCreateArgs} args - Arguments to create a RosterAssignment.
+     * @example
+     * // Create one RosterAssignment
+     * const RosterAssignment = await prisma.rosterAssignment.create({
+     *   data: {
+     *     // ... data to create a RosterAssignment
+     *   }
+     * })
+     * 
+     */
+    create<T extends RosterAssignmentCreateArgs>(args: SelectSubset<T, RosterAssignmentCreateArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many RosterAssignments.
+     * @param {RosterAssignmentCreateManyArgs} args - Arguments to create many RosterAssignments.
+     * @example
+     * // Create many RosterAssignments
+     * const rosterAssignment = await prisma.rosterAssignment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends RosterAssignmentCreateManyArgs>(args?: SelectSubset<T, RosterAssignmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many RosterAssignments and returns the data saved in the database.
+     * @param {RosterAssignmentCreateManyAndReturnArgs} args - Arguments to create many RosterAssignments.
+     * @example
+     * // Create many RosterAssignments
+     * const rosterAssignment = await prisma.rosterAssignment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many RosterAssignments and only return the `id`
+     * const rosterAssignmentWithIdOnly = await prisma.rosterAssignment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends RosterAssignmentCreateManyAndReturnArgs>(args?: SelectSubset<T, RosterAssignmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a RosterAssignment.
+     * @param {RosterAssignmentDeleteArgs} args - Arguments to delete one RosterAssignment.
+     * @example
+     * // Delete one RosterAssignment
+     * const RosterAssignment = await prisma.rosterAssignment.delete({
+     *   where: {
+     *     // ... filter to delete one RosterAssignment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends RosterAssignmentDeleteArgs>(args: SelectSubset<T, RosterAssignmentDeleteArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one RosterAssignment.
+     * @param {RosterAssignmentUpdateArgs} args - Arguments to update one RosterAssignment.
+     * @example
+     * // Update one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends RosterAssignmentUpdateArgs>(args: SelectSubset<T, RosterAssignmentUpdateArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more RosterAssignments.
+     * @param {RosterAssignmentDeleteManyArgs} args - Arguments to filter RosterAssignments to delete.
+     * @example
+     * // Delete a few RosterAssignments
+     * const { count } = await prisma.rosterAssignment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends RosterAssignmentDeleteManyArgs>(args?: SelectSubset<T, RosterAssignmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RosterAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many RosterAssignments
+     * const rosterAssignment = await prisma.rosterAssignment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends RosterAssignmentUpdateManyArgs>(args: SelectSubset<T, RosterAssignmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RosterAssignments and returns the data updated in the database.
+     * @param {RosterAssignmentUpdateManyAndReturnArgs} args - Arguments to update many RosterAssignments.
+     * @example
+     * // Update many RosterAssignments
+     * const rosterAssignment = await prisma.rosterAssignment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more RosterAssignments and only return the `id`
+     * const rosterAssignmentWithIdOnly = await prisma.rosterAssignment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends RosterAssignmentUpdateManyAndReturnArgs>(args: SelectSubset<T, RosterAssignmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one RosterAssignment.
+     * @param {RosterAssignmentUpsertArgs} args - Arguments to update or create a RosterAssignment.
+     * @example
+     * // Update or create a RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.upsert({
+     *   create: {
+     *     // ... data to create a RosterAssignment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the RosterAssignment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends RosterAssignmentUpsertArgs>(args: SelectSubset<T, RosterAssignmentUpsertArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of RosterAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentCountArgs} args - Arguments to filter RosterAssignments to count.
+     * @example
+     * // Count the number of RosterAssignments
+     * const count = await prisma.rosterAssignment.count({
+     *   where: {
+     *     // ... the filter for the RosterAssignments we want to count
+     *   }
+     * })
+    **/
+    count<T extends RosterAssignmentCountArgs>(
+      args?: Subset<T, RosterAssignmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], RosterAssignmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a RosterAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends RosterAssignmentAggregateArgs>(args: Subset<T, RosterAssignmentAggregateArgs>): Prisma.PrismaPromise<GetRosterAssignmentAggregateType<T>>
+
+    /**
+     * Group by RosterAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends RosterAssignmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: RosterAssignmentGroupByArgs['orderBy'] }
+        : { orderBy?: RosterAssignmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, RosterAssignmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRosterAssignmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the RosterAssignment model
+   */
+  readonly fields: RosterAssignmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for RosterAssignment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__RosterAssignmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    staff<T extends StaffDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StaffDefaultArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    shiftType<T extends RosterAssignment$shiftTypeArgs<ExtArgs> = {}>(args?: Subset<T, RosterAssignment$shiftTypeArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the RosterAssignment model
+   */
+  interface RosterAssignmentFieldRefs {
+    readonly id: FieldRef<"RosterAssignment", 'String'>
+    readonly staffId: FieldRef<"RosterAssignment", 'String'>
+    readonly shiftTypeId: FieldRef<"RosterAssignment", 'String'>
+    readonly startTime: FieldRef<"RosterAssignment", 'String'>
+    readonly endTime: FieldRef<"RosterAssignment", 'String'>
+    readonly date: FieldRef<"RosterAssignment", 'DateTime'>
+    readonly notes: FieldRef<"RosterAssignment", 'String'>
+    readonly assignedBy: FieldRef<"RosterAssignment", 'String'>
+    readonly createdAt: FieldRef<"RosterAssignment", 'DateTime'>
+    readonly updatedAt: FieldRef<"RosterAssignment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * RosterAssignment findUnique
+   */
+  export type RosterAssignmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignment to fetch.
+     */
+    where: RosterAssignmentWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignment findUniqueOrThrow
+   */
+  export type RosterAssignmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignment to fetch.
+     */
+    where: RosterAssignmentWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignment findFirst
+   */
+  export type RosterAssignmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignment to fetch.
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignments to fetch.
+     */
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RosterAssignments.
+     */
+    cursor?: RosterAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RosterAssignments.
+     */
+    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignment findFirstOrThrow
+   */
+  export type RosterAssignmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignment to fetch.
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignments to fetch.
+     */
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RosterAssignments.
+     */
+    cursor?: RosterAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RosterAssignments.
+     */
+    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignment findMany
+   */
+  export type RosterAssignmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignments to fetch.
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignments to fetch.
+     */
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing RosterAssignments.
+     */
+    cursor?: RosterAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignments.
+     */
+    skip?: number
+    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignment create
+   */
+  export type RosterAssignmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a RosterAssignment.
+     */
+    data: XOR<RosterAssignmentCreateInput, RosterAssignmentUncheckedCreateInput>
+  }
+
+  /**
+   * RosterAssignment createMany
+   */
+  export type RosterAssignmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many RosterAssignments.
+     */
+    data: RosterAssignmentCreateManyInput | RosterAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * RosterAssignment createManyAndReturn
+   */
+  export type RosterAssignmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many RosterAssignments.
+     */
+    data: RosterAssignmentCreateManyInput | RosterAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * RosterAssignment update
+   */
+  export type RosterAssignmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a RosterAssignment.
+     */
+    data: XOR<RosterAssignmentUpdateInput, RosterAssignmentUncheckedUpdateInput>
+    /**
+     * Choose, which RosterAssignment to update.
+     */
+    where: RosterAssignmentWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignment updateMany
+   */
+  export type RosterAssignmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update RosterAssignments.
+     */
+    data: XOR<RosterAssignmentUpdateManyMutationInput, RosterAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which RosterAssignments to update
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * Limit how many RosterAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * RosterAssignment updateManyAndReturn
+   */
+  export type RosterAssignmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to update RosterAssignments.
+     */
+    data: XOR<RosterAssignmentUpdateManyMutationInput, RosterAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which RosterAssignments to update
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * Limit how many RosterAssignments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * RosterAssignment upsert
+   */
+  export type RosterAssignmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the RosterAssignment to update in case it exists.
+     */
+    where: RosterAssignmentWhereUniqueInput
+    /**
+     * In case the RosterAssignment found by the `where` argument doesn't exist, create a new RosterAssignment with this data.
+     */
+    create: XOR<RosterAssignmentCreateInput, RosterAssignmentUncheckedCreateInput>
+    /**
+     * In case the RosterAssignment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<RosterAssignmentUpdateInput, RosterAssignmentUncheckedUpdateInput>
+  }
+
+  /**
+   * RosterAssignment delete
+   */
+  export type RosterAssignmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter which RosterAssignment to delete.
+     */
+    where: RosterAssignmentWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignment deleteMany
+   */
+  export type RosterAssignmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RosterAssignments to delete
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * Limit how many RosterAssignments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * RosterAssignment.shiftType
+   */
+  export type RosterAssignment$shiftTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    where?: ShiftTypeWhereInput
+  }
+
+  /**
+   * RosterAssignment without action
+   */
+  export type RosterAssignmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Shift
    */
 
@@ -9824,10 +16407,12 @@ export namespace Prisma {
 
   export type ShiftAvgAggregateOutputType = {
     totalHours: number | null
+    mileage: number | null
   }
 
   export type ShiftSumAggregateOutputType = {
     totalHours: number | null
+    mileage: number | null
   }
 
   export type ShiftMinAggregateOutputType = {
@@ -9837,6 +16422,9 @@ export namespace Prisma {
     clockOut: Date | null
     totalHours: number | null
     date: Date | null
+    mileage: number | null
+    notes: string | null
+    status: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9848,6 +16436,9 @@ export namespace Prisma {
     clockOut: Date | null
     totalHours: number | null
     date: Date | null
+    mileage: number | null
+    notes: string | null
+    status: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9859,6 +16450,9 @@ export namespace Prisma {
     clockOut: number
     totalHours: number
     date: number
+    mileage: number
+    notes: number
+    status: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -9867,10 +16461,12 @@ export namespace Prisma {
 
   export type ShiftAvgAggregateInputType = {
     totalHours?: true
+    mileage?: true
   }
 
   export type ShiftSumAggregateInputType = {
     totalHours?: true
+    mileage?: true
   }
 
   export type ShiftMinAggregateInputType = {
@@ -9880,6 +16476,9 @@ export namespace Prisma {
     clockOut?: true
     totalHours?: true
     date?: true
+    mileage?: true
+    notes?: true
+    status?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9891,6 +16490,9 @@ export namespace Prisma {
     clockOut?: true
     totalHours?: true
     date?: true
+    mileage?: true
+    notes?: true
+    status?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9902,6 +16504,9 @@ export namespace Prisma {
     clockOut?: true
     totalHours?: true
     date?: true
+    mileage?: true
+    notes?: true
+    status?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -10000,6 +16605,9 @@ export namespace Prisma {
     clockOut: Date | null
     totalHours: number | null
     date: Date
+    mileage: number | null
+    notes: string | null
+    status: string
     createdAt: Date
     updatedAt: Date
     _count: ShiftCountAggregateOutputType | null
@@ -10030,9 +16638,14 @@ export namespace Prisma {
     clockOut?: boolean
     totalHours?: boolean
     date?: boolean
+    mileage?: boolean
+    notes?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
+    reimbursements?: boolean | Shift$reimbursementsArgs<ExtArgs>
+    _count?: boolean | ShiftCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["shift"]>
 
   export type ShiftSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -10042,6 +16655,9 @@ export namespace Prisma {
     clockOut?: boolean
     totalHours?: boolean
     date?: boolean
+    mileage?: boolean
+    notes?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
@@ -10054,6 +16670,9 @@ export namespace Prisma {
     clockOut?: boolean
     totalHours?: boolean
     date?: boolean
+    mileage?: boolean
+    notes?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
@@ -10066,13 +16685,18 @@ export namespace Prisma {
     clockOut?: boolean
     totalHours?: boolean
     date?: boolean
+    mileage?: boolean
+    notes?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ShiftOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffId" | "clockIn" | "clockOut" | "totalHours" | "date" | "createdAt" | "updatedAt", ExtArgs["result"]["shift"]>
+  export type ShiftOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffId" | "clockIn" | "clockOut" | "totalHours" | "date" | "mileage" | "notes" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["shift"]>
   export type ShiftInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     staff?: boolean | StaffDefaultArgs<ExtArgs>
+    reimbursements?: boolean | Shift$reimbursementsArgs<ExtArgs>
+    _count?: boolean | ShiftCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ShiftIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     staff?: boolean | StaffDefaultArgs<ExtArgs>
@@ -10085,6 +16709,7 @@ export namespace Prisma {
     name: "Shift"
     objects: {
       staff: Prisma.$StaffPayload<ExtArgs>
+      reimbursements: Prisma.$ReimbursementPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10093,6 +16718,9 @@ export namespace Prisma {
       clockOut: Date | null
       totalHours: number | null
       date: Date
+      mileage: number | null
+      notes: string | null
+      status: string
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["shift"]>
@@ -10490,6 +17118,7 @@ export namespace Prisma {
   export interface Prisma__ShiftClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     staff<T extends StaffDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StaffDefaultArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    reimbursements<T extends Shift$reimbursementsArgs<ExtArgs> = {}>(args?: Subset<T, Shift$reimbursementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10525,6 +17154,9 @@ export namespace Prisma {
     readonly clockOut: FieldRef<"Shift", 'DateTime'>
     readonly totalHours: FieldRef<"Shift", 'Float'>
     readonly date: FieldRef<"Shift", 'DateTime'>
+    readonly mileage: FieldRef<"Shift", 'Float'>
+    readonly notes: FieldRef<"Shift", 'String'>
+    readonly status: FieldRef<"Shift", 'String'>
     readonly createdAt: FieldRef<"Shift", 'DateTime'>
     readonly updatedAt: FieldRef<"Shift", 'DateTime'>
   }
@@ -10756,6 +17388,7 @@ export namespace Prisma {
      * The data used to create many Shifts.
      */
     data: ShiftCreateManyInput | ShiftCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -10774,6 +17407,7 @@ export namespace Prisma {
      * The data used to create many Shifts.
      */
     data: ShiftCreateManyInput | ShiftCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -10921,6 +17555,30 @@ export namespace Prisma {
   }
 
   /**
+   * Shift.reimbursements
+   */
+  export type Shift$reimbursementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    where?: ReimbursementWhereInput
+    orderBy?: ReimbursementOrderByWithRelationInput | ReimbursementOrderByWithRelationInput[]
+    cursor?: ReimbursementWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReimbursementScalarFieldEnum | ReimbursementScalarFieldEnum[]
+  }
+
+  /**
    * Shift without action
    */
   export type ShiftDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10940,149 +17598,2646 @@ export namespace Prisma {
 
 
   /**
+   * Model Reimbursement
+   */
+
+  export type AggregateReimbursement = {
+    _count: ReimbursementCountAggregateOutputType | null
+    _avg: ReimbursementAvgAggregateOutputType | null
+    _sum: ReimbursementSumAggregateOutputType | null
+    _min: ReimbursementMinAggregateOutputType | null
+    _max: ReimbursementMaxAggregateOutputType | null
+  }
+
+  export type ReimbursementAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type ReimbursementSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type ReimbursementMinAggregateOutputType = {
+    id: string | null
+    shiftId: string | null
+    amount: number | null
+    description: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReimbursementMaxAggregateOutputType = {
+    id: string | null
+    shiftId: string | null
+    amount: number | null
+    description: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReimbursementCountAggregateOutputType = {
+    id: number
+    shiftId: number
+    amount: number
+    description: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ReimbursementAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type ReimbursementSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type ReimbursementMinAggregateInputType = {
+    id?: true
+    shiftId?: true
+    amount?: true
+    description?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReimbursementMaxAggregateInputType = {
+    id?: true
+    shiftId?: true
+    amount?: true
+    description?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReimbursementCountAggregateInputType = {
+    id?: true
+    shiftId?: true
+    amount?: true
+    description?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ReimbursementAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Reimbursement to aggregate.
+     */
+    where?: ReimbursementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Reimbursements to fetch.
+     */
+    orderBy?: ReimbursementOrderByWithRelationInput | ReimbursementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReimbursementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Reimbursements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Reimbursements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Reimbursements
+    **/
+    _count?: true | ReimbursementCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ReimbursementAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReimbursementSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReimbursementMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReimbursementMaxAggregateInputType
+  }
+
+  export type GetReimbursementAggregateType<T extends ReimbursementAggregateArgs> = {
+        [P in keyof T & keyof AggregateReimbursement]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReimbursement[P]>
+      : GetScalarType<T[P], AggregateReimbursement[P]>
+  }
+
+
+
+
+  export type ReimbursementGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReimbursementWhereInput
+    orderBy?: ReimbursementOrderByWithAggregationInput | ReimbursementOrderByWithAggregationInput[]
+    by: ReimbursementScalarFieldEnum[] | ReimbursementScalarFieldEnum
+    having?: ReimbursementScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReimbursementCountAggregateInputType | true
+    _avg?: ReimbursementAvgAggregateInputType
+    _sum?: ReimbursementSumAggregateInputType
+    _min?: ReimbursementMinAggregateInputType
+    _max?: ReimbursementMaxAggregateInputType
+  }
+
+  export type ReimbursementGroupByOutputType = {
+    id: string
+    shiftId: string
+    amount: number
+    description: string
+    createdAt: Date
+    updatedAt: Date
+    _count: ReimbursementCountAggregateOutputType | null
+    _avg: ReimbursementAvgAggregateOutputType | null
+    _sum: ReimbursementSumAggregateOutputType | null
+    _min: ReimbursementMinAggregateOutputType | null
+    _max: ReimbursementMaxAggregateOutputType | null
+  }
+
+  type GetReimbursementGroupByPayload<T extends ReimbursementGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReimbursementGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReimbursementGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReimbursementGroupByOutputType[P]>
+            : GetScalarType<T[P], ReimbursementGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReimbursementSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shiftId?: boolean
+    amount?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reimbursement"]>
+
+  export type ReimbursementSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shiftId?: boolean
+    amount?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reimbursement"]>
+
+  export type ReimbursementSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shiftId?: boolean
+    amount?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reimbursement"]>
+
+  export type ReimbursementSelectScalar = {
+    id?: boolean
+    shiftId?: boolean
+    amount?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ReimbursementOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shiftId" | "amount" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["reimbursement"]>
+  export type ReimbursementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }
+  export type ReimbursementIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }
+  export type ReimbursementIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }
+
+  export type $ReimbursementPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Reimbursement"
+    objects: {
+      shift: Prisma.$ShiftPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      shiftId: string
+      amount: number
+      description: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["reimbursement"]>
+    composites: {}
+  }
+
+  type ReimbursementGetPayload<S extends boolean | null | undefined | ReimbursementDefaultArgs> = $Result.GetResult<Prisma.$ReimbursementPayload, S>
+
+  type ReimbursementCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReimbursementFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReimbursementCountAggregateInputType | true
+    }
+
+  export interface ReimbursementDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Reimbursement'], meta: { name: 'Reimbursement' } }
+    /**
+     * Find zero or one Reimbursement that matches the filter.
+     * @param {ReimbursementFindUniqueArgs} args - Arguments to find a Reimbursement
+     * @example
+     * // Get one Reimbursement
+     * const reimbursement = await prisma.reimbursement.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReimbursementFindUniqueArgs>(args: SelectSubset<T, ReimbursementFindUniqueArgs<ExtArgs>>): Prisma__ReimbursementClient<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Reimbursement that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReimbursementFindUniqueOrThrowArgs} args - Arguments to find a Reimbursement
+     * @example
+     * // Get one Reimbursement
+     * const reimbursement = await prisma.reimbursement.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReimbursementFindUniqueOrThrowArgs>(args: SelectSubset<T, ReimbursementFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReimbursementClient<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Reimbursement that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReimbursementFindFirstArgs} args - Arguments to find a Reimbursement
+     * @example
+     * // Get one Reimbursement
+     * const reimbursement = await prisma.reimbursement.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReimbursementFindFirstArgs>(args?: SelectSubset<T, ReimbursementFindFirstArgs<ExtArgs>>): Prisma__ReimbursementClient<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Reimbursement that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReimbursementFindFirstOrThrowArgs} args - Arguments to find a Reimbursement
+     * @example
+     * // Get one Reimbursement
+     * const reimbursement = await prisma.reimbursement.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReimbursementFindFirstOrThrowArgs>(args?: SelectSubset<T, ReimbursementFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReimbursementClient<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Reimbursements that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReimbursementFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Reimbursements
+     * const reimbursements = await prisma.reimbursement.findMany()
+     * 
+     * // Get first 10 Reimbursements
+     * const reimbursements = await prisma.reimbursement.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reimbursementWithIdOnly = await prisma.reimbursement.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReimbursementFindManyArgs>(args?: SelectSubset<T, ReimbursementFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Reimbursement.
+     * @param {ReimbursementCreateArgs} args - Arguments to create a Reimbursement.
+     * @example
+     * // Create one Reimbursement
+     * const Reimbursement = await prisma.reimbursement.create({
+     *   data: {
+     *     // ... data to create a Reimbursement
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReimbursementCreateArgs>(args: SelectSubset<T, ReimbursementCreateArgs<ExtArgs>>): Prisma__ReimbursementClient<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Reimbursements.
+     * @param {ReimbursementCreateManyArgs} args - Arguments to create many Reimbursements.
+     * @example
+     * // Create many Reimbursements
+     * const reimbursement = await prisma.reimbursement.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReimbursementCreateManyArgs>(args?: SelectSubset<T, ReimbursementCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Reimbursements and returns the data saved in the database.
+     * @param {ReimbursementCreateManyAndReturnArgs} args - Arguments to create many Reimbursements.
+     * @example
+     * // Create many Reimbursements
+     * const reimbursement = await prisma.reimbursement.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Reimbursements and only return the `id`
+     * const reimbursementWithIdOnly = await prisma.reimbursement.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReimbursementCreateManyAndReturnArgs>(args?: SelectSubset<T, ReimbursementCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Reimbursement.
+     * @param {ReimbursementDeleteArgs} args - Arguments to delete one Reimbursement.
+     * @example
+     * // Delete one Reimbursement
+     * const Reimbursement = await prisma.reimbursement.delete({
+     *   where: {
+     *     // ... filter to delete one Reimbursement
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReimbursementDeleteArgs>(args: SelectSubset<T, ReimbursementDeleteArgs<ExtArgs>>): Prisma__ReimbursementClient<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Reimbursement.
+     * @param {ReimbursementUpdateArgs} args - Arguments to update one Reimbursement.
+     * @example
+     * // Update one Reimbursement
+     * const reimbursement = await prisma.reimbursement.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReimbursementUpdateArgs>(args: SelectSubset<T, ReimbursementUpdateArgs<ExtArgs>>): Prisma__ReimbursementClient<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Reimbursements.
+     * @param {ReimbursementDeleteManyArgs} args - Arguments to filter Reimbursements to delete.
+     * @example
+     * // Delete a few Reimbursements
+     * const { count } = await prisma.reimbursement.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReimbursementDeleteManyArgs>(args?: SelectSubset<T, ReimbursementDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Reimbursements.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReimbursementUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Reimbursements
+     * const reimbursement = await prisma.reimbursement.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReimbursementUpdateManyArgs>(args: SelectSubset<T, ReimbursementUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Reimbursements and returns the data updated in the database.
+     * @param {ReimbursementUpdateManyAndReturnArgs} args - Arguments to update many Reimbursements.
+     * @example
+     * // Update many Reimbursements
+     * const reimbursement = await prisma.reimbursement.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Reimbursements and only return the `id`
+     * const reimbursementWithIdOnly = await prisma.reimbursement.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReimbursementUpdateManyAndReturnArgs>(args: SelectSubset<T, ReimbursementUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Reimbursement.
+     * @param {ReimbursementUpsertArgs} args - Arguments to update or create a Reimbursement.
+     * @example
+     * // Update or create a Reimbursement
+     * const reimbursement = await prisma.reimbursement.upsert({
+     *   create: {
+     *     // ... data to create a Reimbursement
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Reimbursement we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReimbursementUpsertArgs>(args: SelectSubset<T, ReimbursementUpsertArgs<ExtArgs>>): Prisma__ReimbursementClient<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Reimbursements.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReimbursementCountArgs} args - Arguments to filter Reimbursements to count.
+     * @example
+     * // Count the number of Reimbursements
+     * const count = await prisma.reimbursement.count({
+     *   where: {
+     *     // ... the filter for the Reimbursements we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReimbursementCountArgs>(
+      args?: Subset<T, ReimbursementCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReimbursementCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Reimbursement.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReimbursementAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReimbursementAggregateArgs>(args: Subset<T, ReimbursementAggregateArgs>): Prisma.PrismaPromise<GetReimbursementAggregateType<T>>
+
+    /**
+     * Group by Reimbursement.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReimbursementGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReimbursementGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReimbursementGroupByArgs['orderBy'] }
+        : { orderBy?: ReimbursementGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReimbursementGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReimbursementGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Reimbursement model
+   */
+  readonly fields: ReimbursementFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Reimbursement.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReimbursementClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    shift<T extends ShiftDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ShiftDefaultArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Reimbursement model
+   */
+  interface ReimbursementFieldRefs {
+    readonly id: FieldRef<"Reimbursement", 'String'>
+    readonly shiftId: FieldRef<"Reimbursement", 'String'>
+    readonly amount: FieldRef<"Reimbursement", 'Float'>
+    readonly description: FieldRef<"Reimbursement", 'String'>
+    readonly createdAt: FieldRef<"Reimbursement", 'DateTime'>
+    readonly updatedAt: FieldRef<"Reimbursement", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Reimbursement findUnique
+   */
+  export type ReimbursementFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    /**
+     * Filter, which Reimbursement to fetch.
+     */
+    where: ReimbursementWhereUniqueInput
+  }
+
+  /**
+   * Reimbursement findUniqueOrThrow
+   */
+  export type ReimbursementFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    /**
+     * Filter, which Reimbursement to fetch.
+     */
+    where: ReimbursementWhereUniqueInput
+  }
+
+  /**
+   * Reimbursement findFirst
+   */
+  export type ReimbursementFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    /**
+     * Filter, which Reimbursement to fetch.
+     */
+    where?: ReimbursementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Reimbursements to fetch.
+     */
+    orderBy?: ReimbursementOrderByWithRelationInput | ReimbursementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Reimbursements.
+     */
+    cursor?: ReimbursementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Reimbursements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Reimbursements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Reimbursements.
+     */
+    distinct?: ReimbursementScalarFieldEnum | ReimbursementScalarFieldEnum[]
+  }
+
+  /**
+   * Reimbursement findFirstOrThrow
+   */
+  export type ReimbursementFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    /**
+     * Filter, which Reimbursement to fetch.
+     */
+    where?: ReimbursementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Reimbursements to fetch.
+     */
+    orderBy?: ReimbursementOrderByWithRelationInput | ReimbursementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Reimbursements.
+     */
+    cursor?: ReimbursementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Reimbursements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Reimbursements.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Reimbursements.
+     */
+    distinct?: ReimbursementScalarFieldEnum | ReimbursementScalarFieldEnum[]
+  }
+
+  /**
+   * Reimbursement findMany
+   */
+  export type ReimbursementFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    /**
+     * Filter, which Reimbursements to fetch.
+     */
+    where?: ReimbursementWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Reimbursements to fetch.
+     */
+    orderBy?: ReimbursementOrderByWithRelationInput | ReimbursementOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Reimbursements.
+     */
+    cursor?: ReimbursementWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Reimbursements from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Reimbursements.
+     */
+    skip?: number
+    distinct?: ReimbursementScalarFieldEnum | ReimbursementScalarFieldEnum[]
+  }
+
+  /**
+   * Reimbursement create
+   */
+  export type ReimbursementCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Reimbursement.
+     */
+    data: XOR<ReimbursementCreateInput, ReimbursementUncheckedCreateInput>
+  }
+
+  /**
+   * Reimbursement createMany
+   */
+  export type ReimbursementCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Reimbursements.
+     */
+    data: ReimbursementCreateManyInput | ReimbursementCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Reimbursement createManyAndReturn
+   */
+  export type ReimbursementCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * The data used to create many Reimbursements.
+     */
+    data: ReimbursementCreateManyInput | ReimbursementCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Reimbursement update
+   */
+  export type ReimbursementUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Reimbursement.
+     */
+    data: XOR<ReimbursementUpdateInput, ReimbursementUncheckedUpdateInput>
+    /**
+     * Choose, which Reimbursement to update.
+     */
+    where: ReimbursementWhereUniqueInput
+  }
+
+  /**
+   * Reimbursement updateMany
+   */
+  export type ReimbursementUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Reimbursements.
+     */
+    data: XOR<ReimbursementUpdateManyMutationInput, ReimbursementUncheckedUpdateManyInput>
+    /**
+     * Filter which Reimbursements to update
+     */
+    where?: ReimbursementWhereInput
+    /**
+     * Limit how many Reimbursements to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Reimbursement updateManyAndReturn
+   */
+  export type ReimbursementUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * The data used to update Reimbursements.
+     */
+    data: XOR<ReimbursementUpdateManyMutationInput, ReimbursementUncheckedUpdateManyInput>
+    /**
+     * Filter which Reimbursements to update
+     */
+    where?: ReimbursementWhereInput
+    /**
+     * Limit how many Reimbursements to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Reimbursement upsert
+   */
+  export type ReimbursementUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Reimbursement to update in case it exists.
+     */
+    where: ReimbursementWhereUniqueInput
+    /**
+     * In case the Reimbursement found by the `where` argument doesn't exist, create a new Reimbursement with this data.
+     */
+    create: XOR<ReimbursementCreateInput, ReimbursementUncheckedCreateInput>
+    /**
+     * In case the Reimbursement was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReimbursementUpdateInput, ReimbursementUncheckedUpdateInput>
+  }
+
+  /**
+   * Reimbursement delete
+   */
+  export type ReimbursementDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+    /**
+     * Filter which Reimbursement to delete.
+     */
+    where: ReimbursementWhereUniqueInput
+  }
+
+  /**
+   * Reimbursement deleteMany
+   */
+  export type ReimbursementDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Reimbursements to delete
+     */
+    where?: ReimbursementWhereInput
+    /**
+     * Limit how many Reimbursements to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Reimbursement without action
+   */
+  export type ReimbursementDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reimbursement
+     */
+    select?: ReimbursementSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reimbursement
+     */
+    omit?: ReimbursementOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReimbursementInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Order
+   */
+
+  export type AggregateOrder = {
+    _count: OrderCountAggregateOutputType | null
+    _avg: OrderAvgAggregateOutputType | null
+    _sum: OrderSumAggregateOutputType | null
+    _min: OrderMinAggregateOutputType | null
+    _max: OrderMaxAggregateOutputType | null
+  }
+
+  export type OrderAvgAggregateOutputType = {
+    orderNumber: number | null
+    totalPrice: number | null
+    subtotalPrice: number | null
+    totalTax: number | null
+  }
+
+  export type OrderSumAggregateOutputType = {
+    orderNumber: number | null
+    totalPrice: number | null
+    subtotalPrice: number | null
+    totalTax: number | null
+  }
+
+  export type OrderMinAggregateOutputType = {
+    id: string | null
+    shopifyId: string | null
+    orderNumber: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    processedAt: Date | null
+    cancelledAt: Date | null
+    closedAt: Date | null
+    totalPrice: number | null
+    subtotalPrice: number | null
+    totalTax: number | null
+    currency: string | null
+    financialStatus: string | null
+    fulfillmentStatus: string | null
+    tags: string | null
+    note: string | null
+    customerEmail: string | null
+    customerFirstName: string | null
+    customerLastName: string | null
+    customerPhone: string | null
+    source: string | null
+    hasLocalEdits: boolean | null
+    syncedAt: Date | null
+    dbCreatedAt: Date | null
+    dbUpdatedAt: Date | null
+    deliveryDate: string | null
+    deliveryTime: string | null
+    pickupDate: string | null
+    pickupTime: string | null
+    deliveryInstructions: string | null
+    travelTime: string | null
+    leaveTime: string | null
+    driverId: string | null
+    isDispatched: boolean | null
+    lastSmsSent: Date | null
+  }
+
+  export type OrderMaxAggregateOutputType = {
+    id: string | null
+    shopifyId: string | null
+    orderNumber: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    processedAt: Date | null
+    cancelledAt: Date | null
+    closedAt: Date | null
+    totalPrice: number | null
+    subtotalPrice: number | null
+    totalTax: number | null
+    currency: string | null
+    financialStatus: string | null
+    fulfillmentStatus: string | null
+    tags: string | null
+    note: string | null
+    customerEmail: string | null
+    customerFirstName: string | null
+    customerLastName: string | null
+    customerPhone: string | null
+    source: string | null
+    hasLocalEdits: boolean | null
+    syncedAt: Date | null
+    dbCreatedAt: Date | null
+    dbUpdatedAt: Date | null
+    deliveryDate: string | null
+    deliveryTime: string | null
+    pickupDate: string | null
+    pickupTime: string | null
+    deliveryInstructions: string | null
+    travelTime: string | null
+    leaveTime: string | null
+    driverId: string | null
+    isDispatched: boolean | null
+    lastSmsSent: Date | null
+  }
+
+  export type OrderCountAggregateOutputType = {
+    id: number
+    shopifyId: number
+    orderNumber: number
+    createdAt: number
+    updatedAt: number
+    processedAt: number
+    cancelledAt: number
+    closedAt: number
+    totalPrice: number
+    subtotalPrice: number
+    totalTax: number
+    currency: number
+    financialStatus: number
+    fulfillmentStatus: number
+    tags: number
+    note: number
+    customerEmail: number
+    customerFirstName: number
+    customerLastName: number
+    customerPhone: number
+    shippingAddress: number
+    billingAddress: number
+    lineItems: number
+    source: number
+    hasLocalEdits: number
+    syncedAt: number
+    dbCreatedAt: number
+    dbUpdatedAt: number
+    noteAttributes: number
+    deliveryDate: number
+    deliveryTime: number
+    pickupDate: number
+    pickupTime: number
+    deliveryInstructions: number
+    travelTime: number
+    leaveTime: number
+    driverId: number
+    isDispatched: number
+    lastSmsSent: number
+    smsHistory: number
+    _all: number
+  }
+
+
+  export type OrderAvgAggregateInputType = {
+    orderNumber?: true
+    totalPrice?: true
+    subtotalPrice?: true
+    totalTax?: true
+  }
+
+  export type OrderSumAggregateInputType = {
+    orderNumber?: true
+    totalPrice?: true
+    subtotalPrice?: true
+    totalTax?: true
+  }
+
+  export type OrderMinAggregateInputType = {
+    id?: true
+    shopifyId?: true
+    orderNumber?: true
+    createdAt?: true
+    updatedAt?: true
+    processedAt?: true
+    cancelledAt?: true
+    closedAt?: true
+    totalPrice?: true
+    subtotalPrice?: true
+    totalTax?: true
+    currency?: true
+    financialStatus?: true
+    fulfillmentStatus?: true
+    tags?: true
+    note?: true
+    customerEmail?: true
+    customerFirstName?: true
+    customerLastName?: true
+    customerPhone?: true
+    source?: true
+    hasLocalEdits?: true
+    syncedAt?: true
+    dbCreatedAt?: true
+    dbUpdatedAt?: true
+    deliveryDate?: true
+    deliveryTime?: true
+    pickupDate?: true
+    pickupTime?: true
+    deliveryInstructions?: true
+    travelTime?: true
+    leaveTime?: true
+    driverId?: true
+    isDispatched?: true
+    lastSmsSent?: true
+  }
+
+  export type OrderMaxAggregateInputType = {
+    id?: true
+    shopifyId?: true
+    orderNumber?: true
+    createdAt?: true
+    updatedAt?: true
+    processedAt?: true
+    cancelledAt?: true
+    closedAt?: true
+    totalPrice?: true
+    subtotalPrice?: true
+    totalTax?: true
+    currency?: true
+    financialStatus?: true
+    fulfillmentStatus?: true
+    tags?: true
+    note?: true
+    customerEmail?: true
+    customerFirstName?: true
+    customerLastName?: true
+    customerPhone?: true
+    source?: true
+    hasLocalEdits?: true
+    syncedAt?: true
+    dbCreatedAt?: true
+    dbUpdatedAt?: true
+    deliveryDate?: true
+    deliveryTime?: true
+    pickupDate?: true
+    pickupTime?: true
+    deliveryInstructions?: true
+    travelTime?: true
+    leaveTime?: true
+    driverId?: true
+    isDispatched?: true
+    lastSmsSent?: true
+  }
+
+  export type OrderCountAggregateInputType = {
+    id?: true
+    shopifyId?: true
+    orderNumber?: true
+    createdAt?: true
+    updatedAt?: true
+    processedAt?: true
+    cancelledAt?: true
+    closedAt?: true
+    totalPrice?: true
+    subtotalPrice?: true
+    totalTax?: true
+    currency?: true
+    financialStatus?: true
+    fulfillmentStatus?: true
+    tags?: true
+    note?: true
+    customerEmail?: true
+    customerFirstName?: true
+    customerLastName?: true
+    customerPhone?: true
+    shippingAddress?: true
+    billingAddress?: true
+    lineItems?: true
+    source?: true
+    hasLocalEdits?: true
+    syncedAt?: true
+    dbCreatedAt?: true
+    dbUpdatedAt?: true
+    noteAttributes?: true
+    deliveryDate?: true
+    deliveryTime?: true
+    pickupDate?: true
+    pickupTime?: true
+    deliveryInstructions?: true
+    travelTime?: true
+    leaveTime?: true
+    driverId?: true
+    isDispatched?: true
+    lastSmsSent?: true
+    smsHistory?: true
+    _all?: true
+  }
+
+  export type OrderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Order to aggregate.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Orders
+    **/
+    _count?: true | OrderCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OrderAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OrderSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrderMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrderMaxAggregateInputType
+  }
+
+  export type GetOrderAggregateType<T extends OrderAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrder]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrder[P]>
+      : GetScalarType<T[P], AggregateOrder[P]>
+  }
+
+
+
+
+  export type OrderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderWhereInput
+    orderBy?: OrderOrderByWithAggregationInput | OrderOrderByWithAggregationInput[]
+    by: OrderScalarFieldEnum[] | OrderScalarFieldEnum
+    having?: OrderScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrderCountAggregateInputType | true
+    _avg?: OrderAvgAggregateInputType
+    _sum?: OrderSumAggregateInputType
+    _min?: OrderMinAggregateInputType
+    _max?: OrderMaxAggregateInputType
+  }
+
+  export type OrderGroupByOutputType = {
+    id: string
+    shopifyId: string
+    orderNumber: number
+    createdAt: Date
+    updatedAt: Date
+    processedAt: Date | null
+    cancelledAt: Date | null
+    closedAt: Date | null
+    totalPrice: number
+    subtotalPrice: number
+    totalTax: number
+    currency: string
+    financialStatus: string
+    fulfillmentStatus: string | null
+    tags: string | null
+    note: string | null
+    customerEmail: string
+    customerFirstName: string
+    customerLastName: string
+    customerPhone: string | null
+    shippingAddress: JsonValue | null
+    billingAddress: JsonValue | null
+    lineItems: JsonValue
+    source: string
+    hasLocalEdits: boolean
+    syncedAt: Date
+    dbCreatedAt: Date
+    dbUpdatedAt: Date
+    noteAttributes: JsonValue | null
+    deliveryDate: string | null
+    deliveryTime: string | null
+    pickupDate: string | null
+    pickupTime: string | null
+    deliveryInstructions: string | null
+    travelTime: string | null
+    leaveTime: string | null
+    driverId: string | null
+    isDispatched: boolean
+    lastSmsSent: Date | null
+    smsHistory: JsonValue | null
+    _count: OrderCountAggregateOutputType | null
+    _avg: OrderAvgAggregateOutputType | null
+    _sum: OrderSumAggregateOutputType | null
+    _min: OrderMinAggregateOutputType | null
+    _max: OrderMaxAggregateOutputType | null
+  }
+
+  type GetOrderGroupByPayload<T extends OrderGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OrderGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrderGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrderGroupByOutputType[P]>
+            : GetScalarType<T[P], OrderGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shopifyId?: boolean
+    orderNumber?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    processedAt?: boolean
+    cancelledAt?: boolean
+    closedAt?: boolean
+    totalPrice?: boolean
+    subtotalPrice?: boolean
+    totalTax?: boolean
+    currency?: boolean
+    financialStatus?: boolean
+    fulfillmentStatus?: boolean
+    tags?: boolean
+    note?: boolean
+    customerEmail?: boolean
+    customerFirstName?: boolean
+    customerLastName?: boolean
+    customerPhone?: boolean
+    shippingAddress?: boolean
+    billingAddress?: boolean
+    lineItems?: boolean
+    source?: boolean
+    hasLocalEdits?: boolean
+    syncedAt?: boolean
+    dbCreatedAt?: boolean
+    dbUpdatedAt?: boolean
+    noteAttributes?: boolean
+    deliveryDate?: boolean
+    deliveryTime?: boolean
+    pickupDate?: boolean
+    pickupTime?: boolean
+    deliveryInstructions?: boolean
+    travelTime?: boolean
+    leaveTime?: boolean
+    driverId?: boolean
+    isDispatched?: boolean
+    lastSmsSent?: boolean
+    smsHistory?: boolean
+  }, ExtArgs["result"]["order"]>
+
+  export type OrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shopifyId?: boolean
+    orderNumber?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    processedAt?: boolean
+    cancelledAt?: boolean
+    closedAt?: boolean
+    totalPrice?: boolean
+    subtotalPrice?: boolean
+    totalTax?: boolean
+    currency?: boolean
+    financialStatus?: boolean
+    fulfillmentStatus?: boolean
+    tags?: boolean
+    note?: boolean
+    customerEmail?: boolean
+    customerFirstName?: boolean
+    customerLastName?: boolean
+    customerPhone?: boolean
+    shippingAddress?: boolean
+    billingAddress?: boolean
+    lineItems?: boolean
+    source?: boolean
+    hasLocalEdits?: boolean
+    syncedAt?: boolean
+    dbCreatedAt?: boolean
+    dbUpdatedAt?: boolean
+    noteAttributes?: boolean
+    deliveryDate?: boolean
+    deliveryTime?: boolean
+    pickupDate?: boolean
+    pickupTime?: boolean
+    deliveryInstructions?: boolean
+    travelTime?: boolean
+    leaveTime?: boolean
+    driverId?: boolean
+    isDispatched?: boolean
+    lastSmsSent?: boolean
+    smsHistory?: boolean
+  }, ExtArgs["result"]["order"]>
+
+  export type OrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shopifyId?: boolean
+    orderNumber?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    processedAt?: boolean
+    cancelledAt?: boolean
+    closedAt?: boolean
+    totalPrice?: boolean
+    subtotalPrice?: boolean
+    totalTax?: boolean
+    currency?: boolean
+    financialStatus?: boolean
+    fulfillmentStatus?: boolean
+    tags?: boolean
+    note?: boolean
+    customerEmail?: boolean
+    customerFirstName?: boolean
+    customerLastName?: boolean
+    customerPhone?: boolean
+    shippingAddress?: boolean
+    billingAddress?: boolean
+    lineItems?: boolean
+    source?: boolean
+    hasLocalEdits?: boolean
+    syncedAt?: boolean
+    dbCreatedAt?: boolean
+    dbUpdatedAt?: boolean
+    noteAttributes?: boolean
+    deliveryDate?: boolean
+    deliveryTime?: boolean
+    pickupDate?: boolean
+    pickupTime?: boolean
+    deliveryInstructions?: boolean
+    travelTime?: boolean
+    leaveTime?: boolean
+    driverId?: boolean
+    isDispatched?: boolean
+    lastSmsSent?: boolean
+    smsHistory?: boolean
+  }, ExtArgs["result"]["order"]>
+
+  export type OrderSelectScalar = {
+    id?: boolean
+    shopifyId?: boolean
+    orderNumber?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    processedAt?: boolean
+    cancelledAt?: boolean
+    closedAt?: boolean
+    totalPrice?: boolean
+    subtotalPrice?: boolean
+    totalTax?: boolean
+    currency?: boolean
+    financialStatus?: boolean
+    fulfillmentStatus?: boolean
+    tags?: boolean
+    note?: boolean
+    customerEmail?: boolean
+    customerFirstName?: boolean
+    customerLastName?: boolean
+    customerPhone?: boolean
+    shippingAddress?: boolean
+    billingAddress?: boolean
+    lineItems?: boolean
+    source?: boolean
+    hasLocalEdits?: boolean
+    syncedAt?: boolean
+    dbCreatedAt?: boolean
+    dbUpdatedAt?: boolean
+    noteAttributes?: boolean
+    deliveryDate?: boolean
+    deliveryTime?: boolean
+    pickupDate?: boolean
+    pickupTime?: boolean
+    deliveryInstructions?: boolean
+    travelTime?: boolean
+    leaveTime?: boolean
+    driverId?: boolean
+    isDispatched?: boolean
+    lastSmsSent?: boolean
+    smsHistory?: boolean
+  }
+
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "orderNumber" | "createdAt" | "updatedAt" | "processedAt" | "cancelledAt" | "closedAt" | "totalPrice" | "subtotalPrice" | "totalTax" | "currency" | "financialStatus" | "fulfillmentStatus" | "tags" | "note" | "customerEmail" | "customerFirstName" | "customerLastName" | "customerPhone" | "shippingAddress" | "billingAddress" | "lineItems" | "source" | "hasLocalEdits" | "syncedAt" | "dbCreatedAt" | "dbUpdatedAt" | "noteAttributes" | "deliveryDate" | "deliveryTime" | "pickupDate" | "pickupTime" | "deliveryInstructions" | "travelTime" | "leaveTime" | "driverId" | "isDispatched" | "lastSmsSent" | "smsHistory", ExtArgs["result"]["order"]>
+
+  export type $OrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Order"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      shopifyId: string
+      orderNumber: number
+      createdAt: Date
+      updatedAt: Date
+      processedAt: Date | null
+      cancelledAt: Date | null
+      closedAt: Date | null
+      totalPrice: number
+      subtotalPrice: number
+      totalTax: number
+      currency: string
+      financialStatus: string
+      fulfillmentStatus: string | null
+      tags: string | null
+      note: string | null
+      customerEmail: string
+      customerFirstName: string
+      customerLastName: string
+      customerPhone: string | null
+      shippingAddress: Prisma.JsonValue | null
+      billingAddress: Prisma.JsonValue | null
+      lineItems: Prisma.JsonValue
+      source: string
+      hasLocalEdits: boolean
+      syncedAt: Date
+      dbCreatedAt: Date
+      dbUpdatedAt: Date
+      noteAttributes: Prisma.JsonValue | null
+      deliveryDate: string | null
+      deliveryTime: string | null
+      pickupDate: string | null
+      pickupTime: string | null
+      deliveryInstructions: string | null
+      travelTime: string | null
+      leaveTime: string | null
+      driverId: string | null
+      isDispatched: boolean
+      lastSmsSent: Date | null
+      smsHistory: Prisma.JsonValue | null
+    }, ExtArgs["result"]["order"]>
+    composites: {}
+  }
+
+  type OrderGetPayload<S extends boolean | null | undefined | OrderDefaultArgs> = $Result.GetResult<Prisma.$OrderPayload, S>
+
+  type OrderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OrderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OrderCountAggregateInputType | true
+    }
+
+  export interface OrderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Order'], meta: { name: 'Order' } }
+    /**
+     * Find zero or one Order that matches the filter.
+     * @param {OrderFindUniqueArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OrderFindUniqueArgs>(args: SelectSubset<T, OrderFindUniqueArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Order that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OrderFindUniqueOrThrowArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OrderFindUniqueOrThrowArgs>(args: SelectSubset<T, OrderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Order that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderFindFirstArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OrderFindFirstArgs>(args?: SelectSubset<T, OrderFindFirstArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Order that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderFindFirstOrThrowArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OrderFindFirstOrThrowArgs>(args?: SelectSubset<T, OrderFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Orders that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Orders
+     * const orders = await prisma.order.findMany()
+     * 
+     * // Get first 10 Orders
+     * const orders = await prisma.order.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const orderWithIdOnly = await prisma.order.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OrderFindManyArgs>(args?: SelectSubset<T, OrderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Order.
+     * @param {OrderCreateArgs} args - Arguments to create a Order.
+     * @example
+     * // Create one Order
+     * const Order = await prisma.order.create({
+     *   data: {
+     *     // ... data to create a Order
+     *   }
+     * })
+     * 
+     */
+    create<T extends OrderCreateArgs>(args: SelectSubset<T, OrderCreateArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Orders.
+     * @param {OrderCreateManyArgs} args - Arguments to create many Orders.
+     * @example
+     * // Create many Orders
+     * const order = await prisma.order.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OrderCreateManyArgs>(args?: SelectSubset<T, OrderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Orders and returns the data saved in the database.
+     * @param {OrderCreateManyAndReturnArgs} args - Arguments to create many Orders.
+     * @example
+     * // Create many Orders
+     * const order = await prisma.order.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Orders and only return the `id`
+     * const orderWithIdOnly = await prisma.order.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OrderCreateManyAndReturnArgs>(args?: SelectSubset<T, OrderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Order.
+     * @param {OrderDeleteArgs} args - Arguments to delete one Order.
+     * @example
+     * // Delete one Order
+     * const Order = await prisma.order.delete({
+     *   where: {
+     *     // ... filter to delete one Order
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OrderDeleteArgs>(args: SelectSubset<T, OrderDeleteArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Order.
+     * @param {OrderUpdateArgs} args - Arguments to update one Order.
+     * @example
+     * // Update one Order
+     * const order = await prisma.order.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OrderUpdateArgs>(args: SelectSubset<T, OrderUpdateArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Orders.
+     * @param {OrderDeleteManyArgs} args - Arguments to filter Orders to delete.
+     * @example
+     * // Delete a few Orders
+     * const { count } = await prisma.order.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OrderDeleteManyArgs>(args?: SelectSubset<T, OrderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Orders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Orders
+     * const order = await prisma.order.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OrderUpdateManyArgs>(args: SelectSubset<T, OrderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Orders and returns the data updated in the database.
+     * @param {OrderUpdateManyAndReturnArgs} args - Arguments to update many Orders.
+     * @example
+     * // Update many Orders
+     * const order = await prisma.order.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Orders and only return the `id`
+     * const orderWithIdOnly = await prisma.order.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OrderUpdateManyAndReturnArgs>(args: SelectSubset<T, OrderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Order.
+     * @param {OrderUpsertArgs} args - Arguments to update or create a Order.
+     * @example
+     * // Update or create a Order
+     * const order = await prisma.order.upsert({
+     *   create: {
+     *     // ... data to create a Order
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Order we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OrderUpsertArgs>(args: SelectSubset<T, OrderUpsertArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Orders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderCountArgs} args - Arguments to filter Orders to count.
+     * @example
+     * // Count the number of Orders
+     * const count = await prisma.order.count({
+     *   where: {
+     *     // ... the filter for the Orders we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrderCountArgs>(
+      args?: Subset<T, OrderCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrderCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Order.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrderAggregateArgs>(args: Subset<T, OrderAggregateArgs>): Prisma.PrismaPromise<GetOrderAggregateType<T>>
+
+    /**
+     * Group by Order.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrderGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrderGroupByArgs['orderBy'] }
+        : { orderBy?: OrderGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Order model
+   */
+  readonly fields: OrderFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Order.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Order model
+   */
+  interface OrderFieldRefs {
+    readonly id: FieldRef<"Order", 'String'>
+    readonly shopifyId: FieldRef<"Order", 'String'>
+    readonly orderNumber: FieldRef<"Order", 'Int'>
+    readonly createdAt: FieldRef<"Order", 'DateTime'>
+    readonly updatedAt: FieldRef<"Order", 'DateTime'>
+    readonly processedAt: FieldRef<"Order", 'DateTime'>
+    readonly cancelledAt: FieldRef<"Order", 'DateTime'>
+    readonly closedAt: FieldRef<"Order", 'DateTime'>
+    readonly totalPrice: FieldRef<"Order", 'Float'>
+    readonly subtotalPrice: FieldRef<"Order", 'Float'>
+    readonly totalTax: FieldRef<"Order", 'Float'>
+    readonly currency: FieldRef<"Order", 'String'>
+    readonly financialStatus: FieldRef<"Order", 'String'>
+    readonly fulfillmentStatus: FieldRef<"Order", 'String'>
+    readonly tags: FieldRef<"Order", 'String'>
+    readonly note: FieldRef<"Order", 'String'>
+    readonly customerEmail: FieldRef<"Order", 'String'>
+    readonly customerFirstName: FieldRef<"Order", 'String'>
+    readonly customerLastName: FieldRef<"Order", 'String'>
+    readonly customerPhone: FieldRef<"Order", 'String'>
+    readonly shippingAddress: FieldRef<"Order", 'Json'>
+    readonly billingAddress: FieldRef<"Order", 'Json'>
+    readonly lineItems: FieldRef<"Order", 'Json'>
+    readonly source: FieldRef<"Order", 'String'>
+    readonly hasLocalEdits: FieldRef<"Order", 'Boolean'>
+    readonly syncedAt: FieldRef<"Order", 'DateTime'>
+    readonly dbCreatedAt: FieldRef<"Order", 'DateTime'>
+    readonly dbUpdatedAt: FieldRef<"Order", 'DateTime'>
+    readonly noteAttributes: FieldRef<"Order", 'Json'>
+    readonly deliveryDate: FieldRef<"Order", 'String'>
+    readonly deliveryTime: FieldRef<"Order", 'String'>
+    readonly pickupDate: FieldRef<"Order", 'String'>
+    readonly pickupTime: FieldRef<"Order", 'String'>
+    readonly deliveryInstructions: FieldRef<"Order", 'String'>
+    readonly travelTime: FieldRef<"Order", 'String'>
+    readonly leaveTime: FieldRef<"Order", 'String'>
+    readonly driverId: FieldRef<"Order", 'String'>
+    readonly isDispatched: FieldRef<"Order", 'Boolean'>
+    readonly lastSmsSent: FieldRef<"Order", 'DateTime'>
+    readonly smsHistory: FieldRef<"Order", 'Json'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Order findUnique
+   */
+  export type OrderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order findUniqueOrThrow
+   */
+  export type OrderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order findFirst
+   */
+  export type OrderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Orders.
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Orders.
+     */
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Order findFirstOrThrow
+   */
+  export type OrderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Orders.
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Orders.
+     */
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Order findMany
+   */
+  export type OrderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Filter, which Orders to fetch.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Orders.
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Order create
+   */
+  export type OrderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Order.
+     */
+    data: XOR<OrderCreateInput, OrderUncheckedCreateInput>
+  }
+
+  /**
+   * Order createMany
+   */
+  export type OrderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Orders.
+     */
+    data: OrderCreateManyInput | OrderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Order createManyAndReturn
+   */
+  export type OrderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * The data used to create many Orders.
+     */
+    data: OrderCreateManyInput | OrderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Order update
+   */
+  export type OrderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Order.
+     */
+    data: XOR<OrderUpdateInput, OrderUncheckedUpdateInput>
+    /**
+     * Choose, which Order to update.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order updateMany
+   */
+  export type OrderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Orders.
+     */
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyInput>
+    /**
+     * Filter which Orders to update
+     */
+    where?: OrderWhereInput
+    /**
+     * Limit how many Orders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Order updateManyAndReturn
+   */
+  export type OrderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * The data used to update Orders.
+     */
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyInput>
+    /**
+     * Filter which Orders to update
+     */
+    where?: OrderWhereInput
+    /**
+     * Limit how many Orders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Order upsert
+   */
+  export type OrderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Order to update in case it exists.
+     */
+    where: OrderWhereUniqueInput
+    /**
+     * In case the Order found by the `where` argument doesn't exist, create a new Order with this data.
+     */
+    create: XOR<OrderCreateInput, OrderUncheckedCreateInput>
+    /**
+     * In case the Order was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrderUpdateInput, OrderUncheckedUpdateInput>
+  }
+
+  /**
+   * Order delete
+   */
+  export type OrderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Filter which Order to delete.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order deleteMany
+   */
+  export type OrderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Orders to delete
+     */
+    where?: OrderWhereInput
+    /**
+     * Limit how many Orders to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Order without action
+   */
+  export type OrderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model ShopifyOrder
    */
 
   export type AggregateShopifyOrder = {
     _count: ShopifyOrderCountAggregateOutputType | null
-    _avg: ShopifyOrderAvgAggregateOutputType | null
-    _sum: ShopifyOrderSumAggregateOutputType | null
     _min: ShopifyOrderMinAggregateOutputType | null
     _max: ShopifyOrderMaxAggregateOutputType | null
   }
 
-  export type ShopifyOrderAvgAggregateOutputType = {
-    totalPrice: number | null
-  }
-
-  export type ShopifyOrderSumAggregateOutputType = {
-    totalPrice: number | null
-  }
-
   export type ShopifyOrderMinAggregateOutputType = {
     id: string | null
-    shopifyId: string | null
-    orderNumber: string | null
-    customerId: string | null
-    email: string | null
-    phone: string | null
-    deliveryDate: Date | null
-    deliveryTime: string | null
-    deliveryAddress: string | null
-    deliveryNotes: string | null
-    status: string | null
-    totalPrice: number | null
+    syncedAt: Date | null
+    parsedOrderId: string | null
     createdAt: Date | null
     updatedAt: Date | null
-    lastSyncedAt: Date | null
-    isModified: boolean | null
   }
 
   export type ShopifyOrderMaxAggregateOutputType = {
     id: string | null
-    shopifyId: string | null
-    orderNumber: string | null
-    customerId: string | null
-    email: string | null
-    phone: string | null
-    deliveryDate: Date | null
-    deliveryTime: string | null
-    deliveryAddress: string | null
-    deliveryNotes: string | null
-    status: string | null
-    totalPrice: number | null
+    syncedAt: Date | null
+    parsedOrderId: string | null
     createdAt: Date | null
     updatedAt: Date | null
-    lastSyncedAt: Date | null
-    isModified: boolean | null
   }
 
   export type ShopifyOrderCountAggregateOutputType = {
     id: number
-    shopifyId: number
-    orderNumber: number
-    customerId: number
-    email: number
-    phone: number
-    deliveryDate: number
-    deliveryTime: number
-    deliveryAddress: number
-    deliveryNotes: number
-    status: number
-    totalPrice: number
+    rawData: number
+    syncedAt: number
+    parsedOrderId: number
     createdAt: number
     updatedAt: number
-    lastSyncedAt: number
-    isModified: number
-    modifications: number
     _all: number
   }
 
 
-  export type ShopifyOrderAvgAggregateInputType = {
-    totalPrice?: true
-  }
-
-  export type ShopifyOrderSumAggregateInputType = {
-    totalPrice?: true
-  }
-
   export type ShopifyOrderMinAggregateInputType = {
     id?: true
-    shopifyId?: true
-    orderNumber?: true
-    customerId?: true
-    email?: true
-    phone?: true
-    deliveryDate?: true
-    deliveryTime?: true
-    deliveryAddress?: true
-    deliveryNotes?: true
-    status?: true
-    totalPrice?: true
+    syncedAt?: true
+    parsedOrderId?: true
     createdAt?: true
     updatedAt?: true
-    lastSyncedAt?: true
-    isModified?: true
   }
 
   export type ShopifyOrderMaxAggregateInputType = {
     id?: true
-    shopifyId?: true
-    orderNumber?: true
-    customerId?: true
-    email?: true
-    phone?: true
-    deliveryDate?: true
-    deliveryTime?: true
-    deliveryAddress?: true
-    deliveryNotes?: true
-    status?: true
-    totalPrice?: true
+    syncedAt?: true
+    parsedOrderId?: true
     createdAt?: true
     updatedAt?: true
-    lastSyncedAt?: true
-    isModified?: true
   }
 
   export type ShopifyOrderCountAggregateInputType = {
     id?: true
-    shopifyId?: true
-    orderNumber?: true
-    customerId?: true
-    email?: true
-    phone?: true
-    deliveryDate?: true
-    deliveryTime?: true
-    deliveryAddress?: true
-    deliveryNotes?: true
-    status?: true
-    totalPrice?: true
+    rawData?: true
+    syncedAt?: true
+    parsedOrderId?: true
     createdAt?: true
     updatedAt?: true
-    lastSyncedAt?: true
-    isModified?: true
-    modifications?: true
     _all?: true
   }
 
@@ -11124,18 +20279,6 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Select which fields to average
-    **/
-    _avg?: ShopifyOrderAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: ShopifyOrderSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
      * Select which fields to find the minimum value
     **/
     _min?: ShopifyOrderMinAggregateInputType
@@ -11166,33 +20309,18 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ShopifyOrderCountAggregateInputType | true
-    _avg?: ShopifyOrderAvgAggregateInputType
-    _sum?: ShopifyOrderSumAggregateInputType
     _min?: ShopifyOrderMinAggregateInputType
     _max?: ShopifyOrderMaxAggregateInputType
   }
 
   export type ShopifyOrderGroupByOutputType = {
     id: string
-    shopifyId: string
-    orderNumber: string
-    customerId: string
-    email: string
-    phone: string | null
-    deliveryDate: Date
-    deliveryTime: string | null
-    deliveryAddress: string
-    deliveryNotes: string | null
-    status: string
-    totalPrice: number
+    rawData: JsonValue
+    syncedAt: Date
+    parsedOrderId: string | null
     createdAt: Date
     updatedAt: Date
-    lastSyncedAt: Date
-    isModified: boolean
-    modifications: JsonValue | null
     _count: ShopifyOrderCountAggregateOutputType | null
-    _avg: ShopifyOrderAvgAggregateOutputType | null
-    _sum: ShopifyOrderSumAggregateOutputType | null
     _min: ShopifyOrderMinAggregateOutputType | null
     _max: ShopifyOrderMaxAggregateOutputType | null
   }
@@ -11213,126 +20341,60 @@ export namespace Prisma {
 
   export type ShopifyOrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    shopifyId?: boolean
-    orderNumber?: boolean
-    customerId?: boolean
-    email?: boolean
-    phone?: boolean
-    deliveryDate?: boolean
-    deliveryTime?: boolean
-    deliveryAddress?: boolean
-    deliveryNotes?: boolean
-    status?: boolean
-    totalPrice?: boolean
+    rawData?: boolean
+    syncedAt?: boolean
+    parsedOrderId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    lastSyncedAt?: boolean
-    isModified?: boolean
-    modifications?: boolean
-    customer?: boolean | ShopifyCustomerDefaultArgs<ExtArgs>
-    lineItems?: boolean | ShopifyOrder$lineItemsArgs<ExtArgs>
-    _count?: boolean | ShopifyOrderCountOutputTypeDefaultArgs<ExtArgs>
+    parsedOrder?: boolean | ShopifyOrder$parsedOrderArgs<ExtArgs>
   }, ExtArgs["result"]["shopifyOrder"]>
 
   export type ShopifyOrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    shopifyId?: boolean
-    orderNumber?: boolean
-    customerId?: boolean
-    email?: boolean
-    phone?: boolean
-    deliveryDate?: boolean
-    deliveryTime?: boolean
-    deliveryAddress?: boolean
-    deliveryNotes?: boolean
-    status?: boolean
-    totalPrice?: boolean
+    rawData?: boolean
+    syncedAt?: boolean
+    parsedOrderId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    lastSyncedAt?: boolean
-    isModified?: boolean
-    modifications?: boolean
-    customer?: boolean | ShopifyCustomerDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["shopifyOrder"]>
 
   export type ShopifyOrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    shopifyId?: boolean
-    orderNumber?: boolean
-    customerId?: boolean
-    email?: boolean
-    phone?: boolean
-    deliveryDate?: boolean
-    deliveryTime?: boolean
-    deliveryAddress?: boolean
-    deliveryNotes?: boolean
-    status?: boolean
-    totalPrice?: boolean
+    rawData?: boolean
+    syncedAt?: boolean
+    parsedOrderId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    lastSyncedAt?: boolean
-    isModified?: boolean
-    modifications?: boolean
-    customer?: boolean | ShopifyCustomerDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["shopifyOrder"]>
 
   export type ShopifyOrderSelectScalar = {
     id?: boolean
-    shopifyId?: boolean
-    orderNumber?: boolean
-    customerId?: boolean
-    email?: boolean
-    phone?: boolean
-    deliveryDate?: boolean
-    deliveryTime?: boolean
-    deliveryAddress?: boolean
-    deliveryNotes?: boolean
-    status?: boolean
-    totalPrice?: boolean
+    rawData?: boolean
+    syncedAt?: boolean
+    parsedOrderId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    lastSyncedAt?: boolean
-    isModified?: boolean
-    modifications?: boolean
   }
 
-  export type ShopifyOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "orderNumber" | "customerId" | "email" | "phone" | "deliveryDate" | "deliveryTime" | "deliveryAddress" | "deliveryNotes" | "status" | "totalPrice" | "createdAt" | "updatedAt" | "lastSyncedAt" | "isModified" | "modifications", ExtArgs["result"]["shopifyOrder"]>
+  export type ShopifyOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "rawData" | "syncedAt" | "parsedOrderId" | "createdAt" | "updatedAt", ExtArgs["result"]["shopifyOrder"]>
   export type ShopifyOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    customer?: boolean | ShopifyCustomerDefaultArgs<ExtArgs>
-    lineItems?: boolean | ShopifyOrder$lineItemsArgs<ExtArgs>
-    _count?: boolean | ShopifyOrderCountOutputTypeDefaultArgs<ExtArgs>
+    parsedOrder?: boolean | ShopifyOrder$parsedOrderArgs<ExtArgs>
   }
-  export type ShopifyOrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    customer?: boolean | ShopifyCustomerDefaultArgs<ExtArgs>
-  }
-  export type ShopifyOrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    customer?: boolean | ShopifyCustomerDefaultArgs<ExtArgs>
-  }
+  export type ShopifyOrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ShopifyOrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $ShopifyOrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ShopifyOrder"
     objects: {
-      customer: Prisma.$ShopifyCustomerPayload<ExtArgs>
-      lineItems: Prisma.$ShopifyLineItemPayload<ExtArgs>[]
+      parsedOrder: Prisma.$ParsedOrderPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      shopifyId: string
-      orderNumber: string
-      customerId: string
-      email: string
-      phone: string | null
-      deliveryDate: Date
-      deliveryTime: string | null
-      deliveryAddress: string
-      deliveryNotes: string | null
-      status: string
-      totalPrice: number
+      rawData: Prisma.JsonValue
+      syncedAt: Date
+      parsedOrderId: string | null
       createdAt: Date
       updatedAt: Date
-      lastSyncedAt: Date
-      isModified: boolean
-      modifications: Prisma.JsonValue | null
     }, ExtArgs["result"]["shopifyOrder"]>
     composites: {}
   }
@@ -11727,8 +20789,7 @@ export namespace Prisma {
    */
   export interface Prisma__ShopifyOrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    customer<T extends ShopifyCustomerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ShopifyCustomerDefaultArgs<ExtArgs>>): Prisma__ShopifyCustomerClient<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    lineItems<T extends ShopifyOrder$lineItemsArgs<ExtArgs> = {}>(args?: Subset<T, ShopifyOrder$lineItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    parsedOrder<T extends ShopifyOrder$parsedOrderArgs<ExtArgs> = {}>(args?: Subset<T, ShopifyOrder$parsedOrderArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11759,22 +20820,11 @@ export namespace Prisma {
    */
   interface ShopifyOrderFieldRefs {
     readonly id: FieldRef<"ShopifyOrder", 'String'>
-    readonly shopifyId: FieldRef<"ShopifyOrder", 'String'>
-    readonly orderNumber: FieldRef<"ShopifyOrder", 'String'>
-    readonly customerId: FieldRef<"ShopifyOrder", 'String'>
-    readonly email: FieldRef<"ShopifyOrder", 'String'>
-    readonly phone: FieldRef<"ShopifyOrder", 'String'>
-    readonly deliveryDate: FieldRef<"ShopifyOrder", 'DateTime'>
-    readonly deliveryTime: FieldRef<"ShopifyOrder", 'String'>
-    readonly deliveryAddress: FieldRef<"ShopifyOrder", 'String'>
-    readonly deliveryNotes: FieldRef<"ShopifyOrder", 'String'>
-    readonly status: FieldRef<"ShopifyOrder", 'String'>
-    readonly totalPrice: FieldRef<"ShopifyOrder", 'Float'>
+    readonly rawData: FieldRef<"ShopifyOrder", 'Json'>
+    readonly syncedAt: FieldRef<"ShopifyOrder", 'DateTime'>
+    readonly parsedOrderId: FieldRef<"ShopifyOrder", 'String'>
     readonly createdAt: FieldRef<"ShopifyOrder", 'DateTime'>
     readonly updatedAt: FieldRef<"ShopifyOrder", 'DateTime'>
-    readonly lastSyncedAt: FieldRef<"ShopifyOrder", 'DateTime'>
-    readonly isModified: FieldRef<"ShopifyOrder", 'Boolean'>
-    readonly modifications: FieldRef<"ShopifyOrder", 'Json'>
   }
     
 
@@ -12004,6 +21054,7 @@ export namespace Prisma {
      * The data used to create many ShopifyOrders.
      */
     data: ShopifyOrderCreateManyInput | ShopifyOrderCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -12022,10 +21073,7 @@ export namespace Prisma {
      * The data used to create many ShopifyOrders.
      */
     data: ShopifyOrderCreateManyInput | ShopifyOrderCreateManyInput[]
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ShopifyOrderIncludeCreateManyAndReturn<ExtArgs> | null
+    skipDuplicates?: boolean
   }
 
   /**
@@ -12096,10 +21144,6 @@ export namespace Prisma {
      * Limit how many ShopifyOrders to update.
      */
     limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ShopifyOrderIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -12169,27 +21213,22 @@ export namespace Prisma {
   }
 
   /**
-   * ShopifyOrder.lineItems
+   * ShopifyOrder.parsedOrder
    */
-  export type ShopifyOrder$lineItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ShopifyOrder$parsedOrderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
-    where?: ShopifyLineItemWhereInput
-    orderBy?: ShopifyLineItemOrderByWithRelationInput | ShopifyLineItemOrderByWithRelationInput[]
-    cursor?: ShopifyLineItemWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ShopifyLineItemScalarFieldEnum | ShopifyLineItemScalarFieldEnum[]
+    include?: ParsedOrderInclude<ExtArgs> | null
+    where?: ParsedOrderWhereInput
   }
 
   /**
@@ -12212,468 +21251,517 @@ export namespace Prisma {
 
 
   /**
-   * Model ShopifyLineItem
+   * Model ParsedOrder
    */
 
-  export type AggregateShopifyLineItem = {
-    _count: ShopifyLineItemCountAggregateOutputType | null
-    _avg: ShopifyLineItemAvgAggregateOutputType | null
-    _sum: ShopifyLineItemSumAggregateOutputType | null
-    _min: ShopifyLineItemMinAggregateOutputType | null
-    _max: ShopifyLineItemMaxAggregateOutputType | null
+  export type AggregateParsedOrder = {
+    _count: ParsedOrderCountAggregateOutputType | null
+    _avg: ParsedOrderAvgAggregateOutputType | null
+    _sum: ParsedOrderSumAggregateOutputType | null
+    _min: ParsedOrderMinAggregateOutputType | null
+    _max: ParsedOrderMaxAggregateOutputType | null
   }
 
-  export type ShopifyLineItemAvgAggregateOutputType = {
-    quantity: number | null
-    price: number | null
+  export type ParsedOrderAvgAggregateOutputType = {
+    travelTime: number | null
   }
 
-  export type ShopifyLineItemSumAggregateOutputType = {
-    quantity: number | null
-    price: number | null
+  export type ParsedOrderSumAggregateOutputType = {
+    travelTime: number | null
   }
 
-  export type ShopifyLineItemMinAggregateOutputType = {
+  export type ParsedOrderMinAggregateOutputType = {
     id: string | null
-    shopifyId: string | null
-    orderId: string | null
-    productId: string | null
-    productTitle: string | null
-    variantId: string | null
-    variantTitle: string | null
-    quantity: number | null
-    price: number | null
+    shopifyOrderId: string | null
+    orderNumber: string | null
+    deliveryTime: string | null
+    deliveryDate: Date | null
+    customerName: string | null
+    customerCompany: string | null
+    customerPhone: string | null
+    orderNotes: string | null
+    travelTime: number | null
+    leaveTime: string | null
+    driverId: string | null
+    isDispatched: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
-  export type ShopifyLineItemMaxAggregateOutputType = {
+  export type ParsedOrderMaxAggregateOutputType = {
     id: string | null
-    shopifyId: string | null
-    orderId: string | null
-    productId: string | null
-    productTitle: string | null
-    variantId: string | null
-    variantTitle: string | null
-    quantity: number | null
-    price: number | null
+    shopifyOrderId: string | null
+    orderNumber: string | null
+    deliveryTime: string | null
+    deliveryDate: Date | null
+    customerName: string | null
+    customerCompany: string | null
+    customerPhone: string | null
+    orderNotes: string | null
+    travelTime: number | null
+    leaveTime: string | null
+    driverId: string | null
+    isDispatched: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
-  export type ShopifyLineItemCountAggregateOutputType = {
+  export type ParsedOrderCountAggregateOutputType = {
     id: number
-    shopifyId: number
-    orderId: number
-    productId: number
-    productTitle: number
-    variantId: number
-    variantTitle: number
-    quantity: number
-    price: number
-    modifications: number
+    shopifyOrderId: number
+    orderNumber: number
+    deliveryTime: number
+    deliveryDate: number
+    deliveryAddress: number
+    customerName: number
+    customerCompany: number
+    customerPhone: number
+    orderNotes: number
+    travelTime: number
+    leaveTime: number
+    driverId: number
+    isDispatched: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
 
-  export type ShopifyLineItemAvgAggregateInputType = {
-    quantity?: true
-    price?: true
+  export type ParsedOrderAvgAggregateInputType = {
+    travelTime?: true
   }
 
-  export type ShopifyLineItemSumAggregateInputType = {
-    quantity?: true
-    price?: true
+  export type ParsedOrderSumAggregateInputType = {
+    travelTime?: true
   }
 
-  export type ShopifyLineItemMinAggregateInputType = {
+  export type ParsedOrderMinAggregateInputType = {
     id?: true
-    shopifyId?: true
-    orderId?: true
-    productId?: true
-    productTitle?: true
-    variantId?: true
-    variantTitle?: true
-    quantity?: true
-    price?: true
+    shopifyOrderId?: true
+    orderNumber?: true
+    deliveryTime?: true
+    deliveryDate?: true
+    customerName?: true
+    customerCompany?: true
+    customerPhone?: true
+    orderNotes?: true
+    travelTime?: true
+    leaveTime?: true
+    driverId?: true
+    isDispatched?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type ShopifyLineItemMaxAggregateInputType = {
+  export type ParsedOrderMaxAggregateInputType = {
     id?: true
-    shopifyId?: true
-    orderId?: true
-    productId?: true
-    productTitle?: true
-    variantId?: true
-    variantTitle?: true
-    quantity?: true
-    price?: true
+    shopifyOrderId?: true
+    orderNumber?: true
+    deliveryTime?: true
+    deliveryDate?: true
+    customerName?: true
+    customerCompany?: true
+    customerPhone?: true
+    orderNotes?: true
+    travelTime?: true
+    leaveTime?: true
+    driverId?: true
+    isDispatched?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type ShopifyLineItemCountAggregateInputType = {
+  export type ParsedOrderCountAggregateInputType = {
     id?: true
-    shopifyId?: true
-    orderId?: true
-    productId?: true
-    productTitle?: true
-    variantId?: true
-    variantTitle?: true
-    quantity?: true
-    price?: true
-    modifications?: true
+    shopifyOrderId?: true
+    orderNumber?: true
+    deliveryTime?: true
+    deliveryDate?: true
+    deliveryAddress?: true
+    customerName?: true
+    customerCompany?: true
+    customerPhone?: true
+    orderNotes?: true
+    travelTime?: true
+    leaveTime?: true
+    driverId?: true
+    isDispatched?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
   }
 
-  export type ShopifyLineItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ShopifyLineItem to aggregate.
+     * Filter which ParsedOrder to aggregate.
      */
-    where?: ShopifyLineItemWhereInput
+    where?: ParsedOrderWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ShopifyLineItems to fetch.
+     * Determine the order of ParsedOrders to fetch.
      */
-    orderBy?: ShopifyLineItemOrderByWithRelationInput | ShopifyLineItemOrderByWithRelationInput[]
+    orderBy?: ParsedOrderOrderByWithRelationInput | ParsedOrderOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ShopifyLineItemWhereUniqueInput
+    cursor?: ParsedOrderWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ShopifyLineItems from the position of the cursor.
+     * Take `±n` ParsedOrders from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ShopifyLineItems.
+     * Skip the first `n` ParsedOrders.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ShopifyLineItems
+     * Count returned ParsedOrders
     **/
-    _count?: true | ShopifyLineItemCountAggregateInputType
+    _count?: true | ParsedOrderCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: ShopifyLineItemAvgAggregateInputType
+    _avg?: ParsedOrderAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: ShopifyLineItemSumAggregateInputType
+    _sum?: ParsedOrderSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ShopifyLineItemMinAggregateInputType
+    _min?: ParsedOrderMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ShopifyLineItemMaxAggregateInputType
+    _max?: ParsedOrderMaxAggregateInputType
   }
 
-  export type GetShopifyLineItemAggregateType<T extends ShopifyLineItemAggregateArgs> = {
-        [P in keyof T & keyof AggregateShopifyLineItem]: P extends '_count' | 'count'
+  export type GetParsedOrderAggregateType<T extends ParsedOrderAggregateArgs> = {
+        [P in keyof T & keyof AggregateParsedOrder]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateShopifyLineItem[P]>
-      : GetScalarType<T[P], AggregateShopifyLineItem[P]>
+        : GetScalarType<T[P], AggregateParsedOrder[P]>
+      : GetScalarType<T[P], AggregateParsedOrder[P]>
   }
 
 
 
 
-  export type ShopifyLineItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ShopifyLineItemWhereInput
-    orderBy?: ShopifyLineItemOrderByWithAggregationInput | ShopifyLineItemOrderByWithAggregationInput[]
-    by: ShopifyLineItemScalarFieldEnum[] | ShopifyLineItemScalarFieldEnum
-    having?: ShopifyLineItemScalarWhereWithAggregatesInput
+  export type ParsedOrderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ParsedOrderWhereInput
+    orderBy?: ParsedOrderOrderByWithAggregationInput | ParsedOrderOrderByWithAggregationInput[]
+    by: ParsedOrderScalarFieldEnum[] | ParsedOrderScalarFieldEnum
+    having?: ParsedOrderScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ShopifyLineItemCountAggregateInputType | true
-    _avg?: ShopifyLineItemAvgAggregateInputType
-    _sum?: ShopifyLineItemSumAggregateInputType
-    _min?: ShopifyLineItemMinAggregateInputType
-    _max?: ShopifyLineItemMaxAggregateInputType
+    _count?: ParsedOrderCountAggregateInputType | true
+    _avg?: ParsedOrderAvgAggregateInputType
+    _sum?: ParsedOrderSumAggregateInputType
+    _min?: ParsedOrderMinAggregateInputType
+    _max?: ParsedOrderMaxAggregateInputType
   }
 
-  export type ShopifyLineItemGroupByOutputType = {
+  export type ParsedOrderGroupByOutputType = {
     id: string
-    shopifyId: string
-    orderId: string
-    productId: string
-    productTitle: string
-    variantId: string | null
-    variantTitle: string | null
-    quantity: number
-    price: number
-    modifications: JsonValue | null
+    shopifyOrderId: string
+    orderNumber: string
+    deliveryTime: string
+    deliveryDate: Date
+    deliveryAddress: JsonValue
+    customerName: string
+    customerCompany: string | null
+    customerPhone: string
+    orderNotes: string | null
+    travelTime: number | null
+    leaveTime: string | null
+    driverId: string | null
+    isDispatched: boolean
     createdAt: Date
     updatedAt: Date
-    _count: ShopifyLineItemCountAggregateOutputType | null
-    _avg: ShopifyLineItemAvgAggregateOutputType | null
-    _sum: ShopifyLineItemSumAggregateOutputType | null
-    _min: ShopifyLineItemMinAggregateOutputType | null
-    _max: ShopifyLineItemMaxAggregateOutputType | null
+    _count: ParsedOrderCountAggregateOutputType | null
+    _avg: ParsedOrderAvgAggregateOutputType | null
+    _sum: ParsedOrderSumAggregateOutputType | null
+    _min: ParsedOrderMinAggregateOutputType | null
+    _max: ParsedOrderMaxAggregateOutputType | null
   }
 
-  type GetShopifyLineItemGroupByPayload<T extends ShopifyLineItemGroupByArgs> = Prisma.PrismaPromise<
+  type GetParsedOrderGroupByPayload<T extends ParsedOrderGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ShopifyLineItemGroupByOutputType, T['by']> &
+      PickEnumerable<ParsedOrderGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ShopifyLineItemGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ParsedOrderGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ShopifyLineItemGroupByOutputType[P]>
-            : GetScalarType<T[P], ShopifyLineItemGroupByOutputType[P]>
+              : GetScalarType<T[P], ParsedOrderGroupByOutputType[P]>
+            : GetScalarType<T[P], ParsedOrderGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ShopifyLineItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ParsedOrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    shopifyId?: boolean
-    orderId?: boolean
-    productId?: boolean
-    productTitle?: boolean
-    variantId?: boolean
-    variantTitle?: boolean
-    quantity?: boolean
-    price?: boolean
-    modifications?: boolean
+    shopifyOrderId?: boolean
+    orderNumber?: boolean
+    deliveryTime?: boolean
+    deliveryDate?: boolean
+    deliveryAddress?: boolean
+    customerName?: boolean
+    customerCompany?: boolean
+    customerPhone?: boolean
+    orderNotes?: boolean
+    travelTime?: boolean
+    leaveTime?: boolean
+    driverId?: boolean
+    isDispatched?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    order?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["shopifyLineItem"]>
+    shopifyOrder?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
+    lineItems?: boolean | ParsedOrder$lineItemsArgs<ExtArgs>
+    _count?: boolean | ParsedOrderCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["parsedOrder"]>
 
-  export type ShopifyLineItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ParsedOrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    shopifyId?: boolean
-    orderId?: boolean
-    productId?: boolean
-    productTitle?: boolean
-    variantId?: boolean
-    variantTitle?: boolean
-    quantity?: boolean
-    price?: boolean
-    modifications?: boolean
+    shopifyOrderId?: boolean
+    orderNumber?: boolean
+    deliveryTime?: boolean
+    deliveryDate?: boolean
+    deliveryAddress?: boolean
+    customerName?: boolean
+    customerCompany?: boolean
+    customerPhone?: boolean
+    orderNotes?: boolean
+    travelTime?: boolean
+    leaveTime?: boolean
+    driverId?: boolean
+    isDispatched?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    order?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["shopifyLineItem"]>
+    shopifyOrder?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["parsedOrder"]>
 
-  export type ShopifyLineItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ParsedOrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    shopifyId?: boolean
-    orderId?: boolean
-    productId?: boolean
-    productTitle?: boolean
-    variantId?: boolean
-    variantTitle?: boolean
-    quantity?: boolean
-    price?: boolean
-    modifications?: boolean
+    shopifyOrderId?: boolean
+    orderNumber?: boolean
+    deliveryTime?: boolean
+    deliveryDate?: boolean
+    deliveryAddress?: boolean
+    customerName?: boolean
+    customerCompany?: boolean
+    customerPhone?: boolean
+    orderNotes?: boolean
+    travelTime?: boolean
+    leaveTime?: boolean
+    driverId?: boolean
+    isDispatched?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    order?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["shopifyLineItem"]>
+    shopifyOrder?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["parsedOrder"]>
 
-  export type ShopifyLineItemSelectScalar = {
+  export type ParsedOrderSelectScalar = {
     id?: boolean
-    shopifyId?: boolean
-    orderId?: boolean
-    productId?: boolean
-    productTitle?: boolean
-    variantId?: boolean
-    variantTitle?: boolean
-    quantity?: boolean
-    price?: boolean
-    modifications?: boolean
+    shopifyOrderId?: boolean
+    orderNumber?: boolean
+    deliveryTime?: boolean
+    deliveryDate?: boolean
+    deliveryAddress?: boolean
+    customerName?: boolean
+    customerCompany?: boolean
+    customerPhone?: boolean
+    orderNotes?: boolean
+    travelTime?: boolean
+    leaveTime?: boolean
+    driverId?: boolean
+    isDispatched?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ShopifyLineItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "orderId" | "productId" | "productTitle" | "variantId" | "variantTitle" | "quantity" | "price" | "modifications" | "createdAt" | "updatedAt", ExtArgs["result"]["shopifyLineItem"]>
-  export type ShopifyLineItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    order?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
+  export type ParsedOrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyOrderId" | "orderNumber" | "deliveryTime" | "deliveryDate" | "deliveryAddress" | "customerName" | "customerCompany" | "customerPhone" | "orderNotes" | "travelTime" | "leaveTime" | "driverId" | "isDispatched" | "createdAt" | "updatedAt", ExtArgs["result"]["parsedOrder"]>
+  export type ParsedOrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    shopifyOrder?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
+    lineItems?: boolean | ParsedOrder$lineItemsArgs<ExtArgs>
+    _count?: boolean | ParsedOrderCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type ShopifyLineItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    order?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
+  export type ParsedOrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    shopifyOrder?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
   }
-  export type ShopifyLineItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    order?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
+  export type ParsedOrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    shopifyOrder?: boolean | ShopifyOrderDefaultArgs<ExtArgs>
   }
 
-  export type $ShopifyLineItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ShopifyLineItem"
+  export type $ParsedOrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ParsedOrder"
     objects: {
-      order: Prisma.$ShopifyOrderPayload<ExtArgs>
+      shopifyOrder: Prisma.$ShopifyOrderPayload<ExtArgs>
+      lineItems: Prisma.$ParsedLineItemPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      shopifyId: string
-      orderId: string
-      productId: string
-      productTitle: string
-      variantId: string | null
-      variantTitle: string | null
-      quantity: number
-      price: number
-      modifications: Prisma.JsonValue | null
+      shopifyOrderId: string
+      orderNumber: string
+      deliveryTime: string
+      deliveryDate: Date
+      deliveryAddress: Prisma.JsonValue
+      customerName: string
+      customerCompany: string | null
+      customerPhone: string
+      orderNotes: string | null
+      travelTime: number | null
+      leaveTime: string | null
+      driverId: string | null
+      isDispatched: boolean
       createdAt: Date
       updatedAt: Date
-    }, ExtArgs["result"]["shopifyLineItem"]>
+    }, ExtArgs["result"]["parsedOrder"]>
     composites: {}
   }
 
-  type ShopifyLineItemGetPayload<S extends boolean | null | undefined | ShopifyLineItemDefaultArgs> = $Result.GetResult<Prisma.$ShopifyLineItemPayload, S>
+  type ParsedOrderGetPayload<S extends boolean | null | undefined | ParsedOrderDefaultArgs> = $Result.GetResult<Prisma.$ParsedOrderPayload, S>
 
-  type ShopifyLineItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ShopifyLineItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ShopifyLineItemCountAggregateInputType | true
+  type ParsedOrderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ParsedOrderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ParsedOrderCountAggregateInputType | true
     }
 
-  export interface ShopifyLineItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ShopifyLineItem'], meta: { name: 'ShopifyLineItem' } }
+  export interface ParsedOrderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ParsedOrder'], meta: { name: 'ParsedOrder' } }
     /**
-     * Find zero or one ShopifyLineItem that matches the filter.
-     * @param {ShopifyLineItemFindUniqueArgs} args - Arguments to find a ShopifyLineItem
+     * Find zero or one ParsedOrder that matches the filter.
+     * @param {ParsedOrderFindUniqueArgs} args - Arguments to find a ParsedOrder
      * @example
-     * // Get one ShopifyLineItem
-     * const shopifyLineItem = await prisma.shopifyLineItem.findUnique({
+     * // Get one ParsedOrder
+     * const parsedOrder = await prisma.parsedOrder.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ShopifyLineItemFindUniqueArgs>(args: SelectSubset<T, ShopifyLineItemFindUniqueArgs<ExtArgs>>): Prisma__ShopifyLineItemClient<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends ParsedOrderFindUniqueArgs>(args: SelectSubset<T, ParsedOrderFindUniqueArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one ShopifyLineItem that matches the filter or throw an error with `error.code='P2025'`
+     * Find one ParsedOrder that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {ShopifyLineItemFindUniqueOrThrowArgs} args - Arguments to find a ShopifyLineItem
+     * @param {ParsedOrderFindUniqueOrThrowArgs} args - Arguments to find a ParsedOrder
      * @example
-     * // Get one ShopifyLineItem
-     * const shopifyLineItem = await prisma.shopifyLineItem.findUniqueOrThrow({
+     * // Get one ParsedOrder
+     * const parsedOrder = await prisma.parsedOrder.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ShopifyLineItemFindUniqueOrThrowArgs>(args: SelectSubset<T, ShopifyLineItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ShopifyLineItemClient<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends ParsedOrderFindUniqueOrThrowArgs>(args: SelectSubset<T, ParsedOrderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first ShopifyLineItem that matches the filter.
+     * Find the first ParsedOrder that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyLineItemFindFirstArgs} args - Arguments to find a ShopifyLineItem
+     * @param {ParsedOrderFindFirstArgs} args - Arguments to find a ParsedOrder
      * @example
-     * // Get one ShopifyLineItem
-     * const shopifyLineItem = await prisma.shopifyLineItem.findFirst({
+     * // Get one ParsedOrder
+     * const parsedOrder = await prisma.parsedOrder.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ShopifyLineItemFindFirstArgs>(args?: SelectSubset<T, ShopifyLineItemFindFirstArgs<ExtArgs>>): Prisma__ShopifyLineItemClient<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends ParsedOrderFindFirstArgs>(args?: SelectSubset<T, ParsedOrderFindFirstArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first ShopifyLineItem that matches the filter or
+     * Find the first ParsedOrder that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyLineItemFindFirstOrThrowArgs} args - Arguments to find a ShopifyLineItem
+     * @param {ParsedOrderFindFirstOrThrowArgs} args - Arguments to find a ParsedOrder
      * @example
-     * // Get one ShopifyLineItem
-     * const shopifyLineItem = await prisma.shopifyLineItem.findFirstOrThrow({
+     * // Get one ParsedOrder
+     * const parsedOrder = await prisma.parsedOrder.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ShopifyLineItemFindFirstOrThrowArgs>(args?: SelectSubset<T, ShopifyLineItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__ShopifyLineItemClient<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends ParsedOrderFindFirstOrThrowArgs>(args?: SelectSubset<T, ParsedOrderFindFirstOrThrowArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more ShopifyLineItems that matches the filter.
+     * Find zero or more ParsedOrders that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyLineItemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ParsedOrderFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ShopifyLineItems
-     * const shopifyLineItems = await prisma.shopifyLineItem.findMany()
+     * // Get all ParsedOrders
+     * const parsedOrders = await prisma.parsedOrder.findMany()
      * 
-     * // Get first 10 ShopifyLineItems
-     * const shopifyLineItems = await prisma.shopifyLineItem.findMany({ take: 10 })
+     * // Get first 10 ParsedOrders
+     * const parsedOrders = await prisma.parsedOrder.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const shopifyLineItemWithIdOnly = await prisma.shopifyLineItem.findMany({ select: { id: true } })
+     * const parsedOrderWithIdOnly = await prisma.parsedOrder.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ShopifyLineItemFindManyArgs>(args?: SelectSubset<T, ShopifyLineItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends ParsedOrderFindManyArgs>(args?: SelectSubset<T, ParsedOrderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a ShopifyLineItem.
-     * @param {ShopifyLineItemCreateArgs} args - Arguments to create a ShopifyLineItem.
+     * Create a ParsedOrder.
+     * @param {ParsedOrderCreateArgs} args - Arguments to create a ParsedOrder.
      * @example
-     * // Create one ShopifyLineItem
-     * const ShopifyLineItem = await prisma.shopifyLineItem.create({
+     * // Create one ParsedOrder
+     * const ParsedOrder = await prisma.parsedOrder.create({
      *   data: {
-     *     // ... data to create a ShopifyLineItem
+     *     // ... data to create a ParsedOrder
      *   }
      * })
      * 
      */
-    create<T extends ShopifyLineItemCreateArgs>(args: SelectSubset<T, ShopifyLineItemCreateArgs<ExtArgs>>): Prisma__ShopifyLineItemClient<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends ParsedOrderCreateArgs>(args: SelectSubset<T, ParsedOrderCreateArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many ShopifyLineItems.
-     * @param {ShopifyLineItemCreateManyArgs} args - Arguments to create many ShopifyLineItems.
+     * Create many ParsedOrders.
+     * @param {ParsedOrderCreateManyArgs} args - Arguments to create many ParsedOrders.
      * @example
-     * // Create many ShopifyLineItems
-     * const shopifyLineItem = await prisma.shopifyLineItem.createMany({
+     * // Create many ParsedOrders
+     * const parsedOrder = await prisma.parsedOrder.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ShopifyLineItemCreateManyArgs>(args?: SelectSubset<T, ShopifyLineItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ParsedOrderCreateManyArgs>(args?: SelectSubset<T, ParsedOrderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ShopifyLineItems and returns the data saved in the database.
-     * @param {ShopifyLineItemCreateManyAndReturnArgs} args - Arguments to create many ShopifyLineItems.
+     * Create many ParsedOrders and returns the data saved in the database.
+     * @param {ParsedOrderCreateManyAndReturnArgs} args - Arguments to create many ParsedOrders.
      * @example
-     * // Create many ShopifyLineItems
-     * const shopifyLineItem = await prisma.shopifyLineItem.createManyAndReturn({
+     * // Create many ParsedOrders
+     * const parsedOrder = await prisma.parsedOrder.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ShopifyLineItems and only return the `id`
-     * const shopifyLineItemWithIdOnly = await prisma.shopifyLineItem.createManyAndReturn({
+     * // Create many ParsedOrders and only return the `id`
+     * const parsedOrderWithIdOnly = await prisma.parsedOrder.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -12683,28 +21771,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ShopifyLineItemCreateManyAndReturnArgs>(args?: SelectSubset<T, ShopifyLineItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends ParsedOrderCreateManyAndReturnArgs>(args?: SelectSubset<T, ParsedOrderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a ShopifyLineItem.
-     * @param {ShopifyLineItemDeleteArgs} args - Arguments to delete one ShopifyLineItem.
+     * Delete a ParsedOrder.
+     * @param {ParsedOrderDeleteArgs} args - Arguments to delete one ParsedOrder.
      * @example
-     * // Delete one ShopifyLineItem
-     * const ShopifyLineItem = await prisma.shopifyLineItem.delete({
+     * // Delete one ParsedOrder
+     * const ParsedOrder = await prisma.parsedOrder.delete({
      *   where: {
-     *     // ... filter to delete one ShopifyLineItem
+     *     // ... filter to delete one ParsedOrder
      *   }
      * })
      * 
      */
-    delete<T extends ShopifyLineItemDeleteArgs>(args: SelectSubset<T, ShopifyLineItemDeleteArgs<ExtArgs>>): Prisma__ShopifyLineItemClient<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends ParsedOrderDeleteArgs>(args: SelectSubset<T, ParsedOrderDeleteArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one ShopifyLineItem.
-     * @param {ShopifyLineItemUpdateArgs} args - Arguments to update one ShopifyLineItem.
+     * Update one ParsedOrder.
+     * @param {ParsedOrderUpdateArgs} args - Arguments to update one ParsedOrder.
      * @example
-     * // Update one ShopifyLineItem
-     * const shopifyLineItem = await prisma.shopifyLineItem.update({
+     * // Update one ParsedOrder
+     * const parsedOrder = await prisma.parsedOrder.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -12714,30 +21802,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ShopifyLineItemUpdateArgs>(args: SelectSubset<T, ShopifyLineItemUpdateArgs<ExtArgs>>): Prisma__ShopifyLineItemClient<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends ParsedOrderUpdateArgs>(args: SelectSubset<T, ParsedOrderUpdateArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more ShopifyLineItems.
-     * @param {ShopifyLineItemDeleteManyArgs} args - Arguments to filter ShopifyLineItems to delete.
+     * Delete zero or more ParsedOrders.
+     * @param {ParsedOrderDeleteManyArgs} args - Arguments to filter ParsedOrders to delete.
      * @example
-     * // Delete a few ShopifyLineItems
-     * const { count } = await prisma.shopifyLineItem.deleteMany({
+     * // Delete a few ParsedOrders
+     * const { count } = await prisma.parsedOrder.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ShopifyLineItemDeleteManyArgs>(args?: SelectSubset<T, ShopifyLineItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ParsedOrderDeleteManyArgs>(args?: SelectSubset<T, ParsedOrderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ShopifyLineItems.
+     * Update zero or more ParsedOrders.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyLineItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ParsedOrderUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ShopifyLineItems
-     * const shopifyLineItem = await prisma.shopifyLineItem.updateMany({
+     * // Update many ParsedOrders
+     * const parsedOrder = await prisma.parsedOrder.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -12747,14 +21835,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ShopifyLineItemUpdateManyArgs>(args: SelectSubset<T, ShopifyLineItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ParsedOrderUpdateManyArgs>(args: SelectSubset<T, ParsedOrderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ShopifyLineItems and returns the data updated in the database.
-     * @param {ShopifyLineItemUpdateManyAndReturnArgs} args - Arguments to update many ShopifyLineItems.
+     * Update zero or more ParsedOrders and returns the data updated in the database.
+     * @param {ParsedOrderUpdateManyAndReturnArgs} args - Arguments to update many ParsedOrders.
      * @example
-     * // Update many ShopifyLineItems
-     * const shopifyLineItem = await prisma.shopifyLineItem.updateManyAndReturn({
+     * // Update many ParsedOrders
+     * const parsedOrder = await prisma.parsedOrder.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -12763,8 +21851,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more ShopifyLineItems and only return the `id`
-     * const shopifyLineItemWithIdOnly = await prisma.shopifyLineItem.updateManyAndReturn({
+     * // Update zero or more ParsedOrders and only return the `id`
+     * const parsedOrderWithIdOnly = await prisma.parsedOrder.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -12777,56 +21865,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends ShopifyLineItemUpdateManyAndReturnArgs>(args: SelectSubset<T, ShopifyLineItemUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends ParsedOrderUpdateManyAndReturnArgs>(args: SelectSubset<T, ParsedOrderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one ShopifyLineItem.
-     * @param {ShopifyLineItemUpsertArgs} args - Arguments to update or create a ShopifyLineItem.
+     * Create or update one ParsedOrder.
+     * @param {ParsedOrderUpsertArgs} args - Arguments to update or create a ParsedOrder.
      * @example
-     * // Update or create a ShopifyLineItem
-     * const shopifyLineItem = await prisma.shopifyLineItem.upsert({
+     * // Update or create a ParsedOrder
+     * const parsedOrder = await prisma.parsedOrder.upsert({
      *   create: {
-     *     // ... data to create a ShopifyLineItem
+     *     // ... data to create a ParsedOrder
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ShopifyLineItem we want to update
+     *     // ... the filter for the ParsedOrder we want to update
      *   }
      * })
      */
-    upsert<T extends ShopifyLineItemUpsertArgs>(args: SelectSubset<T, ShopifyLineItemUpsertArgs<ExtArgs>>): Prisma__ShopifyLineItemClient<$Result.GetResult<Prisma.$ShopifyLineItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends ParsedOrderUpsertArgs>(args: SelectSubset<T, ParsedOrderUpsertArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of ShopifyLineItems.
+     * Count the number of ParsedOrders.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyLineItemCountArgs} args - Arguments to filter ShopifyLineItems to count.
+     * @param {ParsedOrderCountArgs} args - Arguments to filter ParsedOrders to count.
      * @example
-     * // Count the number of ShopifyLineItems
-     * const count = await prisma.shopifyLineItem.count({
+     * // Count the number of ParsedOrders
+     * const count = await prisma.parsedOrder.count({
      *   where: {
-     *     // ... the filter for the ShopifyLineItems we want to count
+     *     // ... the filter for the ParsedOrders we want to count
      *   }
      * })
     **/
-    count<T extends ShopifyLineItemCountArgs>(
-      args?: Subset<T, ShopifyLineItemCountArgs>,
+    count<T extends ParsedOrderCountArgs>(
+      args?: Subset<T, ParsedOrderCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ShopifyLineItemCountAggregateOutputType>
+          : GetScalarType<T['select'], ParsedOrderCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ShopifyLineItem.
+     * Allows you to perform aggregations operations on a ParsedOrder.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyLineItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ParsedOrderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -12846,13 +21934,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ShopifyLineItemAggregateArgs>(args: Subset<T, ShopifyLineItemAggregateArgs>): Prisma.PrismaPromise<GetShopifyLineItemAggregateType<T>>
+    aggregate<T extends ParsedOrderAggregateArgs>(args: Subset<T, ParsedOrderAggregateArgs>): Prisma.PrismaPromise<GetParsedOrderAggregateType<T>>
 
     /**
-     * Group by ShopifyLineItem.
+     * Group by ParsedOrder.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyLineItemGroupByArgs} args - Group by arguments.
+     * @param {ParsedOrderGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -12867,14 +21955,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ShopifyLineItemGroupByArgs,
+      T extends ParsedOrderGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ShopifyLineItemGroupByArgs['orderBy'] }
-        : { orderBy?: ShopifyLineItemGroupByArgs['orderBy'] },
+        ? { orderBy: ParsedOrderGroupByArgs['orderBy'] }
+        : { orderBy?: ParsedOrderGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -12923,22 +22011,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ShopifyLineItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetShopifyLineItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ParsedOrderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetParsedOrderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ShopifyLineItem model
+   * Fields of the ParsedOrder model
    */
-  readonly fields: ShopifyLineItemFieldRefs;
+  readonly fields: ParsedOrderFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ShopifyLineItem.
+   * The delegate class that acts as a "Promise-like" for ParsedOrder.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ShopifyLineItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ParsedOrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    order<T extends ShopifyOrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ShopifyOrderDefaultArgs<ExtArgs>>): Prisma__ShopifyOrderClient<$Result.GetResult<Prisma.$ShopifyOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    shopifyOrder<T extends ShopifyOrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ShopifyOrderDefaultArgs<ExtArgs>>): Prisma__ShopifyOrderClient<$Result.GetResult<Prisma.$ShopifyOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    lineItems<T extends ParsedOrder$lineItemsArgs<ExtArgs> = {}>(args?: Subset<T, ParsedOrder$lineItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12965,822 +22054,982 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ShopifyLineItem model
+   * Fields of the ParsedOrder model
    */
-  interface ShopifyLineItemFieldRefs {
-    readonly id: FieldRef<"ShopifyLineItem", 'String'>
-    readonly shopifyId: FieldRef<"ShopifyLineItem", 'String'>
-    readonly orderId: FieldRef<"ShopifyLineItem", 'String'>
-    readonly productId: FieldRef<"ShopifyLineItem", 'String'>
-    readonly productTitle: FieldRef<"ShopifyLineItem", 'String'>
-    readonly variantId: FieldRef<"ShopifyLineItem", 'String'>
-    readonly variantTitle: FieldRef<"ShopifyLineItem", 'String'>
-    readonly quantity: FieldRef<"ShopifyLineItem", 'Int'>
-    readonly price: FieldRef<"ShopifyLineItem", 'Float'>
-    readonly modifications: FieldRef<"ShopifyLineItem", 'Json'>
-    readonly createdAt: FieldRef<"ShopifyLineItem", 'DateTime'>
-    readonly updatedAt: FieldRef<"ShopifyLineItem", 'DateTime'>
+  interface ParsedOrderFieldRefs {
+    readonly id: FieldRef<"ParsedOrder", 'String'>
+    readonly shopifyOrderId: FieldRef<"ParsedOrder", 'String'>
+    readonly orderNumber: FieldRef<"ParsedOrder", 'String'>
+    readonly deliveryTime: FieldRef<"ParsedOrder", 'String'>
+    readonly deliveryDate: FieldRef<"ParsedOrder", 'DateTime'>
+    readonly deliveryAddress: FieldRef<"ParsedOrder", 'Json'>
+    readonly customerName: FieldRef<"ParsedOrder", 'String'>
+    readonly customerCompany: FieldRef<"ParsedOrder", 'String'>
+    readonly customerPhone: FieldRef<"ParsedOrder", 'String'>
+    readonly orderNotes: FieldRef<"ParsedOrder", 'String'>
+    readonly travelTime: FieldRef<"ParsedOrder", 'Int'>
+    readonly leaveTime: FieldRef<"ParsedOrder", 'String'>
+    readonly driverId: FieldRef<"ParsedOrder", 'String'>
+    readonly isDispatched: FieldRef<"ParsedOrder", 'Boolean'>
+    readonly createdAt: FieldRef<"ParsedOrder", 'DateTime'>
+    readonly updatedAt: FieldRef<"ParsedOrder", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ShopifyLineItem findUnique
+   * ParsedOrder findUnique
    */
-  export type ShopifyLineItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedOrderInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyLineItem to fetch.
+     * Filter, which ParsedOrder to fetch.
      */
-    where: ShopifyLineItemWhereUniqueInput
+    where: ParsedOrderWhereUniqueInput
   }
 
   /**
-   * ShopifyLineItem findUniqueOrThrow
+   * ParsedOrder findUniqueOrThrow
    */
-  export type ShopifyLineItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedOrderInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyLineItem to fetch.
+     * Filter, which ParsedOrder to fetch.
      */
-    where: ShopifyLineItemWhereUniqueInput
+    where: ParsedOrderWhereUniqueInput
   }
 
   /**
-   * ShopifyLineItem findFirst
+   * ParsedOrder findFirst
    */
-  export type ShopifyLineItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedOrderInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyLineItem to fetch.
+     * Filter, which ParsedOrder to fetch.
      */
-    where?: ShopifyLineItemWhereInput
+    where?: ParsedOrderWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ShopifyLineItems to fetch.
+     * Determine the order of ParsedOrders to fetch.
      */
-    orderBy?: ShopifyLineItemOrderByWithRelationInput | ShopifyLineItemOrderByWithRelationInput[]
+    orderBy?: ParsedOrderOrderByWithRelationInput | ParsedOrderOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ShopifyLineItems.
+     * Sets the position for searching for ParsedOrders.
      */
-    cursor?: ShopifyLineItemWhereUniqueInput
+    cursor?: ParsedOrderWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ShopifyLineItems from the position of the cursor.
+     * Take `±n` ParsedOrders from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ShopifyLineItems.
+     * Skip the first `n` ParsedOrders.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ShopifyLineItems.
+     * Filter by unique combinations of ParsedOrders.
      */
-    distinct?: ShopifyLineItemScalarFieldEnum | ShopifyLineItemScalarFieldEnum[]
+    distinct?: ParsedOrderScalarFieldEnum | ParsedOrderScalarFieldEnum[]
   }
 
   /**
-   * ShopifyLineItem findFirstOrThrow
+   * ParsedOrder findFirstOrThrow
    */
-  export type ShopifyLineItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedOrderInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyLineItem to fetch.
+     * Filter, which ParsedOrder to fetch.
      */
-    where?: ShopifyLineItemWhereInput
+    where?: ParsedOrderWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ShopifyLineItems to fetch.
+     * Determine the order of ParsedOrders to fetch.
      */
-    orderBy?: ShopifyLineItemOrderByWithRelationInput | ShopifyLineItemOrderByWithRelationInput[]
+    orderBy?: ParsedOrderOrderByWithRelationInput | ParsedOrderOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ShopifyLineItems.
+     * Sets the position for searching for ParsedOrders.
      */
-    cursor?: ShopifyLineItemWhereUniqueInput
+    cursor?: ParsedOrderWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ShopifyLineItems from the position of the cursor.
+     * Take `±n` ParsedOrders from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ShopifyLineItems.
+     * Skip the first `n` ParsedOrders.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ShopifyLineItems.
+     * Filter by unique combinations of ParsedOrders.
      */
-    distinct?: ShopifyLineItemScalarFieldEnum | ShopifyLineItemScalarFieldEnum[]
+    distinct?: ParsedOrderScalarFieldEnum | ParsedOrderScalarFieldEnum[]
   }
 
   /**
-   * ShopifyLineItem findMany
+   * ParsedOrder findMany
    */
-  export type ShopifyLineItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedOrderInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyLineItems to fetch.
+     * Filter, which ParsedOrders to fetch.
      */
-    where?: ShopifyLineItemWhereInput
+    where?: ParsedOrderWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ShopifyLineItems to fetch.
+     * Determine the order of ParsedOrders to fetch.
      */
-    orderBy?: ShopifyLineItemOrderByWithRelationInput | ShopifyLineItemOrderByWithRelationInput[]
+    orderBy?: ParsedOrderOrderByWithRelationInput | ParsedOrderOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ShopifyLineItems.
+     * Sets the position for listing ParsedOrders.
      */
-    cursor?: ShopifyLineItemWhereUniqueInput
+    cursor?: ParsedOrderWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ShopifyLineItems from the position of the cursor.
+     * Take `±n` ParsedOrders from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ShopifyLineItems.
+     * Skip the first `n` ParsedOrders.
      */
     skip?: number
-    distinct?: ShopifyLineItemScalarFieldEnum | ShopifyLineItemScalarFieldEnum[]
+    distinct?: ParsedOrderScalarFieldEnum | ParsedOrderScalarFieldEnum[]
   }
 
   /**
-   * ShopifyLineItem create
+   * ParsedOrder create
    */
-  export type ShopifyLineItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedOrderInclude<ExtArgs> | null
     /**
-     * The data needed to create a ShopifyLineItem.
+     * The data needed to create a ParsedOrder.
      */
-    data: XOR<ShopifyLineItemCreateInput, ShopifyLineItemUncheckedCreateInput>
+    data: XOR<ParsedOrderCreateInput, ParsedOrderUncheckedCreateInput>
   }
 
   /**
-   * ShopifyLineItem createMany
+   * ParsedOrder createMany
    */
-  export type ShopifyLineItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ShopifyLineItems.
+     * The data used to create many ParsedOrders.
      */
-    data: ShopifyLineItemCreateManyInput | ShopifyLineItemCreateManyInput[]
+    data: ParsedOrderCreateManyInput | ParsedOrderCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
-   * ShopifyLineItem createManyAndReturn
+   * ParsedOrder createManyAndReturn
    */
-  export type ShopifyLineItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ParsedOrderSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
-     * The data used to create many ShopifyLineItems.
+     * The data used to create many ParsedOrders.
      */
-    data: ShopifyLineItemCreateManyInput | ShopifyLineItemCreateManyInput[]
+    data: ParsedOrderCreateManyInput | ParsedOrderCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: ParsedOrderIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * ShopifyLineItem update
+   * ParsedOrder update
    */
-  export type ShopifyLineItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedOrderInclude<ExtArgs> | null
     /**
-     * The data needed to update a ShopifyLineItem.
+     * The data needed to update a ParsedOrder.
      */
-    data: XOR<ShopifyLineItemUpdateInput, ShopifyLineItemUncheckedUpdateInput>
+    data: XOR<ParsedOrderUpdateInput, ParsedOrderUncheckedUpdateInput>
     /**
-     * Choose, which ShopifyLineItem to update.
+     * Choose, which ParsedOrder to update.
      */
-    where: ShopifyLineItemWhereUniqueInput
+    where: ParsedOrderWhereUniqueInput
   }
 
   /**
-   * ShopifyLineItem updateMany
+   * ParsedOrder updateMany
    */
-  export type ShopifyLineItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ShopifyLineItems.
+     * The data used to update ParsedOrders.
      */
-    data: XOR<ShopifyLineItemUpdateManyMutationInput, ShopifyLineItemUncheckedUpdateManyInput>
+    data: XOR<ParsedOrderUpdateManyMutationInput, ParsedOrderUncheckedUpdateManyInput>
     /**
-     * Filter which ShopifyLineItems to update
+     * Filter which ParsedOrders to update
      */
-    where?: ShopifyLineItemWhereInput
+    where?: ParsedOrderWhereInput
     /**
-     * Limit how many ShopifyLineItems to update.
+     * Limit how many ParsedOrders to update.
      */
     limit?: number
   }
 
   /**
-   * ShopifyLineItem updateManyAndReturn
+   * ParsedOrder updateManyAndReturn
    */
-  export type ShopifyLineItemUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: ParsedOrderSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
-     * The data used to update ShopifyLineItems.
+     * The data used to update ParsedOrders.
      */
-    data: XOR<ShopifyLineItemUpdateManyMutationInput, ShopifyLineItemUncheckedUpdateManyInput>
+    data: XOR<ParsedOrderUpdateManyMutationInput, ParsedOrderUncheckedUpdateManyInput>
     /**
-     * Filter which ShopifyLineItems to update
+     * Filter which ParsedOrders to update
      */
-    where?: ShopifyLineItemWhereInput
+    where?: ParsedOrderWhereInput
     /**
-     * Limit how many ShopifyLineItems to update.
+     * Limit how many ParsedOrders to update.
      */
     limit?: number
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemIncludeUpdateManyAndReturn<ExtArgs> | null
+    include?: ParsedOrderIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * ShopifyLineItem upsert
+   * ParsedOrder upsert
    */
-  export type ShopifyLineItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedOrderInclude<ExtArgs> | null
     /**
-     * The filter to search for the ShopifyLineItem to update in case it exists.
+     * The filter to search for the ParsedOrder to update in case it exists.
      */
-    where: ShopifyLineItemWhereUniqueInput
+    where: ParsedOrderWhereUniqueInput
     /**
-     * In case the ShopifyLineItem found by the `where` argument doesn't exist, create a new ShopifyLineItem with this data.
+     * In case the ParsedOrder found by the `where` argument doesn't exist, create a new ParsedOrder with this data.
      */
-    create: XOR<ShopifyLineItemCreateInput, ShopifyLineItemUncheckedCreateInput>
+    create: XOR<ParsedOrderCreateInput, ParsedOrderUncheckedCreateInput>
     /**
-     * In case the ShopifyLineItem was found with the provided `where` argument, update it with this data.
+     * In case the ParsedOrder was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ShopifyLineItemUpdateInput, ShopifyLineItemUncheckedUpdateInput>
+    update: XOR<ParsedOrderUpdateInput, ParsedOrderUncheckedUpdateInput>
   }
 
   /**
-   * ShopifyLineItem delete
+   * ParsedOrder delete
    */
-  export type ShopifyLineItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedOrder
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedOrderSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedOrder
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedOrderOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedOrderInclude<ExtArgs> | null
     /**
-     * Filter which ShopifyLineItem to delete.
+     * Filter which ParsedOrder to delete.
      */
-    where: ShopifyLineItemWhereUniqueInput
+    where: ParsedOrderWhereUniqueInput
   }
 
   /**
-   * ShopifyLineItem deleteMany
+   * ParsedOrder deleteMany
    */
-  export type ShopifyLineItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ShopifyLineItems to delete
+     * Filter which ParsedOrders to delete
      */
-    where?: ShopifyLineItemWhereInput
+    where?: ParsedOrderWhereInput
     /**
-     * Limit how many ShopifyLineItems to delete.
+     * Limit how many ParsedOrders to delete.
      */
     limit?: number
   }
 
   /**
-   * ShopifyLineItem without action
+   * ParsedOrder.lineItems
    */
-  export type ShopifyLineItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedOrder$lineItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyLineItem
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyLineItemSelect<ExtArgs> | null
+    select?: ParsedLineItemSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyLineItem
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyLineItemOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyLineItemInclude<ExtArgs> | null
+    include?: ParsedLineItemInclude<ExtArgs> | null
+    where?: ParsedLineItemWhereInput
+    orderBy?: ParsedLineItemOrderByWithRelationInput | ParsedLineItemOrderByWithRelationInput[]
+    cursor?: ParsedLineItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ParsedLineItemScalarFieldEnum | ParsedLineItemScalarFieldEnum[]
+  }
+
+  /**
+   * ParsedOrder without action
+   */
+  export type ParsedOrderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ParsedOrder
+     */
+    select?: ParsedOrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ParsedOrder
+     */
+    omit?: ParsedOrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ParsedOrderInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model ShopifyCustomer
+   * Model ParsedLineItem
    */
 
-  export type AggregateShopifyCustomer = {
-    _count: ShopifyCustomerCountAggregateOutputType | null
-    _min: ShopifyCustomerMinAggregateOutputType | null
-    _max: ShopifyCustomerMaxAggregateOutputType | null
+  export type AggregateParsedLineItem = {
+    _count: ParsedLineItemCountAggregateOutputType | null
+    _avg: ParsedLineItemAvgAggregateOutputType | null
+    _sum: ParsedLineItemSumAggregateOutputType | null
+    _min: ParsedLineItemMinAggregateOutputType | null
+    _max: ParsedLineItemMaxAggregateOutputType | null
   }
 
-  export type ShopifyCustomerMinAggregateOutputType = {
+  export type ParsedLineItemAvgAggregateOutputType = {
+    quantity: number | null
+    ovenTimer1: number | null
+    ovenTimer2: number | null
+  }
+
+  export type ParsedLineItemSumAggregateOutputType = {
+    quantity: number | null
+    ovenTimer1: number | null
+    ovenTimer2: number | null
+  }
+
+  export type ParsedLineItemMinAggregateOutputType = {
     id: string | null
-    shopifyId: string | null
-    email: string | null
-    firstName: string | null
-    lastName: string | null
-    phone: string | null
-    defaultAddress: string | null
+    parsedOrderId: string | null
+    sku: string | null
+    title: string | null
+    quantity: number | null
+    price: string | null
+    handle: string | null
+    meat1: string | null
+    meat2: string | null
+    serveware: string | null
+    ovenTimer1: number | null
+    ovenTimer2: number | null
+    option1: string | null
+    option2: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
-  export type ShopifyCustomerMaxAggregateOutputType = {
+  export type ParsedLineItemMaxAggregateOutputType = {
     id: string | null
-    shopifyId: string | null
-    email: string | null
-    firstName: string | null
-    lastName: string | null
-    phone: string | null
-    defaultAddress: string | null
+    parsedOrderId: string | null
+    sku: string | null
+    title: string | null
+    quantity: number | null
+    price: string | null
+    handle: string | null
+    meat1: string | null
+    meat2: string | null
+    serveware: string | null
+    ovenTimer1: number | null
+    ovenTimer2: number | null
+    option1: string | null
+    option2: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
-  export type ShopifyCustomerCountAggregateOutputType = {
+  export type ParsedLineItemCountAggregateOutputType = {
     id: number
-    shopifyId: number
-    email: number
-    firstName: number
-    lastName: number
-    phone: number
-    defaultAddress: number
+    parsedOrderId: number
+    sku: number
+    title: number
+    quantity: number
+    price: number
+    handle: number
+    meat1: number
+    meat2: number
+    serveware: number
+    ovenTimer1: number
+    ovenTimer2: number
+    option1: number
+    option2: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
 
-  export type ShopifyCustomerMinAggregateInputType = {
+  export type ParsedLineItemAvgAggregateInputType = {
+    quantity?: true
+    ovenTimer1?: true
+    ovenTimer2?: true
+  }
+
+  export type ParsedLineItemSumAggregateInputType = {
+    quantity?: true
+    ovenTimer1?: true
+    ovenTimer2?: true
+  }
+
+  export type ParsedLineItemMinAggregateInputType = {
     id?: true
-    shopifyId?: true
-    email?: true
-    firstName?: true
-    lastName?: true
-    phone?: true
-    defaultAddress?: true
+    parsedOrderId?: true
+    sku?: true
+    title?: true
+    quantity?: true
+    price?: true
+    handle?: true
+    meat1?: true
+    meat2?: true
+    serveware?: true
+    ovenTimer1?: true
+    ovenTimer2?: true
+    option1?: true
+    option2?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type ShopifyCustomerMaxAggregateInputType = {
+  export type ParsedLineItemMaxAggregateInputType = {
     id?: true
-    shopifyId?: true
-    email?: true
-    firstName?: true
-    lastName?: true
-    phone?: true
-    defaultAddress?: true
+    parsedOrderId?: true
+    sku?: true
+    title?: true
+    quantity?: true
+    price?: true
+    handle?: true
+    meat1?: true
+    meat2?: true
+    serveware?: true
+    ovenTimer1?: true
+    ovenTimer2?: true
+    option1?: true
+    option2?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type ShopifyCustomerCountAggregateInputType = {
+  export type ParsedLineItemCountAggregateInputType = {
     id?: true
-    shopifyId?: true
-    email?: true
-    firstName?: true
-    lastName?: true
-    phone?: true
-    defaultAddress?: true
+    parsedOrderId?: true
+    sku?: true
+    title?: true
+    quantity?: true
+    price?: true
+    handle?: true
+    meat1?: true
+    meat2?: true
+    serveware?: true
+    ovenTimer1?: true
+    ovenTimer2?: true
+    option1?: true
+    option2?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
   }
 
-  export type ShopifyCustomerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ShopifyCustomer to aggregate.
+     * Filter which ParsedLineItem to aggregate.
      */
-    where?: ShopifyCustomerWhereInput
+    where?: ParsedLineItemWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ShopifyCustomers to fetch.
+     * Determine the order of ParsedLineItems to fetch.
      */
-    orderBy?: ShopifyCustomerOrderByWithRelationInput | ShopifyCustomerOrderByWithRelationInput[]
+    orderBy?: ParsedLineItemOrderByWithRelationInput | ParsedLineItemOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ShopifyCustomerWhereUniqueInput
+    cursor?: ParsedLineItemWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ShopifyCustomers from the position of the cursor.
+     * Take `±n` ParsedLineItems from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ShopifyCustomers.
+     * Skip the first `n` ParsedLineItems.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ShopifyCustomers
+     * Count returned ParsedLineItems
     **/
-    _count?: true | ShopifyCustomerCountAggregateInputType
+    _count?: true | ParsedLineItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ParsedLineItemAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ParsedLineItemSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ShopifyCustomerMinAggregateInputType
+    _min?: ParsedLineItemMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ShopifyCustomerMaxAggregateInputType
+    _max?: ParsedLineItemMaxAggregateInputType
   }
 
-  export type GetShopifyCustomerAggregateType<T extends ShopifyCustomerAggregateArgs> = {
-        [P in keyof T & keyof AggregateShopifyCustomer]: P extends '_count' | 'count'
+  export type GetParsedLineItemAggregateType<T extends ParsedLineItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateParsedLineItem]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateShopifyCustomer[P]>
-      : GetScalarType<T[P], AggregateShopifyCustomer[P]>
+        : GetScalarType<T[P], AggregateParsedLineItem[P]>
+      : GetScalarType<T[P], AggregateParsedLineItem[P]>
   }
 
 
 
 
-  export type ShopifyCustomerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ShopifyCustomerWhereInput
-    orderBy?: ShopifyCustomerOrderByWithAggregationInput | ShopifyCustomerOrderByWithAggregationInput[]
-    by: ShopifyCustomerScalarFieldEnum[] | ShopifyCustomerScalarFieldEnum
-    having?: ShopifyCustomerScalarWhereWithAggregatesInput
+  export type ParsedLineItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ParsedLineItemWhereInput
+    orderBy?: ParsedLineItemOrderByWithAggregationInput | ParsedLineItemOrderByWithAggregationInput[]
+    by: ParsedLineItemScalarFieldEnum[] | ParsedLineItemScalarFieldEnum
+    having?: ParsedLineItemScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ShopifyCustomerCountAggregateInputType | true
-    _min?: ShopifyCustomerMinAggregateInputType
-    _max?: ShopifyCustomerMaxAggregateInputType
+    _count?: ParsedLineItemCountAggregateInputType | true
+    _avg?: ParsedLineItemAvgAggregateInputType
+    _sum?: ParsedLineItemSumAggregateInputType
+    _min?: ParsedLineItemMinAggregateInputType
+    _max?: ParsedLineItemMaxAggregateInputType
   }
 
-  export type ShopifyCustomerGroupByOutputType = {
+  export type ParsedLineItemGroupByOutputType = {
     id: string
-    shopifyId: string
-    email: string
-    firstName: string | null
-    lastName: string | null
-    phone: string | null
-    defaultAddress: string | null
+    parsedOrderId: string
+    sku: string
+    title: string
+    quantity: number
+    price: string
+    handle: string | null
+    meat1: string | null
+    meat2: string | null
+    serveware: string | null
+    ovenTimer1: number | null
+    ovenTimer2: number | null
+    option1: string | null
+    option2: string | null
     createdAt: Date
     updatedAt: Date
-    _count: ShopifyCustomerCountAggregateOutputType | null
-    _min: ShopifyCustomerMinAggregateOutputType | null
-    _max: ShopifyCustomerMaxAggregateOutputType | null
+    _count: ParsedLineItemCountAggregateOutputType | null
+    _avg: ParsedLineItemAvgAggregateOutputType | null
+    _sum: ParsedLineItemSumAggregateOutputType | null
+    _min: ParsedLineItemMinAggregateOutputType | null
+    _max: ParsedLineItemMaxAggregateOutputType | null
   }
 
-  type GetShopifyCustomerGroupByPayload<T extends ShopifyCustomerGroupByArgs> = Prisma.PrismaPromise<
+  type GetParsedLineItemGroupByPayload<T extends ParsedLineItemGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ShopifyCustomerGroupByOutputType, T['by']> &
+      PickEnumerable<ParsedLineItemGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ShopifyCustomerGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ParsedLineItemGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ShopifyCustomerGroupByOutputType[P]>
-            : GetScalarType<T[P], ShopifyCustomerGroupByOutputType[P]>
+              : GetScalarType<T[P], ParsedLineItemGroupByOutputType[P]>
+            : GetScalarType<T[P], ParsedLineItemGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ShopifyCustomerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ParsedLineItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    shopifyId?: boolean
-    email?: boolean
-    firstName?: boolean
-    lastName?: boolean
-    phone?: boolean
-    defaultAddress?: boolean
+    parsedOrderId?: boolean
+    sku?: boolean
+    title?: boolean
+    quantity?: boolean
+    price?: boolean
+    handle?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    serveware?: boolean
+    ovenTimer1?: boolean
+    ovenTimer2?: boolean
+    option1?: boolean
+    option2?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    orders?: boolean | ShopifyCustomer$ordersArgs<ExtArgs>
-    _count?: boolean | ShopifyCustomerCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["shopifyCustomer"]>
+    parsedOrder?: boolean | ParsedOrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["parsedLineItem"]>
 
-  export type ShopifyCustomerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ParsedLineItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    shopifyId?: boolean
-    email?: boolean
-    firstName?: boolean
-    lastName?: boolean
-    phone?: boolean
-    defaultAddress?: boolean
+    parsedOrderId?: boolean
+    sku?: boolean
+    title?: boolean
+    quantity?: boolean
+    price?: boolean
+    handle?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    serveware?: boolean
+    ovenTimer1?: boolean
+    ovenTimer2?: boolean
+    option1?: boolean
+    option2?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-  }, ExtArgs["result"]["shopifyCustomer"]>
+    parsedOrder?: boolean | ParsedOrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["parsedLineItem"]>
 
-  export type ShopifyCustomerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ParsedLineItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    shopifyId?: boolean
-    email?: boolean
-    firstName?: boolean
-    lastName?: boolean
-    phone?: boolean
-    defaultAddress?: boolean
+    parsedOrderId?: boolean
+    sku?: boolean
+    title?: boolean
+    quantity?: boolean
+    price?: boolean
+    handle?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    serveware?: boolean
+    ovenTimer1?: boolean
+    ovenTimer2?: boolean
+    option1?: boolean
+    option2?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-  }, ExtArgs["result"]["shopifyCustomer"]>
+    parsedOrder?: boolean | ParsedOrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["parsedLineItem"]>
 
-  export type ShopifyCustomerSelectScalar = {
+  export type ParsedLineItemSelectScalar = {
     id?: boolean
-    shopifyId?: boolean
-    email?: boolean
-    firstName?: boolean
-    lastName?: boolean
-    phone?: boolean
-    defaultAddress?: boolean
+    parsedOrderId?: boolean
+    sku?: boolean
+    title?: boolean
+    quantity?: boolean
+    price?: boolean
+    handle?: boolean
+    meat1?: boolean
+    meat2?: boolean
+    serveware?: boolean
+    ovenTimer1?: boolean
+    ovenTimer2?: boolean
+    option1?: boolean
+    option2?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ShopifyCustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "email" | "firstName" | "lastName" | "phone" | "defaultAddress" | "createdAt" | "updatedAt", ExtArgs["result"]["shopifyCustomer"]>
-  export type ShopifyCustomerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    orders?: boolean | ShopifyCustomer$ordersArgs<ExtArgs>
-    _count?: boolean | ShopifyCustomerCountOutputTypeDefaultArgs<ExtArgs>
+  export type ParsedLineItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "parsedOrderId" | "sku" | "title" | "quantity" | "price" | "handle" | "meat1" | "meat2" | "serveware" | "ovenTimer1" | "ovenTimer2" | "option1" | "option2" | "createdAt" | "updatedAt", ExtArgs["result"]["parsedLineItem"]>
+  export type ParsedLineItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parsedOrder?: boolean | ParsedOrderDefaultArgs<ExtArgs>
   }
-  export type ShopifyCustomerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type ShopifyCustomerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ParsedLineItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parsedOrder?: boolean | ParsedOrderDefaultArgs<ExtArgs>
+  }
+  export type ParsedLineItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    parsedOrder?: boolean | ParsedOrderDefaultArgs<ExtArgs>
+  }
 
-  export type $ShopifyCustomerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ShopifyCustomer"
+  export type $ParsedLineItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ParsedLineItem"
     objects: {
-      orders: Prisma.$ShopifyOrderPayload<ExtArgs>[]
+      parsedOrder: Prisma.$ParsedOrderPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      shopifyId: string
-      email: string
-      firstName: string | null
-      lastName: string | null
-      phone: string | null
-      defaultAddress: string | null
+      parsedOrderId: string
+      sku: string
+      title: string
+      quantity: number
+      price: string
+      handle: string | null
+      meat1: string | null
+      meat2: string | null
+      serveware: string | null
+      ovenTimer1: number | null
+      ovenTimer2: number | null
+      option1: string | null
+      option2: string | null
       createdAt: Date
       updatedAt: Date
-    }, ExtArgs["result"]["shopifyCustomer"]>
+    }, ExtArgs["result"]["parsedLineItem"]>
     composites: {}
   }
 
-  type ShopifyCustomerGetPayload<S extends boolean | null | undefined | ShopifyCustomerDefaultArgs> = $Result.GetResult<Prisma.$ShopifyCustomerPayload, S>
+  type ParsedLineItemGetPayload<S extends boolean | null | undefined | ParsedLineItemDefaultArgs> = $Result.GetResult<Prisma.$ParsedLineItemPayload, S>
 
-  type ShopifyCustomerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<ShopifyCustomerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: ShopifyCustomerCountAggregateInputType | true
+  type ParsedLineItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ParsedLineItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ParsedLineItemCountAggregateInputType | true
     }
 
-  export interface ShopifyCustomerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ShopifyCustomer'], meta: { name: 'ShopifyCustomer' } }
+  export interface ParsedLineItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ParsedLineItem'], meta: { name: 'ParsedLineItem' } }
     /**
-     * Find zero or one ShopifyCustomer that matches the filter.
-     * @param {ShopifyCustomerFindUniqueArgs} args - Arguments to find a ShopifyCustomer
+     * Find zero or one ParsedLineItem that matches the filter.
+     * @param {ParsedLineItemFindUniqueArgs} args - Arguments to find a ParsedLineItem
      * @example
-     * // Get one ShopifyCustomer
-     * const shopifyCustomer = await prisma.shopifyCustomer.findUnique({
+     * // Get one ParsedLineItem
+     * const parsedLineItem = await prisma.parsedLineItem.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ShopifyCustomerFindUniqueArgs>(args: SelectSubset<T, ShopifyCustomerFindUniqueArgs<ExtArgs>>): Prisma__ShopifyCustomerClient<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends ParsedLineItemFindUniqueArgs>(args: SelectSubset<T, ParsedLineItemFindUniqueArgs<ExtArgs>>): Prisma__ParsedLineItemClient<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one ShopifyCustomer that matches the filter or throw an error with `error.code='P2025'`
+     * Find one ParsedLineItem that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {ShopifyCustomerFindUniqueOrThrowArgs} args - Arguments to find a ShopifyCustomer
+     * @param {ParsedLineItemFindUniqueOrThrowArgs} args - Arguments to find a ParsedLineItem
      * @example
-     * // Get one ShopifyCustomer
-     * const shopifyCustomer = await prisma.shopifyCustomer.findUniqueOrThrow({
+     * // Get one ParsedLineItem
+     * const parsedLineItem = await prisma.parsedLineItem.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ShopifyCustomerFindUniqueOrThrowArgs>(args: SelectSubset<T, ShopifyCustomerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ShopifyCustomerClient<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends ParsedLineItemFindUniqueOrThrowArgs>(args: SelectSubset<T, ParsedLineItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ParsedLineItemClient<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first ShopifyCustomer that matches the filter.
+     * Find the first ParsedLineItem that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyCustomerFindFirstArgs} args - Arguments to find a ShopifyCustomer
+     * @param {ParsedLineItemFindFirstArgs} args - Arguments to find a ParsedLineItem
      * @example
-     * // Get one ShopifyCustomer
-     * const shopifyCustomer = await prisma.shopifyCustomer.findFirst({
+     * // Get one ParsedLineItem
+     * const parsedLineItem = await prisma.parsedLineItem.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ShopifyCustomerFindFirstArgs>(args?: SelectSubset<T, ShopifyCustomerFindFirstArgs<ExtArgs>>): Prisma__ShopifyCustomerClient<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends ParsedLineItemFindFirstArgs>(args?: SelectSubset<T, ParsedLineItemFindFirstArgs<ExtArgs>>): Prisma__ParsedLineItemClient<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first ShopifyCustomer that matches the filter or
+     * Find the first ParsedLineItem that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyCustomerFindFirstOrThrowArgs} args - Arguments to find a ShopifyCustomer
+     * @param {ParsedLineItemFindFirstOrThrowArgs} args - Arguments to find a ParsedLineItem
      * @example
-     * // Get one ShopifyCustomer
-     * const shopifyCustomer = await prisma.shopifyCustomer.findFirstOrThrow({
+     * // Get one ParsedLineItem
+     * const parsedLineItem = await prisma.parsedLineItem.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ShopifyCustomerFindFirstOrThrowArgs>(args?: SelectSubset<T, ShopifyCustomerFindFirstOrThrowArgs<ExtArgs>>): Prisma__ShopifyCustomerClient<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends ParsedLineItemFindFirstOrThrowArgs>(args?: SelectSubset<T, ParsedLineItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__ParsedLineItemClient<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more ShopifyCustomers that matches the filter.
+     * Find zero or more ParsedLineItems that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyCustomerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ParsedLineItemFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ShopifyCustomers
-     * const shopifyCustomers = await prisma.shopifyCustomer.findMany()
+     * // Get all ParsedLineItems
+     * const parsedLineItems = await prisma.parsedLineItem.findMany()
      * 
-     * // Get first 10 ShopifyCustomers
-     * const shopifyCustomers = await prisma.shopifyCustomer.findMany({ take: 10 })
+     * // Get first 10 ParsedLineItems
+     * const parsedLineItems = await prisma.parsedLineItem.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const shopifyCustomerWithIdOnly = await prisma.shopifyCustomer.findMany({ select: { id: true } })
+     * const parsedLineItemWithIdOnly = await prisma.parsedLineItem.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ShopifyCustomerFindManyArgs>(args?: SelectSubset<T, ShopifyCustomerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends ParsedLineItemFindManyArgs>(args?: SelectSubset<T, ParsedLineItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a ShopifyCustomer.
-     * @param {ShopifyCustomerCreateArgs} args - Arguments to create a ShopifyCustomer.
+     * Create a ParsedLineItem.
+     * @param {ParsedLineItemCreateArgs} args - Arguments to create a ParsedLineItem.
      * @example
-     * // Create one ShopifyCustomer
-     * const ShopifyCustomer = await prisma.shopifyCustomer.create({
+     * // Create one ParsedLineItem
+     * const ParsedLineItem = await prisma.parsedLineItem.create({
      *   data: {
-     *     // ... data to create a ShopifyCustomer
+     *     // ... data to create a ParsedLineItem
      *   }
      * })
      * 
      */
-    create<T extends ShopifyCustomerCreateArgs>(args: SelectSubset<T, ShopifyCustomerCreateArgs<ExtArgs>>): Prisma__ShopifyCustomerClient<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends ParsedLineItemCreateArgs>(args: SelectSubset<T, ParsedLineItemCreateArgs<ExtArgs>>): Prisma__ParsedLineItemClient<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many ShopifyCustomers.
-     * @param {ShopifyCustomerCreateManyArgs} args - Arguments to create many ShopifyCustomers.
+     * Create many ParsedLineItems.
+     * @param {ParsedLineItemCreateManyArgs} args - Arguments to create many ParsedLineItems.
      * @example
-     * // Create many ShopifyCustomers
-     * const shopifyCustomer = await prisma.shopifyCustomer.createMany({
+     * // Create many ParsedLineItems
+     * const parsedLineItem = await prisma.parsedLineItem.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ShopifyCustomerCreateManyArgs>(args?: SelectSubset<T, ShopifyCustomerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ParsedLineItemCreateManyArgs>(args?: SelectSubset<T, ParsedLineItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ShopifyCustomers and returns the data saved in the database.
-     * @param {ShopifyCustomerCreateManyAndReturnArgs} args - Arguments to create many ShopifyCustomers.
+     * Create many ParsedLineItems and returns the data saved in the database.
+     * @param {ParsedLineItemCreateManyAndReturnArgs} args - Arguments to create many ParsedLineItems.
      * @example
-     * // Create many ShopifyCustomers
-     * const shopifyCustomer = await prisma.shopifyCustomer.createManyAndReturn({
+     * // Create many ParsedLineItems
+     * const parsedLineItem = await prisma.parsedLineItem.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ShopifyCustomers and only return the `id`
-     * const shopifyCustomerWithIdOnly = await prisma.shopifyCustomer.createManyAndReturn({
+     * // Create many ParsedLineItems and only return the `id`
+     * const parsedLineItemWithIdOnly = await prisma.parsedLineItem.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -13790,28 +23039,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ShopifyCustomerCreateManyAndReturnArgs>(args?: SelectSubset<T, ShopifyCustomerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends ParsedLineItemCreateManyAndReturnArgs>(args?: SelectSubset<T, ParsedLineItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a ShopifyCustomer.
-     * @param {ShopifyCustomerDeleteArgs} args - Arguments to delete one ShopifyCustomer.
+     * Delete a ParsedLineItem.
+     * @param {ParsedLineItemDeleteArgs} args - Arguments to delete one ParsedLineItem.
      * @example
-     * // Delete one ShopifyCustomer
-     * const ShopifyCustomer = await prisma.shopifyCustomer.delete({
+     * // Delete one ParsedLineItem
+     * const ParsedLineItem = await prisma.parsedLineItem.delete({
      *   where: {
-     *     // ... filter to delete one ShopifyCustomer
+     *     // ... filter to delete one ParsedLineItem
      *   }
      * })
      * 
      */
-    delete<T extends ShopifyCustomerDeleteArgs>(args: SelectSubset<T, ShopifyCustomerDeleteArgs<ExtArgs>>): Prisma__ShopifyCustomerClient<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends ParsedLineItemDeleteArgs>(args: SelectSubset<T, ParsedLineItemDeleteArgs<ExtArgs>>): Prisma__ParsedLineItemClient<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one ShopifyCustomer.
-     * @param {ShopifyCustomerUpdateArgs} args - Arguments to update one ShopifyCustomer.
+     * Update one ParsedLineItem.
+     * @param {ParsedLineItemUpdateArgs} args - Arguments to update one ParsedLineItem.
      * @example
-     * // Update one ShopifyCustomer
-     * const shopifyCustomer = await prisma.shopifyCustomer.update({
+     * // Update one ParsedLineItem
+     * const parsedLineItem = await prisma.parsedLineItem.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -13821,30 +23070,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ShopifyCustomerUpdateArgs>(args: SelectSubset<T, ShopifyCustomerUpdateArgs<ExtArgs>>): Prisma__ShopifyCustomerClient<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends ParsedLineItemUpdateArgs>(args: SelectSubset<T, ParsedLineItemUpdateArgs<ExtArgs>>): Prisma__ParsedLineItemClient<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more ShopifyCustomers.
-     * @param {ShopifyCustomerDeleteManyArgs} args - Arguments to filter ShopifyCustomers to delete.
+     * Delete zero or more ParsedLineItems.
+     * @param {ParsedLineItemDeleteManyArgs} args - Arguments to filter ParsedLineItems to delete.
      * @example
-     * // Delete a few ShopifyCustomers
-     * const { count } = await prisma.shopifyCustomer.deleteMany({
+     * // Delete a few ParsedLineItems
+     * const { count } = await prisma.parsedLineItem.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ShopifyCustomerDeleteManyArgs>(args?: SelectSubset<T, ShopifyCustomerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ParsedLineItemDeleteManyArgs>(args?: SelectSubset<T, ParsedLineItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ShopifyCustomers.
+     * Update zero or more ParsedLineItems.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyCustomerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ParsedLineItemUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ShopifyCustomers
-     * const shopifyCustomer = await prisma.shopifyCustomer.updateMany({
+     * // Update many ParsedLineItems
+     * const parsedLineItem = await prisma.parsedLineItem.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -13854,14 +23103,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ShopifyCustomerUpdateManyArgs>(args: SelectSubset<T, ShopifyCustomerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ParsedLineItemUpdateManyArgs>(args: SelectSubset<T, ParsedLineItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ShopifyCustomers and returns the data updated in the database.
-     * @param {ShopifyCustomerUpdateManyAndReturnArgs} args - Arguments to update many ShopifyCustomers.
+     * Update zero or more ParsedLineItems and returns the data updated in the database.
+     * @param {ParsedLineItemUpdateManyAndReturnArgs} args - Arguments to update many ParsedLineItems.
      * @example
-     * // Update many ShopifyCustomers
-     * const shopifyCustomer = await prisma.shopifyCustomer.updateManyAndReturn({
+     * // Update many ParsedLineItems
+     * const parsedLineItem = await prisma.parsedLineItem.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -13870,8 +23119,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more ShopifyCustomers and only return the `id`
-     * const shopifyCustomerWithIdOnly = await prisma.shopifyCustomer.updateManyAndReturn({
+     * // Update zero or more ParsedLineItems and only return the `id`
+     * const parsedLineItemWithIdOnly = await prisma.parsedLineItem.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -13884,56 +23133,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends ShopifyCustomerUpdateManyAndReturnArgs>(args: SelectSubset<T, ShopifyCustomerUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends ParsedLineItemUpdateManyAndReturnArgs>(args: SelectSubset<T, ParsedLineItemUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one ShopifyCustomer.
-     * @param {ShopifyCustomerUpsertArgs} args - Arguments to update or create a ShopifyCustomer.
+     * Create or update one ParsedLineItem.
+     * @param {ParsedLineItemUpsertArgs} args - Arguments to update or create a ParsedLineItem.
      * @example
-     * // Update or create a ShopifyCustomer
-     * const shopifyCustomer = await prisma.shopifyCustomer.upsert({
+     * // Update or create a ParsedLineItem
+     * const parsedLineItem = await prisma.parsedLineItem.upsert({
      *   create: {
-     *     // ... data to create a ShopifyCustomer
+     *     // ... data to create a ParsedLineItem
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ShopifyCustomer we want to update
+     *     // ... the filter for the ParsedLineItem we want to update
      *   }
      * })
      */
-    upsert<T extends ShopifyCustomerUpsertArgs>(args: SelectSubset<T, ShopifyCustomerUpsertArgs<ExtArgs>>): Prisma__ShopifyCustomerClient<$Result.GetResult<Prisma.$ShopifyCustomerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends ParsedLineItemUpsertArgs>(args: SelectSubset<T, ParsedLineItemUpsertArgs<ExtArgs>>): Prisma__ParsedLineItemClient<$Result.GetResult<Prisma.$ParsedLineItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of ShopifyCustomers.
+     * Count the number of ParsedLineItems.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyCustomerCountArgs} args - Arguments to filter ShopifyCustomers to count.
+     * @param {ParsedLineItemCountArgs} args - Arguments to filter ParsedLineItems to count.
      * @example
-     * // Count the number of ShopifyCustomers
-     * const count = await prisma.shopifyCustomer.count({
+     * // Count the number of ParsedLineItems
+     * const count = await prisma.parsedLineItem.count({
      *   where: {
-     *     // ... the filter for the ShopifyCustomers we want to count
+     *     // ... the filter for the ParsedLineItems we want to count
      *   }
      * })
     **/
-    count<T extends ShopifyCustomerCountArgs>(
-      args?: Subset<T, ShopifyCustomerCountArgs>,
+    count<T extends ParsedLineItemCountArgs>(
+      args?: Subset<T, ParsedLineItemCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ShopifyCustomerCountAggregateOutputType>
+          : GetScalarType<T['select'], ParsedLineItemCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ShopifyCustomer.
+     * Allows you to perform aggregations operations on a ParsedLineItem.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyCustomerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ParsedLineItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -13953,13 +23202,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ShopifyCustomerAggregateArgs>(args: Subset<T, ShopifyCustomerAggregateArgs>): Prisma.PrismaPromise<GetShopifyCustomerAggregateType<T>>
+    aggregate<T extends ParsedLineItemAggregateArgs>(args: Subset<T, ParsedLineItemAggregateArgs>): Prisma.PrismaPromise<GetParsedLineItemAggregateType<T>>
 
     /**
-     * Group by ShopifyCustomer.
+     * Group by ParsedLineItem.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ShopifyCustomerGroupByArgs} args - Group by arguments.
+     * @param {ParsedLineItemGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -13974,14 +23223,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ShopifyCustomerGroupByArgs,
+      T extends ParsedLineItemGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ShopifyCustomerGroupByArgs['orderBy'] }
-        : { orderBy?: ShopifyCustomerGroupByArgs['orderBy'] },
+        ? { orderBy: ParsedLineItemGroupByArgs['orderBy'] }
+        : { orderBy?: ParsedLineItemGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -14030,22 +23279,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ShopifyCustomerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetShopifyCustomerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ParsedLineItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetParsedLineItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ShopifyCustomer model
+   * Fields of the ParsedLineItem model
    */
-  readonly fields: ShopifyCustomerFieldRefs;
+  readonly fields: ParsedLineItemFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ShopifyCustomer.
+   * The delegate class that acts as a "Promise-like" for ParsedLineItem.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ShopifyCustomerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ParsedLineItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    orders<T extends ShopifyCustomer$ordersArgs<ExtArgs> = {}>(args?: Subset<T, ShopifyCustomer$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShopifyOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    parsedOrder<T extends ParsedOrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ParsedOrderDefaultArgs<ExtArgs>>): Prisma__ParsedOrderClient<$Result.GetResult<Prisma.$ParsedOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14072,443 +23321,436 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ShopifyCustomer model
+   * Fields of the ParsedLineItem model
    */
-  interface ShopifyCustomerFieldRefs {
-    readonly id: FieldRef<"ShopifyCustomer", 'String'>
-    readonly shopifyId: FieldRef<"ShopifyCustomer", 'String'>
-    readonly email: FieldRef<"ShopifyCustomer", 'String'>
-    readonly firstName: FieldRef<"ShopifyCustomer", 'String'>
-    readonly lastName: FieldRef<"ShopifyCustomer", 'String'>
-    readonly phone: FieldRef<"ShopifyCustomer", 'String'>
-    readonly defaultAddress: FieldRef<"ShopifyCustomer", 'String'>
-    readonly createdAt: FieldRef<"ShopifyCustomer", 'DateTime'>
-    readonly updatedAt: FieldRef<"ShopifyCustomer", 'DateTime'>
+  interface ParsedLineItemFieldRefs {
+    readonly id: FieldRef<"ParsedLineItem", 'String'>
+    readonly parsedOrderId: FieldRef<"ParsedLineItem", 'String'>
+    readonly sku: FieldRef<"ParsedLineItem", 'String'>
+    readonly title: FieldRef<"ParsedLineItem", 'String'>
+    readonly quantity: FieldRef<"ParsedLineItem", 'Int'>
+    readonly price: FieldRef<"ParsedLineItem", 'String'>
+    readonly handle: FieldRef<"ParsedLineItem", 'String'>
+    readonly meat1: FieldRef<"ParsedLineItem", 'String'>
+    readonly meat2: FieldRef<"ParsedLineItem", 'String'>
+    readonly serveware: FieldRef<"ParsedLineItem", 'String'>
+    readonly ovenTimer1: FieldRef<"ParsedLineItem", 'Int'>
+    readonly ovenTimer2: FieldRef<"ParsedLineItem", 'Int'>
+    readonly option1: FieldRef<"ParsedLineItem", 'String'>
+    readonly option2: FieldRef<"ParsedLineItem", 'String'>
+    readonly createdAt: FieldRef<"ParsedLineItem", 'DateTime'>
+    readonly updatedAt: FieldRef<"ParsedLineItem", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ShopifyCustomer findUnique
+   * ParsedLineItem findUnique
    */
-  export type ShopifyCustomerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyCustomer
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
+    select?: ParsedLineItemSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyCustomer
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
+    include?: ParsedLineItemInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyCustomer to fetch.
+     * Filter, which ParsedLineItem to fetch.
      */
-    where: ShopifyCustomerWhereUniqueInput
+    where: ParsedLineItemWhereUniqueInput
   }
 
   /**
-   * ShopifyCustomer findUniqueOrThrow
+   * ParsedLineItem findUniqueOrThrow
    */
-  export type ShopifyCustomerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyCustomer
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
+    select?: ParsedLineItemSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyCustomer
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
+    include?: ParsedLineItemInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyCustomer to fetch.
+     * Filter, which ParsedLineItem to fetch.
      */
-    where: ShopifyCustomerWhereUniqueInput
+    where: ParsedLineItemWhereUniqueInput
   }
 
   /**
-   * ShopifyCustomer findFirst
+   * ParsedLineItem findFirst
    */
-  export type ShopifyCustomerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyCustomer
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
+    select?: ParsedLineItemSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyCustomer
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
+    include?: ParsedLineItemInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyCustomer to fetch.
+     * Filter, which ParsedLineItem to fetch.
      */
-    where?: ShopifyCustomerWhereInput
+    where?: ParsedLineItemWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ShopifyCustomers to fetch.
+     * Determine the order of ParsedLineItems to fetch.
      */
-    orderBy?: ShopifyCustomerOrderByWithRelationInput | ShopifyCustomerOrderByWithRelationInput[]
+    orderBy?: ParsedLineItemOrderByWithRelationInput | ParsedLineItemOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ShopifyCustomers.
+     * Sets the position for searching for ParsedLineItems.
      */
-    cursor?: ShopifyCustomerWhereUniqueInput
+    cursor?: ParsedLineItemWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ShopifyCustomers from the position of the cursor.
+     * Take `±n` ParsedLineItems from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ShopifyCustomers.
+     * Skip the first `n` ParsedLineItems.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ShopifyCustomers.
+     * Filter by unique combinations of ParsedLineItems.
      */
-    distinct?: ShopifyCustomerScalarFieldEnum | ShopifyCustomerScalarFieldEnum[]
+    distinct?: ParsedLineItemScalarFieldEnum | ParsedLineItemScalarFieldEnum[]
   }
 
   /**
-   * ShopifyCustomer findFirstOrThrow
+   * ParsedLineItem findFirstOrThrow
    */
-  export type ShopifyCustomerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyCustomer
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
+    select?: ParsedLineItemSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyCustomer
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
+    include?: ParsedLineItemInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyCustomer to fetch.
+     * Filter, which ParsedLineItem to fetch.
      */
-    where?: ShopifyCustomerWhereInput
+    where?: ParsedLineItemWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ShopifyCustomers to fetch.
+     * Determine the order of ParsedLineItems to fetch.
      */
-    orderBy?: ShopifyCustomerOrderByWithRelationInput | ShopifyCustomerOrderByWithRelationInput[]
+    orderBy?: ParsedLineItemOrderByWithRelationInput | ParsedLineItemOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ShopifyCustomers.
+     * Sets the position for searching for ParsedLineItems.
      */
-    cursor?: ShopifyCustomerWhereUniqueInput
+    cursor?: ParsedLineItemWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ShopifyCustomers from the position of the cursor.
+     * Take `±n` ParsedLineItems from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ShopifyCustomers.
+     * Skip the first `n` ParsedLineItems.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ShopifyCustomers.
+     * Filter by unique combinations of ParsedLineItems.
      */
-    distinct?: ShopifyCustomerScalarFieldEnum | ShopifyCustomerScalarFieldEnum[]
+    distinct?: ParsedLineItemScalarFieldEnum | ParsedLineItemScalarFieldEnum[]
   }
 
   /**
-   * ShopifyCustomer findMany
+   * ParsedLineItem findMany
    */
-  export type ShopifyCustomerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyCustomer
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
+    select?: ParsedLineItemSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyCustomer
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
+    include?: ParsedLineItemInclude<ExtArgs> | null
     /**
-     * Filter, which ShopifyCustomers to fetch.
+     * Filter, which ParsedLineItems to fetch.
      */
-    where?: ShopifyCustomerWhereInput
+    where?: ParsedLineItemWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ShopifyCustomers to fetch.
+     * Determine the order of ParsedLineItems to fetch.
      */
-    orderBy?: ShopifyCustomerOrderByWithRelationInput | ShopifyCustomerOrderByWithRelationInput[]
+    orderBy?: ParsedLineItemOrderByWithRelationInput | ParsedLineItemOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ShopifyCustomers.
+     * Sets the position for listing ParsedLineItems.
      */
-    cursor?: ShopifyCustomerWhereUniqueInput
+    cursor?: ParsedLineItemWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ShopifyCustomers from the position of the cursor.
+     * Take `±n` ParsedLineItems from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ShopifyCustomers.
+     * Skip the first `n` ParsedLineItems.
      */
     skip?: number
-    distinct?: ShopifyCustomerScalarFieldEnum | ShopifyCustomerScalarFieldEnum[]
+    distinct?: ParsedLineItemScalarFieldEnum | ParsedLineItemScalarFieldEnum[]
   }
 
   /**
-   * ShopifyCustomer create
+   * ParsedLineItem create
    */
-  export type ShopifyCustomerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyCustomer
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
+    select?: ParsedLineItemSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyCustomer
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
+    include?: ParsedLineItemInclude<ExtArgs> | null
     /**
-     * The data needed to create a ShopifyCustomer.
+     * The data needed to create a ParsedLineItem.
      */
-    data: XOR<ShopifyCustomerCreateInput, ShopifyCustomerUncheckedCreateInput>
+    data: XOR<ParsedLineItemCreateInput, ParsedLineItemUncheckedCreateInput>
   }
 
   /**
-   * ShopifyCustomer createMany
+   * ParsedLineItem createMany
    */
-  export type ShopifyCustomerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ShopifyCustomers.
+     * The data used to create many ParsedLineItems.
      */
-    data: ShopifyCustomerCreateManyInput | ShopifyCustomerCreateManyInput[]
+    data: ParsedLineItemCreateManyInput | ParsedLineItemCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
-   * ShopifyCustomer createManyAndReturn
+   * ParsedLineItem createManyAndReturn
    */
-  export type ShopifyCustomerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyCustomer
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyCustomerSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ParsedLineItemSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyCustomer
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
-     * The data used to create many ShopifyCustomers.
+     * The data used to create many ParsedLineItems.
      */
-    data: ShopifyCustomerCreateManyInput | ShopifyCustomerCreateManyInput[]
-  }
-
-  /**
-   * ShopifyCustomer update
-   */
-  export type ShopifyCustomerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ShopifyCustomer
-     */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ShopifyCustomer
-     */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    data: ParsedLineItemCreateManyInput | ParsedLineItemCreateManyInput[]
+    skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
-    /**
-     * The data needed to update a ShopifyCustomer.
-     */
-    data: XOR<ShopifyCustomerUpdateInput, ShopifyCustomerUncheckedUpdateInput>
-    /**
-     * Choose, which ShopifyCustomer to update.
-     */
-    where: ShopifyCustomerWhereUniqueInput
+    include?: ParsedLineItemIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * ShopifyCustomer updateMany
+   * ParsedLineItem update
    */
-  export type ShopifyCustomerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ShopifyCustomers.
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    data: XOR<ShopifyCustomerUpdateManyMutationInput, ShopifyCustomerUncheckedUpdateManyInput>
+    select?: ParsedLineItemSelect<ExtArgs> | null
     /**
-     * Filter which ShopifyCustomers to update
+     * Omit specific fields from the ParsedLineItem
      */
-    where?: ShopifyCustomerWhereInput
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
-     * Limit how many ShopifyCustomers to update.
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ParsedLineItemInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ParsedLineItem.
+     */
+    data: XOR<ParsedLineItemUpdateInput, ParsedLineItemUncheckedUpdateInput>
+    /**
+     * Choose, which ParsedLineItem to update.
+     */
+    where: ParsedLineItemWhereUniqueInput
+  }
+
+  /**
+   * ParsedLineItem updateMany
+   */
+  export type ParsedLineItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ParsedLineItems.
+     */
+    data: XOR<ParsedLineItemUpdateManyMutationInput, ParsedLineItemUncheckedUpdateManyInput>
+    /**
+     * Filter which ParsedLineItems to update
+     */
+    where?: ParsedLineItemWhereInput
+    /**
+     * Limit how many ParsedLineItems to update.
      */
     limit?: number
   }
 
   /**
-   * ShopifyCustomer updateManyAndReturn
+   * ParsedLineItem updateManyAndReturn
    */
-  export type ShopifyCustomerUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyCustomer
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyCustomerSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: ParsedLineItemSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyCustomer
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
-     * The data used to update ShopifyCustomers.
+     * The data used to update ParsedLineItems.
      */
-    data: XOR<ShopifyCustomerUpdateManyMutationInput, ShopifyCustomerUncheckedUpdateManyInput>
+    data: XOR<ParsedLineItemUpdateManyMutationInput, ParsedLineItemUncheckedUpdateManyInput>
     /**
-     * Filter which ShopifyCustomers to update
+     * Filter which ParsedLineItems to update
      */
-    where?: ShopifyCustomerWhereInput
+    where?: ParsedLineItemWhereInput
     /**
-     * Limit how many ShopifyCustomers to update.
+     * Limit how many ParsedLineItems to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ParsedLineItemIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ParsedLineItem upsert
+   */
+  export type ParsedLineItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ParsedLineItem
+     */
+    select?: ParsedLineItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ParsedLineItem
+     */
+    omit?: ParsedLineItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ParsedLineItemInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ParsedLineItem to update in case it exists.
+     */
+    where: ParsedLineItemWhereUniqueInput
+    /**
+     * In case the ParsedLineItem found by the `where` argument doesn't exist, create a new ParsedLineItem with this data.
+     */
+    create: XOR<ParsedLineItemCreateInput, ParsedLineItemUncheckedCreateInput>
+    /**
+     * In case the ParsedLineItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ParsedLineItemUpdateInput, ParsedLineItemUncheckedUpdateInput>
+  }
+
+  /**
+   * ParsedLineItem delete
+   */
+  export type ParsedLineItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ParsedLineItem
+     */
+    select?: ParsedLineItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ParsedLineItem
+     */
+    omit?: ParsedLineItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ParsedLineItemInclude<ExtArgs> | null
+    /**
+     * Filter which ParsedLineItem to delete.
+     */
+    where: ParsedLineItemWhereUniqueInput
+  }
+
+  /**
+   * ParsedLineItem deleteMany
+   */
+  export type ParsedLineItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ParsedLineItems to delete
+     */
+    where?: ParsedLineItemWhereInput
+    /**
+     * Limit how many ParsedLineItems to delete.
      */
     limit?: number
   }
 
   /**
-   * ShopifyCustomer upsert
+   * ParsedLineItem without action
    */
-  export type ShopifyCustomerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ParsedLineItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ShopifyCustomer
+     * Select specific fields to fetch from the ParsedLineItem
      */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
+    select?: ParsedLineItemSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the ShopifyCustomer
+     * Omit specific fields from the ParsedLineItem
      */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
+    omit?: ParsedLineItemOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
-    /**
-     * The filter to search for the ShopifyCustomer to update in case it exists.
-     */
-    where: ShopifyCustomerWhereUniqueInput
-    /**
-     * In case the ShopifyCustomer found by the `where` argument doesn't exist, create a new ShopifyCustomer with this data.
-     */
-    create: XOR<ShopifyCustomerCreateInput, ShopifyCustomerUncheckedCreateInput>
-    /**
-     * In case the ShopifyCustomer was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ShopifyCustomerUpdateInput, ShopifyCustomerUncheckedUpdateInput>
-  }
-
-  /**
-   * ShopifyCustomer delete
-   */
-  export type ShopifyCustomerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ShopifyCustomer
-     */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ShopifyCustomer
-     */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
-    /**
-     * Filter which ShopifyCustomer to delete.
-     */
-    where: ShopifyCustomerWhereUniqueInput
-  }
-
-  /**
-   * ShopifyCustomer deleteMany
-   */
-  export type ShopifyCustomerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which ShopifyCustomers to delete
-     */
-    where?: ShopifyCustomerWhereInput
-    /**
-     * Limit how many ShopifyCustomers to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * ShopifyCustomer.orders
-   */
-  export type ShopifyCustomer$ordersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ShopifyOrder
-     */
-    select?: ShopifyOrderSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ShopifyOrder
-     */
-    omit?: ShopifyOrderOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ShopifyOrderInclude<ExtArgs> | null
-    where?: ShopifyOrderWhereInput
-    orderBy?: ShopifyOrderOrderByWithRelationInput | ShopifyOrderOrderByWithRelationInput[]
-    cursor?: ShopifyOrderWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: ShopifyOrderScalarFieldEnum | ShopifyOrderScalarFieldEnum[]
-  }
-
-  /**
-   * ShopifyCustomer without action
-   */
-  export type ShopifyCustomerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ShopifyCustomer
-     */
-    select?: ShopifyCustomerSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ShopifyCustomer
-     */
-    omit?: ShopifyCustomerOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ShopifyCustomerInclude<ExtArgs> | null
+    include?: ParsedLineItemInclude<ExtArgs> | null
   }
 
 
@@ -14517,6 +23759,9 @@ export namespace Prisma {
    */
 
   export const TransactionIsolationLevel: {
+    ReadUncommitted: 'ReadUncommitted',
+    ReadCommitted: 'ReadCommitted',
+    RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
   };
 
@@ -14622,6 +23867,7 @@ export namespace Prisma {
     timerB: 'timerB',
     skuSearch: 'skuSearch',
     variantSku: 'variantSku',
+    variant_title: 'variant_title',
     ingredients: 'ingredients',
     totalCost: 'totalCost',
     sellingPrice: 'sellingPrice',
@@ -14633,6 +23879,77 @@ export namespace Prisma {
   export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
 
 
+  export const ProductCustomDataScalarFieldEnum: {
+    id: 'id',
+    variantId: 'variantId',
+    meat1: 'meat1',
+    meat2: 'meat2',
+    option1: 'option1',
+    option2: 'option2',
+    serveware: 'serveware',
+    timerA: 'timerA',
+    timerB: 'timerB',
+    ingredients: 'ingredients',
+    totalCost: 'totalCost',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ProductCustomDataScalarFieldEnum = (typeof ProductCustomDataScalarFieldEnum)[keyof typeof ProductCustomDataScalarFieldEnum]
+
+
+  export const ProductWithCustomDataScalarFieldEnum: {
+    id: 'id',
+    variantId: 'variantId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    shopifyProductId: 'shopifyProductId',
+    shopifySku: 'shopifySku',
+    shopifyName: 'shopifyName',
+    shopifyTitle: 'shopifyTitle',
+    shopifyPrice: 'shopifyPrice',
+    shopifyInventory: 'shopifyInventory',
+    displayName: 'displayName',
+    meat1: 'meat1',
+    meat2: 'meat2',
+    timer1: 'timer1',
+    timer2: 'timer2',
+    option1: 'option1',
+    option2: 'option2',
+    serveware: 'serveware',
+    isDraft: 'isDraft',
+    ingredients: 'ingredients',
+    totalCost: 'totalCost'
+  };
+
+  export type ProductWithCustomDataScalarFieldEnum = (typeof ProductWithCustomDataScalarFieldEnum)[keyof typeof ProductWithCustomDataScalarFieldEnum]
+
+
+  export const ProductRuleScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    isActive: 'isActive',
+    priority: 'priority',
+    matchPattern: 'matchPattern',
+    matchType: 'matchType',
+    setDisplayName: 'setDisplayName',
+    setMeat1: 'setMeat1',
+    setMeat2: 'setMeat2',
+    setTimer1: 'setTimer1',
+    setTimer2: 'setTimer2',
+    setOption1: 'setOption1',
+    setOption2: 'setOption2',
+    setServeware: 'setServeware',
+    setIngredients: 'setIngredients',
+    setTotalCost: 'setTotalCost',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ProductRuleScalarFieldEnum = (typeof ProductRuleScalarFieldEnum)[keyof typeof ProductRuleScalarFieldEnum]
+
+
   export const StaffScalarFieldEnum: {
     id: 'id',
     firstName: 'firstName',
@@ -14642,6 +23959,7 @@ export namespace Prisma {
     payRate: 'payRate',
     accessLevel: 'accessLevel',
     isDriver: 'isDriver',
+    isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     lastLogin: 'lastLogin',
@@ -14653,6 +23971,34 @@ export namespace Prisma {
   export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
 
 
+  export const ShiftTypeScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    startTime: 'startTime',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ShiftTypeScalarFieldEnum = (typeof ShiftTypeScalarFieldEnum)[keyof typeof ShiftTypeScalarFieldEnum]
+
+
+  export const RosterAssignmentScalarFieldEnum: {
+    id: 'id',
+    staffId: 'staffId',
+    shiftTypeId: 'shiftTypeId',
+    startTime: 'startTime',
+    endTime: 'endTime',
+    date: 'date',
+    notes: 'notes',
+    assignedBy: 'assignedBy',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type RosterAssignmentScalarFieldEnum = (typeof RosterAssignmentScalarFieldEnum)[keyof typeof RosterAssignmentScalarFieldEnum]
+
+
   export const ShiftScalarFieldEnum: {
     id: 'id',
     staffId: 'staffId',
@@ -14660,6 +24006,9 @@ export namespace Prisma {
     clockOut: 'clockOut',
     totalHours: 'totalHours',
     date: 'date',
+    mileage: 'mileage',
+    notes: 'notes',
+    status: 'status',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -14667,60 +24016,118 @@ export namespace Prisma {
   export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof ShiftScalarFieldEnum]
 
 
-  export const ShopifyOrderScalarFieldEnum: {
+  export const ReimbursementScalarFieldEnum: {
+    id: 'id',
+    shiftId: 'shiftId',
+    amount: 'amount',
+    description: 'description',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ReimbursementScalarFieldEnum = (typeof ReimbursementScalarFieldEnum)[keyof typeof ReimbursementScalarFieldEnum]
+
+
+  export const OrderScalarFieldEnum: {
     id: 'id',
     shopifyId: 'shopifyId',
     orderNumber: 'orderNumber',
-    customerId: 'customerId',
-    email: 'email',
-    phone: 'phone',
-    deliveryDate: 'deliveryDate',
-    deliveryTime: 'deliveryTime',
-    deliveryAddress: 'deliveryAddress',
-    deliveryNotes: 'deliveryNotes',
-    status: 'status',
-    totalPrice: 'totalPrice',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    lastSyncedAt: 'lastSyncedAt',
-    isModified: 'isModified',
-    modifications: 'modifications'
+    processedAt: 'processedAt',
+    cancelledAt: 'cancelledAt',
+    closedAt: 'closedAt',
+    totalPrice: 'totalPrice',
+    subtotalPrice: 'subtotalPrice',
+    totalTax: 'totalTax',
+    currency: 'currency',
+    financialStatus: 'financialStatus',
+    fulfillmentStatus: 'fulfillmentStatus',
+    tags: 'tags',
+    note: 'note',
+    customerEmail: 'customerEmail',
+    customerFirstName: 'customerFirstName',
+    customerLastName: 'customerLastName',
+    customerPhone: 'customerPhone',
+    shippingAddress: 'shippingAddress',
+    billingAddress: 'billingAddress',
+    lineItems: 'lineItems',
+    source: 'source',
+    hasLocalEdits: 'hasLocalEdits',
+    syncedAt: 'syncedAt',
+    dbCreatedAt: 'dbCreatedAt',
+    dbUpdatedAt: 'dbUpdatedAt',
+    noteAttributes: 'noteAttributes',
+    deliveryDate: 'deliveryDate',
+    deliveryTime: 'deliveryTime',
+    pickupDate: 'pickupDate',
+    pickupTime: 'pickupTime',
+    deliveryInstructions: 'deliveryInstructions',
+    travelTime: 'travelTime',
+    leaveTime: 'leaveTime',
+    driverId: 'driverId',
+    isDispatched: 'isDispatched',
+    lastSmsSent: 'lastSmsSent',
+    smsHistory: 'smsHistory'
+  };
+
+  export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+  export const ShopifyOrderScalarFieldEnum: {
+    id: 'id',
+    rawData: 'rawData',
+    syncedAt: 'syncedAt',
+    parsedOrderId: 'parsedOrderId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ShopifyOrderScalarFieldEnum = (typeof ShopifyOrderScalarFieldEnum)[keyof typeof ShopifyOrderScalarFieldEnum]
 
 
-  export const ShopifyLineItemScalarFieldEnum: {
+  export const ParsedOrderScalarFieldEnum: {
     id: 'id',
-    shopifyId: 'shopifyId',
-    orderId: 'orderId',
-    productId: 'productId',
-    productTitle: 'productTitle',
-    variantId: 'variantId',
-    variantTitle: 'variantTitle',
+    shopifyOrderId: 'shopifyOrderId',
+    orderNumber: 'orderNumber',
+    deliveryTime: 'deliveryTime',
+    deliveryDate: 'deliveryDate',
+    deliveryAddress: 'deliveryAddress',
+    customerName: 'customerName',
+    customerCompany: 'customerCompany',
+    customerPhone: 'customerPhone',
+    orderNotes: 'orderNotes',
+    travelTime: 'travelTime',
+    leaveTime: 'leaveTime',
+    driverId: 'driverId',
+    isDispatched: 'isDispatched',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ParsedOrderScalarFieldEnum = (typeof ParsedOrderScalarFieldEnum)[keyof typeof ParsedOrderScalarFieldEnum]
+
+
+  export const ParsedLineItemScalarFieldEnum: {
+    id: 'id',
+    parsedOrderId: 'parsedOrderId',
+    sku: 'sku',
+    title: 'title',
     quantity: 'quantity',
     price: 'price',
-    modifications: 'modifications',
+    handle: 'handle',
+    meat1: 'meat1',
+    meat2: 'meat2',
+    serveware: 'serveware',
+    ovenTimer1: 'ovenTimer1',
+    ovenTimer2: 'ovenTimer2',
+    option1: 'option1',
+    option2: 'option2',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
-  export type ShopifyLineItemScalarFieldEnum = (typeof ShopifyLineItemScalarFieldEnum)[keyof typeof ShopifyLineItemScalarFieldEnum]
-
-
-  export const ShopifyCustomerScalarFieldEnum: {
-    id: 'id',
-    shopifyId: 'shopifyId',
-    email: 'email',
-    firstName: 'firstName',
-    lastName: 'lastName',
-    phone: 'phone',
-    defaultAddress: 'defaultAddress',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type ShopifyCustomerScalarFieldEnum = (typeof ShopifyCustomerScalarFieldEnum)[keyof typeof ShopifyCustomerScalarFieldEnum]
+  export type ParsedLineItemScalarFieldEnum = (typeof ParsedLineItemScalarFieldEnum)[keyof typeof ParsedLineItemScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -14746,6 +24153,14 @@ export namespace Prisma {
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
   export const NullsOrder: {
     first: 'first',
     last: 'last'
@@ -14763,14 +24178,6 @@ export namespace Prisma {
   export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
-  export const QueryMode: {
-    default: 'default',
-    insensitive: 'insensitive'
-  };
-
-  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
   /**
    * Field references
    */
@@ -14784,9 +24191,23 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'String[]'
+   */
+  export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -14798,9 +24219,23 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -14822,6 +24257,20 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal'
+   */
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal[]'
+   */
+  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
   /**
    * Deep Input Types
@@ -15259,6 +24708,7 @@ export namespace Prisma {
     timerB?: IntNullableFilter<"Product"> | number | null
     skuSearch?: StringNullableFilter<"Product"> | string | null
     variantSku?: StringNullableFilter<"Product"> | string | null
+    variant_title?: StringNullableFilter<"Product"> | string | null
     ingredients?: JsonNullableFilter<"Product">
     totalCost?: FloatFilter<"Product"> | number
     sellingPrice?: FloatNullableFilter<"Product"> | number | null
@@ -15282,6 +24732,7 @@ export namespace Prisma {
     timerB?: SortOrderInput | SortOrder
     skuSearch?: SortOrderInput | SortOrder
     variantSku?: SortOrderInput | SortOrder
+    variant_title?: SortOrderInput | SortOrder
     ingredients?: SortOrderInput | SortOrder
     totalCost?: SortOrder
     sellingPrice?: SortOrderInput | SortOrder
@@ -15308,6 +24759,7 @@ export namespace Prisma {
     timerB?: IntNullableFilter<"Product"> | number | null
     skuSearch?: StringNullableFilter<"Product"> | string | null
     variantSku?: StringNullableFilter<"Product"> | string | null
+    variant_title?: StringNullableFilter<"Product"> | string | null
     ingredients?: JsonNullableFilter<"Product">
     totalCost?: FloatFilter<"Product"> | number
     sellingPrice?: FloatNullableFilter<"Product"> | number | null
@@ -15331,6 +24783,7 @@ export namespace Prisma {
     timerB?: SortOrderInput | SortOrder
     skuSearch?: SortOrderInput | SortOrder
     variantSku?: SortOrderInput | SortOrder
+    variant_title?: SortOrderInput | SortOrder
     ingredients?: SortOrderInput | SortOrder
     totalCost?: SortOrder
     sellingPrice?: SortOrderInput | SortOrder
@@ -15362,12 +24815,365 @@ export namespace Prisma {
     timerB?: IntNullableWithAggregatesFilter<"Product"> | number | null
     skuSearch?: StringNullableWithAggregatesFilter<"Product"> | string | null
     variantSku?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    variant_title?: StringNullableWithAggregatesFilter<"Product"> | string | null
     ingredients?: JsonNullableWithAggregatesFilter<"Product">
     totalCost?: FloatWithAggregatesFilter<"Product"> | number
     sellingPrice?: FloatNullableWithAggregatesFilter<"Product"> | number | null
     realizedMargin?: FloatNullableWithAggregatesFilter<"Product"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
+  }
+
+  export type ProductCustomDataWhereInput = {
+    AND?: ProductCustomDataWhereInput | ProductCustomDataWhereInput[]
+    OR?: ProductCustomDataWhereInput[]
+    NOT?: ProductCustomDataWhereInput | ProductCustomDataWhereInput[]
+    id?: StringFilter<"ProductCustomData"> | string
+    variantId?: StringFilter<"ProductCustomData"> | string
+    meat1?: StringNullableFilter<"ProductCustomData"> | string | null
+    meat2?: StringNullableFilter<"ProductCustomData"> | string | null
+    option1?: StringNullableFilter<"ProductCustomData"> | string | null
+    option2?: StringNullableFilter<"ProductCustomData"> | string | null
+    serveware?: StringNullableFilter<"ProductCustomData"> | string | null
+    timerA?: IntNullableFilter<"ProductCustomData"> | number | null
+    timerB?: IntNullableFilter<"ProductCustomData"> | number | null
+    ingredients?: JsonNullableFilter<"ProductCustomData">
+    totalCost?: FloatFilter<"ProductCustomData"> | number
+    createdAt?: DateTimeFilter<"ProductCustomData"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductCustomData"> | Date | string
+  }
+
+  export type ProductCustomDataOrderByWithRelationInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    meat1?: SortOrderInput | SortOrder
+    meat2?: SortOrderInput | SortOrder
+    option1?: SortOrderInput | SortOrder
+    option2?: SortOrderInput | SortOrder
+    serveware?: SortOrderInput | SortOrder
+    timerA?: SortOrderInput | SortOrder
+    timerB?: SortOrderInput | SortOrder
+    ingredients?: SortOrderInput | SortOrder
+    totalCost?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductCustomDataWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    variantId?: string
+    AND?: ProductCustomDataWhereInput | ProductCustomDataWhereInput[]
+    OR?: ProductCustomDataWhereInput[]
+    NOT?: ProductCustomDataWhereInput | ProductCustomDataWhereInput[]
+    meat1?: StringNullableFilter<"ProductCustomData"> | string | null
+    meat2?: StringNullableFilter<"ProductCustomData"> | string | null
+    option1?: StringNullableFilter<"ProductCustomData"> | string | null
+    option2?: StringNullableFilter<"ProductCustomData"> | string | null
+    serveware?: StringNullableFilter<"ProductCustomData"> | string | null
+    timerA?: IntNullableFilter<"ProductCustomData"> | number | null
+    timerB?: IntNullableFilter<"ProductCustomData"> | number | null
+    ingredients?: JsonNullableFilter<"ProductCustomData">
+    totalCost?: FloatFilter<"ProductCustomData"> | number
+    createdAt?: DateTimeFilter<"ProductCustomData"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductCustomData"> | Date | string
+  }, "id" | "variantId">
+
+  export type ProductCustomDataOrderByWithAggregationInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    meat1?: SortOrderInput | SortOrder
+    meat2?: SortOrderInput | SortOrder
+    option1?: SortOrderInput | SortOrder
+    option2?: SortOrderInput | SortOrder
+    serveware?: SortOrderInput | SortOrder
+    timerA?: SortOrderInput | SortOrder
+    timerB?: SortOrderInput | SortOrder
+    ingredients?: SortOrderInput | SortOrder
+    totalCost?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ProductCustomDataCountOrderByAggregateInput
+    _avg?: ProductCustomDataAvgOrderByAggregateInput
+    _max?: ProductCustomDataMaxOrderByAggregateInput
+    _min?: ProductCustomDataMinOrderByAggregateInput
+    _sum?: ProductCustomDataSumOrderByAggregateInput
+  }
+
+  export type ProductCustomDataScalarWhereWithAggregatesInput = {
+    AND?: ProductCustomDataScalarWhereWithAggregatesInput | ProductCustomDataScalarWhereWithAggregatesInput[]
+    OR?: ProductCustomDataScalarWhereWithAggregatesInput[]
+    NOT?: ProductCustomDataScalarWhereWithAggregatesInput | ProductCustomDataScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductCustomData"> | string
+    variantId?: StringWithAggregatesFilter<"ProductCustomData"> | string
+    meat1?: StringNullableWithAggregatesFilter<"ProductCustomData"> | string | null
+    meat2?: StringNullableWithAggregatesFilter<"ProductCustomData"> | string | null
+    option1?: StringNullableWithAggregatesFilter<"ProductCustomData"> | string | null
+    option2?: StringNullableWithAggregatesFilter<"ProductCustomData"> | string | null
+    serveware?: StringNullableWithAggregatesFilter<"ProductCustomData"> | string | null
+    timerA?: IntNullableWithAggregatesFilter<"ProductCustomData"> | number | null
+    timerB?: IntNullableWithAggregatesFilter<"ProductCustomData"> | number | null
+    ingredients?: JsonNullableWithAggregatesFilter<"ProductCustomData">
+    totalCost?: FloatWithAggregatesFilter<"ProductCustomData"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"ProductCustomData"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductCustomData"> | Date | string
+  }
+
+  export type ProductWithCustomDataWhereInput = {
+    AND?: ProductWithCustomDataWhereInput | ProductWithCustomDataWhereInput[]
+    OR?: ProductWithCustomDataWhereInput[]
+    NOT?: ProductWithCustomDataWhereInput | ProductWithCustomDataWhereInput[]
+    id?: StringFilter<"ProductWithCustomData"> | string
+    variantId?: StringFilter<"ProductWithCustomData"> | string
+    createdAt?: DateTimeFilter<"ProductWithCustomData"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductWithCustomData"> | Date | string
+    shopifyProductId?: StringFilter<"ProductWithCustomData"> | string
+    shopifySku?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    shopifyName?: StringFilter<"ProductWithCustomData"> | string
+    shopifyTitle?: StringFilter<"ProductWithCustomData"> | string
+    shopifyPrice?: DecimalFilter<"ProductWithCustomData"> | Decimal | DecimalJsLike | number | string
+    shopifyInventory?: IntFilter<"ProductWithCustomData"> | number
+    displayName?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    meat1?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    meat2?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    timer1?: IntNullableFilter<"ProductWithCustomData"> | number | null
+    timer2?: IntNullableFilter<"ProductWithCustomData"> | number | null
+    option1?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    option2?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    serveware?: BoolFilter<"ProductWithCustomData"> | boolean
+    isDraft?: BoolFilter<"ProductWithCustomData"> | boolean
+    ingredients?: JsonNullableFilter<"ProductWithCustomData">
+    totalCost?: FloatFilter<"ProductWithCustomData"> | number
+  }
+
+  export type ProductWithCustomDataOrderByWithRelationInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    shopifyProductId?: SortOrder
+    shopifySku?: SortOrderInput | SortOrder
+    shopifyName?: SortOrder
+    shopifyTitle?: SortOrder
+    shopifyPrice?: SortOrder
+    shopifyInventory?: SortOrder
+    displayName?: SortOrderInput | SortOrder
+    meat1?: SortOrderInput | SortOrder
+    meat2?: SortOrderInput | SortOrder
+    timer1?: SortOrderInput | SortOrder
+    timer2?: SortOrderInput | SortOrder
+    option1?: SortOrderInput | SortOrder
+    option2?: SortOrderInput | SortOrder
+    serveware?: SortOrder
+    isDraft?: SortOrder
+    ingredients?: SortOrderInput | SortOrder
+    totalCost?: SortOrder
+  }
+
+  export type ProductWithCustomDataWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    variantId?: string
+    AND?: ProductWithCustomDataWhereInput | ProductWithCustomDataWhereInput[]
+    OR?: ProductWithCustomDataWhereInput[]
+    NOT?: ProductWithCustomDataWhereInput | ProductWithCustomDataWhereInput[]
+    createdAt?: DateTimeFilter<"ProductWithCustomData"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductWithCustomData"> | Date | string
+    shopifyProductId?: StringFilter<"ProductWithCustomData"> | string
+    shopifySku?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    shopifyName?: StringFilter<"ProductWithCustomData"> | string
+    shopifyTitle?: StringFilter<"ProductWithCustomData"> | string
+    shopifyPrice?: DecimalFilter<"ProductWithCustomData"> | Decimal | DecimalJsLike | number | string
+    shopifyInventory?: IntFilter<"ProductWithCustomData"> | number
+    displayName?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    meat1?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    meat2?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    timer1?: IntNullableFilter<"ProductWithCustomData"> | number | null
+    timer2?: IntNullableFilter<"ProductWithCustomData"> | number | null
+    option1?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    option2?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    serveware?: BoolFilter<"ProductWithCustomData"> | boolean
+    isDraft?: BoolFilter<"ProductWithCustomData"> | boolean
+    ingredients?: JsonNullableFilter<"ProductWithCustomData">
+    totalCost?: FloatFilter<"ProductWithCustomData"> | number
+  }, "id" | "variantId">
+
+  export type ProductWithCustomDataOrderByWithAggregationInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    shopifyProductId?: SortOrder
+    shopifySku?: SortOrderInput | SortOrder
+    shopifyName?: SortOrder
+    shopifyTitle?: SortOrder
+    shopifyPrice?: SortOrder
+    shopifyInventory?: SortOrder
+    displayName?: SortOrderInput | SortOrder
+    meat1?: SortOrderInput | SortOrder
+    meat2?: SortOrderInput | SortOrder
+    timer1?: SortOrderInput | SortOrder
+    timer2?: SortOrderInput | SortOrder
+    option1?: SortOrderInput | SortOrder
+    option2?: SortOrderInput | SortOrder
+    serveware?: SortOrder
+    isDraft?: SortOrder
+    ingredients?: SortOrderInput | SortOrder
+    totalCost?: SortOrder
+    _count?: ProductWithCustomDataCountOrderByAggregateInput
+    _avg?: ProductWithCustomDataAvgOrderByAggregateInput
+    _max?: ProductWithCustomDataMaxOrderByAggregateInput
+    _min?: ProductWithCustomDataMinOrderByAggregateInput
+    _sum?: ProductWithCustomDataSumOrderByAggregateInput
+  }
+
+  export type ProductWithCustomDataScalarWhereWithAggregatesInput = {
+    AND?: ProductWithCustomDataScalarWhereWithAggregatesInput | ProductWithCustomDataScalarWhereWithAggregatesInput[]
+    OR?: ProductWithCustomDataScalarWhereWithAggregatesInput[]
+    NOT?: ProductWithCustomDataScalarWhereWithAggregatesInput | ProductWithCustomDataScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductWithCustomData"> | string
+    variantId?: StringWithAggregatesFilter<"ProductWithCustomData"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ProductWithCustomData"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductWithCustomData"> | Date | string
+    shopifyProductId?: StringWithAggregatesFilter<"ProductWithCustomData"> | string
+    shopifySku?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
+    shopifyName?: StringWithAggregatesFilter<"ProductWithCustomData"> | string
+    shopifyTitle?: StringWithAggregatesFilter<"ProductWithCustomData"> | string
+    shopifyPrice?: DecimalWithAggregatesFilter<"ProductWithCustomData"> | Decimal | DecimalJsLike | number | string
+    shopifyInventory?: IntWithAggregatesFilter<"ProductWithCustomData"> | number
+    displayName?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
+    meat1?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
+    meat2?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
+    timer1?: IntNullableWithAggregatesFilter<"ProductWithCustomData"> | number | null
+    timer2?: IntNullableWithAggregatesFilter<"ProductWithCustomData"> | number | null
+    option1?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
+    option2?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
+    serveware?: BoolWithAggregatesFilter<"ProductWithCustomData"> | boolean
+    isDraft?: BoolWithAggregatesFilter<"ProductWithCustomData"> | boolean
+    ingredients?: JsonNullableWithAggregatesFilter<"ProductWithCustomData">
+    totalCost?: FloatWithAggregatesFilter<"ProductWithCustomData"> | number
+  }
+
+  export type ProductRuleWhereInput = {
+    AND?: ProductRuleWhereInput | ProductRuleWhereInput[]
+    OR?: ProductRuleWhereInput[]
+    NOT?: ProductRuleWhereInput | ProductRuleWhereInput[]
+    id?: StringFilter<"ProductRule"> | string
+    name?: StringFilter<"ProductRule"> | string
+    description?: StringNullableFilter<"ProductRule"> | string | null
+    isActive?: BoolFilter<"ProductRule"> | boolean
+    priority?: IntFilter<"ProductRule"> | number
+    matchPattern?: StringFilter<"ProductRule"> | string
+    matchType?: StringFilter<"ProductRule"> | string
+    setDisplayName?: StringNullableFilter<"ProductRule"> | string | null
+    setMeat1?: StringNullableFilter<"ProductRule"> | string | null
+    setMeat2?: StringNullableFilter<"ProductRule"> | string | null
+    setTimer1?: IntNullableFilter<"ProductRule"> | number | null
+    setTimer2?: IntNullableFilter<"ProductRule"> | number | null
+    setOption1?: StringNullableFilter<"ProductRule"> | string | null
+    setOption2?: StringNullableFilter<"ProductRule"> | string | null
+    setServeware?: BoolNullableFilter<"ProductRule"> | boolean | null
+    setIngredients?: JsonNullableFilter<"ProductRule">
+    setTotalCost?: FloatNullableFilter<"ProductRule"> | number | null
+    createdAt?: DateTimeFilter<"ProductRule"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductRule"> | Date | string
+  }
+
+  export type ProductRuleOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    priority?: SortOrder
+    matchPattern?: SortOrder
+    matchType?: SortOrder
+    setDisplayName?: SortOrderInput | SortOrder
+    setMeat1?: SortOrderInput | SortOrder
+    setMeat2?: SortOrderInput | SortOrder
+    setTimer1?: SortOrderInput | SortOrder
+    setTimer2?: SortOrderInput | SortOrder
+    setOption1?: SortOrderInput | SortOrder
+    setOption2?: SortOrderInput | SortOrder
+    setServeware?: SortOrderInput | SortOrder
+    setIngredients?: SortOrderInput | SortOrder
+    setTotalCost?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductRuleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ProductRuleWhereInput | ProductRuleWhereInput[]
+    OR?: ProductRuleWhereInput[]
+    NOT?: ProductRuleWhereInput | ProductRuleWhereInput[]
+    name?: StringFilter<"ProductRule"> | string
+    description?: StringNullableFilter<"ProductRule"> | string | null
+    isActive?: BoolFilter<"ProductRule"> | boolean
+    priority?: IntFilter<"ProductRule"> | number
+    matchPattern?: StringFilter<"ProductRule"> | string
+    matchType?: StringFilter<"ProductRule"> | string
+    setDisplayName?: StringNullableFilter<"ProductRule"> | string | null
+    setMeat1?: StringNullableFilter<"ProductRule"> | string | null
+    setMeat2?: StringNullableFilter<"ProductRule"> | string | null
+    setTimer1?: IntNullableFilter<"ProductRule"> | number | null
+    setTimer2?: IntNullableFilter<"ProductRule"> | number | null
+    setOption1?: StringNullableFilter<"ProductRule"> | string | null
+    setOption2?: StringNullableFilter<"ProductRule"> | string | null
+    setServeware?: BoolNullableFilter<"ProductRule"> | boolean | null
+    setIngredients?: JsonNullableFilter<"ProductRule">
+    setTotalCost?: FloatNullableFilter<"ProductRule"> | number | null
+    createdAt?: DateTimeFilter<"ProductRule"> | Date | string
+    updatedAt?: DateTimeFilter<"ProductRule"> | Date | string
+  }, "id">
+
+  export type ProductRuleOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    priority?: SortOrder
+    matchPattern?: SortOrder
+    matchType?: SortOrder
+    setDisplayName?: SortOrderInput | SortOrder
+    setMeat1?: SortOrderInput | SortOrder
+    setMeat2?: SortOrderInput | SortOrder
+    setTimer1?: SortOrderInput | SortOrder
+    setTimer2?: SortOrderInput | SortOrder
+    setOption1?: SortOrderInput | SortOrder
+    setOption2?: SortOrderInput | SortOrder
+    setServeware?: SortOrderInput | SortOrder
+    setIngredients?: SortOrderInput | SortOrder
+    setTotalCost?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ProductRuleCountOrderByAggregateInput
+    _avg?: ProductRuleAvgOrderByAggregateInput
+    _max?: ProductRuleMaxOrderByAggregateInput
+    _min?: ProductRuleMinOrderByAggregateInput
+    _sum?: ProductRuleSumOrderByAggregateInput
+  }
+
+  export type ProductRuleScalarWhereWithAggregatesInput = {
+    AND?: ProductRuleScalarWhereWithAggregatesInput | ProductRuleScalarWhereWithAggregatesInput[]
+    OR?: ProductRuleScalarWhereWithAggregatesInput[]
+    NOT?: ProductRuleScalarWhereWithAggregatesInput | ProductRuleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProductRule"> | string
+    name?: StringWithAggregatesFilter<"ProductRule"> | string
+    description?: StringNullableWithAggregatesFilter<"ProductRule"> | string | null
+    isActive?: BoolWithAggregatesFilter<"ProductRule"> | boolean
+    priority?: IntWithAggregatesFilter<"ProductRule"> | number
+    matchPattern?: StringWithAggregatesFilter<"ProductRule"> | string
+    matchType?: StringWithAggregatesFilter<"ProductRule"> | string
+    setDisplayName?: StringNullableWithAggregatesFilter<"ProductRule"> | string | null
+    setMeat1?: StringNullableWithAggregatesFilter<"ProductRule"> | string | null
+    setMeat2?: StringNullableWithAggregatesFilter<"ProductRule"> | string | null
+    setTimer1?: IntNullableWithAggregatesFilter<"ProductRule"> | number | null
+    setTimer2?: IntNullableWithAggregatesFilter<"ProductRule"> | number | null
+    setOption1?: StringNullableWithAggregatesFilter<"ProductRule"> | string | null
+    setOption2?: StringNullableWithAggregatesFilter<"ProductRule"> | string | null
+    setServeware?: BoolNullableWithAggregatesFilter<"ProductRule"> | boolean | null
+    setIngredients?: JsonNullableWithAggregatesFilter<"ProductRule">
+    setTotalCost?: FloatNullableWithAggregatesFilter<"ProductRule"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"ProductRule"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ProductRule"> | Date | string
   }
 
   export type StaffWhereInput = {
@@ -15382,6 +25188,7 @@ export namespace Prisma {
     payRate?: FloatFilter<"Staff"> | number
     accessLevel?: StringFilter<"Staff"> | string
     isDriver?: BoolFilter<"Staff"> | boolean
+    isActive?: BoolFilter<"Staff"> | boolean
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
     lastLogin?: DateTimeNullableFilter<"Staff"> | Date | string | null
@@ -15389,6 +25196,7 @@ export namespace Prisma {
     resetToken?: StringNullableFilter<"Staff"> | string | null
     resetTokenExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
     shifts?: ShiftListRelationFilter
+    rosterAssignments?: RosterAssignmentListRelationFilter
   }
 
   export type StaffOrderByWithRelationInput = {
@@ -15400,6 +25208,7 @@ export namespace Prisma {
     payRate?: SortOrder
     accessLevel?: SortOrder
     isDriver?: SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     lastLogin?: SortOrderInput | SortOrder
@@ -15407,6 +25216,7 @@ export namespace Prisma {
     resetToken?: SortOrderInput | SortOrder
     resetTokenExpiry?: SortOrderInput | SortOrder
     shifts?: ShiftOrderByRelationAggregateInput
+    rosterAssignments?: RosterAssignmentOrderByRelationAggregateInput
   }
 
   export type StaffWhereUniqueInput = Prisma.AtLeast<{
@@ -15422,12 +25232,14 @@ export namespace Prisma {
     payRate?: FloatFilter<"Staff"> | number
     accessLevel?: StringFilter<"Staff"> | string
     isDriver?: BoolFilter<"Staff"> | boolean
+    isActive?: BoolFilter<"Staff"> | boolean
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
     lastLogin?: DateTimeNullableFilter<"Staff"> | Date | string | null
     password?: StringNullableFilter<"Staff"> | string | null
     resetTokenExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
     shifts?: ShiftListRelationFilter
+    rosterAssignments?: RosterAssignmentListRelationFilter
   }, "id" | "email" | "resetToken">
 
   export type StaffOrderByWithAggregationInput = {
@@ -15439,6 +25251,7 @@ export namespace Prisma {
     payRate?: SortOrder
     accessLevel?: SortOrder
     isDriver?: SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     lastLogin?: SortOrderInput | SortOrder
@@ -15464,12 +25277,156 @@ export namespace Prisma {
     payRate?: FloatWithAggregatesFilter<"Staff"> | number
     accessLevel?: StringWithAggregatesFilter<"Staff"> | string
     isDriver?: BoolWithAggregatesFilter<"Staff"> | boolean
+    isActive?: BoolWithAggregatesFilter<"Staff"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Staff"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Staff"> | Date | string
     lastLogin?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
     password?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     resetToken?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     resetTokenExpiry?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+  }
+
+  export type ShiftTypeWhereInput = {
+    AND?: ShiftTypeWhereInput | ShiftTypeWhereInput[]
+    OR?: ShiftTypeWhereInput[]
+    NOT?: ShiftTypeWhereInput | ShiftTypeWhereInput[]
+    id?: StringFilter<"ShiftType"> | string
+    name?: StringFilter<"ShiftType"> | string
+    startTime?: StringFilter<"ShiftType"> | string
+    isActive?: BoolFilter<"ShiftType"> | boolean
+    createdAt?: DateTimeFilter<"ShiftType"> | Date | string
+    updatedAt?: DateTimeFilter<"ShiftType"> | Date | string
+    rosterAssignments?: RosterAssignmentListRelationFilter
+  }
+
+  export type ShiftTypeOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startTime?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    rosterAssignments?: RosterAssignmentOrderByRelationAggregateInput
+  }
+
+  export type ShiftTypeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ShiftTypeWhereInput | ShiftTypeWhereInput[]
+    OR?: ShiftTypeWhereInput[]
+    NOT?: ShiftTypeWhereInput | ShiftTypeWhereInput[]
+    name?: StringFilter<"ShiftType"> | string
+    startTime?: StringFilter<"ShiftType"> | string
+    isActive?: BoolFilter<"ShiftType"> | boolean
+    createdAt?: DateTimeFilter<"ShiftType"> | Date | string
+    updatedAt?: DateTimeFilter<"ShiftType"> | Date | string
+    rosterAssignments?: RosterAssignmentListRelationFilter
+  }, "id">
+
+  export type ShiftTypeOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startTime?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ShiftTypeCountOrderByAggregateInput
+    _max?: ShiftTypeMaxOrderByAggregateInput
+    _min?: ShiftTypeMinOrderByAggregateInput
+  }
+
+  export type ShiftTypeScalarWhereWithAggregatesInput = {
+    AND?: ShiftTypeScalarWhereWithAggregatesInput | ShiftTypeScalarWhereWithAggregatesInput[]
+    OR?: ShiftTypeScalarWhereWithAggregatesInput[]
+    NOT?: ShiftTypeScalarWhereWithAggregatesInput | ShiftTypeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ShiftType"> | string
+    name?: StringWithAggregatesFilter<"ShiftType"> | string
+    startTime?: StringWithAggregatesFilter<"ShiftType"> | string
+    isActive?: BoolWithAggregatesFilter<"ShiftType"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"ShiftType"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ShiftType"> | Date | string
+  }
+
+  export type RosterAssignmentWhereInput = {
+    AND?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
+    OR?: RosterAssignmentWhereInput[]
+    NOT?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
+    id?: StringFilter<"RosterAssignment"> | string
+    staffId?: StringFilter<"RosterAssignment"> | string
+    shiftTypeId?: StringNullableFilter<"RosterAssignment"> | string | null
+    startTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    endTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    date?: DateTimeFilter<"RosterAssignment"> | Date | string
+    notes?: StringNullableFilter<"RosterAssignment"> | string | null
+    assignedBy?: StringFilter<"RosterAssignment"> | string
+    createdAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+    shiftType?: XOR<ShiftTypeNullableScalarRelationFilter, ShiftTypeWhereInput> | null
+  }
+
+  export type RosterAssignmentOrderByWithRelationInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrderInput | SortOrder
+    startTime?: SortOrderInput | SortOrder
+    endTime?: SortOrderInput | SortOrder
+    date?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    staff?: StaffOrderByWithRelationInput
+    shiftType?: ShiftTypeOrderByWithRelationInput
+  }
+
+  export type RosterAssignmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
+    OR?: RosterAssignmentWhereInput[]
+    NOT?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
+    staffId?: StringFilter<"RosterAssignment"> | string
+    shiftTypeId?: StringNullableFilter<"RosterAssignment"> | string | null
+    startTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    endTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    date?: DateTimeFilter<"RosterAssignment"> | Date | string
+    notes?: StringNullableFilter<"RosterAssignment"> | string | null
+    assignedBy?: StringFilter<"RosterAssignment"> | string
+    createdAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+    shiftType?: XOR<ShiftTypeNullableScalarRelationFilter, ShiftTypeWhereInput> | null
+  }, "id">
+
+  export type RosterAssignmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrderInput | SortOrder
+    startTime?: SortOrderInput | SortOrder
+    endTime?: SortOrderInput | SortOrder
+    date?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: RosterAssignmentCountOrderByAggregateInput
+    _max?: RosterAssignmentMaxOrderByAggregateInput
+    _min?: RosterAssignmentMinOrderByAggregateInput
+  }
+
+  export type RosterAssignmentScalarWhereWithAggregatesInput = {
+    AND?: RosterAssignmentScalarWhereWithAggregatesInput | RosterAssignmentScalarWhereWithAggregatesInput[]
+    OR?: RosterAssignmentScalarWhereWithAggregatesInput[]
+    NOT?: RosterAssignmentScalarWhereWithAggregatesInput | RosterAssignmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"RosterAssignment"> | string
+    staffId?: StringWithAggregatesFilter<"RosterAssignment"> | string
+    shiftTypeId?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
+    startTime?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
+    endTime?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
+    date?: DateTimeWithAggregatesFilter<"RosterAssignment"> | Date | string
+    notes?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
+    assignedBy?: StringWithAggregatesFilter<"RosterAssignment"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"RosterAssignment"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"RosterAssignment"> | Date | string
   }
 
   export type ShiftWhereInput = {
@@ -15482,9 +25439,13 @@ export namespace Prisma {
     clockOut?: DateTimeNullableFilter<"Shift"> | Date | string | null
     totalHours?: FloatNullableFilter<"Shift"> | number | null
     date?: DateTimeFilter<"Shift"> | Date | string
+    mileage?: FloatNullableFilter<"Shift"> | number | null
+    notes?: StringNullableFilter<"Shift"> | string | null
+    status?: StringFilter<"Shift"> | string
     createdAt?: DateTimeFilter<"Shift"> | Date | string
     updatedAt?: DateTimeFilter<"Shift"> | Date | string
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+    reimbursements?: ReimbursementListRelationFilter
   }
 
   export type ShiftOrderByWithRelationInput = {
@@ -15494,9 +25455,13 @@ export namespace Prisma {
     clockOut?: SortOrderInput | SortOrder
     totalHours?: SortOrderInput | SortOrder
     date?: SortOrder
+    mileage?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     staff?: StaffOrderByWithRelationInput
+    reimbursements?: ReimbursementOrderByRelationAggregateInput
   }
 
   export type ShiftWhereUniqueInput = Prisma.AtLeast<{
@@ -15509,9 +25474,13 @@ export namespace Prisma {
     clockOut?: DateTimeNullableFilter<"Shift"> | Date | string | null
     totalHours?: FloatNullableFilter<"Shift"> | number | null
     date?: DateTimeFilter<"Shift"> | Date | string
+    mileage?: FloatNullableFilter<"Shift"> | number | null
+    notes?: StringNullableFilter<"Shift"> | string | null
+    status?: StringFilter<"Shift"> | string
     createdAt?: DateTimeFilter<"Shift"> | Date | string
     updatedAt?: DateTimeFilter<"Shift"> | Date | string
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+    reimbursements?: ReimbursementListRelationFilter
   }, "id">
 
   export type ShiftOrderByWithAggregationInput = {
@@ -15521,6 +25490,9 @@ export namespace Prisma {
     clockOut?: SortOrderInput | SortOrder
     totalHours?: SortOrderInput | SortOrder
     date?: SortOrder
+    mileage?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ShiftCountOrderByAggregateInput
@@ -15540,8 +25512,302 @@ export namespace Prisma {
     clockOut?: DateTimeNullableWithAggregatesFilter<"Shift"> | Date | string | null
     totalHours?: FloatNullableWithAggregatesFilter<"Shift"> | number | null
     date?: DateTimeWithAggregatesFilter<"Shift"> | Date | string
+    mileage?: FloatNullableWithAggregatesFilter<"Shift"> | number | null
+    notes?: StringNullableWithAggregatesFilter<"Shift"> | string | null
+    status?: StringWithAggregatesFilter<"Shift"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Shift"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Shift"> | Date | string
+  }
+
+  export type ReimbursementWhereInput = {
+    AND?: ReimbursementWhereInput | ReimbursementWhereInput[]
+    OR?: ReimbursementWhereInput[]
+    NOT?: ReimbursementWhereInput | ReimbursementWhereInput[]
+    id?: StringFilter<"Reimbursement"> | string
+    shiftId?: StringFilter<"Reimbursement"> | string
+    amount?: FloatFilter<"Reimbursement"> | number
+    description?: StringFilter<"Reimbursement"> | string
+    createdAt?: DateTimeFilter<"Reimbursement"> | Date | string
+    updatedAt?: DateTimeFilter<"Reimbursement"> | Date | string
+    shift?: XOR<ShiftScalarRelationFilter, ShiftWhereInput>
+  }
+
+  export type ReimbursementOrderByWithRelationInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    shift?: ShiftOrderByWithRelationInput
+  }
+
+  export type ReimbursementWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ReimbursementWhereInput | ReimbursementWhereInput[]
+    OR?: ReimbursementWhereInput[]
+    NOT?: ReimbursementWhereInput | ReimbursementWhereInput[]
+    shiftId?: StringFilter<"Reimbursement"> | string
+    amount?: FloatFilter<"Reimbursement"> | number
+    description?: StringFilter<"Reimbursement"> | string
+    createdAt?: DateTimeFilter<"Reimbursement"> | Date | string
+    updatedAt?: DateTimeFilter<"Reimbursement"> | Date | string
+    shift?: XOR<ShiftScalarRelationFilter, ShiftWhereInput>
+  }, "id">
+
+  export type ReimbursementOrderByWithAggregationInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ReimbursementCountOrderByAggregateInput
+    _avg?: ReimbursementAvgOrderByAggregateInput
+    _max?: ReimbursementMaxOrderByAggregateInput
+    _min?: ReimbursementMinOrderByAggregateInput
+    _sum?: ReimbursementSumOrderByAggregateInput
+  }
+
+  export type ReimbursementScalarWhereWithAggregatesInput = {
+    AND?: ReimbursementScalarWhereWithAggregatesInput | ReimbursementScalarWhereWithAggregatesInput[]
+    OR?: ReimbursementScalarWhereWithAggregatesInput[]
+    NOT?: ReimbursementScalarWhereWithAggregatesInput | ReimbursementScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Reimbursement"> | string
+    shiftId?: StringWithAggregatesFilter<"Reimbursement"> | string
+    amount?: FloatWithAggregatesFilter<"Reimbursement"> | number
+    description?: StringWithAggregatesFilter<"Reimbursement"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Reimbursement"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Reimbursement"> | Date | string
+  }
+
+  export type OrderWhereInput = {
+    AND?: OrderWhereInput | OrderWhereInput[]
+    OR?: OrderWhereInput[]
+    NOT?: OrderWhereInput | OrderWhereInput[]
+    id?: StringFilter<"Order"> | string
+    shopifyId?: StringFilter<"Order"> | string
+    orderNumber?: IntFilter<"Order"> | number
+    createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeFilter<"Order"> | Date | string
+    processedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    closedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    totalPrice?: FloatFilter<"Order"> | number
+    subtotalPrice?: FloatFilter<"Order"> | number
+    totalTax?: FloatFilter<"Order"> | number
+    currency?: StringFilter<"Order"> | string
+    financialStatus?: StringFilter<"Order"> | string
+    fulfillmentStatus?: StringNullableFilter<"Order"> | string | null
+    tags?: StringNullableFilter<"Order"> | string | null
+    note?: StringNullableFilter<"Order"> | string | null
+    customerEmail?: StringFilter<"Order"> | string
+    customerFirstName?: StringFilter<"Order"> | string
+    customerLastName?: StringFilter<"Order"> | string
+    customerPhone?: StringNullableFilter<"Order"> | string | null
+    shippingAddress?: JsonNullableFilter<"Order">
+    billingAddress?: JsonNullableFilter<"Order">
+    lineItems?: JsonFilter<"Order">
+    source?: StringFilter<"Order"> | string
+    hasLocalEdits?: BoolFilter<"Order"> | boolean
+    syncedAt?: DateTimeFilter<"Order"> | Date | string
+    dbCreatedAt?: DateTimeFilter<"Order"> | Date | string
+    dbUpdatedAt?: DateTimeFilter<"Order"> | Date | string
+    noteAttributes?: JsonNullableFilter<"Order">
+    deliveryDate?: StringNullableFilter<"Order"> | string | null
+    deliveryTime?: StringNullableFilter<"Order"> | string | null
+    pickupDate?: StringNullableFilter<"Order"> | string | null
+    pickupTime?: StringNullableFilter<"Order"> | string | null
+    deliveryInstructions?: StringNullableFilter<"Order"> | string | null
+    travelTime?: StringNullableFilter<"Order"> | string | null
+    leaveTime?: StringNullableFilter<"Order"> | string | null
+    driverId?: StringNullableFilter<"Order"> | string | null
+    isDispatched?: BoolFilter<"Order"> | boolean
+    lastSmsSent?: DateTimeNullableFilter<"Order"> | Date | string | null
+    smsHistory?: JsonNullableFilter<"Order">
+  }
+
+  export type OrderOrderByWithRelationInput = {
+    id?: SortOrder
+    shopifyId?: SortOrder
+    orderNumber?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    processedAt?: SortOrderInput | SortOrder
+    cancelledAt?: SortOrderInput | SortOrder
+    closedAt?: SortOrderInput | SortOrder
+    totalPrice?: SortOrder
+    subtotalPrice?: SortOrder
+    totalTax?: SortOrder
+    currency?: SortOrder
+    financialStatus?: SortOrder
+    fulfillmentStatus?: SortOrderInput | SortOrder
+    tags?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    customerEmail?: SortOrder
+    customerFirstName?: SortOrder
+    customerLastName?: SortOrder
+    customerPhone?: SortOrderInput | SortOrder
+    shippingAddress?: SortOrderInput | SortOrder
+    billingAddress?: SortOrderInput | SortOrder
+    lineItems?: SortOrder
+    source?: SortOrder
+    hasLocalEdits?: SortOrder
+    syncedAt?: SortOrder
+    dbCreatedAt?: SortOrder
+    dbUpdatedAt?: SortOrder
+    noteAttributes?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrderInput | SortOrder
+    deliveryTime?: SortOrderInput | SortOrder
+    pickupDate?: SortOrderInput | SortOrder
+    pickupTime?: SortOrderInput | SortOrder
+    deliveryInstructions?: SortOrderInput | SortOrder
+    travelTime?: SortOrderInput | SortOrder
+    leaveTime?: SortOrderInput | SortOrder
+    driverId?: SortOrderInput | SortOrder
+    isDispatched?: SortOrder
+    lastSmsSent?: SortOrderInput | SortOrder
+    smsHistory?: SortOrderInput | SortOrder
+  }
+
+  export type OrderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    shopifyId?: string
+    AND?: OrderWhereInput | OrderWhereInput[]
+    OR?: OrderWhereInput[]
+    NOT?: OrderWhereInput | OrderWhereInput[]
+    orderNumber?: IntFilter<"Order"> | number
+    createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeFilter<"Order"> | Date | string
+    processedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    cancelledAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    closedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    totalPrice?: FloatFilter<"Order"> | number
+    subtotalPrice?: FloatFilter<"Order"> | number
+    totalTax?: FloatFilter<"Order"> | number
+    currency?: StringFilter<"Order"> | string
+    financialStatus?: StringFilter<"Order"> | string
+    fulfillmentStatus?: StringNullableFilter<"Order"> | string | null
+    tags?: StringNullableFilter<"Order"> | string | null
+    note?: StringNullableFilter<"Order"> | string | null
+    customerEmail?: StringFilter<"Order"> | string
+    customerFirstName?: StringFilter<"Order"> | string
+    customerLastName?: StringFilter<"Order"> | string
+    customerPhone?: StringNullableFilter<"Order"> | string | null
+    shippingAddress?: JsonNullableFilter<"Order">
+    billingAddress?: JsonNullableFilter<"Order">
+    lineItems?: JsonFilter<"Order">
+    source?: StringFilter<"Order"> | string
+    hasLocalEdits?: BoolFilter<"Order"> | boolean
+    syncedAt?: DateTimeFilter<"Order"> | Date | string
+    dbCreatedAt?: DateTimeFilter<"Order"> | Date | string
+    dbUpdatedAt?: DateTimeFilter<"Order"> | Date | string
+    noteAttributes?: JsonNullableFilter<"Order">
+    deliveryDate?: StringNullableFilter<"Order"> | string | null
+    deliveryTime?: StringNullableFilter<"Order"> | string | null
+    pickupDate?: StringNullableFilter<"Order"> | string | null
+    pickupTime?: StringNullableFilter<"Order"> | string | null
+    deliveryInstructions?: StringNullableFilter<"Order"> | string | null
+    travelTime?: StringNullableFilter<"Order"> | string | null
+    leaveTime?: StringNullableFilter<"Order"> | string | null
+    driverId?: StringNullableFilter<"Order"> | string | null
+    isDispatched?: BoolFilter<"Order"> | boolean
+    lastSmsSent?: DateTimeNullableFilter<"Order"> | Date | string | null
+    smsHistory?: JsonNullableFilter<"Order">
+  }, "id" | "shopifyId">
+
+  export type OrderOrderByWithAggregationInput = {
+    id?: SortOrder
+    shopifyId?: SortOrder
+    orderNumber?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    processedAt?: SortOrderInput | SortOrder
+    cancelledAt?: SortOrderInput | SortOrder
+    closedAt?: SortOrderInput | SortOrder
+    totalPrice?: SortOrder
+    subtotalPrice?: SortOrder
+    totalTax?: SortOrder
+    currency?: SortOrder
+    financialStatus?: SortOrder
+    fulfillmentStatus?: SortOrderInput | SortOrder
+    tags?: SortOrderInput | SortOrder
+    note?: SortOrderInput | SortOrder
+    customerEmail?: SortOrder
+    customerFirstName?: SortOrder
+    customerLastName?: SortOrder
+    customerPhone?: SortOrderInput | SortOrder
+    shippingAddress?: SortOrderInput | SortOrder
+    billingAddress?: SortOrderInput | SortOrder
+    lineItems?: SortOrder
+    source?: SortOrder
+    hasLocalEdits?: SortOrder
+    syncedAt?: SortOrder
+    dbCreatedAt?: SortOrder
+    dbUpdatedAt?: SortOrder
+    noteAttributes?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrderInput | SortOrder
+    deliveryTime?: SortOrderInput | SortOrder
+    pickupDate?: SortOrderInput | SortOrder
+    pickupTime?: SortOrderInput | SortOrder
+    deliveryInstructions?: SortOrderInput | SortOrder
+    travelTime?: SortOrderInput | SortOrder
+    leaveTime?: SortOrderInput | SortOrder
+    driverId?: SortOrderInput | SortOrder
+    isDispatched?: SortOrder
+    lastSmsSent?: SortOrderInput | SortOrder
+    smsHistory?: SortOrderInput | SortOrder
+    _count?: OrderCountOrderByAggregateInput
+    _avg?: OrderAvgOrderByAggregateInput
+    _max?: OrderMaxOrderByAggregateInput
+    _min?: OrderMinOrderByAggregateInput
+    _sum?: OrderSumOrderByAggregateInput
+  }
+
+  export type OrderScalarWhereWithAggregatesInput = {
+    AND?: OrderScalarWhereWithAggregatesInput | OrderScalarWhereWithAggregatesInput[]
+    OR?: OrderScalarWhereWithAggregatesInput[]
+    NOT?: OrderScalarWhereWithAggregatesInput | OrderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Order"> | string
+    shopifyId?: StringWithAggregatesFilter<"Order"> | string
+    orderNumber?: IntWithAggregatesFilter<"Order"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+    processedAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    cancelledAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    closedAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    totalPrice?: FloatWithAggregatesFilter<"Order"> | number
+    subtotalPrice?: FloatWithAggregatesFilter<"Order"> | number
+    totalTax?: FloatWithAggregatesFilter<"Order"> | number
+    currency?: StringWithAggregatesFilter<"Order"> | string
+    financialStatus?: StringWithAggregatesFilter<"Order"> | string
+    fulfillmentStatus?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    tags?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    note?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    customerEmail?: StringWithAggregatesFilter<"Order"> | string
+    customerFirstName?: StringWithAggregatesFilter<"Order"> | string
+    customerLastName?: StringWithAggregatesFilter<"Order"> | string
+    customerPhone?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    shippingAddress?: JsonNullableWithAggregatesFilter<"Order">
+    billingAddress?: JsonNullableWithAggregatesFilter<"Order">
+    lineItems?: JsonWithAggregatesFilter<"Order">
+    source?: StringWithAggregatesFilter<"Order"> | string
+    hasLocalEdits?: BoolWithAggregatesFilter<"Order"> | boolean
+    syncedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+    dbCreatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+    dbUpdatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+    noteAttributes?: JsonNullableWithAggregatesFilter<"Order">
+    deliveryDate?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    deliveryTime?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    pickupDate?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    pickupTime?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    deliveryInstructions?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    travelTime?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    leaveTime?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    driverId?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    isDispatched?: BoolWithAggregatesFilter<"Order"> | boolean
+    lastSmsSent?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    smsHistory?: JsonNullableWithAggregatesFilter<"Order">
   }
 
   export type ShopifyOrderWhereInput = {
@@ -15549,96 +25815,47 @@ export namespace Prisma {
     OR?: ShopifyOrderWhereInput[]
     NOT?: ShopifyOrderWhereInput | ShopifyOrderWhereInput[]
     id?: StringFilter<"ShopifyOrder"> | string
-    shopifyId?: StringFilter<"ShopifyOrder"> | string
-    orderNumber?: StringFilter<"ShopifyOrder"> | string
-    customerId?: StringFilter<"ShopifyOrder"> | string
-    email?: StringFilter<"ShopifyOrder"> | string
-    phone?: StringNullableFilter<"ShopifyOrder"> | string | null
-    deliveryDate?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    deliveryTime?: StringNullableFilter<"ShopifyOrder"> | string | null
-    deliveryAddress?: StringFilter<"ShopifyOrder"> | string
-    deliveryNotes?: StringNullableFilter<"ShopifyOrder"> | string | null
-    status?: StringFilter<"ShopifyOrder"> | string
-    totalPrice?: FloatFilter<"ShopifyOrder"> | number
+    rawData?: JsonFilter<"ShopifyOrder">
+    syncedAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
+    parsedOrderId?: StringNullableFilter<"ShopifyOrder"> | string | null
     createdAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
     updatedAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    lastSyncedAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    isModified?: BoolFilter<"ShopifyOrder"> | boolean
-    modifications?: JsonNullableFilter<"ShopifyOrder">
-    customer?: XOR<ShopifyCustomerScalarRelationFilter, ShopifyCustomerWhereInput>
-    lineItems?: ShopifyLineItemListRelationFilter
+    parsedOrder?: XOR<ParsedOrderNullableScalarRelationFilter, ParsedOrderWhereInput> | null
   }
 
   export type ShopifyOrderOrderByWithRelationInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    orderNumber?: SortOrder
-    customerId?: SortOrder
-    email?: SortOrder
-    phone?: SortOrderInput | SortOrder
-    deliveryDate?: SortOrder
-    deliveryTime?: SortOrderInput | SortOrder
-    deliveryAddress?: SortOrder
-    deliveryNotes?: SortOrderInput | SortOrder
-    status?: SortOrder
-    totalPrice?: SortOrder
+    rawData?: SortOrder
+    syncedAt?: SortOrder
+    parsedOrderId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    lastSyncedAt?: SortOrder
-    isModified?: SortOrder
-    modifications?: SortOrderInput | SortOrder
-    customer?: ShopifyCustomerOrderByWithRelationInput
-    lineItems?: ShopifyLineItemOrderByRelationAggregateInput
+    parsedOrder?: ParsedOrderOrderByWithRelationInput
   }
 
   export type ShopifyOrderWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    shopifyId?: string
+    parsedOrderId?: string
     AND?: ShopifyOrderWhereInput | ShopifyOrderWhereInput[]
     OR?: ShopifyOrderWhereInput[]
     NOT?: ShopifyOrderWhereInput | ShopifyOrderWhereInput[]
-    orderNumber?: StringFilter<"ShopifyOrder"> | string
-    customerId?: StringFilter<"ShopifyOrder"> | string
-    email?: StringFilter<"ShopifyOrder"> | string
-    phone?: StringNullableFilter<"ShopifyOrder"> | string | null
-    deliveryDate?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    deliveryTime?: StringNullableFilter<"ShopifyOrder"> | string | null
-    deliveryAddress?: StringFilter<"ShopifyOrder"> | string
-    deliveryNotes?: StringNullableFilter<"ShopifyOrder"> | string | null
-    status?: StringFilter<"ShopifyOrder"> | string
-    totalPrice?: FloatFilter<"ShopifyOrder"> | number
+    rawData?: JsonFilter<"ShopifyOrder">
+    syncedAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
     createdAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
     updatedAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    lastSyncedAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    isModified?: BoolFilter<"ShopifyOrder"> | boolean
-    modifications?: JsonNullableFilter<"ShopifyOrder">
-    customer?: XOR<ShopifyCustomerScalarRelationFilter, ShopifyCustomerWhereInput>
-    lineItems?: ShopifyLineItemListRelationFilter
-  }, "id" | "shopifyId">
+    parsedOrder?: XOR<ParsedOrderNullableScalarRelationFilter, ParsedOrderWhereInput> | null
+  }, "id" | "parsedOrderId">
 
   export type ShopifyOrderOrderByWithAggregationInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    orderNumber?: SortOrder
-    customerId?: SortOrder
-    email?: SortOrder
-    phone?: SortOrderInput | SortOrder
-    deliveryDate?: SortOrder
-    deliveryTime?: SortOrderInput | SortOrder
-    deliveryAddress?: SortOrder
-    deliveryNotes?: SortOrderInput | SortOrder
-    status?: SortOrder
-    totalPrice?: SortOrder
+    rawData?: SortOrder
+    syncedAt?: SortOrder
+    parsedOrderId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    lastSyncedAt?: SortOrder
-    isModified?: SortOrder
-    modifications?: SortOrderInput | SortOrder
     _count?: ShopifyOrderCountOrderByAggregateInput
-    _avg?: ShopifyOrderAvgOrderByAggregateInput
     _max?: ShopifyOrderMaxOrderByAggregateInput
     _min?: ShopifyOrderMinOrderByAggregateInput
-    _sum?: ShopifyOrderSumOrderByAggregateInput
   }
 
   export type ShopifyOrderScalarWhereWithAggregatesInput = {
@@ -15646,189 +25863,238 @@ export namespace Prisma {
     OR?: ShopifyOrderScalarWhereWithAggregatesInput[]
     NOT?: ShopifyOrderScalarWhereWithAggregatesInput | ShopifyOrderScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ShopifyOrder"> | string
-    shopifyId?: StringWithAggregatesFilter<"ShopifyOrder"> | string
-    orderNumber?: StringWithAggregatesFilter<"ShopifyOrder"> | string
-    customerId?: StringWithAggregatesFilter<"ShopifyOrder"> | string
-    email?: StringWithAggregatesFilter<"ShopifyOrder"> | string
-    phone?: StringNullableWithAggregatesFilter<"ShopifyOrder"> | string | null
-    deliveryDate?: DateTimeWithAggregatesFilter<"ShopifyOrder"> | Date | string
-    deliveryTime?: StringNullableWithAggregatesFilter<"ShopifyOrder"> | string | null
-    deliveryAddress?: StringWithAggregatesFilter<"ShopifyOrder"> | string
-    deliveryNotes?: StringNullableWithAggregatesFilter<"ShopifyOrder"> | string | null
-    status?: StringWithAggregatesFilter<"ShopifyOrder"> | string
-    totalPrice?: FloatWithAggregatesFilter<"ShopifyOrder"> | number
+    rawData?: JsonWithAggregatesFilter<"ShopifyOrder">
+    syncedAt?: DateTimeWithAggregatesFilter<"ShopifyOrder"> | Date | string
+    parsedOrderId?: StringNullableWithAggregatesFilter<"ShopifyOrder"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ShopifyOrder"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ShopifyOrder"> | Date | string
-    lastSyncedAt?: DateTimeWithAggregatesFilter<"ShopifyOrder"> | Date | string
-    isModified?: BoolWithAggregatesFilter<"ShopifyOrder"> | boolean
-    modifications?: JsonNullableWithAggregatesFilter<"ShopifyOrder">
   }
 
-  export type ShopifyLineItemWhereInput = {
-    AND?: ShopifyLineItemWhereInput | ShopifyLineItemWhereInput[]
-    OR?: ShopifyLineItemWhereInput[]
-    NOT?: ShopifyLineItemWhereInput | ShopifyLineItemWhereInput[]
-    id?: StringFilter<"ShopifyLineItem"> | string
-    shopifyId?: StringFilter<"ShopifyLineItem"> | string
-    orderId?: StringFilter<"ShopifyLineItem"> | string
-    productId?: StringFilter<"ShopifyLineItem"> | string
-    productTitle?: StringFilter<"ShopifyLineItem"> | string
-    variantId?: StringNullableFilter<"ShopifyLineItem"> | string | null
-    variantTitle?: StringNullableFilter<"ShopifyLineItem"> | string | null
-    quantity?: IntFilter<"ShopifyLineItem"> | number
-    price?: FloatFilter<"ShopifyLineItem"> | number
-    modifications?: JsonNullableFilter<"ShopifyLineItem">
-    createdAt?: DateTimeFilter<"ShopifyLineItem"> | Date | string
-    updatedAt?: DateTimeFilter<"ShopifyLineItem"> | Date | string
-    order?: XOR<ShopifyOrderScalarRelationFilter, ShopifyOrderWhereInput>
+  export type ParsedOrderWhereInput = {
+    AND?: ParsedOrderWhereInput | ParsedOrderWhereInput[]
+    OR?: ParsedOrderWhereInput[]
+    NOT?: ParsedOrderWhereInput | ParsedOrderWhereInput[]
+    id?: StringFilter<"ParsedOrder"> | string
+    shopifyOrderId?: StringFilter<"ParsedOrder"> | string
+    orderNumber?: StringFilter<"ParsedOrder"> | string
+    deliveryTime?: StringFilter<"ParsedOrder"> | string
+    deliveryDate?: DateTimeFilter<"ParsedOrder"> | Date | string
+    deliveryAddress?: JsonFilter<"ParsedOrder">
+    customerName?: StringFilter<"ParsedOrder"> | string
+    customerCompany?: StringNullableFilter<"ParsedOrder"> | string | null
+    customerPhone?: StringFilter<"ParsedOrder"> | string
+    orderNotes?: StringNullableFilter<"ParsedOrder"> | string | null
+    travelTime?: IntNullableFilter<"ParsedOrder"> | number | null
+    leaveTime?: StringNullableFilter<"ParsedOrder"> | string | null
+    driverId?: StringNullableFilter<"ParsedOrder"> | string | null
+    isDispatched?: BoolFilter<"ParsedOrder"> | boolean
+    createdAt?: DateTimeFilter<"ParsedOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"ParsedOrder"> | Date | string
+    shopifyOrder?: XOR<ShopifyOrderScalarRelationFilter, ShopifyOrderWhereInput>
+    lineItems?: ParsedLineItemListRelationFilter
   }
 
-  export type ShopifyLineItemOrderByWithRelationInput = {
+  export type ParsedOrderOrderByWithRelationInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    orderId?: SortOrder
-    productId?: SortOrder
-    productTitle?: SortOrder
-    variantId?: SortOrderInput | SortOrder
-    variantTitle?: SortOrderInput | SortOrder
+    shopifyOrderId?: SortOrder
+    orderNumber?: SortOrder
+    deliveryTime?: SortOrder
+    deliveryDate?: SortOrder
+    deliveryAddress?: SortOrder
+    customerName?: SortOrder
+    customerCompany?: SortOrderInput | SortOrder
+    customerPhone?: SortOrder
+    orderNotes?: SortOrderInput | SortOrder
+    travelTime?: SortOrderInput | SortOrder
+    leaveTime?: SortOrderInput | SortOrder
+    driverId?: SortOrderInput | SortOrder
+    isDispatched?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    shopifyOrder?: ShopifyOrderOrderByWithRelationInput
+    lineItems?: ParsedLineItemOrderByRelationAggregateInput
+  }
+
+  export type ParsedOrderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    shopifyOrderId?: string
+    AND?: ParsedOrderWhereInput | ParsedOrderWhereInput[]
+    OR?: ParsedOrderWhereInput[]
+    NOT?: ParsedOrderWhereInput | ParsedOrderWhereInput[]
+    orderNumber?: StringFilter<"ParsedOrder"> | string
+    deliveryTime?: StringFilter<"ParsedOrder"> | string
+    deliveryDate?: DateTimeFilter<"ParsedOrder"> | Date | string
+    deliveryAddress?: JsonFilter<"ParsedOrder">
+    customerName?: StringFilter<"ParsedOrder"> | string
+    customerCompany?: StringNullableFilter<"ParsedOrder"> | string | null
+    customerPhone?: StringFilter<"ParsedOrder"> | string
+    orderNotes?: StringNullableFilter<"ParsedOrder"> | string | null
+    travelTime?: IntNullableFilter<"ParsedOrder"> | number | null
+    leaveTime?: StringNullableFilter<"ParsedOrder"> | string | null
+    driverId?: StringNullableFilter<"ParsedOrder"> | string | null
+    isDispatched?: BoolFilter<"ParsedOrder"> | boolean
+    createdAt?: DateTimeFilter<"ParsedOrder"> | Date | string
+    updatedAt?: DateTimeFilter<"ParsedOrder"> | Date | string
+    shopifyOrder?: XOR<ShopifyOrderScalarRelationFilter, ShopifyOrderWhereInput>
+    lineItems?: ParsedLineItemListRelationFilter
+  }, "id" | "shopifyOrderId">
+
+  export type ParsedOrderOrderByWithAggregationInput = {
+    id?: SortOrder
+    shopifyOrderId?: SortOrder
+    orderNumber?: SortOrder
+    deliveryTime?: SortOrder
+    deliveryDate?: SortOrder
+    deliveryAddress?: SortOrder
+    customerName?: SortOrder
+    customerCompany?: SortOrderInput | SortOrder
+    customerPhone?: SortOrder
+    orderNotes?: SortOrderInput | SortOrder
+    travelTime?: SortOrderInput | SortOrder
+    leaveTime?: SortOrderInput | SortOrder
+    driverId?: SortOrderInput | SortOrder
+    isDispatched?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ParsedOrderCountOrderByAggregateInput
+    _avg?: ParsedOrderAvgOrderByAggregateInput
+    _max?: ParsedOrderMaxOrderByAggregateInput
+    _min?: ParsedOrderMinOrderByAggregateInput
+    _sum?: ParsedOrderSumOrderByAggregateInput
+  }
+
+  export type ParsedOrderScalarWhereWithAggregatesInput = {
+    AND?: ParsedOrderScalarWhereWithAggregatesInput | ParsedOrderScalarWhereWithAggregatesInput[]
+    OR?: ParsedOrderScalarWhereWithAggregatesInput[]
+    NOT?: ParsedOrderScalarWhereWithAggregatesInput | ParsedOrderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ParsedOrder"> | string
+    shopifyOrderId?: StringWithAggregatesFilter<"ParsedOrder"> | string
+    orderNumber?: StringWithAggregatesFilter<"ParsedOrder"> | string
+    deliveryTime?: StringWithAggregatesFilter<"ParsedOrder"> | string
+    deliveryDate?: DateTimeWithAggregatesFilter<"ParsedOrder"> | Date | string
+    deliveryAddress?: JsonWithAggregatesFilter<"ParsedOrder">
+    customerName?: StringWithAggregatesFilter<"ParsedOrder"> | string
+    customerCompany?: StringNullableWithAggregatesFilter<"ParsedOrder"> | string | null
+    customerPhone?: StringWithAggregatesFilter<"ParsedOrder"> | string
+    orderNotes?: StringNullableWithAggregatesFilter<"ParsedOrder"> | string | null
+    travelTime?: IntNullableWithAggregatesFilter<"ParsedOrder"> | number | null
+    leaveTime?: StringNullableWithAggregatesFilter<"ParsedOrder"> | string | null
+    driverId?: StringNullableWithAggregatesFilter<"ParsedOrder"> | string | null
+    isDispatched?: BoolWithAggregatesFilter<"ParsedOrder"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"ParsedOrder"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ParsedOrder"> | Date | string
+  }
+
+  export type ParsedLineItemWhereInput = {
+    AND?: ParsedLineItemWhereInput | ParsedLineItemWhereInput[]
+    OR?: ParsedLineItemWhereInput[]
+    NOT?: ParsedLineItemWhereInput | ParsedLineItemWhereInput[]
+    id?: StringFilter<"ParsedLineItem"> | string
+    parsedOrderId?: StringFilter<"ParsedLineItem"> | string
+    sku?: StringFilter<"ParsedLineItem"> | string
+    title?: StringFilter<"ParsedLineItem"> | string
+    quantity?: IntFilter<"ParsedLineItem"> | number
+    price?: StringFilter<"ParsedLineItem"> | string
+    handle?: StringNullableFilter<"ParsedLineItem"> | string | null
+    meat1?: StringNullableFilter<"ParsedLineItem"> | string | null
+    meat2?: StringNullableFilter<"ParsedLineItem"> | string | null
+    serveware?: StringNullableFilter<"ParsedLineItem"> | string | null
+    ovenTimer1?: IntNullableFilter<"ParsedLineItem"> | number | null
+    ovenTimer2?: IntNullableFilter<"ParsedLineItem"> | number | null
+    option1?: StringNullableFilter<"ParsedLineItem"> | string | null
+    option2?: StringNullableFilter<"ParsedLineItem"> | string | null
+    createdAt?: DateTimeFilter<"ParsedLineItem"> | Date | string
+    updatedAt?: DateTimeFilter<"ParsedLineItem"> | Date | string
+    parsedOrder?: XOR<ParsedOrderScalarRelationFilter, ParsedOrderWhereInput>
+  }
+
+  export type ParsedLineItemOrderByWithRelationInput = {
+    id?: SortOrder
+    parsedOrderId?: SortOrder
+    sku?: SortOrder
+    title?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
-    modifications?: SortOrderInput | SortOrder
+    handle?: SortOrderInput | SortOrder
+    meat1?: SortOrderInput | SortOrder
+    meat2?: SortOrderInput | SortOrder
+    serveware?: SortOrderInput | SortOrder
+    ovenTimer1?: SortOrderInput | SortOrder
+    ovenTimer2?: SortOrderInput | SortOrder
+    option1?: SortOrderInput | SortOrder
+    option2?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    order?: ShopifyOrderOrderByWithRelationInput
+    parsedOrder?: ParsedOrderOrderByWithRelationInput
   }
 
-  export type ShopifyLineItemWhereUniqueInput = Prisma.AtLeast<{
+  export type ParsedLineItemWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    shopifyId?: string
-    AND?: ShopifyLineItemWhereInput | ShopifyLineItemWhereInput[]
-    OR?: ShopifyLineItemWhereInput[]
-    NOT?: ShopifyLineItemWhereInput | ShopifyLineItemWhereInput[]
-    orderId?: StringFilter<"ShopifyLineItem"> | string
-    productId?: StringFilter<"ShopifyLineItem"> | string
-    productTitle?: StringFilter<"ShopifyLineItem"> | string
-    variantId?: StringNullableFilter<"ShopifyLineItem"> | string | null
-    variantTitle?: StringNullableFilter<"ShopifyLineItem"> | string | null
-    quantity?: IntFilter<"ShopifyLineItem"> | number
-    price?: FloatFilter<"ShopifyLineItem"> | number
-    modifications?: JsonNullableFilter<"ShopifyLineItem">
-    createdAt?: DateTimeFilter<"ShopifyLineItem"> | Date | string
-    updatedAt?: DateTimeFilter<"ShopifyLineItem"> | Date | string
-    order?: XOR<ShopifyOrderScalarRelationFilter, ShopifyOrderWhereInput>
-  }, "id" | "shopifyId">
+    AND?: ParsedLineItemWhereInput | ParsedLineItemWhereInput[]
+    OR?: ParsedLineItemWhereInput[]
+    NOT?: ParsedLineItemWhereInput | ParsedLineItemWhereInput[]
+    parsedOrderId?: StringFilter<"ParsedLineItem"> | string
+    sku?: StringFilter<"ParsedLineItem"> | string
+    title?: StringFilter<"ParsedLineItem"> | string
+    quantity?: IntFilter<"ParsedLineItem"> | number
+    price?: StringFilter<"ParsedLineItem"> | string
+    handle?: StringNullableFilter<"ParsedLineItem"> | string | null
+    meat1?: StringNullableFilter<"ParsedLineItem"> | string | null
+    meat2?: StringNullableFilter<"ParsedLineItem"> | string | null
+    serveware?: StringNullableFilter<"ParsedLineItem"> | string | null
+    ovenTimer1?: IntNullableFilter<"ParsedLineItem"> | number | null
+    ovenTimer2?: IntNullableFilter<"ParsedLineItem"> | number | null
+    option1?: StringNullableFilter<"ParsedLineItem"> | string | null
+    option2?: StringNullableFilter<"ParsedLineItem"> | string | null
+    createdAt?: DateTimeFilter<"ParsedLineItem"> | Date | string
+    updatedAt?: DateTimeFilter<"ParsedLineItem"> | Date | string
+    parsedOrder?: XOR<ParsedOrderScalarRelationFilter, ParsedOrderWhereInput>
+  }, "id">
 
-  export type ShopifyLineItemOrderByWithAggregationInput = {
+  export type ParsedLineItemOrderByWithAggregationInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    orderId?: SortOrder
-    productId?: SortOrder
-    productTitle?: SortOrder
-    variantId?: SortOrderInput | SortOrder
-    variantTitle?: SortOrderInput | SortOrder
+    parsedOrderId?: SortOrder
+    sku?: SortOrder
+    title?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
-    modifications?: SortOrderInput | SortOrder
+    handle?: SortOrderInput | SortOrder
+    meat1?: SortOrderInput | SortOrder
+    meat2?: SortOrderInput | SortOrder
+    serveware?: SortOrderInput | SortOrder
+    ovenTimer1?: SortOrderInput | SortOrder
+    ovenTimer2?: SortOrderInput | SortOrder
+    option1?: SortOrderInput | SortOrder
+    option2?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    _count?: ShopifyLineItemCountOrderByAggregateInput
-    _avg?: ShopifyLineItemAvgOrderByAggregateInput
-    _max?: ShopifyLineItemMaxOrderByAggregateInput
-    _min?: ShopifyLineItemMinOrderByAggregateInput
-    _sum?: ShopifyLineItemSumOrderByAggregateInput
+    _count?: ParsedLineItemCountOrderByAggregateInput
+    _avg?: ParsedLineItemAvgOrderByAggregateInput
+    _max?: ParsedLineItemMaxOrderByAggregateInput
+    _min?: ParsedLineItemMinOrderByAggregateInput
+    _sum?: ParsedLineItemSumOrderByAggregateInput
   }
 
-  export type ShopifyLineItemScalarWhereWithAggregatesInput = {
-    AND?: ShopifyLineItemScalarWhereWithAggregatesInput | ShopifyLineItemScalarWhereWithAggregatesInput[]
-    OR?: ShopifyLineItemScalarWhereWithAggregatesInput[]
-    NOT?: ShopifyLineItemScalarWhereWithAggregatesInput | ShopifyLineItemScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ShopifyLineItem"> | string
-    shopifyId?: StringWithAggregatesFilter<"ShopifyLineItem"> | string
-    orderId?: StringWithAggregatesFilter<"ShopifyLineItem"> | string
-    productId?: StringWithAggregatesFilter<"ShopifyLineItem"> | string
-    productTitle?: StringWithAggregatesFilter<"ShopifyLineItem"> | string
-    variantId?: StringNullableWithAggregatesFilter<"ShopifyLineItem"> | string | null
-    variantTitle?: StringNullableWithAggregatesFilter<"ShopifyLineItem"> | string | null
-    quantity?: IntWithAggregatesFilter<"ShopifyLineItem"> | number
-    price?: FloatWithAggregatesFilter<"ShopifyLineItem"> | number
-    modifications?: JsonNullableWithAggregatesFilter<"ShopifyLineItem">
-    createdAt?: DateTimeWithAggregatesFilter<"ShopifyLineItem"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"ShopifyLineItem"> | Date | string
-  }
-
-  export type ShopifyCustomerWhereInput = {
-    AND?: ShopifyCustomerWhereInput | ShopifyCustomerWhereInput[]
-    OR?: ShopifyCustomerWhereInput[]
-    NOT?: ShopifyCustomerWhereInput | ShopifyCustomerWhereInput[]
-    id?: StringFilter<"ShopifyCustomer"> | string
-    shopifyId?: StringFilter<"ShopifyCustomer"> | string
-    email?: StringFilter<"ShopifyCustomer"> | string
-    firstName?: StringNullableFilter<"ShopifyCustomer"> | string | null
-    lastName?: StringNullableFilter<"ShopifyCustomer"> | string | null
-    phone?: StringNullableFilter<"ShopifyCustomer"> | string | null
-    defaultAddress?: StringNullableFilter<"ShopifyCustomer"> | string | null
-    createdAt?: DateTimeFilter<"ShopifyCustomer"> | Date | string
-    updatedAt?: DateTimeFilter<"ShopifyCustomer"> | Date | string
-    orders?: ShopifyOrderListRelationFilter
-  }
-
-  export type ShopifyCustomerOrderByWithRelationInput = {
-    id?: SortOrder
-    shopifyId?: SortOrder
-    email?: SortOrder
-    firstName?: SortOrderInput | SortOrder
-    lastName?: SortOrderInput | SortOrder
-    phone?: SortOrderInput | SortOrder
-    defaultAddress?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    orders?: ShopifyOrderOrderByRelationAggregateInput
-  }
-
-  export type ShopifyCustomerWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    shopifyId?: string
-    AND?: ShopifyCustomerWhereInput | ShopifyCustomerWhereInput[]
-    OR?: ShopifyCustomerWhereInput[]
-    NOT?: ShopifyCustomerWhereInput | ShopifyCustomerWhereInput[]
-    email?: StringFilter<"ShopifyCustomer"> | string
-    firstName?: StringNullableFilter<"ShopifyCustomer"> | string | null
-    lastName?: StringNullableFilter<"ShopifyCustomer"> | string | null
-    phone?: StringNullableFilter<"ShopifyCustomer"> | string | null
-    defaultAddress?: StringNullableFilter<"ShopifyCustomer"> | string | null
-    createdAt?: DateTimeFilter<"ShopifyCustomer"> | Date | string
-    updatedAt?: DateTimeFilter<"ShopifyCustomer"> | Date | string
-    orders?: ShopifyOrderListRelationFilter
-  }, "id" | "shopifyId">
-
-  export type ShopifyCustomerOrderByWithAggregationInput = {
-    id?: SortOrder
-    shopifyId?: SortOrder
-    email?: SortOrder
-    firstName?: SortOrderInput | SortOrder
-    lastName?: SortOrderInput | SortOrder
-    phone?: SortOrderInput | SortOrder
-    defaultAddress?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: ShopifyCustomerCountOrderByAggregateInput
-    _max?: ShopifyCustomerMaxOrderByAggregateInput
-    _min?: ShopifyCustomerMinOrderByAggregateInput
-  }
-
-  export type ShopifyCustomerScalarWhereWithAggregatesInput = {
-    AND?: ShopifyCustomerScalarWhereWithAggregatesInput | ShopifyCustomerScalarWhereWithAggregatesInput[]
-    OR?: ShopifyCustomerScalarWhereWithAggregatesInput[]
-    NOT?: ShopifyCustomerScalarWhereWithAggregatesInput | ShopifyCustomerScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ShopifyCustomer"> | string
-    shopifyId?: StringWithAggregatesFilter<"ShopifyCustomer"> | string
-    email?: StringWithAggregatesFilter<"ShopifyCustomer"> | string
-    firstName?: StringNullableWithAggregatesFilter<"ShopifyCustomer"> | string | null
-    lastName?: StringNullableWithAggregatesFilter<"ShopifyCustomer"> | string | null
-    phone?: StringNullableWithAggregatesFilter<"ShopifyCustomer"> | string | null
-    defaultAddress?: StringNullableWithAggregatesFilter<"ShopifyCustomer"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"ShopifyCustomer"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"ShopifyCustomer"> | Date | string
+  export type ParsedLineItemScalarWhereWithAggregatesInput = {
+    AND?: ParsedLineItemScalarWhereWithAggregatesInput | ParsedLineItemScalarWhereWithAggregatesInput[]
+    OR?: ParsedLineItemScalarWhereWithAggregatesInput[]
+    NOT?: ParsedLineItemScalarWhereWithAggregatesInput | ParsedLineItemScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ParsedLineItem"> | string
+    parsedOrderId?: StringWithAggregatesFilter<"ParsedLineItem"> | string
+    sku?: StringWithAggregatesFilter<"ParsedLineItem"> | string
+    title?: StringWithAggregatesFilter<"ParsedLineItem"> | string
+    quantity?: IntWithAggregatesFilter<"ParsedLineItem"> | number
+    price?: StringWithAggregatesFilter<"ParsedLineItem"> | string
+    handle?: StringNullableWithAggregatesFilter<"ParsedLineItem"> | string | null
+    meat1?: StringNullableWithAggregatesFilter<"ParsedLineItem"> | string | null
+    meat2?: StringNullableWithAggregatesFilter<"ParsedLineItem"> | string | null
+    serveware?: StringNullableWithAggregatesFilter<"ParsedLineItem"> | string | null
+    ovenTimer1?: IntNullableWithAggregatesFilter<"ParsedLineItem"> | number | null
+    ovenTimer2?: IntNullableWithAggregatesFilter<"ParsedLineItem"> | number | null
+    option1?: StringNullableWithAggregatesFilter<"ParsedLineItem"> | string | null
+    option2?: StringNullableWithAggregatesFilter<"ParsedLineItem"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ParsedLineItem"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ParsedLineItem"> | Date | string
   }
 
   export type GilmoursProductCreateInput = {
@@ -16329,6 +26595,7 @@ export namespace Prisma {
     timerB?: number | null
     skuSearch?: string | null
     variantSku?: string | null
+    variant_title?: string | null
     ingredients?: NullableJsonNullValueInput | InputJsonValue
     totalCost?: number
     sellingPrice?: number | null
@@ -16352,6 +26619,7 @@ export namespace Prisma {
     timerB?: number | null
     skuSearch?: string | null
     variantSku?: string | null
+    variant_title?: string | null
     ingredients?: NullableJsonNullValueInput | InputJsonValue
     totalCost?: number
     sellingPrice?: number | null
@@ -16375,6 +26643,7 @@ export namespace Prisma {
     timerB?: NullableIntFieldUpdateOperationsInput | number | null
     skuSearch?: NullableStringFieldUpdateOperationsInput | string | null
     variantSku?: NullableStringFieldUpdateOperationsInput | string | null
+    variant_title?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: NullableJsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     sellingPrice?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -16398,6 +26667,7 @@ export namespace Prisma {
     timerB?: NullableIntFieldUpdateOperationsInput | number | null
     skuSearch?: NullableStringFieldUpdateOperationsInput | string | null
     variantSku?: NullableStringFieldUpdateOperationsInput | string | null
+    variant_title?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: NullableJsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     sellingPrice?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -16421,6 +26691,7 @@ export namespace Prisma {
     timerB?: number | null
     skuSearch?: string | null
     variantSku?: string | null
+    variant_title?: string | null
     ingredients?: NullableJsonNullValueInput | InputJsonValue
     totalCost?: number
     sellingPrice?: number | null
@@ -16444,6 +26715,7 @@ export namespace Prisma {
     timerB?: NullableIntFieldUpdateOperationsInput | number | null
     skuSearch?: NullableStringFieldUpdateOperationsInput | string | null
     variantSku?: NullableStringFieldUpdateOperationsInput | string | null
+    variant_title?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: NullableJsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     sellingPrice?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -16467,10 +26739,445 @@ export namespace Prisma {
     timerB?: NullableIntFieldUpdateOperationsInput | number | null
     skuSearch?: NullableStringFieldUpdateOperationsInput | string | null
     variantSku?: NullableStringFieldUpdateOperationsInput | string | null
+    variant_title?: NullableStringFieldUpdateOperationsInput | string | null
     ingredients?: NullableJsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     sellingPrice?: NullableFloatFieldUpdateOperationsInput | number | null
     realizedMargin?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductCustomDataCreateInput = {
+    id?: string
+    variantId: string
+    meat1?: string | null
+    meat2?: string | null
+    option1?: string | null
+    option2?: string | null
+    serveware?: string | null
+    timerA?: number | null
+    timerB?: number | null
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductCustomDataUncheckedCreateInput = {
+    id?: string
+    variantId: string
+    meat1?: string | null
+    meat2?: string | null
+    option1?: string | null
+    option2?: string | null
+    serveware?: string | null
+    timerA?: number | null
+    timerB?: number | null
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductCustomDataUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    variantId?: StringFieldUpdateOperationsInput | string
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    timerA?: NullableIntFieldUpdateOperationsInput | number | null
+    timerB?: NullableIntFieldUpdateOperationsInput | number | null
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductCustomDataUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    variantId?: StringFieldUpdateOperationsInput | string
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    timerA?: NullableIntFieldUpdateOperationsInput | number | null
+    timerB?: NullableIntFieldUpdateOperationsInput | number | null
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductCustomDataCreateManyInput = {
+    id?: string
+    variantId: string
+    meat1?: string | null
+    meat2?: string | null
+    option1?: string | null
+    option2?: string | null
+    serveware?: string | null
+    timerA?: number | null
+    timerB?: number | null
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductCustomDataUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    variantId?: StringFieldUpdateOperationsInput | string
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    timerA?: NullableIntFieldUpdateOperationsInput | number | null
+    timerB?: NullableIntFieldUpdateOperationsInput | number | null
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductCustomDataUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    variantId?: StringFieldUpdateOperationsInput | string
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    timerA?: NullableIntFieldUpdateOperationsInput | number | null
+    timerB?: NullableIntFieldUpdateOperationsInput | number | null
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductWithCustomDataCreateInput = {
+    id?: string
+    variantId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    shopifyProductId: string
+    shopifySku?: string | null
+    shopifyName: string
+    shopifyTitle: string
+    shopifyPrice: Decimal | DecimalJsLike | number | string
+    shopifyInventory: number
+    displayName?: string | null
+    meat1?: string | null
+    meat2?: string | null
+    timer1?: number | null
+    timer2?: number | null
+    option1?: string | null
+    option2?: string | null
+    serveware?: boolean
+    isDraft?: boolean
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: number
+  }
+
+  export type ProductWithCustomDataUncheckedCreateInput = {
+    id?: string
+    variantId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    shopifyProductId: string
+    shopifySku?: string | null
+    shopifyName: string
+    shopifyTitle: string
+    shopifyPrice: Decimal | DecimalJsLike | number | string
+    shopifyInventory: number
+    displayName?: string | null
+    meat1?: string | null
+    meat2?: string | null
+    timer1?: number | null
+    timer2?: number | null
+    option1?: string | null
+    option2?: string | null
+    serveware?: boolean
+    isDraft?: boolean
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: number
+  }
+
+  export type ProductWithCustomDataUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    variantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shopifyProductId?: StringFieldUpdateOperationsInput | string
+    shopifySku?: NullableStringFieldUpdateOperationsInput | string | null
+    shopifyName?: StringFieldUpdateOperationsInput | string
+    shopifyTitle?: StringFieldUpdateOperationsInput | string
+    shopifyPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    shopifyInventory?: IntFieldUpdateOperationsInput | number
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    timer1?: NullableIntFieldUpdateOperationsInput | number | null
+    timer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: BoolFieldUpdateOperationsInput | boolean
+    isDraft?: BoolFieldUpdateOperationsInput | boolean
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type ProductWithCustomDataUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    variantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shopifyProductId?: StringFieldUpdateOperationsInput | string
+    shopifySku?: NullableStringFieldUpdateOperationsInput | string | null
+    shopifyName?: StringFieldUpdateOperationsInput | string
+    shopifyTitle?: StringFieldUpdateOperationsInput | string
+    shopifyPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    shopifyInventory?: IntFieldUpdateOperationsInput | number
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    timer1?: NullableIntFieldUpdateOperationsInput | number | null
+    timer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: BoolFieldUpdateOperationsInput | boolean
+    isDraft?: BoolFieldUpdateOperationsInput | boolean
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type ProductWithCustomDataCreateManyInput = {
+    id?: string
+    variantId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    shopifyProductId: string
+    shopifySku?: string | null
+    shopifyName: string
+    shopifyTitle: string
+    shopifyPrice: Decimal | DecimalJsLike | number | string
+    shopifyInventory: number
+    displayName?: string | null
+    meat1?: string | null
+    meat2?: string | null
+    timer1?: number | null
+    timer2?: number | null
+    option1?: string | null
+    option2?: string | null
+    serveware?: boolean
+    isDraft?: boolean
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: number
+  }
+
+  export type ProductWithCustomDataUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    variantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shopifyProductId?: StringFieldUpdateOperationsInput | string
+    shopifySku?: NullableStringFieldUpdateOperationsInput | string | null
+    shopifyName?: StringFieldUpdateOperationsInput | string
+    shopifyTitle?: StringFieldUpdateOperationsInput | string
+    shopifyPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    shopifyInventory?: IntFieldUpdateOperationsInput | number
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    timer1?: NullableIntFieldUpdateOperationsInput | number | null
+    timer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: BoolFieldUpdateOperationsInput | boolean
+    isDraft?: BoolFieldUpdateOperationsInput | boolean
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type ProductWithCustomDataUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    variantId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shopifyProductId?: StringFieldUpdateOperationsInput | string
+    shopifySku?: NullableStringFieldUpdateOperationsInput | string | null
+    shopifyName?: StringFieldUpdateOperationsInput | string
+    shopifyTitle?: StringFieldUpdateOperationsInput | string
+    shopifyPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    shopifyInventory?: IntFieldUpdateOperationsInput | number
+    displayName?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    timer1?: NullableIntFieldUpdateOperationsInput | number | null
+    timer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: BoolFieldUpdateOperationsInput | boolean
+    isDraft?: BoolFieldUpdateOperationsInput | boolean
+    ingredients?: NullableJsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type ProductRuleCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    isActive?: boolean
+    priority?: number
+    matchPattern: string
+    matchType?: string
+    setDisplayName?: string | null
+    setMeat1?: string | null
+    setMeat2?: string | null
+    setTimer1?: number | null
+    setTimer2?: number | null
+    setOption1?: string | null
+    setOption2?: string | null
+    setServeware?: boolean | null
+    setIngredients?: NullableJsonNullValueInput | InputJsonValue
+    setTotalCost?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductRuleUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    isActive?: boolean
+    priority?: number
+    matchPattern: string
+    matchType?: string
+    setDisplayName?: string | null
+    setMeat1?: string | null
+    setMeat2?: string | null
+    setTimer1?: number | null
+    setTimer2?: number | null
+    setOption1?: string | null
+    setOption2?: string | null
+    setServeware?: boolean | null
+    setIngredients?: NullableJsonNullValueInput | InputJsonValue
+    setTotalCost?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductRuleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    priority?: IntFieldUpdateOperationsInput | number
+    matchPattern?: StringFieldUpdateOperationsInput | string
+    matchType?: StringFieldUpdateOperationsInput | string
+    setDisplayName?: NullableStringFieldUpdateOperationsInput | string | null
+    setMeat1?: NullableStringFieldUpdateOperationsInput | string | null
+    setMeat2?: NullableStringFieldUpdateOperationsInput | string | null
+    setTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    setTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    setOption1?: NullableStringFieldUpdateOperationsInput | string | null
+    setOption2?: NullableStringFieldUpdateOperationsInput | string | null
+    setServeware?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    setIngredients?: NullableJsonNullValueInput | InputJsonValue
+    setTotalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductRuleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    priority?: IntFieldUpdateOperationsInput | number
+    matchPattern?: StringFieldUpdateOperationsInput | string
+    matchType?: StringFieldUpdateOperationsInput | string
+    setDisplayName?: NullableStringFieldUpdateOperationsInput | string | null
+    setMeat1?: NullableStringFieldUpdateOperationsInput | string | null
+    setMeat2?: NullableStringFieldUpdateOperationsInput | string | null
+    setTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    setTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    setOption1?: NullableStringFieldUpdateOperationsInput | string | null
+    setOption2?: NullableStringFieldUpdateOperationsInput | string | null
+    setServeware?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    setIngredients?: NullableJsonNullValueInput | InputJsonValue
+    setTotalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductRuleCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    isActive?: boolean
+    priority?: number
+    matchPattern: string
+    matchType?: string
+    setDisplayName?: string | null
+    setMeat1?: string | null
+    setMeat2?: string | null
+    setTimer1?: number | null
+    setTimer2?: number | null
+    setOption1?: string | null
+    setOption2?: string | null
+    setServeware?: boolean | null
+    setIngredients?: NullableJsonNullValueInput | InputJsonValue
+    setTotalCost?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProductRuleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    priority?: IntFieldUpdateOperationsInput | number
+    matchPattern?: StringFieldUpdateOperationsInput | string
+    matchType?: StringFieldUpdateOperationsInput | string
+    setDisplayName?: NullableStringFieldUpdateOperationsInput | string | null
+    setMeat1?: NullableStringFieldUpdateOperationsInput | string | null
+    setMeat2?: NullableStringFieldUpdateOperationsInput | string | null
+    setTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    setTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    setOption1?: NullableStringFieldUpdateOperationsInput | string | null
+    setOption2?: NullableStringFieldUpdateOperationsInput | string | null
+    setServeware?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    setIngredients?: NullableJsonNullValueInput | InputJsonValue
+    setTotalCost?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductRuleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    priority?: IntFieldUpdateOperationsInput | number
+    matchPattern?: StringFieldUpdateOperationsInput | string
+    matchType?: StringFieldUpdateOperationsInput | string
+    setDisplayName?: NullableStringFieldUpdateOperationsInput | string | null
+    setMeat1?: NullableStringFieldUpdateOperationsInput | string | null
+    setMeat2?: NullableStringFieldUpdateOperationsInput | string | null
+    setTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    setTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    setOption1?: NullableStringFieldUpdateOperationsInput | string | null
+    setOption2?: NullableStringFieldUpdateOperationsInput | string | null
+    setServeware?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    setIngredients?: NullableJsonNullValueInput | InputJsonValue
+    setTotalCost?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -16484,6 +27191,7 @@ export namespace Prisma {
     payRate: number
     accessLevel: string
     isDriver?: boolean
+    isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     lastLogin?: Date | string | null
@@ -16491,6 +27199,7 @@ export namespace Prisma {
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     shifts?: ShiftCreateNestedManyWithoutStaffInput
+    rosterAssignments?: RosterAssignmentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateInput = {
@@ -16502,6 +27211,7 @@ export namespace Prisma {
     payRate: number
     accessLevel: string
     isDriver?: boolean
+    isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     lastLogin?: Date | string | null
@@ -16509,6 +27219,7 @@ export namespace Prisma {
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
     shifts?: ShiftUncheckedCreateNestedManyWithoutStaffInput
+    rosterAssignments?: RosterAssignmentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUpdateInput = {
@@ -16520,6 +27231,7 @@ export namespace Prisma {
     payRate?: FloatFieldUpdateOperationsInput | number
     accessLevel?: StringFieldUpdateOperationsInput | string
     isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16527,6 +27239,7 @@ export namespace Prisma {
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     shifts?: ShiftUpdateManyWithoutStaffNestedInput
+    rosterAssignments?: RosterAssignmentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateInput = {
@@ -16538,6 +27251,7 @@ export namespace Prisma {
     payRate?: FloatFieldUpdateOperationsInput | number
     accessLevel?: StringFieldUpdateOperationsInput | string
     isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16545,6 +27259,7 @@ export namespace Prisma {
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     shifts?: ShiftUncheckedUpdateManyWithoutStaffNestedInput
+    rosterAssignments?: RosterAssignmentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffCreateManyInput = {
@@ -16556,6 +27271,7 @@ export namespace Prisma {
     payRate: number
     accessLevel: string
     isDriver?: boolean
+    isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     lastLogin?: Date | string | null
@@ -16573,6 +27289,7 @@ export namespace Prisma {
     payRate?: FloatFieldUpdateOperationsInput | number
     accessLevel?: StringFieldUpdateOperationsInput | string
     isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16590,6 +27307,7 @@ export namespace Prisma {
     payRate?: FloatFieldUpdateOperationsInput | number
     accessLevel?: StringFieldUpdateOperationsInput | string
     isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -16598,15 +27316,175 @@ export namespace Prisma {
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type ShiftTypeCreateInput = {
+    id?: string
+    name: string
+    startTime: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rosterAssignments?: RosterAssignmentCreateNestedManyWithoutShiftTypeInput
+  }
+
+  export type ShiftTypeUncheckedCreateInput = {
+    id?: string
+    name: string
+    startTime: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rosterAssignments?: RosterAssignmentUncheckedCreateNestedManyWithoutShiftTypeInput
+  }
+
+  export type ShiftTypeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startTime?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rosterAssignments?: RosterAssignmentUpdateManyWithoutShiftTypeNestedInput
+  }
+
+  export type ShiftTypeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startTime?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rosterAssignments?: RosterAssignmentUncheckedUpdateManyWithoutShiftTypeNestedInput
+  }
+
+  export type ShiftTypeCreateManyInput = {
+    id?: string
+    name: string
+    startTime: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftTypeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startTime?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftTypeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startTime?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentCreateInput = {
+    id?: string
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    staff: StaffCreateNestedOneWithoutRosterAssignmentsInput
+    shiftType?: ShiftTypeCreateNestedOneWithoutRosterAssignmentsInput
+  }
+
+  export type RosterAssignmentUncheckedCreateInput = {
+    id?: string
+    staffId: string
+    shiftTypeId?: string | null
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    staff?: StaffUpdateOneRequiredWithoutRosterAssignmentsNestedInput
+    shiftType?: ShiftTypeUpdateOneWithoutRosterAssignmentsNestedInput
+  }
+
+  export type RosterAssignmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: StringFieldUpdateOperationsInput | string
+    shiftTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentCreateManyInput = {
+    id?: string
+    staffId: string
+    shiftTypeId?: string | null
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: StringFieldUpdateOperationsInput | string
+    shiftTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ShiftCreateInput = {
     id?: string
     clockIn: Date | string
     clockOut?: Date | string | null
     totalHours?: number | null
     date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     staff: StaffCreateNestedOneWithoutShiftsInput
+    reimbursements?: ReimbursementCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftUncheckedCreateInput = {
@@ -16616,8 +27494,12 @@ export namespace Prisma {
     clockOut?: Date | string | null
     totalHours?: number | null
     date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    reimbursements?: ReimbursementUncheckedCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftUpdateInput = {
@@ -16626,9 +27508,13 @@ export namespace Prisma {
     clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     staff?: StaffUpdateOneRequiredWithoutShiftsNestedInput
+    reimbursements?: ReimbursementUpdateManyWithoutShiftNestedInput
   }
 
   export type ShiftUncheckedUpdateInput = {
@@ -16638,8 +27524,12 @@ export namespace Prisma {
     clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reimbursements?: ReimbursementUncheckedUpdateManyWithoutShiftNestedInput
   }
 
   export type ShiftCreateManyInput = {
@@ -16649,6 +27539,9 @@ export namespace Prisma {
     clockOut?: Date | string | null
     totalHours?: number | null
     date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16659,6 +27552,9 @@ export namespace Prisma {
     clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -16670,349 +27566,715 @@ export namespace Prisma {
     clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ShopifyOrderCreateInput = {
+  export type ReimbursementCreateInput = {
     id?: string
-    shopifyId: string
-    orderNumber: string
-    email: string
-    phone?: string | null
-    deliveryDate: Date | string
-    deliveryTime?: string | null
-    deliveryAddress: string
-    deliveryNotes?: string | null
-    status: string
-    totalPrice: number
+    amount: number
+    description: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastSyncedAt?: Date | string
-    isModified?: boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    customer: ShopifyCustomerCreateNestedOneWithoutOrdersInput
-    lineItems?: ShopifyLineItemCreateNestedManyWithoutOrderInput
+    shift: ShiftCreateNestedOneWithoutReimbursementsInput
+  }
+
+  export type ReimbursementUncheckedCreateInput = {
+    id?: string
+    shiftId: string
+    amount: number
+    description: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReimbursementUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shift?: ShiftUpdateOneRequiredWithoutReimbursementsNestedInput
+  }
+
+  export type ReimbursementUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shiftId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReimbursementCreateManyInput = {
+    id?: string
+    shiftId: string
+    amount: number
+    description: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReimbursementUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReimbursementUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shiftId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderCreateInput = {
+    id?: string
+    shopifyId: string
+    orderNumber: number
+    createdAt: Date | string
+    updatedAt: Date | string
+    processedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    closedAt?: Date | string | null
+    totalPrice: number
+    subtotalPrice: number
+    totalTax: number
+    currency: string
+    financialStatus: string
+    fulfillmentStatus?: string | null
+    tags?: string | null
+    note?: string | null
+    customerEmail: string
+    customerFirstName: string
+    customerLastName: string
+    customerPhone?: string | null
+    shippingAddress?: NullableJsonNullValueInput | InputJsonValue
+    billingAddress?: NullableJsonNullValueInput | InputJsonValue
+    lineItems: JsonNullValueInput | InputJsonValue
+    source?: string
+    hasLocalEdits?: boolean
+    syncedAt?: Date | string
+    dbCreatedAt?: Date | string
+    dbUpdatedAt?: Date | string
+    noteAttributes?: NullableJsonNullValueInput | InputJsonValue
+    deliveryDate?: string | null
+    deliveryTime?: string | null
+    pickupDate?: string | null
+    pickupTime?: string | null
+    deliveryInstructions?: string | null
+    travelTime?: string | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
+    lastSmsSent?: Date | string | null
+    smsHistory?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OrderUncheckedCreateInput = {
+    id?: string
+    shopifyId: string
+    orderNumber: number
+    createdAt: Date | string
+    updatedAt: Date | string
+    processedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    closedAt?: Date | string | null
+    totalPrice: number
+    subtotalPrice: number
+    totalTax: number
+    currency: string
+    financialStatus: string
+    fulfillmentStatus?: string | null
+    tags?: string | null
+    note?: string | null
+    customerEmail: string
+    customerFirstName: string
+    customerLastName: string
+    customerPhone?: string | null
+    shippingAddress?: NullableJsonNullValueInput | InputJsonValue
+    billingAddress?: NullableJsonNullValueInput | InputJsonValue
+    lineItems: JsonNullValueInput | InputJsonValue
+    source?: string
+    hasLocalEdits?: boolean
+    syncedAt?: Date | string
+    dbCreatedAt?: Date | string
+    dbUpdatedAt?: Date | string
+    noteAttributes?: NullableJsonNullValueInput | InputJsonValue
+    deliveryDate?: string | null
+    deliveryTime?: string | null
+    pickupDate?: string | null
+    pickupTime?: string | null
+    deliveryInstructions?: string | null
+    travelTime?: string | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
+    lastSmsSent?: Date | string | null
+    smsHistory?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shopifyId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalPrice?: FloatFieldUpdateOperationsInput | number
+    subtotalPrice?: FloatFieldUpdateOperationsInput | number
+    totalTax?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    financialStatus?: StringFieldUpdateOperationsInput | string
+    fulfillmentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    customerEmail?: StringFieldUpdateOperationsInput | string
+    customerFirstName?: StringFieldUpdateOperationsInput | string
+    customerLastName?: StringFieldUpdateOperationsInput | string
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableJsonNullValueInput | InputJsonValue
+    billingAddress?: NullableJsonNullValueInput | InputJsonValue
+    lineItems?: JsonNullValueInput | InputJsonValue
+    source?: StringFieldUpdateOperationsInput | string
+    hasLocalEdits?: BoolFieldUpdateOperationsInput | boolean
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dbCreatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dbUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    noteAttributes?: NullableJsonNullValueInput | InputJsonValue
+    deliveryDate?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
+    pickupDate?: NullableStringFieldUpdateOperationsInput | string | null
+    pickupTime?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryInstructions?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smsHistory?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OrderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shopifyId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalPrice?: FloatFieldUpdateOperationsInput | number
+    subtotalPrice?: FloatFieldUpdateOperationsInput | number
+    totalTax?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    financialStatus?: StringFieldUpdateOperationsInput | string
+    fulfillmentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    customerEmail?: StringFieldUpdateOperationsInput | string
+    customerFirstName?: StringFieldUpdateOperationsInput | string
+    customerLastName?: StringFieldUpdateOperationsInput | string
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableJsonNullValueInput | InputJsonValue
+    billingAddress?: NullableJsonNullValueInput | InputJsonValue
+    lineItems?: JsonNullValueInput | InputJsonValue
+    source?: StringFieldUpdateOperationsInput | string
+    hasLocalEdits?: BoolFieldUpdateOperationsInput | boolean
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dbCreatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dbUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    noteAttributes?: NullableJsonNullValueInput | InputJsonValue
+    deliveryDate?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
+    pickupDate?: NullableStringFieldUpdateOperationsInput | string | null
+    pickupTime?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryInstructions?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smsHistory?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OrderCreateManyInput = {
+    id?: string
+    shopifyId: string
+    orderNumber: number
+    createdAt: Date | string
+    updatedAt: Date | string
+    processedAt?: Date | string | null
+    cancelledAt?: Date | string | null
+    closedAt?: Date | string | null
+    totalPrice: number
+    subtotalPrice: number
+    totalTax: number
+    currency: string
+    financialStatus: string
+    fulfillmentStatus?: string | null
+    tags?: string | null
+    note?: string | null
+    customerEmail: string
+    customerFirstName: string
+    customerLastName: string
+    customerPhone?: string | null
+    shippingAddress?: NullableJsonNullValueInput | InputJsonValue
+    billingAddress?: NullableJsonNullValueInput | InputJsonValue
+    lineItems: JsonNullValueInput | InputJsonValue
+    source?: string
+    hasLocalEdits?: boolean
+    syncedAt?: Date | string
+    dbCreatedAt?: Date | string
+    dbUpdatedAt?: Date | string
+    noteAttributes?: NullableJsonNullValueInput | InputJsonValue
+    deliveryDate?: string | null
+    deliveryTime?: string | null
+    pickupDate?: string | null
+    pickupTime?: string | null
+    deliveryInstructions?: string | null
+    travelTime?: string | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
+    lastSmsSent?: Date | string | null
+    smsHistory?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shopifyId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalPrice?: FloatFieldUpdateOperationsInput | number
+    subtotalPrice?: FloatFieldUpdateOperationsInput | number
+    totalTax?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    financialStatus?: StringFieldUpdateOperationsInput | string
+    fulfillmentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    customerEmail?: StringFieldUpdateOperationsInput | string
+    customerFirstName?: StringFieldUpdateOperationsInput | string
+    customerLastName?: StringFieldUpdateOperationsInput | string
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableJsonNullValueInput | InputJsonValue
+    billingAddress?: NullableJsonNullValueInput | InputJsonValue
+    lineItems?: JsonNullValueInput | InputJsonValue
+    source?: StringFieldUpdateOperationsInput | string
+    hasLocalEdits?: BoolFieldUpdateOperationsInput | boolean
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dbCreatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dbUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    noteAttributes?: NullableJsonNullValueInput | InputJsonValue
+    deliveryDate?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
+    pickupDate?: NullableStringFieldUpdateOperationsInput | string | null
+    pickupTime?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryInstructions?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smsHistory?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type OrderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shopifyId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalPrice?: FloatFieldUpdateOperationsInput | number
+    subtotalPrice?: FloatFieldUpdateOperationsInput | number
+    totalTax?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    financialStatus?: StringFieldUpdateOperationsInput | string
+    fulfillmentStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: NullableStringFieldUpdateOperationsInput | string | null
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    customerEmail?: StringFieldUpdateOperationsInput | string
+    customerFirstName?: StringFieldUpdateOperationsInput | string
+    customerLastName?: StringFieldUpdateOperationsInput | string
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    shippingAddress?: NullableJsonNullValueInput | InputJsonValue
+    billingAddress?: NullableJsonNullValueInput | InputJsonValue
+    lineItems?: JsonNullValueInput | InputJsonValue
+    source?: StringFieldUpdateOperationsInput | string
+    hasLocalEdits?: BoolFieldUpdateOperationsInput | boolean
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dbCreatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dbUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    noteAttributes?: NullableJsonNullValueInput | InputJsonValue
+    deliveryDate?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
+    pickupDate?: NullableStringFieldUpdateOperationsInput | string | null
+    pickupTime?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryInstructions?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    smsHistory?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type ShopifyOrderCreateInput = {
+    id: string
+    rawData: JsonNullValueInput | InputJsonValue
+    syncedAt: Date | string
+    parsedOrderId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    parsedOrder?: ParsedOrderCreateNestedOneWithoutShopifyOrderInput
   }
 
   export type ShopifyOrderUncheckedCreateInput = {
-    id?: string
-    shopifyId: string
-    orderNumber: string
-    customerId: string
-    email: string
-    phone?: string | null
-    deliveryDate: Date | string
-    deliveryTime?: string | null
-    deliveryAddress: string
-    deliveryNotes?: string | null
-    status: string
-    totalPrice: number
+    id: string
+    rawData: JsonNullValueInput | InputJsonValue
+    syncedAt: Date | string
+    parsedOrderId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastSyncedAt?: Date | string
-    isModified?: boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    lineItems?: ShopifyLineItemUncheckedCreateNestedManyWithoutOrderInput
+    parsedOrder?: ParsedOrderUncheckedCreateNestedOneWithoutShopifyOrderInput
   }
 
   export type ShopifyOrderUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderNumber?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryAddress?: StringFieldUpdateOperationsInput | string
-    deliveryNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    totalPrice?: FloatFieldUpdateOperationsInput | number
+    rawData?: JsonNullValueInput | InputJsonValue
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parsedOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastSyncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isModified?: BoolFieldUpdateOperationsInput | boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    customer?: ShopifyCustomerUpdateOneRequiredWithoutOrdersNestedInput
-    lineItems?: ShopifyLineItemUpdateManyWithoutOrderNestedInput
+    parsedOrder?: ParsedOrderUpdateOneWithoutShopifyOrderNestedInput
   }
 
   export type ShopifyOrderUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderNumber?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryAddress?: StringFieldUpdateOperationsInput | string
-    deliveryNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    totalPrice?: FloatFieldUpdateOperationsInput | number
+    rawData?: JsonNullValueInput | InputJsonValue
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parsedOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastSyncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isModified?: BoolFieldUpdateOperationsInput | boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    lineItems?: ShopifyLineItemUncheckedUpdateManyWithoutOrderNestedInput
+    parsedOrder?: ParsedOrderUncheckedUpdateOneWithoutShopifyOrderNestedInput
   }
 
   export type ShopifyOrderCreateManyInput = {
-    id?: string
-    shopifyId: string
-    orderNumber: string
-    customerId: string
-    email: string
-    phone?: string | null
-    deliveryDate: Date | string
-    deliveryTime?: string | null
-    deliveryAddress: string
-    deliveryNotes?: string | null
-    status: string
-    totalPrice: number
+    id: string
+    rawData: JsonNullValueInput | InputJsonValue
+    syncedAt: Date | string
+    parsedOrderId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastSyncedAt?: Date | string
-    isModified?: boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ShopifyOrderUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderNumber?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryAddress?: StringFieldUpdateOperationsInput | string
-    deliveryNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    totalPrice?: FloatFieldUpdateOperationsInput | number
+    rawData?: JsonNullValueInput | InputJsonValue
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parsedOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastSyncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isModified?: BoolFieldUpdateOperationsInput | boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ShopifyOrderUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
+    rawData?: JsonNullValueInput | InputJsonValue
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parsedOrderId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ParsedOrderCreateInput = {
+    id: string
+    orderNumber: string
+    deliveryTime: string
+    deliveryDate: Date | string
+    deliveryAddress: JsonNullValueInput | InputJsonValue
+    customerName: string
+    customerCompany?: string | null
+    customerPhone: string
+    orderNotes?: string | null
+    travelTime?: number | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    shopifyOrder: ShopifyOrderCreateNestedOneWithoutParsedOrderInput
+    lineItems?: ParsedLineItemCreateNestedManyWithoutParsedOrderInput
+  }
+
+  export type ParsedOrderUncheckedCreateInput = {
+    id: string
+    shopifyOrderId: string
+    orderNumber: string
+    deliveryTime: string
+    deliveryDate: Date | string
+    deliveryAddress: JsonNullValueInput | InputJsonValue
+    customerName: string
+    customerCompany?: string | null
+    customerPhone: string
+    orderNotes?: string | null
+    travelTime?: number | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lineItems?: ParsedLineItemUncheckedCreateNestedManyWithoutParsedOrderInput
+  }
+
+  export type ParsedOrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryTime?: StringFieldUpdateOperationsInput | string
     deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryAddress?: StringFieldUpdateOperationsInput | string
-    deliveryNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    totalPrice?: FloatFieldUpdateOperationsInput | number
+    deliveryAddress?: JsonNullValueInput | InputJsonValue
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    orderNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableIntFieldUpdateOperationsInput | number | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastSyncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isModified?: BoolFieldUpdateOperationsInput | boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    shopifyOrder?: ShopifyOrderUpdateOneRequiredWithoutParsedOrderNestedInput
+    lineItems?: ParsedLineItemUpdateManyWithoutParsedOrderNestedInput
   }
 
-  export type ShopifyLineItemCreateInput = {
-    id?: string
-    shopifyId: string
-    productId: string
-    productTitle: string
-    variantId?: string | null
-    variantTitle?: string | null
+  export type ParsedOrderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shopifyOrderId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    deliveryTime?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveryAddress?: JsonNullValueInput | InputJsonValue
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    orderNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableIntFieldUpdateOperationsInput | number | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lineItems?: ParsedLineItemUncheckedUpdateManyWithoutParsedOrderNestedInput
+  }
+
+  export type ParsedOrderCreateManyInput = {
+    id: string
+    shopifyOrderId: string
+    orderNumber: string
+    deliveryTime: string
+    deliveryDate: Date | string
+    deliveryAddress: JsonNullValueInput | InputJsonValue
+    customerName: string
+    customerCompany?: string | null
+    customerPhone: string
+    orderNotes?: string | null
+    travelTime?: number | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ParsedOrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    deliveryTime?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveryAddress?: JsonNullValueInput | InputJsonValue
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    orderNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableIntFieldUpdateOperationsInput | number | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ParsedOrderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shopifyOrderId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    deliveryTime?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveryAddress?: JsonNullValueInput | InputJsonValue
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    orderNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableIntFieldUpdateOperationsInput | number | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ParsedLineItemCreateInput = {
+    id: string
+    sku: string
+    title: string
     quantity: number
-    price: number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price: string
+    handle?: string | null
+    meat1?: string | null
+    meat2?: string | null
+    serveware?: string | null
+    ovenTimer1?: number | null
+    ovenTimer2?: number | null
+    option1?: string | null
+    option2?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    order: ShopifyOrderCreateNestedOneWithoutLineItemsInput
+    parsedOrder: ParsedOrderCreateNestedOneWithoutLineItemsInput
   }
 
-  export type ShopifyLineItemUncheckedCreateInput = {
-    id?: string
-    shopifyId: string
-    orderId: string
-    productId: string
-    productTitle: string
-    variantId?: string | null
-    variantTitle?: string | null
+  export type ParsedLineItemUncheckedCreateInput = {
+    id: string
+    parsedOrderId: string
+    sku: string
+    title: string
     quantity: number
-    price: number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price: string
+    handle?: string | null
+    meat1?: string | null
+    meat2?: string | null
+    serveware?: string | null
+    ovenTimer1?: number | null
+    ovenTimer2?: number | null
+    option1?: string | null
+    option2?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type ShopifyLineItemUpdateInput = {
+  export type ParsedLineItemUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    productId?: StringFieldUpdateOperationsInput | string
-    productTitle?: StringFieldUpdateOperationsInput | string
-    variantId?: NullableStringFieldUpdateOperationsInput | string | null
-    variantTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    sku?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
-    price?: FloatFieldUpdateOperationsInput | number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price?: StringFieldUpdateOperationsInput | string
+    handle?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    ovenTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    ovenTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    order?: ShopifyOrderUpdateOneRequiredWithoutLineItemsNestedInput
+    parsedOrder?: ParsedOrderUpdateOneRequiredWithoutLineItemsNestedInput
   }
 
-  export type ShopifyLineItemUncheckedUpdateInput = {
+  export type ParsedLineItemUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderId?: StringFieldUpdateOperationsInput | string
-    productId?: StringFieldUpdateOperationsInput | string
-    productTitle?: StringFieldUpdateOperationsInput | string
-    variantId?: NullableStringFieldUpdateOperationsInput | string | null
-    variantTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    parsedOrderId?: StringFieldUpdateOperationsInput | string
+    sku?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
-    price?: FloatFieldUpdateOperationsInput | number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price?: StringFieldUpdateOperationsInput | string
+    handle?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    ovenTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    ovenTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ShopifyLineItemCreateManyInput = {
-    id?: string
-    shopifyId: string
-    orderId: string
-    productId: string
-    productTitle: string
-    variantId?: string | null
-    variantTitle?: string | null
+  export type ParsedLineItemCreateManyInput = {
+    id: string
+    parsedOrderId: string
+    sku: string
+    title: string
     quantity: number
-    price: number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price: string
+    handle?: string | null
+    meat1?: string | null
+    meat2?: string | null
+    serveware?: string | null
+    ovenTimer1?: number | null
+    ovenTimer2?: number | null
+    option1?: string | null
+    option2?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type ShopifyLineItemUpdateManyMutationInput = {
+  export type ParsedLineItemUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    productId?: StringFieldUpdateOperationsInput | string
-    productTitle?: StringFieldUpdateOperationsInput | string
-    variantId?: NullableStringFieldUpdateOperationsInput | string | null
-    variantTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    sku?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
-    price?: FloatFieldUpdateOperationsInput | number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price?: StringFieldUpdateOperationsInput | string
+    handle?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    ovenTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    ovenTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ShopifyLineItemUncheckedUpdateManyInput = {
+  export type ParsedLineItemUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderId?: StringFieldUpdateOperationsInput | string
-    productId?: StringFieldUpdateOperationsInput | string
-    productTitle?: StringFieldUpdateOperationsInput | string
-    variantId?: NullableStringFieldUpdateOperationsInput | string | null
-    variantTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    parsedOrderId?: StringFieldUpdateOperationsInput | string
+    sku?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
-    price?: FloatFieldUpdateOperationsInput | number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ShopifyCustomerCreateInput = {
-    id?: string
-    shopifyId: string
-    email: string
-    firstName?: string | null
-    lastName?: string | null
-    phone?: string | null
-    defaultAddress?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    orders?: ShopifyOrderCreateNestedManyWithoutCustomerInput
-  }
-
-  export type ShopifyCustomerUncheckedCreateInput = {
-    id?: string
-    shopifyId: string
-    email: string
-    firstName?: string | null
-    lastName?: string | null
-    phone?: string | null
-    defaultAddress?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    orders?: ShopifyOrderUncheckedCreateNestedManyWithoutCustomerInput
-  }
-
-  export type ShopifyCustomerUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    firstName?: NullableStringFieldUpdateOperationsInput | string | null
-    lastName?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    orders?: ShopifyOrderUpdateManyWithoutCustomerNestedInput
-  }
-
-  export type ShopifyCustomerUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    firstName?: NullableStringFieldUpdateOperationsInput | string | null
-    lastName?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    orders?: ShopifyOrderUncheckedUpdateManyWithoutCustomerNestedInput
-  }
-
-  export type ShopifyCustomerCreateManyInput = {
-    id?: string
-    shopifyId: string
-    email: string
-    firstName?: string | null
-    lastName?: string | null
-    phone?: string | null
-    defaultAddress?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ShopifyCustomerUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    firstName?: NullableStringFieldUpdateOperationsInput | string | null
-    lastName?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultAddress?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ShopifyCustomerUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    firstName?: NullableStringFieldUpdateOperationsInput | string | null
-    lastName?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: StringFieldUpdateOperationsInput | string
+    handle?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    ovenTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    ovenTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -17020,13 +28282,14 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
   export type FloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -17036,8 +28299,8 @@ export namespace Prisma {
 
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -17047,8 +28310,8 @@ export namespace Prisma {
 
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -17107,8 +28370,8 @@ export namespace Prisma {
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -17116,6 +28379,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -17124,8 +28388,8 @@ export namespace Prisma {
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -17140,8 +28404,8 @@ export namespace Prisma {
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -17156,8 +28420,8 @@ export namespace Prisma {
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -17268,8 +28532,8 @@ export namespace Prisma {
 
   export type StringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -17277,6 +28541,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
@@ -17317,8 +28582,8 @@ export namespace Prisma {
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -17326,6 +28591,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
     not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
@@ -17340,13 +28606,18 @@ export namespace Prisma {
 
   export type JsonFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
+    path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
@@ -17429,13 +28700,18 @@ export namespace Prisma {
 
   export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
+    path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedJsonFilter<$PrismaModel>
@@ -17452,8 +28728,8 @@ export namespace Prisma {
 
   export type IntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -17469,20 +28745,25 @@ export namespace Prisma {
 
   export type JsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
+    path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type FloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -17505,6 +28786,7 @@ export namespace Prisma {
     timerB?: SortOrder
     skuSearch?: SortOrder
     variantSku?: SortOrder
+    variant_title?: SortOrder
     ingredients?: SortOrder
     totalCost?: SortOrder
     sellingPrice?: SortOrder
@@ -17536,6 +28818,7 @@ export namespace Prisma {
     timerB?: SortOrder
     skuSearch?: SortOrder
     variantSku?: SortOrder
+    variant_title?: SortOrder
     totalCost?: SortOrder
     sellingPrice?: SortOrder
     realizedMargin?: SortOrder
@@ -17558,6 +28841,7 @@ export namespace Prisma {
     timerB?: SortOrder
     skuSearch?: SortOrder
     variantSku?: SortOrder
+    variant_title?: SortOrder
     totalCost?: SortOrder
     sellingPrice?: SortOrder
     realizedMargin?: SortOrder
@@ -17575,8 +28859,8 @@ export namespace Prisma {
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -17597,13 +28881,18 @@ export namespace Prisma {
 
   export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
+    path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
@@ -17612,8 +28901,8 @@ export namespace Prisma {
 
   export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -17626,10 +28915,272 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
+  export type ProductCustomDataCountOrderByAggregateInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    meat1?: SortOrder
+    meat2?: SortOrder
+    option1?: SortOrder
+    option2?: SortOrder
+    serveware?: SortOrder
+    timerA?: SortOrder
+    timerB?: SortOrder
+    ingredients?: SortOrder
+    totalCost?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductCustomDataAvgOrderByAggregateInput = {
+    timerA?: SortOrder
+    timerB?: SortOrder
+    totalCost?: SortOrder
+  }
+
+  export type ProductCustomDataMaxOrderByAggregateInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    meat1?: SortOrder
+    meat2?: SortOrder
+    option1?: SortOrder
+    option2?: SortOrder
+    serveware?: SortOrder
+    timerA?: SortOrder
+    timerB?: SortOrder
+    totalCost?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductCustomDataMinOrderByAggregateInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    meat1?: SortOrder
+    meat2?: SortOrder
+    option1?: SortOrder
+    option2?: SortOrder
+    serveware?: SortOrder
+    timerA?: SortOrder
+    timerB?: SortOrder
+    totalCost?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductCustomDataSumOrderByAggregateInput = {
+    timerA?: SortOrder
+    timerB?: SortOrder
+    totalCost?: SortOrder
+  }
+
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type ProductWithCustomDataCountOrderByAggregateInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    shopifyProductId?: SortOrder
+    shopifySku?: SortOrder
+    shopifyName?: SortOrder
+    shopifyTitle?: SortOrder
+    shopifyPrice?: SortOrder
+    shopifyInventory?: SortOrder
+    displayName?: SortOrder
+    meat1?: SortOrder
+    meat2?: SortOrder
+    timer1?: SortOrder
+    timer2?: SortOrder
+    option1?: SortOrder
+    option2?: SortOrder
+    serveware?: SortOrder
+    isDraft?: SortOrder
+    ingredients?: SortOrder
+    totalCost?: SortOrder
+  }
+
+  export type ProductWithCustomDataAvgOrderByAggregateInput = {
+    shopifyPrice?: SortOrder
+    shopifyInventory?: SortOrder
+    timer1?: SortOrder
+    timer2?: SortOrder
+    totalCost?: SortOrder
+  }
+
+  export type ProductWithCustomDataMaxOrderByAggregateInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    shopifyProductId?: SortOrder
+    shopifySku?: SortOrder
+    shopifyName?: SortOrder
+    shopifyTitle?: SortOrder
+    shopifyPrice?: SortOrder
+    shopifyInventory?: SortOrder
+    displayName?: SortOrder
+    meat1?: SortOrder
+    meat2?: SortOrder
+    timer1?: SortOrder
+    timer2?: SortOrder
+    option1?: SortOrder
+    option2?: SortOrder
+    serveware?: SortOrder
+    isDraft?: SortOrder
+    totalCost?: SortOrder
+  }
+
+  export type ProductWithCustomDataMinOrderByAggregateInput = {
+    id?: SortOrder
+    variantId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    shopifyProductId?: SortOrder
+    shopifySku?: SortOrder
+    shopifyName?: SortOrder
+    shopifyTitle?: SortOrder
+    shopifyPrice?: SortOrder
+    shopifyInventory?: SortOrder
+    displayName?: SortOrder
+    meat1?: SortOrder
+    meat2?: SortOrder
+    timer1?: SortOrder
+    timer2?: SortOrder
+    option1?: SortOrder
+    option2?: SortOrder
+    serveware?: SortOrder
+    isDraft?: SortOrder
+    totalCost?: SortOrder
+  }
+
+  export type ProductWithCustomDataSumOrderByAggregateInput = {
+    shopifyPrice?: SortOrder
+    shopifyInventory?: SortOrder
+    timer1?: SortOrder
+    timer2?: SortOrder
+    totalCost?: SortOrder
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type ProductRuleCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    priority?: SortOrder
+    matchPattern?: SortOrder
+    matchType?: SortOrder
+    setDisplayName?: SortOrder
+    setMeat1?: SortOrder
+    setMeat2?: SortOrder
+    setTimer1?: SortOrder
+    setTimer2?: SortOrder
+    setOption1?: SortOrder
+    setOption2?: SortOrder
+    setServeware?: SortOrder
+    setIngredients?: SortOrder
+    setTotalCost?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductRuleAvgOrderByAggregateInput = {
+    priority?: SortOrder
+    setTimer1?: SortOrder
+    setTimer2?: SortOrder
+    setTotalCost?: SortOrder
+  }
+
+  export type ProductRuleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    priority?: SortOrder
+    matchPattern?: SortOrder
+    matchType?: SortOrder
+    setDisplayName?: SortOrder
+    setMeat1?: SortOrder
+    setMeat2?: SortOrder
+    setTimer1?: SortOrder
+    setTimer2?: SortOrder
+    setOption1?: SortOrder
+    setOption2?: SortOrder
+    setServeware?: SortOrder
+    setTotalCost?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductRuleMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    priority?: SortOrder
+    matchPattern?: SortOrder
+    matchType?: SortOrder
+    setDisplayName?: SortOrder
+    setMeat1?: SortOrder
+    setMeat2?: SortOrder
+    setTimer1?: SortOrder
+    setTimer2?: SortOrder
+    setOption1?: SortOrder
+    setOption2?: SortOrder
+    setServeware?: SortOrder
+    setTotalCost?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ProductRuleSumOrderByAggregateInput = {
+    priority?: SortOrder
+    setTimer1?: SortOrder
+    setTimer2?: SortOrder
+    setTotalCost?: SortOrder
+  }
+
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
   export type DateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -17643,7 +29194,17 @@ export namespace Prisma {
     none?: ShiftWhereInput
   }
 
+  export type RosterAssignmentListRelationFilter = {
+    every?: RosterAssignmentWhereInput
+    some?: RosterAssignmentWhereInput
+    none?: RosterAssignmentWhereInput
+  }
+
   export type ShiftOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type RosterAssignmentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -17656,6 +29217,7 @@ export namespace Prisma {
     payRate?: SortOrder
     accessLevel?: SortOrder
     isDriver?: SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     lastLogin?: SortOrder
@@ -17677,6 +29239,7 @@ export namespace Prisma {
     payRate?: SortOrder
     accessLevel?: SortOrder
     isDriver?: SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     lastLogin?: SortOrder
@@ -17694,6 +29257,7 @@ export namespace Prisma {
     payRate?: SortOrder
     accessLevel?: SortOrder
     isDriver?: SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     lastLogin?: SortOrder
@@ -17708,8 +29272,8 @@ export namespace Prisma {
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -17720,9 +29284,90 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type ShiftTypeCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startTime?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShiftTypeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startTime?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShiftTypeMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    startTime?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type StaffScalarRelationFilter = {
     is?: StaffWhereInput
     isNot?: StaffWhereInput
+  }
+
+  export type ShiftTypeNullableScalarRelationFilter = {
+    is?: ShiftTypeWhereInput | null
+    isNot?: ShiftTypeWhereInput | null
+  }
+
+  export type RosterAssignmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrder
+    startTime?: SortOrder
+    endTime?: SortOrder
+    date?: SortOrder
+    notes?: SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAssignmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrder
+    startTime?: SortOrder
+    endTime?: SortOrder
+    date?: SortOrder
+    notes?: SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAssignmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrder
+    startTime?: SortOrder
+    endTime?: SortOrder
+    date?: SortOrder
+    notes?: SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReimbursementListRelationFilter = {
+    every?: ReimbursementWhereInput
+    some?: ReimbursementWhereInput
+    none?: ReimbursementWhereInput
+  }
+
+  export type ReimbursementOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type ShiftCountOrderByAggregateInput = {
@@ -17732,12 +29377,16 @@ export namespace Prisma {
     clockOut?: SortOrder
     totalHours?: SortOrder
     date?: SortOrder
+    mileage?: SortOrder
+    notes?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type ShiftAvgOrderByAggregateInput = {
     totalHours?: SortOrder
+    mileage?: SortOrder
   }
 
   export type ShiftMaxOrderByAggregateInput = {
@@ -17747,6 +29396,9 @@ export namespace Prisma {
     clockOut?: SortOrder
     totalHours?: SortOrder
     date?: SortOrder
+    mileage?: SortOrder
+    notes?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -17758,93 +29410,219 @@ export namespace Prisma {
     clockOut?: SortOrder
     totalHours?: SortOrder
     date?: SortOrder
+    mileage?: SortOrder
+    notes?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type ShiftSumOrderByAggregateInput = {
     totalHours?: SortOrder
+    mileage?: SortOrder
   }
 
-  export type ShopifyCustomerScalarRelationFilter = {
-    is?: ShopifyCustomerWhereInput
-    isNot?: ShopifyCustomerWhereInput
+  export type ShiftScalarRelationFilter = {
+    is?: ShiftWhereInput
+    isNot?: ShiftWhereInput
   }
 
-  export type ShopifyLineItemListRelationFilter = {
-    every?: ShopifyLineItemWhereInput
-    some?: ShopifyLineItemWhereInput
-    none?: ShopifyLineItemWhereInput
+  export type ReimbursementCountOrderByAggregateInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
-  export type ShopifyLineItemOrderByRelationAggregateInput = {
-    _count?: SortOrder
+  export type ReimbursementAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type ReimbursementMaxOrderByAggregateInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReimbursementMinOrderByAggregateInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    amount?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReimbursementSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type OrderCountOrderByAggregateInput = {
+    id?: SortOrder
+    shopifyId?: SortOrder
+    orderNumber?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    processedAt?: SortOrder
+    cancelledAt?: SortOrder
+    closedAt?: SortOrder
+    totalPrice?: SortOrder
+    subtotalPrice?: SortOrder
+    totalTax?: SortOrder
+    currency?: SortOrder
+    financialStatus?: SortOrder
+    fulfillmentStatus?: SortOrder
+    tags?: SortOrder
+    note?: SortOrder
+    customerEmail?: SortOrder
+    customerFirstName?: SortOrder
+    customerLastName?: SortOrder
+    customerPhone?: SortOrder
+    shippingAddress?: SortOrder
+    billingAddress?: SortOrder
+    lineItems?: SortOrder
+    source?: SortOrder
+    hasLocalEdits?: SortOrder
+    syncedAt?: SortOrder
+    dbCreatedAt?: SortOrder
+    dbUpdatedAt?: SortOrder
+    noteAttributes?: SortOrder
+    deliveryDate?: SortOrder
+    deliveryTime?: SortOrder
+    pickupDate?: SortOrder
+    pickupTime?: SortOrder
+    deliveryInstructions?: SortOrder
+    travelTime?: SortOrder
+    leaveTime?: SortOrder
+    driverId?: SortOrder
+    isDispatched?: SortOrder
+    lastSmsSent?: SortOrder
+    smsHistory?: SortOrder
+  }
+
+  export type OrderAvgOrderByAggregateInput = {
+    orderNumber?: SortOrder
+    totalPrice?: SortOrder
+    subtotalPrice?: SortOrder
+    totalTax?: SortOrder
+  }
+
+  export type OrderMaxOrderByAggregateInput = {
+    id?: SortOrder
+    shopifyId?: SortOrder
+    orderNumber?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    processedAt?: SortOrder
+    cancelledAt?: SortOrder
+    closedAt?: SortOrder
+    totalPrice?: SortOrder
+    subtotalPrice?: SortOrder
+    totalTax?: SortOrder
+    currency?: SortOrder
+    financialStatus?: SortOrder
+    fulfillmentStatus?: SortOrder
+    tags?: SortOrder
+    note?: SortOrder
+    customerEmail?: SortOrder
+    customerFirstName?: SortOrder
+    customerLastName?: SortOrder
+    customerPhone?: SortOrder
+    source?: SortOrder
+    hasLocalEdits?: SortOrder
+    syncedAt?: SortOrder
+    dbCreatedAt?: SortOrder
+    dbUpdatedAt?: SortOrder
+    deliveryDate?: SortOrder
+    deliveryTime?: SortOrder
+    pickupDate?: SortOrder
+    pickupTime?: SortOrder
+    deliveryInstructions?: SortOrder
+    travelTime?: SortOrder
+    leaveTime?: SortOrder
+    driverId?: SortOrder
+    isDispatched?: SortOrder
+    lastSmsSent?: SortOrder
+  }
+
+  export type OrderMinOrderByAggregateInput = {
+    id?: SortOrder
+    shopifyId?: SortOrder
+    orderNumber?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    processedAt?: SortOrder
+    cancelledAt?: SortOrder
+    closedAt?: SortOrder
+    totalPrice?: SortOrder
+    subtotalPrice?: SortOrder
+    totalTax?: SortOrder
+    currency?: SortOrder
+    financialStatus?: SortOrder
+    fulfillmentStatus?: SortOrder
+    tags?: SortOrder
+    note?: SortOrder
+    customerEmail?: SortOrder
+    customerFirstName?: SortOrder
+    customerLastName?: SortOrder
+    customerPhone?: SortOrder
+    source?: SortOrder
+    hasLocalEdits?: SortOrder
+    syncedAt?: SortOrder
+    dbCreatedAt?: SortOrder
+    dbUpdatedAt?: SortOrder
+    deliveryDate?: SortOrder
+    deliveryTime?: SortOrder
+    pickupDate?: SortOrder
+    pickupTime?: SortOrder
+    deliveryInstructions?: SortOrder
+    travelTime?: SortOrder
+    leaveTime?: SortOrder
+    driverId?: SortOrder
+    isDispatched?: SortOrder
+    lastSmsSent?: SortOrder
+  }
+
+  export type OrderSumOrderByAggregateInput = {
+    orderNumber?: SortOrder
+    totalPrice?: SortOrder
+    subtotalPrice?: SortOrder
+    totalTax?: SortOrder
+  }
+
+  export type ParsedOrderNullableScalarRelationFilter = {
+    is?: ParsedOrderWhereInput | null
+    isNot?: ParsedOrderWhereInput | null
   }
 
   export type ShopifyOrderCountOrderByAggregateInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    orderNumber?: SortOrder
-    customerId?: SortOrder
-    email?: SortOrder
-    phone?: SortOrder
-    deliveryDate?: SortOrder
-    deliveryTime?: SortOrder
-    deliveryAddress?: SortOrder
-    deliveryNotes?: SortOrder
-    status?: SortOrder
-    totalPrice?: SortOrder
+    rawData?: SortOrder
+    syncedAt?: SortOrder
+    parsedOrderId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    lastSyncedAt?: SortOrder
-    isModified?: SortOrder
-    modifications?: SortOrder
-  }
-
-  export type ShopifyOrderAvgOrderByAggregateInput = {
-    totalPrice?: SortOrder
   }
 
   export type ShopifyOrderMaxOrderByAggregateInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    orderNumber?: SortOrder
-    customerId?: SortOrder
-    email?: SortOrder
-    phone?: SortOrder
-    deliveryDate?: SortOrder
-    deliveryTime?: SortOrder
-    deliveryAddress?: SortOrder
-    deliveryNotes?: SortOrder
-    status?: SortOrder
-    totalPrice?: SortOrder
+    syncedAt?: SortOrder
+    parsedOrderId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    lastSyncedAt?: SortOrder
-    isModified?: SortOrder
   }
 
   export type ShopifyOrderMinOrderByAggregateInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    orderNumber?: SortOrder
-    customerId?: SortOrder
-    email?: SortOrder
-    phone?: SortOrder
-    deliveryDate?: SortOrder
-    deliveryTime?: SortOrder
-    deliveryAddress?: SortOrder
-    deliveryNotes?: SortOrder
-    status?: SortOrder
-    totalPrice?: SortOrder
+    syncedAt?: SortOrder
+    parsedOrderId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    lastSyncedAt?: SortOrder
-    isModified?: SortOrder
-  }
-
-  export type ShopifyOrderSumOrderByAggregateInput = {
-    totalPrice?: SortOrder
   }
 
   export type ShopifyOrderScalarRelationFilter = {
@@ -17852,103 +29630,151 @@ export namespace Prisma {
     isNot?: ShopifyOrderWhereInput
   }
 
-  export type ShopifyLineItemCountOrderByAggregateInput = {
-    id?: SortOrder
-    shopifyId?: SortOrder
-    orderId?: SortOrder
-    productId?: SortOrder
-    productTitle?: SortOrder
-    variantId?: SortOrder
-    variantTitle?: SortOrder
-    quantity?: SortOrder
-    price?: SortOrder
-    modifications?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
+  export type ParsedLineItemListRelationFilter = {
+    every?: ParsedLineItemWhereInput
+    some?: ParsedLineItemWhereInput
+    none?: ParsedLineItemWhereInput
   }
 
-  export type ShopifyLineItemAvgOrderByAggregateInput = {
-    quantity?: SortOrder
-    price?: SortOrder
-  }
-
-  export type ShopifyLineItemMaxOrderByAggregateInput = {
-    id?: SortOrder
-    shopifyId?: SortOrder
-    orderId?: SortOrder
-    productId?: SortOrder
-    productTitle?: SortOrder
-    variantId?: SortOrder
-    variantTitle?: SortOrder
-    quantity?: SortOrder
-    price?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type ShopifyLineItemMinOrderByAggregateInput = {
-    id?: SortOrder
-    shopifyId?: SortOrder
-    orderId?: SortOrder
-    productId?: SortOrder
-    productTitle?: SortOrder
-    variantId?: SortOrder
-    variantTitle?: SortOrder
-    quantity?: SortOrder
-    price?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type ShopifyLineItemSumOrderByAggregateInput = {
-    quantity?: SortOrder
-    price?: SortOrder
-  }
-
-  export type ShopifyOrderListRelationFilter = {
-    every?: ShopifyOrderWhereInput
-    some?: ShopifyOrderWhereInput
-    none?: ShopifyOrderWhereInput
-  }
-
-  export type ShopifyOrderOrderByRelationAggregateInput = {
+  export type ParsedLineItemOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type ShopifyCustomerCountOrderByAggregateInput = {
+  export type ParsedOrderCountOrderByAggregateInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    email?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
-    phone?: SortOrder
-    defaultAddress?: SortOrder
+    shopifyOrderId?: SortOrder
+    orderNumber?: SortOrder
+    deliveryTime?: SortOrder
+    deliveryDate?: SortOrder
+    deliveryAddress?: SortOrder
+    customerName?: SortOrder
+    customerCompany?: SortOrder
+    customerPhone?: SortOrder
+    orderNotes?: SortOrder
+    travelTime?: SortOrder
+    leaveTime?: SortOrder
+    driverId?: SortOrder
+    isDispatched?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type ShopifyCustomerMaxOrderByAggregateInput = {
+  export type ParsedOrderAvgOrderByAggregateInput = {
+    travelTime?: SortOrder
+  }
+
+  export type ParsedOrderMaxOrderByAggregateInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    email?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
-    phone?: SortOrder
-    defaultAddress?: SortOrder
+    shopifyOrderId?: SortOrder
+    orderNumber?: SortOrder
+    deliveryTime?: SortOrder
+    deliveryDate?: SortOrder
+    customerName?: SortOrder
+    customerCompany?: SortOrder
+    customerPhone?: SortOrder
+    orderNotes?: SortOrder
+    travelTime?: SortOrder
+    leaveTime?: SortOrder
+    driverId?: SortOrder
+    isDispatched?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type ShopifyCustomerMinOrderByAggregateInput = {
+  export type ParsedOrderMinOrderByAggregateInput = {
     id?: SortOrder
-    shopifyId?: SortOrder
-    email?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
-    phone?: SortOrder
-    defaultAddress?: SortOrder
+    shopifyOrderId?: SortOrder
+    orderNumber?: SortOrder
+    deliveryTime?: SortOrder
+    deliveryDate?: SortOrder
+    customerName?: SortOrder
+    customerCompany?: SortOrder
+    customerPhone?: SortOrder
+    orderNotes?: SortOrder
+    travelTime?: SortOrder
+    leaveTime?: SortOrder
+    driverId?: SortOrder
+    isDispatched?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type ParsedOrderSumOrderByAggregateInput = {
+    travelTime?: SortOrder
+  }
+
+  export type ParsedOrderScalarRelationFilter = {
+    is?: ParsedOrderWhereInput
+    isNot?: ParsedOrderWhereInput
+  }
+
+  export type ParsedLineItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    parsedOrderId?: SortOrder
+    sku?: SortOrder
+    title?: SortOrder
+    quantity?: SortOrder
+    price?: SortOrder
+    handle?: SortOrder
+    meat1?: SortOrder
+    meat2?: SortOrder
+    serveware?: SortOrder
+    ovenTimer1?: SortOrder
+    ovenTimer2?: SortOrder
+    option1?: SortOrder
+    option2?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ParsedLineItemAvgOrderByAggregateInput = {
+    quantity?: SortOrder
+    ovenTimer1?: SortOrder
+    ovenTimer2?: SortOrder
+  }
+
+  export type ParsedLineItemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    parsedOrderId?: SortOrder
+    sku?: SortOrder
+    title?: SortOrder
+    quantity?: SortOrder
+    price?: SortOrder
+    handle?: SortOrder
+    meat1?: SortOrder
+    meat2?: SortOrder
+    serveware?: SortOrder
+    ovenTimer1?: SortOrder
+    ovenTimer2?: SortOrder
+    option1?: SortOrder
+    option2?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ParsedLineItemMinOrderByAggregateInput = {
+    id?: SortOrder
+    parsedOrderId?: SortOrder
+    sku?: SortOrder
+    title?: SortOrder
+    quantity?: SortOrder
+    price?: SortOrder
+    handle?: SortOrder
+    meat1?: SortOrder
+    meat2?: SortOrder
+    serveware?: SortOrder
+    ovenTimer1?: SortOrder
+    ovenTimer2?: SortOrder
+    option1?: SortOrder
+    option2?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ParsedLineItemSumOrderByAggregateInput = {
+    quantity?: SortOrder
+    ovenTimer1?: SortOrder
+    ovenTimer2?: SortOrder
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -17999,6 +29825,18 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
+  }
+
   export type ShiftCreateNestedManyWithoutStaffInput = {
     create?: XOR<ShiftCreateWithoutStaffInput, ShiftUncheckedCreateWithoutStaffInput> | ShiftCreateWithoutStaffInput[] | ShiftUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: ShiftCreateOrConnectWithoutStaffInput | ShiftCreateOrConnectWithoutStaffInput[]
@@ -18006,11 +29844,25 @@ export namespace Prisma {
     connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
   }
 
+  export type RosterAssignmentCreateNestedManyWithoutStaffInput = {
+    create?: XOR<RosterAssignmentCreateWithoutStaffInput, RosterAssignmentUncheckedCreateWithoutStaffInput> | RosterAssignmentCreateWithoutStaffInput[] | RosterAssignmentUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutStaffInput | RosterAssignmentCreateOrConnectWithoutStaffInput[]
+    createMany?: RosterAssignmentCreateManyStaffInputEnvelope
+    connect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+  }
+
   export type ShiftUncheckedCreateNestedManyWithoutStaffInput = {
     create?: XOR<ShiftCreateWithoutStaffInput, ShiftUncheckedCreateWithoutStaffInput> | ShiftCreateWithoutStaffInput[] | ShiftUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: ShiftCreateOrConnectWithoutStaffInput | ShiftCreateOrConnectWithoutStaffInput[]
     createMany?: ShiftCreateManyStaffInputEnvelope
     connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+  }
+
+  export type RosterAssignmentUncheckedCreateNestedManyWithoutStaffInput = {
+    create?: XOR<RosterAssignmentCreateWithoutStaffInput, RosterAssignmentUncheckedCreateWithoutStaffInput> | RosterAssignmentCreateWithoutStaffInput[] | RosterAssignmentUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutStaffInput | RosterAssignmentCreateOrConnectWithoutStaffInput[]
+    createMany?: RosterAssignmentCreateManyStaffInputEnvelope
+    connect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -18031,6 +29883,20 @@ export namespace Prisma {
     deleteMany?: ShiftScalarWhereInput | ShiftScalarWhereInput[]
   }
 
+  export type RosterAssignmentUpdateManyWithoutStaffNestedInput = {
+    create?: XOR<RosterAssignmentCreateWithoutStaffInput, RosterAssignmentUncheckedCreateWithoutStaffInput> | RosterAssignmentCreateWithoutStaffInput[] | RosterAssignmentUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutStaffInput | RosterAssignmentCreateOrConnectWithoutStaffInput[]
+    upsert?: RosterAssignmentUpsertWithWhereUniqueWithoutStaffInput | RosterAssignmentUpsertWithWhereUniqueWithoutStaffInput[]
+    createMany?: RosterAssignmentCreateManyStaffInputEnvelope
+    set?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    disconnect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    delete?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    connect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    update?: RosterAssignmentUpdateWithWhereUniqueWithoutStaffInput | RosterAssignmentUpdateWithWhereUniqueWithoutStaffInput[]
+    updateMany?: RosterAssignmentUpdateManyWithWhereWithoutStaffInput | RosterAssignmentUpdateManyWithWhereWithoutStaffInput[]
+    deleteMany?: RosterAssignmentScalarWhereInput | RosterAssignmentScalarWhereInput[]
+  }
+
   export type ShiftUncheckedUpdateManyWithoutStaffNestedInput = {
     create?: XOR<ShiftCreateWithoutStaffInput, ShiftUncheckedCreateWithoutStaffInput> | ShiftCreateWithoutStaffInput[] | ShiftUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: ShiftCreateOrConnectWithoutStaffInput | ShiftCreateOrConnectWithoutStaffInput[]
@@ -18045,10 +29911,110 @@ export namespace Prisma {
     deleteMany?: ShiftScalarWhereInput | ShiftScalarWhereInput[]
   }
 
+  export type RosterAssignmentUncheckedUpdateManyWithoutStaffNestedInput = {
+    create?: XOR<RosterAssignmentCreateWithoutStaffInput, RosterAssignmentUncheckedCreateWithoutStaffInput> | RosterAssignmentCreateWithoutStaffInput[] | RosterAssignmentUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutStaffInput | RosterAssignmentCreateOrConnectWithoutStaffInput[]
+    upsert?: RosterAssignmentUpsertWithWhereUniqueWithoutStaffInput | RosterAssignmentUpsertWithWhereUniqueWithoutStaffInput[]
+    createMany?: RosterAssignmentCreateManyStaffInputEnvelope
+    set?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    disconnect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    delete?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    connect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    update?: RosterAssignmentUpdateWithWhereUniqueWithoutStaffInput | RosterAssignmentUpdateWithWhereUniqueWithoutStaffInput[]
+    updateMany?: RosterAssignmentUpdateManyWithWhereWithoutStaffInput | RosterAssignmentUpdateManyWithWhereWithoutStaffInput[]
+    deleteMany?: RosterAssignmentScalarWhereInput | RosterAssignmentScalarWhereInput[]
+  }
+
+  export type RosterAssignmentCreateNestedManyWithoutShiftTypeInput = {
+    create?: XOR<RosterAssignmentCreateWithoutShiftTypeInput, RosterAssignmentUncheckedCreateWithoutShiftTypeInput> | RosterAssignmentCreateWithoutShiftTypeInput[] | RosterAssignmentUncheckedCreateWithoutShiftTypeInput[]
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutShiftTypeInput | RosterAssignmentCreateOrConnectWithoutShiftTypeInput[]
+    createMany?: RosterAssignmentCreateManyShiftTypeInputEnvelope
+    connect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+  }
+
+  export type RosterAssignmentUncheckedCreateNestedManyWithoutShiftTypeInput = {
+    create?: XOR<RosterAssignmentCreateWithoutShiftTypeInput, RosterAssignmentUncheckedCreateWithoutShiftTypeInput> | RosterAssignmentCreateWithoutShiftTypeInput[] | RosterAssignmentUncheckedCreateWithoutShiftTypeInput[]
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutShiftTypeInput | RosterAssignmentCreateOrConnectWithoutShiftTypeInput[]
+    createMany?: RosterAssignmentCreateManyShiftTypeInputEnvelope
+    connect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+  }
+
+  export type RosterAssignmentUpdateManyWithoutShiftTypeNestedInput = {
+    create?: XOR<RosterAssignmentCreateWithoutShiftTypeInput, RosterAssignmentUncheckedCreateWithoutShiftTypeInput> | RosterAssignmentCreateWithoutShiftTypeInput[] | RosterAssignmentUncheckedCreateWithoutShiftTypeInput[]
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutShiftTypeInput | RosterAssignmentCreateOrConnectWithoutShiftTypeInput[]
+    upsert?: RosterAssignmentUpsertWithWhereUniqueWithoutShiftTypeInput | RosterAssignmentUpsertWithWhereUniqueWithoutShiftTypeInput[]
+    createMany?: RosterAssignmentCreateManyShiftTypeInputEnvelope
+    set?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    disconnect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    delete?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    connect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    update?: RosterAssignmentUpdateWithWhereUniqueWithoutShiftTypeInput | RosterAssignmentUpdateWithWhereUniqueWithoutShiftTypeInput[]
+    updateMany?: RosterAssignmentUpdateManyWithWhereWithoutShiftTypeInput | RosterAssignmentUpdateManyWithWhereWithoutShiftTypeInput[]
+    deleteMany?: RosterAssignmentScalarWhereInput | RosterAssignmentScalarWhereInput[]
+  }
+
+  export type RosterAssignmentUncheckedUpdateManyWithoutShiftTypeNestedInput = {
+    create?: XOR<RosterAssignmentCreateWithoutShiftTypeInput, RosterAssignmentUncheckedCreateWithoutShiftTypeInput> | RosterAssignmentCreateWithoutShiftTypeInput[] | RosterAssignmentUncheckedCreateWithoutShiftTypeInput[]
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutShiftTypeInput | RosterAssignmentCreateOrConnectWithoutShiftTypeInput[]
+    upsert?: RosterAssignmentUpsertWithWhereUniqueWithoutShiftTypeInput | RosterAssignmentUpsertWithWhereUniqueWithoutShiftTypeInput[]
+    createMany?: RosterAssignmentCreateManyShiftTypeInputEnvelope
+    set?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    disconnect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    delete?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    connect?: RosterAssignmentWhereUniqueInput | RosterAssignmentWhereUniqueInput[]
+    update?: RosterAssignmentUpdateWithWhereUniqueWithoutShiftTypeInput | RosterAssignmentUpdateWithWhereUniqueWithoutShiftTypeInput[]
+    updateMany?: RosterAssignmentUpdateManyWithWhereWithoutShiftTypeInput | RosterAssignmentUpdateManyWithWhereWithoutShiftTypeInput[]
+    deleteMany?: RosterAssignmentScalarWhereInput | RosterAssignmentScalarWhereInput[]
+  }
+
+  export type StaffCreateNestedOneWithoutRosterAssignmentsInput = {
+    create?: XOR<StaffCreateWithoutRosterAssignmentsInput, StaffUncheckedCreateWithoutRosterAssignmentsInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutRosterAssignmentsInput
+    connect?: StaffWhereUniqueInput
+  }
+
+  export type ShiftTypeCreateNestedOneWithoutRosterAssignmentsInput = {
+    create?: XOR<ShiftTypeCreateWithoutRosterAssignmentsInput, ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput>
+    connectOrCreate?: ShiftTypeCreateOrConnectWithoutRosterAssignmentsInput
+    connect?: ShiftTypeWhereUniqueInput
+  }
+
+  export type StaffUpdateOneRequiredWithoutRosterAssignmentsNestedInput = {
+    create?: XOR<StaffCreateWithoutRosterAssignmentsInput, StaffUncheckedCreateWithoutRosterAssignmentsInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutRosterAssignmentsInput
+    upsert?: StaffUpsertWithoutRosterAssignmentsInput
+    connect?: StaffWhereUniqueInput
+    update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutRosterAssignmentsInput, StaffUpdateWithoutRosterAssignmentsInput>, StaffUncheckedUpdateWithoutRosterAssignmentsInput>
+  }
+
+  export type ShiftTypeUpdateOneWithoutRosterAssignmentsNestedInput = {
+    create?: XOR<ShiftTypeCreateWithoutRosterAssignmentsInput, ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput>
+    connectOrCreate?: ShiftTypeCreateOrConnectWithoutRosterAssignmentsInput
+    upsert?: ShiftTypeUpsertWithoutRosterAssignmentsInput
+    disconnect?: ShiftTypeWhereInput | boolean
+    delete?: ShiftTypeWhereInput | boolean
+    connect?: ShiftTypeWhereUniqueInput
+    update?: XOR<XOR<ShiftTypeUpdateToOneWithWhereWithoutRosterAssignmentsInput, ShiftTypeUpdateWithoutRosterAssignmentsInput>, ShiftTypeUncheckedUpdateWithoutRosterAssignmentsInput>
+  }
+
   export type StaffCreateNestedOneWithoutShiftsInput = {
     create?: XOR<StaffCreateWithoutShiftsInput, StaffUncheckedCreateWithoutShiftsInput>
     connectOrCreate?: StaffCreateOrConnectWithoutShiftsInput
     connect?: StaffWhereUniqueInput
+  }
+
+  export type ReimbursementCreateNestedManyWithoutShiftInput = {
+    create?: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput> | ReimbursementCreateWithoutShiftInput[] | ReimbursementUncheckedCreateWithoutShiftInput[]
+    connectOrCreate?: ReimbursementCreateOrConnectWithoutShiftInput | ReimbursementCreateOrConnectWithoutShiftInput[]
+    createMany?: ReimbursementCreateManyShiftInputEnvelope
+    connect?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+  }
+
+  export type ReimbursementUncheckedCreateNestedManyWithoutShiftInput = {
+    create?: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput> | ReimbursementCreateWithoutShiftInput[] | ReimbursementUncheckedCreateWithoutShiftInput[]
+    connectOrCreate?: ReimbursementCreateOrConnectWithoutShiftInput | ReimbursementCreateOrConnectWithoutShiftInput[]
+    createMany?: ReimbursementCreateManyShiftInputEnvelope
+    connect?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
   }
 
   export type StaffUpdateOneRequiredWithoutShiftsNestedInput = {
@@ -18059,122 +30025,154 @@ export namespace Prisma {
     update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutShiftsInput, StaffUpdateWithoutShiftsInput>, StaffUncheckedUpdateWithoutShiftsInput>
   }
 
-  export type ShopifyCustomerCreateNestedOneWithoutOrdersInput = {
-    create?: XOR<ShopifyCustomerCreateWithoutOrdersInput, ShopifyCustomerUncheckedCreateWithoutOrdersInput>
-    connectOrCreate?: ShopifyCustomerCreateOrConnectWithoutOrdersInput
-    connect?: ShopifyCustomerWhereUniqueInput
+  export type ReimbursementUpdateManyWithoutShiftNestedInput = {
+    create?: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput> | ReimbursementCreateWithoutShiftInput[] | ReimbursementUncheckedCreateWithoutShiftInput[]
+    connectOrCreate?: ReimbursementCreateOrConnectWithoutShiftInput | ReimbursementCreateOrConnectWithoutShiftInput[]
+    upsert?: ReimbursementUpsertWithWhereUniqueWithoutShiftInput | ReimbursementUpsertWithWhereUniqueWithoutShiftInput[]
+    createMany?: ReimbursementCreateManyShiftInputEnvelope
+    set?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+    disconnect?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+    delete?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+    connect?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+    update?: ReimbursementUpdateWithWhereUniqueWithoutShiftInput | ReimbursementUpdateWithWhereUniqueWithoutShiftInput[]
+    updateMany?: ReimbursementUpdateManyWithWhereWithoutShiftInput | ReimbursementUpdateManyWithWhereWithoutShiftInput[]
+    deleteMany?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
   }
 
-  export type ShopifyLineItemCreateNestedManyWithoutOrderInput = {
-    create?: XOR<ShopifyLineItemCreateWithoutOrderInput, ShopifyLineItemUncheckedCreateWithoutOrderInput> | ShopifyLineItemCreateWithoutOrderInput[] | ShopifyLineItemUncheckedCreateWithoutOrderInput[]
-    connectOrCreate?: ShopifyLineItemCreateOrConnectWithoutOrderInput | ShopifyLineItemCreateOrConnectWithoutOrderInput[]
-    createMany?: ShopifyLineItemCreateManyOrderInputEnvelope
-    connect?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
+  export type ReimbursementUncheckedUpdateManyWithoutShiftNestedInput = {
+    create?: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput> | ReimbursementCreateWithoutShiftInput[] | ReimbursementUncheckedCreateWithoutShiftInput[]
+    connectOrCreate?: ReimbursementCreateOrConnectWithoutShiftInput | ReimbursementCreateOrConnectWithoutShiftInput[]
+    upsert?: ReimbursementUpsertWithWhereUniqueWithoutShiftInput | ReimbursementUpsertWithWhereUniqueWithoutShiftInput[]
+    createMany?: ReimbursementCreateManyShiftInputEnvelope
+    set?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+    disconnect?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+    delete?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+    connect?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+    update?: ReimbursementUpdateWithWhereUniqueWithoutShiftInput | ReimbursementUpdateWithWhereUniqueWithoutShiftInput[]
+    updateMany?: ReimbursementUpdateManyWithWhereWithoutShiftInput | ReimbursementUpdateManyWithWhereWithoutShiftInput[]
+    deleteMany?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
   }
 
-  export type ShopifyLineItemUncheckedCreateNestedManyWithoutOrderInput = {
-    create?: XOR<ShopifyLineItemCreateWithoutOrderInput, ShopifyLineItemUncheckedCreateWithoutOrderInput> | ShopifyLineItemCreateWithoutOrderInput[] | ShopifyLineItemUncheckedCreateWithoutOrderInput[]
-    connectOrCreate?: ShopifyLineItemCreateOrConnectWithoutOrderInput | ShopifyLineItemCreateOrConnectWithoutOrderInput[]
-    createMany?: ShopifyLineItemCreateManyOrderInputEnvelope
-    connect?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
+  export type ShiftCreateNestedOneWithoutReimbursementsInput = {
+    create?: XOR<ShiftCreateWithoutReimbursementsInput, ShiftUncheckedCreateWithoutReimbursementsInput>
+    connectOrCreate?: ShiftCreateOrConnectWithoutReimbursementsInput
+    connect?: ShiftWhereUniqueInput
   }
 
-  export type ShopifyCustomerUpdateOneRequiredWithoutOrdersNestedInput = {
-    create?: XOR<ShopifyCustomerCreateWithoutOrdersInput, ShopifyCustomerUncheckedCreateWithoutOrdersInput>
-    connectOrCreate?: ShopifyCustomerCreateOrConnectWithoutOrdersInput
-    upsert?: ShopifyCustomerUpsertWithoutOrdersInput
-    connect?: ShopifyCustomerWhereUniqueInput
-    update?: XOR<XOR<ShopifyCustomerUpdateToOneWithWhereWithoutOrdersInput, ShopifyCustomerUpdateWithoutOrdersInput>, ShopifyCustomerUncheckedUpdateWithoutOrdersInput>
+  export type ShiftUpdateOneRequiredWithoutReimbursementsNestedInput = {
+    create?: XOR<ShiftCreateWithoutReimbursementsInput, ShiftUncheckedCreateWithoutReimbursementsInput>
+    connectOrCreate?: ShiftCreateOrConnectWithoutReimbursementsInput
+    upsert?: ShiftUpsertWithoutReimbursementsInput
+    connect?: ShiftWhereUniqueInput
+    update?: XOR<XOR<ShiftUpdateToOneWithWhereWithoutReimbursementsInput, ShiftUpdateWithoutReimbursementsInput>, ShiftUncheckedUpdateWithoutReimbursementsInput>
   }
 
-  export type ShopifyLineItemUpdateManyWithoutOrderNestedInput = {
-    create?: XOR<ShopifyLineItemCreateWithoutOrderInput, ShopifyLineItemUncheckedCreateWithoutOrderInput> | ShopifyLineItemCreateWithoutOrderInput[] | ShopifyLineItemUncheckedCreateWithoutOrderInput[]
-    connectOrCreate?: ShopifyLineItemCreateOrConnectWithoutOrderInput | ShopifyLineItemCreateOrConnectWithoutOrderInput[]
-    upsert?: ShopifyLineItemUpsertWithWhereUniqueWithoutOrderInput | ShopifyLineItemUpsertWithWhereUniqueWithoutOrderInput[]
-    createMany?: ShopifyLineItemCreateManyOrderInputEnvelope
-    set?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
-    disconnect?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
-    delete?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
-    connect?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
-    update?: ShopifyLineItemUpdateWithWhereUniqueWithoutOrderInput | ShopifyLineItemUpdateWithWhereUniqueWithoutOrderInput[]
-    updateMany?: ShopifyLineItemUpdateManyWithWhereWithoutOrderInput | ShopifyLineItemUpdateManyWithWhereWithoutOrderInput[]
-    deleteMany?: ShopifyLineItemScalarWhereInput | ShopifyLineItemScalarWhereInput[]
+  export type ParsedOrderCreateNestedOneWithoutShopifyOrderInput = {
+    create?: XOR<ParsedOrderCreateWithoutShopifyOrderInput, ParsedOrderUncheckedCreateWithoutShopifyOrderInput>
+    connectOrCreate?: ParsedOrderCreateOrConnectWithoutShopifyOrderInput
+    connect?: ParsedOrderWhereUniqueInput
   }
 
-  export type ShopifyLineItemUncheckedUpdateManyWithoutOrderNestedInput = {
-    create?: XOR<ShopifyLineItemCreateWithoutOrderInput, ShopifyLineItemUncheckedCreateWithoutOrderInput> | ShopifyLineItemCreateWithoutOrderInput[] | ShopifyLineItemUncheckedCreateWithoutOrderInput[]
-    connectOrCreate?: ShopifyLineItemCreateOrConnectWithoutOrderInput | ShopifyLineItemCreateOrConnectWithoutOrderInput[]
-    upsert?: ShopifyLineItemUpsertWithWhereUniqueWithoutOrderInput | ShopifyLineItemUpsertWithWhereUniqueWithoutOrderInput[]
-    createMany?: ShopifyLineItemCreateManyOrderInputEnvelope
-    set?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
-    disconnect?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
-    delete?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
-    connect?: ShopifyLineItemWhereUniqueInput | ShopifyLineItemWhereUniqueInput[]
-    update?: ShopifyLineItemUpdateWithWhereUniqueWithoutOrderInput | ShopifyLineItemUpdateWithWhereUniqueWithoutOrderInput[]
-    updateMany?: ShopifyLineItemUpdateManyWithWhereWithoutOrderInput | ShopifyLineItemUpdateManyWithWhereWithoutOrderInput[]
-    deleteMany?: ShopifyLineItemScalarWhereInput | ShopifyLineItemScalarWhereInput[]
+  export type ParsedOrderUncheckedCreateNestedOneWithoutShopifyOrderInput = {
+    create?: XOR<ParsedOrderCreateWithoutShopifyOrderInput, ParsedOrderUncheckedCreateWithoutShopifyOrderInput>
+    connectOrCreate?: ParsedOrderCreateOrConnectWithoutShopifyOrderInput
+    connect?: ParsedOrderWhereUniqueInput
   }
 
-  export type ShopifyOrderCreateNestedOneWithoutLineItemsInput = {
-    create?: XOR<ShopifyOrderCreateWithoutLineItemsInput, ShopifyOrderUncheckedCreateWithoutLineItemsInput>
-    connectOrCreate?: ShopifyOrderCreateOrConnectWithoutLineItemsInput
+  export type ParsedOrderUpdateOneWithoutShopifyOrderNestedInput = {
+    create?: XOR<ParsedOrderCreateWithoutShopifyOrderInput, ParsedOrderUncheckedCreateWithoutShopifyOrderInput>
+    connectOrCreate?: ParsedOrderCreateOrConnectWithoutShopifyOrderInput
+    upsert?: ParsedOrderUpsertWithoutShopifyOrderInput
+    disconnect?: ParsedOrderWhereInput | boolean
+    delete?: ParsedOrderWhereInput | boolean
+    connect?: ParsedOrderWhereUniqueInput
+    update?: XOR<XOR<ParsedOrderUpdateToOneWithWhereWithoutShopifyOrderInput, ParsedOrderUpdateWithoutShopifyOrderInput>, ParsedOrderUncheckedUpdateWithoutShopifyOrderInput>
+  }
+
+  export type ParsedOrderUncheckedUpdateOneWithoutShopifyOrderNestedInput = {
+    create?: XOR<ParsedOrderCreateWithoutShopifyOrderInput, ParsedOrderUncheckedCreateWithoutShopifyOrderInput>
+    connectOrCreate?: ParsedOrderCreateOrConnectWithoutShopifyOrderInput
+    upsert?: ParsedOrderUpsertWithoutShopifyOrderInput
+    disconnect?: ParsedOrderWhereInput | boolean
+    delete?: ParsedOrderWhereInput | boolean
+    connect?: ParsedOrderWhereUniqueInput
+    update?: XOR<XOR<ParsedOrderUpdateToOneWithWhereWithoutShopifyOrderInput, ParsedOrderUpdateWithoutShopifyOrderInput>, ParsedOrderUncheckedUpdateWithoutShopifyOrderInput>
+  }
+
+  export type ShopifyOrderCreateNestedOneWithoutParsedOrderInput = {
+    create?: XOR<ShopifyOrderCreateWithoutParsedOrderInput, ShopifyOrderUncheckedCreateWithoutParsedOrderInput>
+    connectOrCreate?: ShopifyOrderCreateOrConnectWithoutParsedOrderInput
     connect?: ShopifyOrderWhereUniqueInput
   }
 
-  export type ShopifyOrderUpdateOneRequiredWithoutLineItemsNestedInput = {
-    create?: XOR<ShopifyOrderCreateWithoutLineItemsInput, ShopifyOrderUncheckedCreateWithoutLineItemsInput>
-    connectOrCreate?: ShopifyOrderCreateOrConnectWithoutLineItemsInput
-    upsert?: ShopifyOrderUpsertWithoutLineItemsInput
+  export type ParsedLineItemCreateNestedManyWithoutParsedOrderInput = {
+    create?: XOR<ParsedLineItemCreateWithoutParsedOrderInput, ParsedLineItemUncheckedCreateWithoutParsedOrderInput> | ParsedLineItemCreateWithoutParsedOrderInput[] | ParsedLineItemUncheckedCreateWithoutParsedOrderInput[]
+    connectOrCreate?: ParsedLineItemCreateOrConnectWithoutParsedOrderInput | ParsedLineItemCreateOrConnectWithoutParsedOrderInput[]
+    createMany?: ParsedLineItemCreateManyParsedOrderInputEnvelope
+    connect?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+  }
+
+  export type ParsedLineItemUncheckedCreateNestedManyWithoutParsedOrderInput = {
+    create?: XOR<ParsedLineItemCreateWithoutParsedOrderInput, ParsedLineItemUncheckedCreateWithoutParsedOrderInput> | ParsedLineItemCreateWithoutParsedOrderInput[] | ParsedLineItemUncheckedCreateWithoutParsedOrderInput[]
+    connectOrCreate?: ParsedLineItemCreateOrConnectWithoutParsedOrderInput | ParsedLineItemCreateOrConnectWithoutParsedOrderInput[]
+    createMany?: ParsedLineItemCreateManyParsedOrderInputEnvelope
+    connect?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+  }
+
+  export type ShopifyOrderUpdateOneRequiredWithoutParsedOrderNestedInput = {
+    create?: XOR<ShopifyOrderCreateWithoutParsedOrderInput, ShopifyOrderUncheckedCreateWithoutParsedOrderInput>
+    connectOrCreate?: ShopifyOrderCreateOrConnectWithoutParsedOrderInput
+    upsert?: ShopifyOrderUpsertWithoutParsedOrderInput
     connect?: ShopifyOrderWhereUniqueInput
-    update?: XOR<XOR<ShopifyOrderUpdateToOneWithWhereWithoutLineItemsInput, ShopifyOrderUpdateWithoutLineItemsInput>, ShopifyOrderUncheckedUpdateWithoutLineItemsInput>
+    update?: XOR<XOR<ShopifyOrderUpdateToOneWithWhereWithoutParsedOrderInput, ShopifyOrderUpdateWithoutParsedOrderInput>, ShopifyOrderUncheckedUpdateWithoutParsedOrderInput>
   }
 
-  export type ShopifyOrderCreateNestedManyWithoutCustomerInput = {
-    create?: XOR<ShopifyOrderCreateWithoutCustomerInput, ShopifyOrderUncheckedCreateWithoutCustomerInput> | ShopifyOrderCreateWithoutCustomerInput[] | ShopifyOrderUncheckedCreateWithoutCustomerInput[]
-    connectOrCreate?: ShopifyOrderCreateOrConnectWithoutCustomerInput | ShopifyOrderCreateOrConnectWithoutCustomerInput[]
-    createMany?: ShopifyOrderCreateManyCustomerInputEnvelope
-    connect?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
+  export type ParsedLineItemUpdateManyWithoutParsedOrderNestedInput = {
+    create?: XOR<ParsedLineItemCreateWithoutParsedOrderInput, ParsedLineItemUncheckedCreateWithoutParsedOrderInput> | ParsedLineItemCreateWithoutParsedOrderInput[] | ParsedLineItemUncheckedCreateWithoutParsedOrderInput[]
+    connectOrCreate?: ParsedLineItemCreateOrConnectWithoutParsedOrderInput | ParsedLineItemCreateOrConnectWithoutParsedOrderInput[]
+    upsert?: ParsedLineItemUpsertWithWhereUniqueWithoutParsedOrderInput | ParsedLineItemUpsertWithWhereUniqueWithoutParsedOrderInput[]
+    createMany?: ParsedLineItemCreateManyParsedOrderInputEnvelope
+    set?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+    disconnect?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+    delete?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+    connect?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+    update?: ParsedLineItemUpdateWithWhereUniqueWithoutParsedOrderInput | ParsedLineItemUpdateWithWhereUniqueWithoutParsedOrderInput[]
+    updateMany?: ParsedLineItemUpdateManyWithWhereWithoutParsedOrderInput | ParsedLineItemUpdateManyWithWhereWithoutParsedOrderInput[]
+    deleteMany?: ParsedLineItemScalarWhereInput | ParsedLineItemScalarWhereInput[]
   }
 
-  export type ShopifyOrderUncheckedCreateNestedManyWithoutCustomerInput = {
-    create?: XOR<ShopifyOrderCreateWithoutCustomerInput, ShopifyOrderUncheckedCreateWithoutCustomerInput> | ShopifyOrderCreateWithoutCustomerInput[] | ShopifyOrderUncheckedCreateWithoutCustomerInput[]
-    connectOrCreate?: ShopifyOrderCreateOrConnectWithoutCustomerInput | ShopifyOrderCreateOrConnectWithoutCustomerInput[]
-    createMany?: ShopifyOrderCreateManyCustomerInputEnvelope
-    connect?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
+  export type ParsedLineItemUncheckedUpdateManyWithoutParsedOrderNestedInput = {
+    create?: XOR<ParsedLineItemCreateWithoutParsedOrderInput, ParsedLineItemUncheckedCreateWithoutParsedOrderInput> | ParsedLineItemCreateWithoutParsedOrderInput[] | ParsedLineItemUncheckedCreateWithoutParsedOrderInput[]
+    connectOrCreate?: ParsedLineItemCreateOrConnectWithoutParsedOrderInput | ParsedLineItemCreateOrConnectWithoutParsedOrderInput[]
+    upsert?: ParsedLineItemUpsertWithWhereUniqueWithoutParsedOrderInput | ParsedLineItemUpsertWithWhereUniqueWithoutParsedOrderInput[]
+    createMany?: ParsedLineItemCreateManyParsedOrderInputEnvelope
+    set?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+    disconnect?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+    delete?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+    connect?: ParsedLineItemWhereUniqueInput | ParsedLineItemWhereUniqueInput[]
+    update?: ParsedLineItemUpdateWithWhereUniqueWithoutParsedOrderInput | ParsedLineItemUpdateWithWhereUniqueWithoutParsedOrderInput[]
+    updateMany?: ParsedLineItemUpdateManyWithWhereWithoutParsedOrderInput | ParsedLineItemUpdateManyWithWhereWithoutParsedOrderInput[]
+    deleteMany?: ParsedLineItemScalarWhereInput | ParsedLineItemScalarWhereInput[]
   }
 
-  export type ShopifyOrderUpdateManyWithoutCustomerNestedInput = {
-    create?: XOR<ShopifyOrderCreateWithoutCustomerInput, ShopifyOrderUncheckedCreateWithoutCustomerInput> | ShopifyOrderCreateWithoutCustomerInput[] | ShopifyOrderUncheckedCreateWithoutCustomerInput[]
-    connectOrCreate?: ShopifyOrderCreateOrConnectWithoutCustomerInput | ShopifyOrderCreateOrConnectWithoutCustomerInput[]
-    upsert?: ShopifyOrderUpsertWithWhereUniqueWithoutCustomerInput | ShopifyOrderUpsertWithWhereUniqueWithoutCustomerInput[]
-    createMany?: ShopifyOrderCreateManyCustomerInputEnvelope
-    set?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
-    disconnect?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
-    delete?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
-    connect?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
-    update?: ShopifyOrderUpdateWithWhereUniqueWithoutCustomerInput | ShopifyOrderUpdateWithWhereUniqueWithoutCustomerInput[]
-    updateMany?: ShopifyOrderUpdateManyWithWhereWithoutCustomerInput | ShopifyOrderUpdateManyWithWhereWithoutCustomerInput[]
-    deleteMany?: ShopifyOrderScalarWhereInput | ShopifyOrderScalarWhereInput[]
+  export type ParsedOrderCreateNestedOneWithoutLineItemsInput = {
+    create?: XOR<ParsedOrderCreateWithoutLineItemsInput, ParsedOrderUncheckedCreateWithoutLineItemsInput>
+    connectOrCreate?: ParsedOrderCreateOrConnectWithoutLineItemsInput
+    connect?: ParsedOrderWhereUniqueInput
   }
 
-  export type ShopifyOrderUncheckedUpdateManyWithoutCustomerNestedInput = {
-    create?: XOR<ShopifyOrderCreateWithoutCustomerInput, ShopifyOrderUncheckedCreateWithoutCustomerInput> | ShopifyOrderCreateWithoutCustomerInput[] | ShopifyOrderUncheckedCreateWithoutCustomerInput[]
-    connectOrCreate?: ShopifyOrderCreateOrConnectWithoutCustomerInput | ShopifyOrderCreateOrConnectWithoutCustomerInput[]
-    upsert?: ShopifyOrderUpsertWithWhereUniqueWithoutCustomerInput | ShopifyOrderUpsertWithWhereUniqueWithoutCustomerInput[]
-    createMany?: ShopifyOrderCreateManyCustomerInputEnvelope
-    set?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
-    disconnect?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
-    delete?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
-    connect?: ShopifyOrderWhereUniqueInput | ShopifyOrderWhereUniqueInput[]
-    update?: ShopifyOrderUpdateWithWhereUniqueWithoutCustomerInput | ShopifyOrderUpdateWithWhereUniqueWithoutCustomerInput[]
-    updateMany?: ShopifyOrderUpdateManyWithWhereWithoutCustomerInput | ShopifyOrderUpdateManyWithWhereWithoutCustomerInput[]
-    deleteMany?: ShopifyOrderScalarWhereInput | ShopifyOrderScalarWhereInput[]
+  export type ParsedOrderUpdateOneRequiredWithoutLineItemsNestedInput = {
+    create?: XOR<ParsedOrderCreateWithoutLineItemsInput, ParsedOrderUncheckedCreateWithoutLineItemsInput>
+    connectOrCreate?: ParsedOrderCreateOrConnectWithoutLineItemsInput
+    upsert?: ParsedOrderUpsertWithoutLineItemsInput
+    connect?: ParsedOrderWhereUniqueInput
+    update?: XOR<XOR<ParsedOrderUpdateToOneWithWhereWithoutLineItemsInput, ParsedOrderUpdateWithoutLineItemsInput>, ParsedOrderUncheckedUpdateWithoutLineItemsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -18187,8 +30185,8 @@ export namespace Prisma {
 
   export type NestedFloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -18198,8 +30196,8 @@ export namespace Prisma {
 
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -18209,8 +30207,8 @@ export namespace Prisma {
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -18220,8 +30218,8 @@ export namespace Prisma {
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[]
-    notIn?: string[]
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -18237,8 +30235,8 @@ export namespace Prisma {
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -18253,8 +30251,8 @@ export namespace Prisma {
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -18269,8 +30267,8 @@ export namespace Prisma {
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -18283,8 +30281,8 @@ export namespace Prisma {
 
   export type NestedStringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -18297,8 +30295,8 @@ export namespace Prisma {
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     lt?: string | StringFieldRefInput<$PrismaModel>
     lte?: string | StringFieldRefInput<$PrismaModel>
     gt?: string | StringFieldRefInput<$PrismaModel>
@@ -18314,8 +30312,8 @@ export namespace Prisma {
 
   export type NestedIntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -18336,13 +30334,18 @@ export namespace Prisma {
 
   export type NestedJsonFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
+    path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
@@ -18356,8 +30359,8 @@ export namespace Prisma {
 
   export type NestedFloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -18367,8 +30370,8 @@ export namespace Prisma {
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     lt?: number | IntFieldRefInput<$PrismaModel>
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
@@ -18389,20 +30392,25 @@ export namespace Prisma {
 
   export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
+    path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
     lt?: number | FloatFieldRefInput<$PrismaModel>
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -18415,10 +30423,50 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
+  export type NestedDecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -18428,8 +30476,8 @@ export namespace Prisma {
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -18446,8 +30494,12 @@ export namespace Prisma {
     clockOut?: Date | string | null
     totalHours?: number | null
     date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    reimbursements?: ReimbursementCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftUncheckedCreateWithoutStaffInput = {
@@ -18456,8 +30508,12 @@ export namespace Prisma {
     clockOut?: Date | string | null
     totalHours?: number | null
     date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    reimbursements?: ReimbursementUncheckedCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftCreateOrConnectWithoutStaffInput = {
@@ -18467,6 +30523,41 @@ export namespace Prisma {
 
   export type ShiftCreateManyStaffInputEnvelope = {
     data: ShiftCreateManyStaffInput | ShiftCreateManyStaffInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type RosterAssignmentCreateWithoutStaffInput = {
+    id?: string
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    shiftType?: ShiftTypeCreateNestedOneWithoutRosterAssignmentsInput
+  }
+
+  export type RosterAssignmentUncheckedCreateWithoutStaffInput = {
+    id?: string
+    shiftTypeId?: string | null
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentCreateOrConnectWithoutStaffInput = {
+    where: RosterAssignmentWhereUniqueInput
+    create: XOR<RosterAssignmentCreateWithoutStaffInput, RosterAssignmentUncheckedCreateWithoutStaffInput>
+  }
+
+  export type RosterAssignmentCreateManyStaffInputEnvelope = {
+    data: RosterAssignmentCreateManyStaffInput | RosterAssignmentCreateManyStaffInput[]
+    skipDuplicates?: boolean
   }
 
   export type ShiftUpsertWithWhereUniqueWithoutStaffInput = {
@@ -18495,8 +30586,237 @@ export namespace Prisma {
     clockOut?: DateTimeNullableFilter<"Shift"> | Date | string | null
     totalHours?: FloatNullableFilter<"Shift"> | number | null
     date?: DateTimeFilter<"Shift"> | Date | string
+    mileage?: FloatNullableFilter<"Shift"> | number | null
+    notes?: StringNullableFilter<"Shift"> | string | null
+    status?: StringFilter<"Shift"> | string
     createdAt?: DateTimeFilter<"Shift"> | Date | string
     updatedAt?: DateTimeFilter<"Shift"> | Date | string
+  }
+
+  export type RosterAssignmentUpsertWithWhereUniqueWithoutStaffInput = {
+    where: RosterAssignmentWhereUniqueInput
+    update: XOR<RosterAssignmentUpdateWithoutStaffInput, RosterAssignmentUncheckedUpdateWithoutStaffInput>
+    create: XOR<RosterAssignmentCreateWithoutStaffInput, RosterAssignmentUncheckedCreateWithoutStaffInput>
+  }
+
+  export type RosterAssignmentUpdateWithWhereUniqueWithoutStaffInput = {
+    where: RosterAssignmentWhereUniqueInput
+    data: XOR<RosterAssignmentUpdateWithoutStaffInput, RosterAssignmentUncheckedUpdateWithoutStaffInput>
+  }
+
+  export type RosterAssignmentUpdateManyWithWhereWithoutStaffInput = {
+    where: RosterAssignmentScalarWhereInput
+    data: XOR<RosterAssignmentUpdateManyMutationInput, RosterAssignmentUncheckedUpdateManyWithoutStaffInput>
+  }
+
+  export type RosterAssignmentScalarWhereInput = {
+    AND?: RosterAssignmentScalarWhereInput | RosterAssignmentScalarWhereInput[]
+    OR?: RosterAssignmentScalarWhereInput[]
+    NOT?: RosterAssignmentScalarWhereInput | RosterAssignmentScalarWhereInput[]
+    id?: StringFilter<"RosterAssignment"> | string
+    staffId?: StringFilter<"RosterAssignment"> | string
+    shiftTypeId?: StringNullableFilter<"RosterAssignment"> | string | null
+    startTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    endTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    date?: DateTimeFilter<"RosterAssignment"> | Date | string
+    notes?: StringNullableFilter<"RosterAssignment"> | string | null
+    assignedBy?: StringFilter<"RosterAssignment"> | string
+    createdAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+  }
+
+  export type RosterAssignmentCreateWithoutShiftTypeInput = {
+    id?: string
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    staff: StaffCreateNestedOneWithoutRosterAssignmentsInput
+  }
+
+  export type RosterAssignmentUncheckedCreateWithoutShiftTypeInput = {
+    id?: string
+    staffId: string
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentCreateOrConnectWithoutShiftTypeInput = {
+    where: RosterAssignmentWhereUniqueInput
+    create: XOR<RosterAssignmentCreateWithoutShiftTypeInput, RosterAssignmentUncheckedCreateWithoutShiftTypeInput>
+  }
+
+  export type RosterAssignmentCreateManyShiftTypeInputEnvelope = {
+    data: RosterAssignmentCreateManyShiftTypeInput | RosterAssignmentCreateManyShiftTypeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type RosterAssignmentUpsertWithWhereUniqueWithoutShiftTypeInput = {
+    where: RosterAssignmentWhereUniqueInput
+    update: XOR<RosterAssignmentUpdateWithoutShiftTypeInput, RosterAssignmentUncheckedUpdateWithoutShiftTypeInput>
+    create: XOR<RosterAssignmentCreateWithoutShiftTypeInput, RosterAssignmentUncheckedCreateWithoutShiftTypeInput>
+  }
+
+  export type RosterAssignmentUpdateWithWhereUniqueWithoutShiftTypeInput = {
+    where: RosterAssignmentWhereUniqueInput
+    data: XOR<RosterAssignmentUpdateWithoutShiftTypeInput, RosterAssignmentUncheckedUpdateWithoutShiftTypeInput>
+  }
+
+  export type RosterAssignmentUpdateManyWithWhereWithoutShiftTypeInput = {
+    where: RosterAssignmentScalarWhereInput
+    data: XOR<RosterAssignmentUpdateManyMutationInput, RosterAssignmentUncheckedUpdateManyWithoutShiftTypeInput>
+  }
+
+  export type StaffCreateWithoutRosterAssignmentsInput = {
+    id?: string
+    firstName: string
+    lastName: string
+    phone: string
+    email: string
+    payRate: number
+    accessLevel: string
+    isDriver?: boolean
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lastLogin?: Date | string | null
+    password?: string | null
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    shifts?: ShiftCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffUncheckedCreateWithoutRosterAssignmentsInput = {
+    id?: string
+    firstName: string
+    lastName: string
+    phone: string
+    email: string
+    payRate: number
+    accessLevel: string
+    isDriver?: boolean
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lastLogin?: Date | string | null
+    password?: string | null
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    shifts?: ShiftUncheckedCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffCreateOrConnectWithoutRosterAssignmentsInput = {
+    where: StaffWhereUniqueInput
+    create: XOR<StaffCreateWithoutRosterAssignmentsInput, StaffUncheckedCreateWithoutRosterAssignmentsInput>
+  }
+
+  export type ShiftTypeCreateWithoutRosterAssignmentsInput = {
+    id?: string
+    name: string
+    startTime: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput = {
+    id?: string
+    name: string
+    startTime: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftTypeCreateOrConnectWithoutRosterAssignmentsInput = {
+    where: ShiftTypeWhereUniqueInput
+    create: XOR<ShiftTypeCreateWithoutRosterAssignmentsInput, ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput>
+  }
+
+  export type StaffUpsertWithoutRosterAssignmentsInput = {
+    update: XOR<StaffUpdateWithoutRosterAssignmentsInput, StaffUncheckedUpdateWithoutRosterAssignmentsInput>
+    create: XOR<StaffCreateWithoutRosterAssignmentsInput, StaffUncheckedCreateWithoutRosterAssignmentsInput>
+    where?: StaffWhereInput
+  }
+
+  export type StaffUpdateToOneWithWhereWithoutRosterAssignmentsInput = {
+    where?: StaffWhereInput
+    data: XOR<StaffUpdateWithoutRosterAssignmentsInput, StaffUncheckedUpdateWithoutRosterAssignmentsInput>
+  }
+
+  export type StaffUpdateWithoutRosterAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    payRate?: FloatFieldUpdateOperationsInput | number
+    accessLevel?: StringFieldUpdateOperationsInput | string
+    isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shifts?: ShiftUpdateManyWithoutStaffNestedInput
+  }
+
+  export type StaffUncheckedUpdateWithoutRosterAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    payRate?: FloatFieldUpdateOperationsInput | number
+    accessLevel?: StringFieldUpdateOperationsInput | string
+    isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    shifts?: ShiftUncheckedUpdateManyWithoutStaffNestedInput
+  }
+
+  export type ShiftTypeUpsertWithoutRosterAssignmentsInput = {
+    update: XOR<ShiftTypeUpdateWithoutRosterAssignmentsInput, ShiftTypeUncheckedUpdateWithoutRosterAssignmentsInput>
+    create: XOR<ShiftTypeCreateWithoutRosterAssignmentsInput, ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput>
+    where?: ShiftTypeWhereInput
+  }
+
+  export type ShiftTypeUpdateToOneWithWhereWithoutRosterAssignmentsInput = {
+    where?: ShiftTypeWhereInput
+    data: XOR<ShiftTypeUpdateWithoutRosterAssignmentsInput, ShiftTypeUncheckedUpdateWithoutRosterAssignmentsInput>
+  }
+
+  export type ShiftTypeUpdateWithoutRosterAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startTime?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftTypeUncheckedUpdateWithoutRosterAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    startTime?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StaffCreateWithoutShiftsInput = {
@@ -18508,12 +30828,14 @@ export namespace Prisma {
     payRate: number
     accessLevel: string
     isDriver?: boolean
+    isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     lastLogin?: Date | string | null
     password?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
+    rosterAssignments?: RosterAssignmentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutShiftsInput = {
@@ -18525,17 +30847,45 @@ export namespace Prisma {
     payRate: number
     accessLevel: string
     isDriver?: boolean
+    isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     lastLogin?: Date | string | null
     password?: string | null
     resetToken?: string | null
     resetTokenExpiry?: Date | string | null
+    rosterAssignments?: RosterAssignmentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutShiftsInput = {
     where: StaffWhereUniqueInput
     create: XOR<StaffCreateWithoutShiftsInput, StaffUncheckedCreateWithoutShiftsInput>
+  }
+
+  export type ReimbursementCreateWithoutShiftInput = {
+    id?: string
+    amount: number
+    description: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReimbursementUncheckedCreateWithoutShiftInput = {
+    id?: string
+    amount: number
+    description: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReimbursementCreateOrConnectWithoutShiftInput = {
+    where: ReimbursementWhereUniqueInput
+    create: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput>
+  }
+
+  export type ReimbursementCreateManyShiftInputEnvelope = {
+    data: ReimbursementCreateManyShiftInput | ReimbursementCreateManyShiftInput[]
+    skipDuplicates?: boolean
   }
 
   export type StaffUpsertWithoutShiftsInput = {
@@ -18558,12 +30908,14 @@ export namespace Prisma {
     payRate?: FloatFieldUpdateOperationsInput | number
     accessLevel?: StringFieldUpdateOperationsInput | string
     isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rosterAssignments?: RosterAssignmentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutShiftsInput = {
@@ -18575,331 +30927,434 @@ export namespace Prisma {
     payRate?: FloatFieldUpdateOperationsInput | number
     accessLevel?: StringFieldUpdateOperationsInput | string
     isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
     resetToken?: NullableStringFieldUpdateOperationsInput | string | null
     resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rosterAssignments?: RosterAssignmentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
-  export type ShopifyCustomerCreateWithoutOrdersInput = {
+  export type ReimbursementUpsertWithWhereUniqueWithoutShiftInput = {
+    where: ReimbursementWhereUniqueInput
+    update: XOR<ReimbursementUpdateWithoutShiftInput, ReimbursementUncheckedUpdateWithoutShiftInput>
+    create: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput>
+  }
+
+  export type ReimbursementUpdateWithWhereUniqueWithoutShiftInput = {
+    where: ReimbursementWhereUniqueInput
+    data: XOR<ReimbursementUpdateWithoutShiftInput, ReimbursementUncheckedUpdateWithoutShiftInput>
+  }
+
+  export type ReimbursementUpdateManyWithWhereWithoutShiftInput = {
+    where: ReimbursementScalarWhereInput
+    data: XOR<ReimbursementUpdateManyMutationInput, ReimbursementUncheckedUpdateManyWithoutShiftInput>
+  }
+
+  export type ReimbursementScalarWhereInput = {
+    AND?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
+    OR?: ReimbursementScalarWhereInput[]
+    NOT?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
+    id?: StringFilter<"Reimbursement"> | string
+    shiftId?: StringFilter<"Reimbursement"> | string
+    amount?: FloatFilter<"Reimbursement"> | number
+    description?: StringFilter<"Reimbursement"> | string
+    createdAt?: DateTimeFilter<"Reimbursement"> | Date | string
+    updatedAt?: DateTimeFilter<"Reimbursement"> | Date | string
+  }
+
+  export type ShiftCreateWithoutReimbursementsInput = {
     id?: string
-    shopifyId: string
-    email: string
-    firstName?: string | null
-    lastName?: string | null
-    phone?: string | null
-    defaultAddress?: string | null
+    clockIn: Date | string
+    clockOut?: Date | string | null
+    totalHours?: number | null
+    date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    staff: StaffCreateNestedOneWithoutShiftsInput
+  }
+
+  export type ShiftUncheckedCreateWithoutReimbursementsInput = {
+    id?: string
+    staffId: string
+    clockIn: Date | string
+    clockOut?: Date | string | null
+    totalHours?: number | null
+    date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type ShopifyCustomerUncheckedCreateWithoutOrdersInput = {
-    id?: string
-    shopifyId: string
-    email: string
-    firstName?: string | null
-    lastName?: string | null
-    phone?: string | null
-    defaultAddress?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
+  export type ShiftCreateOrConnectWithoutReimbursementsInput = {
+    where: ShiftWhereUniqueInput
+    create: XOR<ShiftCreateWithoutReimbursementsInput, ShiftUncheckedCreateWithoutReimbursementsInput>
   }
 
-  export type ShopifyCustomerCreateOrConnectWithoutOrdersInput = {
-    where: ShopifyCustomerWhereUniqueInput
-    create: XOR<ShopifyCustomerCreateWithoutOrdersInput, ShopifyCustomerUncheckedCreateWithoutOrdersInput>
+  export type ShiftUpsertWithoutReimbursementsInput = {
+    update: XOR<ShiftUpdateWithoutReimbursementsInput, ShiftUncheckedUpdateWithoutReimbursementsInput>
+    create: XOR<ShiftCreateWithoutReimbursementsInput, ShiftUncheckedCreateWithoutReimbursementsInput>
+    where?: ShiftWhereInput
   }
 
-  export type ShopifyLineItemCreateWithoutOrderInput = {
-    id?: string
-    shopifyId: string
-    productId: string
-    productTitle: string
-    variantId?: string | null
-    variantTitle?: string | null
-    quantity: number
-    price: number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
+  export type ShiftUpdateToOneWithWhereWithoutReimbursementsInput = {
+    where?: ShiftWhereInput
+    data: XOR<ShiftUpdateWithoutReimbursementsInput, ShiftUncheckedUpdateWithoutReimbursementsInput>
   }
 
-  export type ShopifyLineItemUncheckedCreateWithoutOrderInput = {
-    id?: string
-    shopifyId: string
-    productId: string
-    productTitle: string
-    variantId?: string | null
-    variantTitle?: string | null
-    quantity: number
-    price: number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ShopifyLineItemCreateOrConnectWithoutOrderInput = {
-    where: ShopifyLineItemWhereUniqueInput
-    create: XOR<ShopifyLineItemCreateWithoutOrderInput, ShopifyLineItemUncheckedCreateWithoutOrderInput>
-  }
-
-  export type ShopifyLineItemCreateManyOrderInputEnvelope = {
-    data: ShopifyLineItemCreateManyOrderInput | ShopifyLineItemCreateManyOrderInput[]
-  }
-
-  export type ShopifyCustomerUpsertWithoutOrdersInput = {
-    update: XOR<ShopifyCustomerUpdateWithoutOrdersInput, ShopifyCustomerUncheckedUpdateWithoutOrdersInput>
-    create: XOR<ShopifyCustomerCreateWithoutOrdersInput, ShopifyCustomerUncheckedCreateWithoutOrdersInput>
-    where?: ShopifyCustomerWhereInput
-  }
-
-  export type ShopifyCustomerUpdateToOneWithWhereWithoutOrdersInput = {
-    where?: ShopifyCustomerWhereInput
-    data: XOR<ShopifyCustomerUpdateWithoutOrdersInput, ShopifyCustomerUncheckedUpdateWithoutOrdersInput>
-  }
-
-  export type ShopifyCustomerUpdateWithoutOrdersInput = {
+  export type ShiftUpdateWithoutReimbursementsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    firstName?: NullableStringFieldUpdateOperationsInput | string | null
-    lastName?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    clockIn?: DateTimeFieldUpdateOperationsInput | Date | string
+    clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    staff?: StaffUpdateOneRequiredWithoutShiftsNestedInput
+  }
+
+  export type ShiftUncheckedUpdateWithoutReimbursementsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: StringFieldUpdateOperationsInput | string
+    clockIn?: DateTimeFieldUpdateOperationsInput | Date | string
+    clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ShopifyCustomerUncheckedUpdateWithoutOrdersInput = {
+  export type ParsedOrderCreateWithoutShopifyOrderInput = {
+    id: string
+    orderNumber: string
+    deliveryTime: string
+    deliveryDate: Date | string
+    deliveryAddress: JsonNullValueInput | InputJsonValue
+    customerName: string
+    customerCompany?: string | null
+    customerPhone: string
+    orderNotes?: string | null
+    travelTime?: number | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lineItems?: ParsedLineItemCreateNestedManyWithoutParsedOrderInput
+  }
+
+  export type ParsedOrderUncheckedCreateWithoutShopifyOrderInput = {
+    id: string
+    orderNumber: string
+    deliveryTime: string
+    deliveryDate: Date | string
+    deliveryAddress: JsonNullValueInput | InputJsonValue
+    customerName: string
+    customerCompany?: string | null
+    customerPhone: string
+    orderNotes?: string | null
+    travelTime?: number | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lineItems?: ParsedLineItemUncheckedCreateNestedManyWithoutParsedOrderInput
+  }
+
+  export type ParsedOrderCreateOrConnectWithoutShopifyOrderInput = {
+    where: ParsedOrderWhereUniqueInput
+    create: XOR<ParsedOrderCreateWithoutShopifyOrderInput, ParsedOrderUncheckedCreateWithoutShopifyOrderInput>
+  }
+
+  export type ParsedOrderUpsertWithoutShopifyOrderInput = {
+    update: XOR<ParsedOrderUpdateWithoutShopifyOrderInput, ParsedOrderUncheckedUpdateWithoutShopifyOrderInput>
+    create: XOR<ParsedOrderCreateWithoutShopifyOrderInput, ParsedOrderUncheckedCreateWithoutShopifyOrderInput>
+    where?: ParsedOrderWhereInput
+  }
+
+  export type ParsedOrderUpdateToOneWithWhereWithoutShopifyOrderInput = {
+    where?: ParsedOrderWhereInput
+    data: XOR<ParsedOrderUpdateWithoutShopifyOrderInput, ParsedOrderUncheckedUpdateWithoutShopifyOrderInput>
+  }
+
+  export type ParsedOrderUpdateWithoutShopifyOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    firstName?: NullableStringFieldUpdateOperationsInput | string | null
-    lastName?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    defaultAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    deliveryTime?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveryAddress?: JsonNullValueInput | InputJsonValue
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    orderNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableIntFieldUpdateOperationsInput | number | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lineItems?: ParsedLineItemUpdateManyWithoutParsedOrderNestedInput
   }
 
-  export type ShopifyLineItemUpsertWithWhereUniqueWithoutOrderInput = {
-    where: ShopifyLineItemWhereUniqueInput
-    update: XOR<ShopifyLineItemUpdateWithoutOrderInput, ShopifyLineItemUncheckedUpdateWithoutOrderInput>
-    create: XOR<ShopifyLineItemCreateWithoutOrderInput, ShopifyLineItemUncheckedCreateWithoutOrderInput>
+  export type ParsedOrderUncheckedUpdateWithoutShopifyOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    deliveryTime?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveryAddress?: JsonNullValueInput | InputJsonValue
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    orderNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableIntFieldUpdateOperationsInput | number | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lineItems?: ParsedLineItemUncheckedUpdateManyWithoutParsedOrderNestedInput
   }
 
-  export type ShopifyLineItemUpdateWithWhereUniqueWithoutOrderInput = {
-    where: ShopifyLineItemWhereUniqueInput
-    data: XOR<ShopifyLineItemUpdateWithoutOrderInput, ShopifyLineItemUncheckedUpdateWithoutOrderInput>
-  }
-
-  export type ShopifyLineItemUpdateManyWithWhereWithoutOrderInput = {
-    where: ShopifyLineItemScalarWhereInput
-    data: XOR<ShopifyLineItemUpdateManyMutationInput, ShopifyLineItemUncheckedUpdateManyWithoutOrderInput>
-  }
-
-  export type ShopifyLineItemScalarWhereInput = {
-    AND?: ShopifyLineItemScalarWhereInput | ShopifyLineItemScalarWhereInput[]
-    OR?: ShopifyLineItemScalarWhereInput[]
-    NOT?: ShopifyLineItemScalarWhereInput | ShopifyLineItemScalarWhereInput[]
-    id?: StringFilter<"ShopifyLineItem"> | string
-    shopifyId?: StringFilter<"ShopifyLineItem"> | string
-    orderId?: StringFilter<"ShopifyLineItem"> | string
-    productId?: StringFilter<"ShopifyLineItem"> | string
-    productTitle?: StringFilter<"ShopifyLineItem"> | string
-    variantId?: StringNullableFilter<"ShopifyLineItem"> | string | null
-    variantTitle?: StringNullableFilter<"ShopifyLineItem"> | string | null
-    quantity?: IntFilter<"ShopifyLineItem"> | number
-    price?: FloatFilter<"ShopifyLineItem"> | number
-    modifications?: JsonNullableFilter<"ShopifyLineItem">
-    createdAt?: DateTimeFilter<"ShopifyLineItem"> | Date | string
-    updatedAt?: DateTimeFilter<"ShopifyLineItem"> | Date | string
-  }
-
-  export type ShopifyOrderCreateWithoutLineItemsInput = {
-    id?: string
-    shopifyId: string
-    orderNumber: string
-    email: string
-    phone?: string | null
-    deliveryDate: Date | string
-    deliveryTime?: string | null
-    deliveryAddress: string
-    deliveryNotes?: string | null
-    status: string
-    totalPrice: number
+  export type ShopifyOrderCreateWithoutParsedOrderInput = {
+    id: string
+    rawData: JsonNullValueInput | InputJsonValue
+    syncedAt: Date | string
+    parsedOrderId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastSyncedAt?: Date | string
-    isModified?: boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    customer: ShopifyCustomerCreateNestedOneWithoutOrdersInput
   }
 
-  export type ShopifyOrderUncheckedCreateWithoutLineItemsInput = {
-    id?: string
-    shopifyId: string
-    orderNumber: string
-    customerId: string
-    email: string
-    phone?: string | null
-    deliveryDate: Date | string
-    deliveryTime?: string | null
-    deliveryAddress: string
-    deliveryNotes?: string | null
-    status: string
-    totalPrice: number
+  export type ShopifyOrderUncheckedCreateWithoutParsedOrderInput = {
+    id: string
+    rawData: JsonNullValueInput | InputJsonValue
+    syncedAt: Date | string
+    parsedOrderId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastSyncedAt?: Date | string
-    isModified?: boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
   }
 
-  export type ShopifyOrderCreateOrConnectWithoutLineItemsInput = {
+  export type ShopifyOrderCreateOrConnectWithoutParsedOrderInput = {
     where: ShopifyOrderWhereUniqueInput
-    create: XOR<ShopifyOrderCreateWithoutLineItemsInput, ShopifyOrderUncheckedCreateWithoutLineItemsInput>
+    create: XOR<ShopifyOrderCreateWithoutParsedOrderInput, ShopifyOrderUncheckedCreateWithoutParsedOrderInput>
   }
 
-  export type ShopifyOrderUpsertWithoutLineItemsInput = {
-    update: XOR<ShopifyOrderUpdateWithoutLineItemsInput, ShopifyOrderUncheckedUpdateWithoutLineItemsInput>
-    create: XOR<ShopifyOrderCreateWithoutLineItemsInput, ShopifyOrderUncheckedCreateWithoutLineItemsInput>
+  export type ParsedLineItemCreateWithoutParsedOrderInput = {
+    id: string
+    sku: string
+    title: string
+    quantity: number
+    price: string
+    handle?: string | null
+    meat1?: string | null
+    meat2?: string | null
+    serveware?: string | null
+    ovenTimer1?: number | null
+    ovenTimer2?: number | null
+    option1?: string | null
+    option2?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ParsedLineItemUncheckedCreateWithoutParsedOrderInput = {
+    id: string
+    sku: string
+    title: string
+    quantity: number
+    price: string
+    handle?: string | null
+    meat1?: string | null
+    meat2?: string | null
+    serveware?: string | null
+    ovenTimer1?: number | null
+    ovenTimer2?: number | null
+    option1?: string | null
+    option2?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ParsedLineItemCreateOrConnectWithoutParsedOrderInput = {
+    where: ParsedLineItemWhereUniqueInput
+    create: XOR<ParsedLineItemCreateWithoutParsedOrderInput, ParsedLineItemUncheckedCreateWithoutParsedOrderInput>
+  }
+
+  export type ParsedLineItemCreateManyParsedOrderInputEnvelope = {
+    data: ParsedLineItemCreateManyParsedOrderInput | ParsedLineItemCreateManyParsedOrderInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ShopifyOrderUpsertWithoutParsedOrderInput = {
+    update: XOR<ShopifyOrderUpdateWithoutParsedOrderInput, ShopifyOrderUncheckedUpdateWithoutParsedOrderInput>
+    create: XOR<ShopifyOrderCreateWithoutParsedOrderInput, ShopifyOrderUncheckedCreateWithoutParsedOrderInput>
     where?: ShopifyOrderWhereInput
   }
 
-  export type ShopifyOrderUpdateToOneWithWhereWithoutLineItemsInput = {
+  export type ShopifyOrderUpdateToOneWithWhereWithoutParsedOrderInput = {
     where?: ShopifyOrderWhereInput
-    data: XOR<ShopifyOrderUpdateWithoutLineItemsInput, ShopifyOrderUncheckedUpdateWithoutLineItemsInput>
+    data: XOR<ShopifyOrderUpdateWithoutParsedOrderInput, ShopifyOrderUncheckedUpdateWithoutParsedOrderInput>
   }
 
-  export type ShopifyOrderUpdateWithoutLineItemsInput = {
+  export type ShopifyOrderUpdateWithoutParsedOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderNumber?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryAddress?: StringFieldUpdateOperationsInput | string
-    deliveryNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    totalPrice?: FloatFieldUpdateOperationsInput | number
+    rawData?: JsonNullValueInput | InputJsonValue
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parsedOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastSyncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isModified?: BoolFieldUpdateOperationsInput | boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    customer?: ShopifyCustomerUpdateOneRequiredWithoutOrdersNestedInput
   }
 
-  export type ShopifyOrderUncheckedUpdateWithoutLineItemsInput = {
+  export type ShopifyOrderUncheckedUpdateWithoutParsedOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderNumber?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryAddress?: StringFieldUpdateOperationsInput | string
-    deliveryNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    totalPrice?: FloatFieldUpdateOperationsInput | number
+    rawData?: JsonNullValueInput | InputJsonValue
+    syncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parsedOrderId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastSyncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isModified?: BoolFieldUpdateOperationsInput | boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
   }
 
-  export type ShopifyOrderCreateWithoutCustomerInput = {
-    id?: string
-    shopifyId: string
+  export type ParsedLineItemUpsertWithWhereUniqueWithoutParsedOrderInput = {
+    where: ParsedLineItemWhereUniqueInput
+    update: XOR<ParsedLineItemUpdateWithoutParsedOrderInput, ParsedLineItemUncheckedUpdateWithoutParsedOrderInput>
+    create: XOR<ParsedLineItemCreateWithoutParsedOrderInput, ParsedLineItemUncheckedCreateWithoutParsedOrderInput>
+  }
+
+  export type ParsedLineItemUpdateWithWhereUniqueWithoutParsedOrderInput = {
+    where: ParsedLineItemWhereUniqueInput
+    data: XOR<ParsedLineItemUpdateWithoutParsedOrderInput, ParsedLineItemUncheckedUpdateWithoutParsedOrderInput>
+  }
+
+  export type ParsedLineItemUpdateManyWithWhereWithoutParsedOrderInput = {
+    where: ParsedLineItemScalarWhereInput
+    data: XOR<ParsedLineItemUpdateManyMutationInput, ParsedLineItemUncheckedUpdateManyWithoutParsedOrderInput>
+  }
+
+  export type ParsedLineItemScalarWhereInput = {
+    AND?: ParsedLineItemScalarWhereInput | ParsedLineItemScalarWhereInput[]
+    OR?: ParsedLineItemScalarWhereInput[]
+    NOT?: ParsedLineItemScalarWhereInput | ParsedLineItemScalarWhereInput[]
+    id?: StringFilter<"ParsedLineItem"> | string
+    parsedOrderId?: StringFilter<"ParsedLineItem"> | string
+    sku?: StringFilter<"ParsedLineItem"> | string
+    title?: StringFilter<"ParsedLineItem"> | string
+    quantity?: IntFilter<"ParsedLineItem"> | number
+    price?: StringFilter<"ParsedLineItem"> | string
+    handle?: StringNullableFilter<"ParsedLineItem"> | string | null
+    meat1?: StringNullableFilter<"ParsedLineItem"> | string | null
+    meat2?: StringNullableFilter<"ParsedLineItem"> | string | null
+    serveware?: StringNullableFilter<"ParsedLineItem"> | string | null
+    ovenTimer1?: IntNullableFilter<"ParsedLineItem"> | number | null
+    ovenTimer2?: IntNullableFilter<"ParsedLineItem"> | number | null
+    option1?: StringNullableFilter<"ParsedLineItem"> | string | null
+    option2?: StringNullableFilter<"ParsedLineItem"> | string | null
+    createdAt?: DateTimeFilter<"ParsedLineItem"> | Date | string
+    updatedAt?: DateTimeFilter<"ParsedLineItem"> | Date | string
+  }
+
+  export type ParsedOrderCreateWithoutLineItemsInput = {
+    id: string
     orderNumber: string
-    email: string
-    phone?: string | null
+    deliveryTime: string
     deliveryDate: Date | string
-    deliveryTime?: string | null
-    deliveryAddress: string
-    deliveryNotes?: string | null
-    status: string
-    totalPrice: number
+    deliveryAddress: JsonNullValueInput | InputJsonValue
+    customerName: string
+    customerCompany?: string | null
+    customerPhone: string
+    orderNotes?: string | null
+    travelTime?: number | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastSyncedAt?: Date | string
-    isModified?: boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    lineItems?: ShopifyLineItemCreateNestedManyWithoutOrderInput
+    shopifyOrder: ShopifyOrderCreateNestedOneWithoutParsedOrderInput
   }
 
-  export type ShopifyOrderUncheckedCreateWithoutCustomerInput = {
-    id?: string
-    shopifyId: string
+  export type ParsedOrderUncheckedCreateWithoutLineItemsInput = {
+    id: string
+    shopifyOrderId: string
     orderNumber: string
-    email: string
-    phone?: string | null
+    deliveryTime: string
     deliveryDate: Date | string
-    deliveryTime?: string | null
-    deliveryAddress: string
-    deliveryNotes?: string | null
-    status: string
-    totalPrice: number
+    deliveryAddress: JsonNullValueInput | InputJsonValue
+    customerName: string
+    customerCompany?: string | null
+    customerPhone: string
+    orderNotes?: string | null
+    travelTime?: number | null
+    leaveTime?: string | null
+    driverId?: string | null
+    isDispatched?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastSyncedAt?: Date | string
-    isModified?: boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    lineItems?: ShopifyLineItemUncheckedCreateNestedManyWithoutOrderInput
   }
 
-  export type ShopifyOrderCreateOrConnectWithoutCustomerInput = {
-    where: ShopifyOrderWhereUniqueInput
-    create: XOR<ShopifyOrderCreateWithoutCustomerInput, ShopifyOrderUncheckedCreateWithoutCustomerInput>
+  export type ParsedOrderCreateOrConnectWithoutLineItemsInput = {
+    where: ParsedOrderWhereUniqueInput
+    create: XOR<ParsedOrderCreateWithoutLineItemsInput, ParsedOrderUncheckedCreateWithoutLineItemsInput>
   }
 
-  export type ShopifyOrderCreateManyCustomerInputEnvelope = {
-    data: ShopifyOrderCreateManyCustomerInput | ShopifyOrderCreateManyCustomerInput[]
+  export type ParsedOrderUpsertWithoutLineItemsInput = {
+    update: XOR<ParsedOrderUpdateWithoutLineItemsInput, ParsedOrderUncheckedUpdateWithoutLineItemsInput>
+    create: XOR<ParsedOrderCreateWithoutLineItemsInput, ParsedOrderUncheckedCreateWithoutLineItemsInput>
+    where?: ParsedOrderWhereInput
   }
 
-  export type ShopifyOrderUpsertWithWhereUniqueWithoutCustomerInput = {
-    where: ShopifyOrderWhereUniqueInput
-    update: XOR<ShopifyOrderUpdateWithoutCustomerInput, ShopifyOrderUncheckedUpdateWithoutCustomerInput>
-    create: XOR<ShopifyOrderCreateWithoutCustomerInput, ShopifyOrderUncheckedCreateWithoutCustomerInput>
+  export type ParsedOrderUpdateToOneWithWhereWithoutLineItemsInput = {
+    where?: ParsedOrderWhereInput
+    data: XOR<ParsedOrderUpdateWithoutLineItemsInput, ParsedOrderUncheckedUpdateWithoutLineItemsInput>
   }
 
-  export type ShopifyOrderUpdateWithWhereUniqueWithoutCustomerInput = {
-    where: ShopifyOrderWhereUniqueInput
-    data: XOR<ShopifyOrderUpdateWithoutCustomerInput, ShopifyOrderUncheckedUpdateWithoutCustomerInput>
+  export type ParsedOrderUpdateWithoutLineItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    deliveryTime?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveryAddress?: JsonNullValueInput | InputJsonValue
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    orderNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableIntFieldUpdateOperationsInput | number | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shopifyOrder?: ShopifyOrderUpdateOneRequiredWithoutParsedOrderNestedInput
   }
 
-  export type ShopifyOrderUpdateManyWithWhereWithoutCustomerInput = {
-    where: ShopifyOrderScalarWhereInput
-    data: XOR<ShopifyOrderUpdateManyMutationInput, ShopifyOrderUncheckedUpdateManyWithoutCustomerInput>
-  }
-
-  export type ShopifyOrderScalarWhereInput = {
-    AND?: ShopifyOrderScalarWhereInput | ShopifyOrderScalarWhereInput[]
-    OR?: ShopifyOrderScalarWhereInput[]
-    NOT?: ShopifyOrderScalarWhereInput | ShopifyOrderScalarWhereInput[]
-    id?: StringFilter<"ShopifyOrder"> | string
-    shopifyId?: StringFilter<"ShopifyOrder"> | string
-    orderNumber?: StringFilter<"ShopifyOrder"> | string
-    customerId?: StringFilter<"ShopifyOrder"> | string
-    email?: StringFilter<"ShopifyOrder"> | string
-    phone?: StringNullableFilter<"ShopifyOrder"> | string | null
-    deliveryDate?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    deliveryTime?: StringNullableFilter<"ShopifyOrder"> | string | null
-    deliveryAddress?: StringFilter<"ShopifyOrder"> | string
-    deliveryNotes?: StringNullableFilter<"ShopifyOrder"> | string | null
-    status?: StringFilter<"ShopifyOrder"> | string
-    totalPrice?: FloatFilter<"ShopifyOrder"> | number
-    createdAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    updatedAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    lastSyncedAt?: DateTimeFilter<"ShopifyOrder"> | Date | string
-    isModified?: BoolFilter<"ShopifyOrder"> | boolean
-    modifications?: JsonNullableFilter<"ShopifyOrder">
+  export type ParsedOrderUncheckedUpdateWithoutLineItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shopifyOrderId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    deliveryTime?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveryAddress?: JsonNullValueInput | InputJsonValue
+    customerName?: StringFieldUpdateOperationsInput | string
+    customerCompany?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    orderNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    travelTime?: NullableIntFieldUpdateOperationsInput | number | null
+    leaveTime?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDispatched?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ShiftCreateManyStaffInput = {
@@ -18908,6 +31363,21 @@ export namespace Prisma {
     clockOut?: Date | string | null
     totalHours?: number | null
     date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentCreateManyStaffInput = {
+    id?: string
+    shiftTypeId?: string | null
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -18918,8 +31388,12 @@ export namespace Prisma {
     clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reimbursements?: ReimbursementUpdateManyWithoutShiftNestedInput
   }
 
   export type ShiftUncheckedUpdateWithoutStaffInput = {
@@ -18928,8 +31402,12 @@ export namespace Prisma {
     clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reimbursements?: ReimbursementUncheckedUpdateManyWithoutShiftNestedInput
   }
 
   export type ShiftUncheckedUpdateManyWithoutStaffInput = {
@@ -18938,142 +31416,199 @@ export namespace Prisma {
     clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ShopifyLineItemCreateManyOrderInput = {
+  export type RosterAssignmentUpdateWithoutStaffInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shiftType?: ShiftTypeUpdateOneWithoutRosterAssignmentsNestedInput
+  }
+
+  export type RosterAssignmentUncheckedUpdateWithoutStaffInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shiftTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentUncheckedUpdateManyWithoutStaffInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shiftTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentCreateManyShiftTypeInput = {
     id?: string
-    shopifyId: string
-    productId: string
-    productTitle: string
-    variantId?: string | null
-    variantTitle?: string | null
+    staffId: string
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentUpdateWithoutShiftTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    staff?: StaffUpdateOneRequiredWithoutRosterAssignmentsNestedInput
+  }
+
+  export type RosterAssignmentUncheckedUpdateWithoutShiftTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: StringFieldUpdateOperationsInput | string
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentUncheckedUpdateManyWithoutShiftTypeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: StringFieldUpdateOperationsInput | string
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReimbursementCreateManyShiftInput = {
+    id?: string
+    amount: number
+    description: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReimbursementUpdateWithoutShiftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReimbursementUncheckedUpdateWithoutShiftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReimbursementUncheckedUpdateManyWithoutShiftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ParsedLineItemCreateManyParsedOrderInput = {
+    id: string
+    sku: string
+    title: string
     quantity: number
-    price: number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price: string
+    handle?: string | null
+    meat1?: string | null
+    meat2?: string | null
+    serveware?: string | null
+    ovenTimer1?: number | null
+    ovenTimer2?: number | null
+    option1?: string | null
+    option2?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type ShopifyLineItemUpdateWithoutOrderInput = {
+  export type ParsedLineItemUpdateWithoutParsedOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    productId?: StringFieldUpdateOperationsInput | string
-    productTitle?: StringFieldUpdateOperationsInput | string
-    variantId?: NullableStringFieldUpdateOperationsInput | string | null
-    variantTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    sku?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
-    price?: FloatFieldUpdateOperationsInput | number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price?: StringFieldUpdateOperationsInput | string
+    handle?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    ovenTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    ovenTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ShopifyLineItemUncheckedUpdateWithoutOrderInput = {
+  export type ParsedLineItemUncheckedUpdateWithoutParsedOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    productId?: StringFieldUpdateOperationsInput | string
-    productTitle?: StringFieldUpdateOperationsInput | string
-    variantId?: NullableStringFieldUpdateOperationsInput | string | null
-    variantTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    sku?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
-    price?: FloatFieldUpdateOperationsInput | number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price?: StringFieldUpdateOperationsInput | string
+    handle?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    ovenTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    ovenTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ShopifyLineItemUncheckedUpdateManyWithoutOrderInput = {
+  export type ParsedLineItemUncheckedUpdateManyWithoutParsedOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    productId?: StringFieldUpdateOperationsInput | string
-    productTitle?: StringFieldUpdateOperationsInput | string
-    variantId?: NullableStringFieldUpdateOperationsInput | string | null
-    variantTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    sku?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
-    price?: FloatFieldUpdateOperationsInput | number
-    modifications?: NullableJsonNullValueInput | InputJsonValue
+    price?: StringFieldUpdateOperationsInput | string
+    handle?: NullableStringFieldUpdateOperationsInput | string | null
+    meat1?: NullableStringFieldUpdateOperationsInput | string | null
+    meat2?: NullableStringFieldUpdateOperationsInput | string | null
+    serveware?: NullableStringFieldUpdateOperationsInput | string | null
+    ovenTimer1?: NullableIntFieldUpdateOperationsInput | number | null
+    ovenTimer2?: NullableIntFieldUpdateOperationsInput | number | null
+    option1?: NullableStringFieldUpdateOperationsInput | string | null
+    option2?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ShopifyOrderCreateManyCustomerInput = {
-    id?: string
-    shopifyId: string
-    orderNumber: string
-    email: string
-    phone?: string | null
-    deliveryDate: Date | string
-    deliveryTime?: string | null
-    deliveryAddress: string
-    deliveryNotes?: string | null
-    status: string
-    totalPrice: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastSyncedAt?: Date | string
-    isModified?: boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-  }
-
-  export type ShopifyOrderUpdateWithoutCustomerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderNumber?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryAddress?: StringFieldUpdateOperationsInput | string
-    deliveryNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    totalPrice?: FloatFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastSyncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isModified?: BoolFieldUpdateOperationsInput | boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    lineItems?: ShopifyLineItemUpdateManyWithoutOrderNestedInput
-  }
-
-  export type ShopifyOrderUncheckedUpdateWithoutCustomerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderNumber?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryAddress?: StringFieldUpdateOperationsInput | string
-    deliveryNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    totalPrice?: FloatFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastSyncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isModified?: BoolFieldUpdateOperationsInput | boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
-    lineItems?: ShopifyLineItemUncheckedUpdateManyWithoutOrderNestedInput
-  }
-
-  export type ShopifyOrderUncheckedUpdateManyWithoutCustomerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    shopifyId?: StringFieldUpdateOperationsInput | string
-    orderNumber?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    deliveryTime?: NullableStringFieldUpdateOperationsInput | string | null
-    deliveryAddress?: StringFieldUpdateOperationsInput | string
-    deliveryNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    totalPrice?: FloatFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastSyncedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    isModified?: BoolFieldUpdateOperationsInput | boolean
-    modifications?: NullableJsonNullValueInput | InputJsonValue
   }
 
 
