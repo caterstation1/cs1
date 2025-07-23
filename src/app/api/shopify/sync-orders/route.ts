@@ -32,12 +32,4 @@ export async function POST() {
       timestamp: new Date().toISOString(),
     }, { status: 500 });
   }
-}
-
-// Optionally, keep the GET stub for compatibility
-export async function GET() {
-  return NextResponse.json({
-    message: 'Shopify sync-orders API not yet migrated to Firestore. TODO: Implement Firestore adapter.',
-    result: null
-  });
 } 
