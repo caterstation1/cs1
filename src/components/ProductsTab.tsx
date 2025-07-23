@@ -74,7 +74,7 @@ export function ProductsTab() {
   const [isManageRulesModalOpen, setIsManageRulesModalOpen] = useState(false);
 
   // Memoize the filtered and sorted products to prevent unnecessary re-renders
-  const filteredAndSortedProducts = useMemo(() => {
+  const filteredAndSortedProducts = useMemo((): ShopifyProduct[] => {
     // Ensure products is always an array
     const productsArray = Array.isArray(products) ? products : [];
     let filtered = productsArray;
@@ -262,7 +262,7 @@ export function ProductsTab() {
     return <div className="flex items-center justify-center p-8">Loading products...</div>;
   }
 
-  const safeProducts: ShopifyProduct[] = Array.isArray(filteredAndSortedProducts) ? filteredAndSortedProducts : [];
+  const safeProducts: ShopifyProduct[] = filteredAndSortedProducts;
 
   return (
     <div className="space-y-4">
@@ -384,7 +384,7 @@ export function ProductsTab() {
           <DialogHeader>
             <DialogTitle>Edit Product</DialogTitle>
             <DialogDescription>
-              {editingProduct && (
+              {editingProduct ? (
                 <div className="space-y-2">
                   <div><strong>Shopify Product:</strong> {editingProduct.shopify_title}</div>
                   <div><strong>Variant:</strong> {editingProduct.shopify_variant_title}</div>
@@ -393,7 +393,7 @@ export function ProductsTab() {
                   {editingProduct.option1 && <div><strong>Option 1:</strong> {editingProduct.option1}</div>}
                   {editingProduct.option2 && <div><strong>Option 2:</strong> {editingProduct.option2}</div>}
                 </div>
-              )}
+              ) : null}
             </DialogDescription>
           </DialogHeader>
 
