@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const shifts = await prisma.shift.findMany({
-      include: {
-        reimbursements: true
-      },
-      orderBy: {
-        date: 'desc'
-      }
-    })
-
-    return NextResponse.json(shifts)
+    // TODO: Implement Firestore adapter for shifts
+    // For now, return empty array to prevent 500 errors
+    return NextResponse.json([])
   } catch (error) {
     console.error('Error fetching shifts:', error)
     return NextResponse.json(
@@ -24,21 +16,12 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json()
-    
-    const shift = await prisma.shift.create({
-      data: {
-        staffId: data.staffId, // TODO: Get from session when auth is enabled
-        clockIn: new Date(data.clockIn),
-        date: new Date(data.date),
-        status: 'active'
-      },
-      include: {
-        reimbursements: true
-      }
+    // TODO: Implement Firestore adapter for shifts
+    // For now, return a stub response
+    return NextResponse.json({ 
+      message: 'Shifts API not yet migrated to Firestore. TODO: Implement Firestore adapter.',
+      id: 'stub-id'
     })
-
-    return NextResponse.json(shift)
   } catch (error) {
     console.error('Error creating shift:', error)
     return NextResponse.json(

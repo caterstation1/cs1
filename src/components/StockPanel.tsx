@@ -110,13 +110,15 @@ export function StockPanel({
     fetchDailyComponents(true)
   }
 
-  const formatDate = (date: Date) => {
+  const safeFormatDate = (date: Date | undefined | null) => {
+    if (!date) return 'N/A';
+    if (isNaN(date.getTime())) return 'N/A';
     return date.toLocaleDateString('en-US', { 
       weekday: 'short', 
       month: 'short', 
       day: 'numeric' 
-    })
-  }
+    });
+  };
 
   const handleItemClick = (componentId: string) => {
     setCompletedItems(prev => {
@@ -148,7 +150,7 @@ export function StockPanel({
             <h2 className="text-lg font-semibold">Daily Components</h2>
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Calendar className="h-3 w-3" />
-              <span>{formatDate(effectiveTargetDate)}</span>
+              <span>{safeFormatDate(effectiveTargetDate)}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">

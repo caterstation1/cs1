@@ -88,8 +88,8 @@ export function OrderCard({ order, onUpdate }: OrderCardProps) {
         <div className="space-y-4">
           <div>
             <h3 className="font-medium">Delivery Details</h3>
-            <p>Time: {parsedOrder.deliveryTime}</p>
-            <p>Date: {new Date(parsedOrder.deliveryDate).toLocaleDateString()}</p>
+            <p>Time: {parsedOrder.deliveryTime || 'N/A'}</p>
+            <p>Date: {parsedOrder.deliveryDate && !isNaN(Date.parse(parsedOrder.deliveryDate)) ? new Date(parsedOrder.deliveryDate).toLocaleDateString() : 'N/A'}</p>
             <p>Address: {JSON.stringify(parsedOrder.deliveryAddress)}</p>
           </div>
           

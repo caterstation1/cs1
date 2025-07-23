@@ -20,7 +20,7 @@ interface EditOrderModalProps {
 
 export function EditOrderModal({ isOpen, onClose, order, onUpdate }: EditOrderModalProps) {
   const [deliveryTime, setDeliveryTime] = useState(order.deliveryTime);
-  const [deliveryDate, setDeliveryDate] = useState(new Date(order.deliveryDate).toISOString().split('T')[0]);
+  const [deliveryDate, setDeliveryDate] = useState(order.deliveryDate && !isNaN(Date.parse(order.deliveryDate)) ? new Date(order.deliveryDate).toISOString().split('T')[0] : '');
   const [travelTime, setTravelTime] = useState(order.travelTime || '');
   const [leaveTime, setLeaveTime] = useState(order.leaveTime || '');
   const [orderNotes, setOrderNotes] = useState(order.orderNotes || '');
@@ -28,7 +28,7 @@ export function EditOrderModal({ isOpen, onClose, order, onUpdate }: EditOrderMo
   const handleSave = async () => {
     await onUpdate({
       deliveryTime,
-      deliveryDate: new Date(deliveryDate),
+      deliveryDate: deliveryDate && !isNaN(Date.parse(deliveryDate)) ? new Date(deliveryDate) : null,
       travelTime,
       leaveTime,
       orderNotes,

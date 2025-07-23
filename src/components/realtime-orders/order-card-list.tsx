@@ -24,6 +24,12 @@ export const useAudioState = () => {
   }
 }
 
+function safeFormatDate(dateString: string | undefined | null): string {
+  if (!dateString) return 'N/A';
+  const d = new Date(dateString);
+  return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString();
+}
+
 export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete }: OrderCardListProps) {
   const [filter, setFilter] = useState<'all' | 'undispatched' | 'unfulfilled' | 'fulfilled'>('undispatched')
   const [isUpdatingTravelTimes, setIsUpdatingTravelTimes] = useState(false)
@@ -49,9 +55,9 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       // Get all unique variantIds from all orders
       const uniqueVariantIds = new Set<string>()
       orders.forEach(order => {
-        const lineItems = Array.isArray(order.lineItems) 
+        const lineItems = Array.isArray(order.lineItems)
           ? order.lineItems 
-          : JSON.parse(order.lineItems as string)
+          : (typeof order.lineItems === 'string' && order.lineItems ? JSON.parse(order.lineItems) : []);
         lineItems.forEach((item: any) => {
           // Try multiple possible field names for variant ID
           const variantId = item.variant_id || item.variantId || item.variantid;
@@ -299,7 +305,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       const getDispatchTime = (order: Order) => {
         // Extract delivery time from order
         const deliveryTime = order.deliveryTime || 
-                           order.tags?.match(/(\d{1,2}:\d{2}\s*[AP]M\s*-\s*\d{1,2}:\d{2}\s*[AP]M)/)?.[1];
+          order.tags?.match(/(\d{1,2}:\d{2}\s*[AP]M\s*-\s*\d{1,2}:\d{2}\s*[AP]M)/)?.[1];
         
         if (!deliveryTime) return null;
         
@@ -311,6 +317,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         
         // Convert delivery time to minutes since midnight
         const deliveryDate = new Date(`2000-01-01 ${deliveryTimeStr}`);
+        if (isNaN(deliveryDate.getTime())) return null;
         const deliveryMinutes = deliveryDate.getHours() * 60 + deliveryDate.getMinutes();
         
         // Get travel time in minutes
@@ -353,7 +360,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         orders.forEach(order => {
           const lineItems = Array.isArray(order.lineItems) 
             ? order.lineItems 
-            : JSON.parse(order.lineItems as string)
+            : (typeof order.lineItems === 'string' && order.lineItems ? JSON.parse(order.lineItems) : []);
           lineItems.forEach((item: any) => {
             console.log('Debug line item:', {
               item,

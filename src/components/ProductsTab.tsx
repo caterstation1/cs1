@@ -93,8 +93,8 @@ export function ProductsTab() {
       
       if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
+      return 0;
+    });
   }, [products, searchTerm, sortField, sortDirection]);
 
   // Debounced search handler
@@ -262,6 +262,8 @@ export function ProductsTab() {
     return <div className="flex items-center justify-center p-8">Loading products...</div>;
   }
 
+  const safeProducts: ShopifyProduct[] = Array.isArray(filteredAndSortedProducts) ? filteredAndSortedProducts : [];
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -339,7 +341,7 @@ export function ProductsTab() {
           </TableRow>
         </TableHeader>
         <TableBody>
-            {filteredAndSortedProducts.map((product) => (
+            {safeProducts.map((product: ShopifyProduct) => (
               <TableRow key={product.variant_id} className="cursor-pointer" onClick={() => handleEdit(product)}>
                 <TableCell>
                   <div>

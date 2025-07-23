@@ -45,9 +45,12 @@ export default function RealtimeOrdersView() {
     if (order.deliveryDate) {
       const parsed = Date.parse(order.deliveryDate)
       if (!isNaN(parsed)) return new Date(parsed)
+      return null;
     }
     if (order.createdAt) {
-      return parseISO(order.createdAt)
+      const parsed = Date.parse(order.createdAt)
+      if (!isNaN(parsed)) return new Date(order.createdAt)
+      return null;
     }
     return null
   }

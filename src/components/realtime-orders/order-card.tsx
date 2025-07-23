@@ -120,9 +120,9 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const statusColor = getStatusColor(order.fulfillmentStatus)
   
   // Parse line items
-  const lineItems = Array.isArray(order.lineItems) 
-    ? order.lineItems 
-    : JSON.parse(order.lineItems as string)
+  const lineItems = Array.isArray(order.lineItems)
+    ? order.lineItems
+    : (typeof order.lineItems === 'string' && order.lineItems ? JSON.parse(order.lineItems) : []);
   
   // Get status badge color
   const statusBadgeColor = getStatusColor(order.fulfillmentStatus)
@@ -224,7 +224,17 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const extractedDeliveryTime = extractDeliveryTime(order.tags);
   
   // Extract delivery address
-  const deliveryAddress = extractDeliveryAddress(order.shippingAddress)
+  const deliveryAddress = (() => {
+    if (!order.shippingAddress) return '';
+    if (typeof order.shippingAddress === 'string') {
+      try {
+        return order.shippingAddress ? JSON.parse(order.shippingAddress) : {};
+      } catch {
+        return {};
+      }
+    }
+    return order.shippingAddress;
+  })();
   
   // Use customerPhone directly from the order (populated by sync process)
   const deliveryPhone = order.customerPhone || 'No phone'
@@ -936,6 +946,18 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     return timerTotalMinutes <= currentTotalMinutes;
   };
 
+  function safeFormatDate(dateString: string | undefined | null): string {
+    if (!dateString) return 'N/A';
+    const d = new Date(dateString);
+    return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString();
+  }
+
+  function safeFormatTime(dateString: string | undefined | null): string {
+    if (!dateString) return 'N/A';
+    const d = new Date(dateString);
+    return isNaN(d.getTime()) ? 'N/A' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
   return (
     <div className="w-full bg-white rounded-lg shadow-md overflow-hidden">
       {/* Order Details Section - Blue Background */}
@@ -1625,19 +1647,20 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
 
 // Helper function to get time since order
 function getTimeSinceOrder(dateString: string): string {
-  const orderDate = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - orderDate.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMins / 60)
-  const diffDays = Math.floor(diffHours / 24)
+  const orderDate = new Date(dateString);
+  if (isNaN(orderDate.getTime())) return 'N/A';
+  const now = new Date();
+  const diffMs = now.getTime() - orderDate.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
   
   if (diffMins < 60) {
-    return `${diffMins} minutes ago`
+    return `${diffMins} minutes ago`;
   } else if (diffHours < 24) {
-    return `${diffHours} hours ago`
+    return `${diffHours} hours ago`;
   } else {
-    return `${diffDays} days ago`
+    return `${diffDays} days ago`;
   }
 }
 
