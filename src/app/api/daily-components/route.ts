@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../lib/firebase';
+import { db } from '../../../lib/firebase';
 
 export async function GET() {
   try {
@@ -11,10 +11,22 @@ export async function GET() {
       dailyComponents
     });
   } catch (error) {
+    console.error('Error fetching daily components:', error);
+    
+    // Check if it's a Firebase quota exceeded error
+    if (error instanceof Error && error.message.includes('quota')) {
+      return NextResponse.json({
+        message: 'Firebase quota exceeded. Please upgrade your plan or try again later.',
+        details: 'The free tier has been exceeded. Consider upgrading to a paid plan.',
+        dailyComponents: []
+      }, { status: 429 }); // Too Many Requests
+    }
+    
+    // For other errors, return empty array instead of 500
     return NextResponse.json({
       message: 'Error fetching daily components',
-      error: error instanceof Error ? error.message : error,
+      error: error instanceof Error ? error.message : 'Unknown error',
       dailyComponents: []
-    }, { status: 500 });
+    }, { status: 200 }); // Return 200 with empty data instead of 500
   }
 } 
