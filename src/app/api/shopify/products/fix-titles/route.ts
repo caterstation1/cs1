@@ -22,16 +22,13 @@ export async function POST() {
     for (const product of products) {
       try {
         // Extract base product name from the variant title
-        // Example: "No Serveware / Yes Vege Dogs / Yes GF rolls" -> "Taco Kit 10 - 15"
         const variantTitle = product.shopifyName;
         
-        // Look for patterns that indicate this is a variant description
-        // We'll try to extract the base product name by looking for common patterns
+        // Look for common patterns to extract the base product name
         let baseProductName = variantTitle;
         
         // If it contains multiple options separated by "/", it's likely a variant
         if (variantTitle.includes(' / ')) {
-          // Try to extract the base product name by removing common option patterns
           const parts = variantTitle.split(' / ');
           
           // Look for parts that don't start with common option words
@@ -43,7 +40,28 @@ export async function POST() {
                    !trimmed.startsWith('Vege ') &&
                    !trimmed.startsWith('Serveware') &&
                    !trimmed.startsWith('Dogs') &&
-                   !trimmed.startsWith('rolls');
+                   !trimmed.startsWith('rolls') &&
+                   !trimmed.startsWith('Aioli') &&
+                   !trimmed.startsWith('Pâté') &&
+                   !trimmed.startsWith('Crispy') &&
+                   !trimmed.startsWith('Chilli') &&
+                   !trimmed.startsWith('Sweet') &&
+                   !trimmed.startsWith('Lemon') &&
+                   !trimmed.startsWith('Southern') &&
+                   !trimmed.startsWith('Roasted') &&
+                   !trimmed.startsWith('Glazed') &&
+                   !trimmed.startsWith('Pulled') &&
+                   !trimmed.startsWith('Beef') &&
+                   !trimmed.startsWith('Chicken') &&
+                   !trimmed.startsWith('Lamb') &&
+                   !trimmed.startsWith('Pork') &&
+                   !trimmed.startsWith('Tofu') &&
+                   !trimmed.startsWith('($') &&
+                   !trimmed.includes('(DF)') &&
+                   !trimmed.includes('(GF)') &&
+                   !trimmed.includes('(H)') &&
+                   !trimmed.includes('(V*)') &&
+                   !trimmed.includes('(Vegan)');
           });
           
           if (baseParts.length > 0) {
