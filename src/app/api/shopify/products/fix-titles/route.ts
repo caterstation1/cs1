@@ -1,71 +1,76 @@
 import { NextResponse } from 'next/server';
-import { fetchShopifyProducts } from '../../../../../lib/shopify-client';
 import { prisma } from '../../../../../lib/prisma';
 
 export async function POST() {
   try {
     console.log('🔧 Fixing product titles...');
-    const shopifyProducts = await fetchShopifyProducts();
-    console.log(`📦 Fetched ${shopifyProducts.length} products from Shopify`);
+    
+    // Get all products that need fixing
+    const products = await prisma.productWithCustomData.findMany({
+      where: {
+        shopifyName: {
+          contains: '/'
+        }
+      }
+    });
+    
+    console.log(`📦 Found ${products.length} products that need title fixing`);
 
     let updated = 0;
     let errors = 0;
 
-    // Process products in batches
-    const BATCH_SIZE = 10;
-    
-    for (let i = 0; i < shopifyProducts.length; i += BATCH_SIZE) {
-      const batch = shopifyProducts.slice(i, i + BATCH_SIZE);
-      console.log(`🔄 Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(shopifyProducts.length / BATCH_SIZE)} (${batch.length} products)`);
-      
-      const batchPromises = batch.map(async (shopifyProduct) => {
-        try {
-          // Update existing product with correct titles
-          const result = await prisma.productWithCustomData.updateMany({
-            where: {
-              variantId: shopifyProduct.id.toString()
-            },
-            data: {
-              shopifyName: shopifyProduct.title, // Variant title
-              shopifyTitle: shopifyProduct.product_title, // Base product title
-              displayName: shopifyProduct.product_title // Use base product title as default display name
-            }
+    for (const product of products) {
+      try {
+        // Extract base product name from the variant title
+        // Example: "No Serveware / Yes Vege Dogs / Yes GF rolls" -> "Taco Kit 10 - 15"
+        const variantTitle = product.shopifyName;
+        
+        // Look for patterns that indicate this is a variant description
+        // We'll try to extract the base product name by looking for common patterns
+        let baseProductName = variantTitle;
+        
+        // If it contains multiple options separated by "/", it's likely a variant
+        if (variantTitle.includes(' / ')) {
+          // Try to extract the base product name by removing common option patterns
+          const parts = variantTitle.split(' / ');
+          
+          // Look for parts that don't start with common option words
+          const baseParts = parts.filter(part => {
+            const trimmed = part.trim();
+            return !trimmed.startsWith('Yes ') && 
+                   !trimmed.startsWith('No ') && 
+                   !trimmed.startsWith('GF ') &&
+                   !trimmed.startsWith('Vege ') &&
+                   !trimmed.startsWith('Serveware') &&
+                   !trimmed.startsWith('Dogs') &&
+                   !trimmed.startsWith('rolls');
           });
+          
+          if (baseParts.length > 0) {
+            baseProductName = baseParts.join(' / ');
+          } else {
+            // If we can't extract, use the first part as base name
+            baseProductName = parts[0].trim();
+          }
+        }
+        
+        // Update the product with the corrected titles
+        await prisma.productWithCustomData.update({
+          where: {
+            id: product.id
+          },
+          data: {
+            shopifyTitle: baseProductName,
+            displayName: baseProductName
+          }
+        });
 
-          if (result.count > 0) {
-            console.log(`✅ Updated product: ${shopifyProduct.product_title} -> ${shopifyProduct.title}`);
-            return { success: true, productId: shopifyProduct.id, updated: true };
-          } else {
-            console.log(`⏭️ Product not found: ${shopifyProduct.id}`);
-            return { success: true, productId: shopifyProduct.id, updated: false };
-          }
-        } catch (error) {
-          console.error(`❌ Error updating product ${shopifyProduct.id}:`, error);
-          return { success: false, productId: shopifyProduct.id, error };
-        }
-      });
-      
-      // Wait for batch to complete
-      const batchResults = await Promise.allSettled(batchPromises);
-      
-      // Count results
-      batchResults.forEach((result) => {
-        if (result.status === 'fulfilled') {
-          if (result.value.success) {
-            if (result.value.updated) {
-              updated++;
-            }
-          } else {
-            errors++;
-          }
-        } else {
-          errors++;
-        }
-      });
-      
-      // Small delay between batches
-      if (i + BATCH_SIZE < shopifyProducts.length) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log(`✅ Updated product: ${product.shopifyName} -> ${baseProductName}`);
+        updated++;
+        
+      } catch (error) {
+        console.error(`❌ Error updating product ${product.id}:`, error);
+        errors++;
       }
     }
 
@@ -76,7 +81,7 @@ export async function POST() {
       message: 'Product titles fixed',
       updated,
       errors,
-      total: shopifyProducts.length
+      total: products.length
     });
 
   } catch (error) {
