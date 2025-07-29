@@ -360,7 +360,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       const dispatchTimeB = getDispatchTime(b);
       
       // Debug logging for first few orders
-      if (Math.random() < 0.1) { // Only log 10% of the time to avoid spam
+      if (Math.random() < 0.05) { // Only log 5% of the time to avoid spam
         console.log('🔍 Sorting debug:', {
           orderA: a.orderNumber,
           deliveryTimeA: a.deliveryTime,

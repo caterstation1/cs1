@@ -48,7 +48,9 @@ export const fetchProducts = async (variantIds: string[]): Promise<Record<string
 
   // Fetch only uncached variantIds
   const params = uncachedIds.map(id => `variantId=${encodeURIComponent(id)}`).join('&');
-  const response = await fetch(`/api/products/by-sku?${params}`);
+  const url = `/api/products/by-sku?${params}`;
+  console.log('🔍 Fetching products from:', url);
+  const response = await fetch(url);
   if (!response.ok) throw new Error('Failed to fetch products by variantId');
   const newProductMap = await response.json();
   // Cache the results
