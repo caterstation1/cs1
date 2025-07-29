@@ -5,16 +5,17 @@ export async function POST() {
   try {
     console.log('🔧 Fixing product titles...');
     
-    // Get all products that need fixing
+    // Get only a small number of products to avoid timeout
     const products = await prisma.productWithCustomData.findMany({
       where: {
         shopifyName: {
           contains: '/'
         }
-      }
+      },
+      take: 10 // Only process 10 products at a time
     });
     
-    console.log(`📦 Found ${products.length} products that need title fixing`);
+    console.log(`📦 Found ${products.length} products to fix`);
 
     let updated = 0;
     let errors = 0;
@@ -24,51 +25,46 @@ export async function POST() {
         // Extract base product name from the variant title
         const variantTitle = product.shopifyName;
         
-        // Look for common patterns to extract the base product name
+        // Simple extraction - look for the first part that doesn't start with common option words
         let baseProductName = variantTitle;
         
-        // If it contains multiple options separated by "/", it's likely a variant
         if (variantTitle.includes(' / ')) {
           const parts = variantTitle.split(' / ');
           
-          // Look for parts that don't start with common option words
-          const baseParts = parts.filter(part => {
+          // Find the first part that looks like a product name
+          for (const part of parts) {
             const trimmed = part.trim();
-            return !trimmed.startsWith('Yes ') && 
-                   !trimmed.startsWith('No ') && 
-                   !trimmed.startsWith('GF ') &&
-                   !trimmed.startsWith('Vege ') &&
-                   !trimmed.startsWith('Serveware') &&
-                   !trimmed.startsWith('Dogs') &&
-                   !trimmed.startsWith('rolls') &&
-                   !trimmed.startsWith('Aioli') &&
-                   !trimmed.startsWith('Pâté') &&
-                   !trimmed.startsWith('Crispy') &&
-                   !trimmed.startsWith('Chilli') &&
-                   !trimmed.startsWith('Sweet') &&
-                   !trimmed.startsWith('Lemon') &&
-                   !trimmed.startsWith('Southern') &&
-                   !trimmed.startsWith('Roasted') &&
-                   !trimmed.startsWith('Glazed') &&
-                   !trimmed.startsWith('Pulled') &&
-                   !trimmed.startsWith('Beef') &&
-                   !trimmed.startsWith('Chicken') &&
-                   !trimmed.startsWith('Lamb') &&
-                   !trimmed.startsWith('Pork') &&
-                   !trimmed.startsWith('Tofu') &&
-                   !trimmed.startsWith('($') &&
-                   !trimmed.includes('(DF)') &&
-                   !trimmed.includes('(GF)') &&
-                   !trimmed.includes('(H)') &&
-                   !trimmed.includes('(V*)') &&
-                   !trimmed.includes('(Vegan)');
-          });
-          
-          if (baseParts.length > 0) {
-            baseProductName = baseParts.join(' / ');
-          } else {
-            // If we can't extract, use the first part as base name
-            baseProductName = parts[0].trim();
+            if (!trimmed.startsWith('Yes ') && 
+                !trimmed.startsWith('No ') && 
+                !trimmed.startsWith('GF ') &&
+                !trimmed.startsWith('Vege ') &&
+                !trimmed.startsWith('Serveware') &&
+                !trimmed.startsWith('Dogs') &&
+                !trimmed.startsWith('rolls') &&
+                !trimmed.startsWith('Aioli') &&
+                !trimmed.startsWith('Pâté') &&
+                !trimmed.startsWith('Crispy') &&
+                !trimmed.startsWith('Chilli') &&
+                !trimmed.startsWith('Sweet') &&
+                !trimmed.startsWith('Lemon') &&
+                !trimmed.startsWith('Southern') &&
+                !trimmed.startsWith('Roasted') &&
+                !trimmed.startsWith('Glazed') &&
+                !trimmed.startsWith('Pulled') &&
+                !trimmed.startsWith('Beef') &&
+                !trimmed.startsWith('Chicken') &&
+                !trimmed.startsWith('Lamb') &&
+                !trimmed.startsWith('Pork') &&
+                !trimmed.startsWith('Tofu') &&
+                !trimmed.startsWith('($') &&
+                !trimmed.includes('(DF)') &&
+                !trimmed.includes('(GF)') &&
+                !trimmed.includes('(H)') &&
+                !trimmed.includes('(V*)') &&
+                !trimmed.includes('(Vegan)')) {
+              baseProductName = trimmed;
+              break;
+            }
           }
         }
         
