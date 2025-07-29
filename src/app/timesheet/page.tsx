@@ -72,7 +72,7 @@ export default function TimesheetPage() {
 
   useEffect(() => {
     fetchShifts()
-  }, [])
+  }, [fetchShifts])
 
   // Clock in
   const handleClockIn = async () => {

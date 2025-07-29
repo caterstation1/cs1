@@ -13,14 +13,16 @@ export default function TestPage() {
         console.log('Fetching Shopify data...')
         const response = await fetch('/api/shopify/products')
         console.log('Response status:', response.status)
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+        const contentType = response.headers.get('content-type');
+        if (response.ok && contentType && contentType.includes('application/json')) {
+          const result = await response.json()
+          console.log('Data received:', result)
+          setData(result)
+        } else {
+          const text = await response.text();
+          console.error('Failed to fetch products:', response.status, response.statusText, text);
+          setError(text || `HTTP error! status: ${response.status}`)
         }
-        
-        const result = await response.json()
-        console.log('Data received:', result)
-        setData(result)
       } catch (err) {
         console.error('Error:', err)
         setError(err instanceof Error ? err.message : 'Unknown error')

@@ -5,12 +5,16 @@ import { StockPanel } from '@/components/StockPanel'
 import OrderCardList from '@/components/realtime-orders/order-card-list'
 import { format, isSameDay, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth } from 'date-fns'
 import { Order } from '@/types/order'
+import { parseLocalDate, getTodayLocal } from '@/lib/date-utils'
 
 export default function CalendarPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    // Create a local midnight date for today
+    return getTodayLocal();
+  })
 
   // Real update handler for OrderCardList
   const handleUpdateOrder = async (orderId: string, updates: Partial<Order>): Promise<Order> => {
@@ -37,9 +41,35 @@ export default function CalendarPage() {
       const response = await fetch('/api/orders')
       if (!response.ok) throw new Error('Failed to fetch orders')
       const data = await response.json()
-      setOrders(data)
+      
+      // Ensure we have an array of orders
+      let ordersArray: Order[] = []
+      if (Array.isArray(data)) {
+        ordersArray = data
+      } else if (data && Array.isArray(data.orders)) {
+        ordersArray = data.orders
+      } else {
+        console.warn('Unexpected orders data format:', data)
+        ordersArray = []
+      }
+      
+      console.log('📋 Calendar fetched orders:', {
+        count: ordersArray.length,
+        sampleOrder: ordersArray[0] ? {
+          id: ordersArray[0].id,
+          hasDeliveryDate: !!ordersArray[0].deliveryDate,
+          deliveryDate: ordersArray[0].deliveryDate,
+          hasCustomerFirstName: !!ordersArray[0].customerFirstName,
+          hasCustomerLastName: !!ordersArray[0].customerLastName,
+          hasCustomerPhone: !!ordersArray[0].customerPhone,
+          hasLineItems: !!ordersArray[0].lineItems
+        } : null
+      })
+      setOrders(ordersArray)
     } catch (err) {
+      console.error('Error fetching orders:', err)
       setError('Failed to load orders')
+      setOrders([]) // Ensure orders is always an array
     } finally {
       setLoading(false)
     }
@@ -49,36 +79,41 @@ export default function CalendarPage() {
   function getOrderDeliveryDate(order: Order): Date | null {
     // 1. Use deliveryDate field if present
     if (order.deliveryDate) {
-      // Accept both YYYY-MM-DD and ISO strings
-      const parsed = Date.parse(order.deliveryDate)
-      if (!isNaN(parsed)) return new Date(parsed)
+      const localDate = parseLocalDate(order.deliveryDate);
+      if (localDate) return localDate;
     }
     // 2. Try to extract from note_attributes (e.g. "July 17, 2025")
     if ((order as any).note_attributes && Array.isArray((order as any).note_attributes)) {
-      const dateAttr = (order as any).note_attributes.find((a: any) => a.name === 'Delivery Date')
+      const dateAttr = (order as any).note_attributes.find((a: any) => a.name === 'Delivery Date');
       if (dateAttr && dateAttr.value) {
-        const parsed = Date.parse(dateAttr.value)
-        if (!isNaN(parsed)) return new Date(parsed)
+        const localDate = parseLocalDate(dateAttr.value);
+        if (localDate) return localDate;
       }
     }
     // 3. Try to extract from tags (e.g. "Thu Jul 17 2025")
     if (order.tags) {
-      const tagMatch = order.tags.match(/\b\w{3,9} \d{1,2} \d{4}\b/)
+      const tagMatch = order.tags.match(/\b\w{3,9} \d{1,2} \d{4}\b/);
       if (tagMatch) {
-        const parsed = Date.parse(tagMatch[0])
-        if (!isNaN(parsed)) return new Date(parsed)
+        const localDate = parseLocalDate(tagMatch[0]);
+        if (localDate) return localDate;
       }
     }
     // 4. Fallback to createdAt
     if (order.createdAt) {
-      return parseISO(order.createdAt)
+      const localDate = parseLocalDate(order.createdAt);
+      if (localDate) return localDate;
     }
-    return null
+    return null;
   }
 
   // Group orders by date (YYYY-MM-DD)
   const ordersByDate = useMemo(() => {
     const map: Record<string, Order[]> = {}
+    // Ensure orders is an array before iterating
+    if (!Array.isArray(orders)) {
+      console.warn('Orders is not an array:', orders)
+      return map
+    }
     for (const order of orders) {
       const date = getOrderDeliveryDate(order)
       if (!date) continue
@@ -150,7 +185,18 @@ export default function CalendarPage() {
               return (
                 <button
                   key={date.toISOString()}
-                  onClick={() => setSelectedDate(date)}
+                  onClick={() => {
+                    // Fix: Create a true local midnight date to avoid timezone issues
+                    const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+                    console.log('Calendar date click:', {
+                      originalDate: date.toISOString(),
+                      localDate: localDate.toISOString(),
+                      localDateString: localDate.toDateString(),
+                      selectedDate: selectedDate.toISOString(),
+                      orderCount
+                    });
+                    setSelectedDate(localDate);
+                  }}
                   className={
                     'aspect-square w-full rounded flex flex-col items-center justify-center border ' +
                     (isSelected

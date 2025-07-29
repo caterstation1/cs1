@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { Order } from '@/types/order'
+import { useState, useEffect, useMemo } from 'react'
+import { format } from 'date-fns'
 import OrderCardList from './order-card-list'
+import { Order } from '@/types/order'
+import { parseLocalDate, getTodayLocal } from '@/lib/date-utils'
 import { StockPanel } from '@/components/StockPanel'
-import { format, parseISO } from 'date-fns'
+import { deduplicateOrderUpdate, requestDeduplicator } from '@/lib/request-deduplication'
 
 const MAX_CONCURRENT_UPDATES = 1000 // Increased from 5 to 1000 for testing
 let currentUpdates = 0
@@ -38,21 +40,19 @@ export default function RealtimeOrdersView() {
   const [lastFetchTime, setLastFetchTime] = useState<number>(0)
 
   // Create a stable reference to today's date to prevent infinite re-renders
-  const today = useMemo(() => new Date(), [])
+  const today = useMemo(() => getTodayLocal(), [])
 
   // Helper: extract delivery date from order (prefer deliveryDate field)
   function getOrderDeliveryDate(order: Order): Date | null {
     if (order.deliveryDate) {
-      const parsed = Date.parse(order.deliveryDate)
-      if (!isNaN(parsed)) return new Date(parsed)
-      return null;
+      const localDate = parseLocalDate(order.deliveryDate);
+      if (localDate) return localDate;
     }
     if (order.createdAt) {
-      const parsed = Date.parse(order.createdAt)
-      if (!isNaN(parsed)) return new Date(order.createdAt)
-      return null;
+      const localDate = parseLocalDate(order.createdAt);
+      if (localDate) return localDate;
     }
-    return null
+    return null;
   }
 
   // Filter orders for today
@@ -116,72 +116,104 @@ export default function RealtimeOrdersView() {
     }
   }, [])
 
+  // Add monitoring for request deduplication
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const pendingCount = requestDeduplicator.getPendingCount();
+      if (pendingCount > 0) {
+        console.log(`📊 Request deduplication stats: ${pendingCount} pending requests`);
+        console.log(`📊 Pending keys:`, requestDeduplicator.getPendingKeys());
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleUpdateOrder = async (orderId: string, updates: Partial<Order>): Promise<Order> => {
     console.log('RealtimeOrdersView handleUpdateOrder called:', orderId, updates); // Debug log
     
-    return new Promise((resolve, reject) => {
-      queueUpdate(async () => {
-        const maxRetries = 3
-        let retryCount = 0
-        let lastError: Error | null = null
+    return deduplicateOrderUpdate(orderId, updates, async () => {
+      return new Promise((resolve, reject) => {
+        queueUpdate(async () => {
+          const maxRetries = 3
+          let retryCount = 0
+          let lastError: Error | null = null
 
-        while (retryCount < maxRetries) {
-          try {
-            const fetchLabel = `PATCH /api/orders/${orderId}`;
-            console.time(fetchLabel);
-            console.log('[TIMING] PATCH request started at', new Date().toISOString());
-            const response = await fetch(`/api/orders/${orderId}`, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(updates)
-            })
-            console.timeEnd(fetchLabel);
-            console.log('[TIMING] PATCH request ended at', new Date().toISOString());
+          while (retryCount < maxRetries) {
+            try {
+              const fetchLabel = `PATCH /api/orders/${orderId}`;
+              console.time(fetchLabel);
+              console.log('[TIMING] PATCH request started at', new Date().toISOString());
+              
+              // Create AbortController for timeout
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+              
+              const response = await fetch(`/api/orders/${orderId}`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updates),
+                signal: controller.signal
+              });
+              
+              clearTimeout(timeoutId);
+              console.timeEnd(fetchLabel);
+              console.log('[TIMING] PATCH request ended at', new Date().toISOString());
 
-            if (response.status === 429) {
-              const waitTime = parseInt(response.headers.get('Retry-After') ?? '1') * 1000
-              await new Promise(resolve => setTimeout(resolve, waitTime))
-              retryCount++
-              continue
-            }
+              if (response.status === 429) {
+                const waitTime = parseInt(response.headers.get('Retry-After') ?? '1') * 1000
+                await new Promise(resolve => setTimeout(resolve, waitTime))
+                retryCount++
+                continue
+              }
 
-            if (!response.ok) {
-              throw new Error(`Failed to update order ${orderId}: ${response.statusText}`)
-            }
+              if (!response.ok) {
+                throw new Error(`Failed to update order ${orderId}: ${response.statusText}`)
+              }
 
-            const updatedOrder = await response.json()
-            setOrders(prev =>
-              prev.map(order =>
-                order.id === orderId ? { ...order, ...updatedOrder } : order
+              const updatedOrder = await response.json()
+              setOrders(prev =>
+                prev.map(order =>
+                  order.id === orderId ? { ...order, ...updatedOrder } : order
+                )
               )
-            )
 
-            resolve(updatedOrder)
-            return
-          } catch (err) {
-            lastError = err instanceof Error ? err : new Error('Unknown error')
-            console.error(`Error updating order (attempt ${retryCount + 1}/${maxRetries}):`, lastError)
+              resolve(updatedOrder)
+              return
+            } catch (err) {
+              lastError = err instanceof Error ? err : new Error('Unknown error')
+              console.error(`Error updating order (attempt ${retryCount + 1}/${maxRetries}):`, lastError)
 
-            if (err instanceof TypeError && err.message === 'Failed to fetch') {
-              const waitTime = 1000 * (retryCount + 1)
-              await new Promise(resolve => setTimeout(resolve, waitTime))
-              retryCount++
-            } else {
-              break
+              // Handle timeout errors
+              if (err instanceof Error && err.name === 'AbortError') {
+                console.error('Request timed out, retrying...');
+                const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000); // Exponential backoff, max 10s
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                retryCount++;
+                continue;
+              }
+
+              if (err instanceof TypeError && err.message === 'Failed to fetch') {
+                const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000); // Exponential backoff, max 10s
+                await new Promise(resolve => setTimeout(resolve, waitTime))
+                retryCount++
+              } else {
+                break
+              }
             }
           }
-        }
 
-        if (lastError) {
-          console.error(`Failed to update order ${orderId} after ${maxRetries} attempts`, lastError)
-          reject(lastError)
-        }
+          if (lastError) {
+            console.error(`Failed to update order ${orderId} after ${maxRetries} attempts`, lastError)
+            reject(lastError)
+          }
 
-        releaseNext()
+          releaseNext()
+        })
       })
-    })
+    });
   }
 
   // Memoize the orders list to prevent unnecessary re-renders

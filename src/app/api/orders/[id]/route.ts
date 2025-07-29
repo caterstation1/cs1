@@ -1,63 +1,108 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// Rate limiting setup
-const RATE_LIMIT_WINDOW = 60000; // 1 minute
-const MAX_REQUESTS = 100; // max requests per minute
-const requests = new Map<string, number>();
-
-export async function PATCH(
-  request: NextRequest,
+export async function GET(
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  console.log('Updating order:', id);
-  console.time(`[API] PATCH /api/orders/${id}`);
-  const start = Date.now();
-  
   try {
-    // Check rate limit
-    const now = Date.now();
-    const windowStart = now - RATE_LIMIT_WINDOW;
+    const { id } = await params;
     
-    // Clean up old entries
-    for (const [timestamp] of requests) {
-      if (parseInt(timestamp) < windowStart) {
-        requests.delete(timestamp);
-      }
-    }
+    console.log(`🔍 Fetching order ${id} from PostgreSQL...`);
     
-    // Count recent requests
-    const recentRequests = Array.from(requests.values()).reduce((a, b) => a + b, 0);
+    const order = await prisma.order.findUnique({
+      where: { id }
+    });
     
-    if (recentRequests >= MAX_REQUESTS) {
+    if (!order) {
       return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429, headers: { 'Retry-After': '60' } }
+        { error: 'Order not found' },
+        { status: 404 }
       );
     }
     
-    // Record this request
-    requests.set(now.toString(), (requests.get(now.toString()) || 0) + 1);
+    console.log(`✅ Found order: ${order.orderNumber}`);
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error('❌ Error fetching order:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch order' },
+      { status: 500 }
+    );
+  }
+}
 
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
     const body = await request.json();
-    console.log('PATCH payload:', body);
-
+    
+    console.log(`🔄 Updating order ${id} in PostgreSQL...`);
+    
     const order = await prisma.order.update({
       where: { id },
       data: body
     });
-
-    console.log('Order after update:', order);
-    const end = Date.now();
-    console.timeEnd(`[API] PATCH /api/orders/${id}`);
-    console.log(`[TIMING] PATCH handler duration: ${end - start}ms`);
+    
+    console.log(`✅ Updated order: ${order.orderNumber}`);
     return NextResponse.json(order);
   } catch (error) {
-    console.error(`Error updating order ${id}:`, error);
-    console.timeEnd(`[API] PATCH /api/orders/${id}`);
+    console.error('❌ Error updating order:', error);
     return NextResponse.json(
       { error: 'Failed to update order' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    
+    console.log(`🔄 Patching order ${id} in PostgreSQL...`);
+    
+    const order = await prisma.order.update({
+      where: { id },
+      data: body
+    });
+    
+    console.log(`✅ Patched order: ${order.orderNumber}`);
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error('❌ Error patching order:', error);
+    return NextResponse.json(
+      { error: 'Failed to update order' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    
+    console.log(`🗑️ Deleting order ${id} from PostgreSQL...`);
+    
+    await prisma.order.delete({
+      where: { id }
+    });
+    
+    console.log(`✅ Deleted order: ${id}`);
+    return NextResponse.json({ message: 'Order deleted successfully' });
+  } catch (error) {
+    console.error('❌ Error deleting order:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete order' },
       { status: 500 }
     );
   }

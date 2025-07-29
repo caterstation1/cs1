@@ -1,116 +1,61 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { productAdapter } from '@/lib/firestore-adapters';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Fetch all products with custom data from Firestore
-    const productsWithCustomData = await productAdapter.findMany();
-    return NextResponse.json({
-      success: true,
-      products: productsWithCustomData,
-      total: productsWithCustomData.length
+    console.log('📦 Fetching products with custom data from PostgreSQL...');
+    
+    const products = await prisma.productWithCustomData.findMany({
+      orderBy: {
+        shopifyName: 'asc'
+      }
     });
+    
+    console.log(`✅ Successfully fetched ${products.length} products with custom data`);
+    return NextResponse.json(products);
   } catch (error) {
-    console.error('Error fetching products with custom data:', error);
+    console.error('❌ Error fetching products with custom data:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch products with custom data',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to fetch products with custom data' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const {
-      variantId,
-      shopifyProductId,
-      shopifySku,
-      shopifyName,
-      shopifyTitle,
-      shopifyPrice,
-      shopifyInventory,
-      displayName,
-      meat1,
-      meat2,
-      timer1,
-      timer2,
-      option1,
-      option2,
-      serveware,
-      ingredients,
-      totalCost
-    } = body
-
-    // Validate required fields
-    if (!variantId || !shopifyProductId || !shopifyName || !shopifyTitle) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
-
-    // Create or update product with custom data
-    const product = await productAdapter.upsert({
-      where: { variantId },
-      update: {
-        shopifyProductId,
-        shopifySku,
-        shopifyName,
-        shopifyTitle,
-        shopifyPrice: parseFloat(shopifyPrice),
-        shopifyInventory: parseInt(shopifyInventory),
-        displayName,
-        meat1,
-        meat2,
-        timer1: timer1 ? parseInt(timer1) : null,
-        timer2: timer2 ? parseInt(timer2) : null,
-        option1,
-        option2,
-        serveware: serveware || false,
-        ingredients: ingredients || null,
-        totalCost: totalCost || 0
-      },
-      create: {
-        variantId,
-        shopifyProductId,
-        shopifySku,
-        shopifyName,
-        shopifyTitle,
-        shopifyPrice: parseFloat(shopifyPrice),
-        shopifyInventory: parseInt(shopifyInventory),
-        displayName,
-        meat1,
-        meat2,
-        timer1: timer1 ? parseInt(timer1) : null,
-        timer2: timer2 ? parseInt(timer2) : null,
-        option1,
-        option2,
-        serveware: serveware || false,
-        ingredients: ingredients || null,
-        totalCost: totalCost || 0
+    const body = await request.json();
+    
+    const product = await prisma.productWithCustomData.create({
+      data: {
+        variantId: body.variantId,
+        shopifyProductId: body.shopifyProductId,
+        shopifySku: body.shopifySku,
+        shopifyName: body.shopifyName,
+        shopifyTitle: body.shopifyTitle,
+        shopifyPrice: body.shopifyPrice,
+        shopifyInventory: body.shopifyInventory,
+        displayName: body.displayName,
+        meat1: body.meat1,
+        meat2: body.meat2,
+        timer1: body.timer1,
+        timer2: body.timer2,
+        option1: body.option1,
+        option2: body.option2,
+        serveware: body.serveware || false,
+        isDraft: body.isDraft || false,
+        ingredients: body.ingredients,
+        totalCost: body.totalCost || 0
       }
-    })
-
-    console.log('Product with custom data saved:', product.id)
-
-    return NextResponse.json({
-      success: true,
-      product
-    })
+    });
+    
+    console.log(`✅ Created product with custom data: ${product.shopifyName}`);
+    return NextResponse.json(product, { status: 201 });
   } catch (error) {
-    console.error('Error saving product with custom data:', error)
+    console.error('❌ Error creating product with custom data:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to save product with custom data',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to create product with custom data' },
       { status: 500 }
-    )
+    );
   }
 } 

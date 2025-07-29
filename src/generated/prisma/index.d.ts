@@ -14174,6 +14174,8 @@ export namespace Prisma {
     id: string | null
     name: string | null
     startTime: string | null
+    endTime: string | null
+    color: string | null
     isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -14183,6 +14185,8 @@ export namespace Prisma {
     id: string | null
     name: string | null
     startTime: string | null
+    endTime: string | null
+    color: string | null
     isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -14192,6 +14196,8 @@ export namespace Prisma {
     id: number
     name: number
     startTime: number
+    endTime: number
+    color: number
     isActive: number
     createdAt: number
     updatedAt: number
@@ -14203,6 +14209,8 @@ export namespace Prisma {
     id?: true
     name?: true
     startTime?: true
+    endTime?: true
+    color?: true
     isActive?: true
     createdAt?: true
     updatedAt?: true
@@ -14212,6 +14220,8 @@ export namespace Prisma {
     id?: true
     name?: true
     startTime?: true
+    endTime?: true
+    color?: true
     isActive?: true
     createdAt?: true
     updatedAt?: true
@@ -14221,6 +14231,8 @@ export namespace Prisma {
     id?: true
     name?: true
     startTime?: true
+    endTime?: true
+    color?: true
     isActive?: true
     createdAt?: true
     updatedAt?: true
@@ -14303,6 +14315,8 @@ export namespace Prisma {
     id: string
     name: string
     startTime: string
+    endTime: string
+    color: string
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -14329,6 +14343,8 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     startTime?: boolean
+    endTime?: boolean
+    color?: boolean
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -14340,6 +14356,8 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     startTime?: boolean
+    endTime?: boolean
+    color?: boolean
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -14349,6 +14367,8 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     startTime?: boolean
+    endTime?: boolean
+    color?: boolean
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -14358,12 +14378,14 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     startTime?: boolean
+    endTime?: boolean
+    color?: boolean
     isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ShiftTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "startTime" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["shiftType"]>
+  export type ShiftTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "startTime" | "endTime" | "color" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["shiftType"]>
   export type ShiftTypeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     rosterAssignments?: boolean | ShiftType$rosterAssignmentsArgs<ExtArgs>
     _count?: boolean | ShiftTypeCountOutputTypeDefaultArgs<ExtArgs>
@@ -14380,6 +14402,8 @@ export namespace Prisma {
       id: string
       name: string
       startTime: string
+      endTime: string
+      color: string
       isActive: boolean
       createdAt: Date
       updatedAt: Date
@@ -14810,6 +14834,8 @@ export namespace Prisma {
     readonly id: FieldRef<"ShiftType", 'String'>
     readonly name: FieldRef<"ShiftType", 'String'>
     readonly startTime: FieldRef<"ShiftType", 'String'>
+    readonly endTime: FieldRef<"ShiftType", 'String'>
+    readonly color: FieldRef<"ShiftType", 'String'>
     readonly isActive: FieldRef<"ShiftType", 'Boolean'>
     readonly createdAt: FieldRef<"ShiftType", 'DateTime'>
     readonly updatedAt: FieldRef<"ShiftType", 'DateTime'>
@@ -23975,6 +24001,8 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     startTime: 'startTime',
+    endTime: 'endTime',
+    color: 'color',
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -25293,6 +25321,8 @@ export namespace Prisma {
     id?: StringFilter<"ShiftType"> | string
     name?: StringFilter<"ShiftType"> | string
     startTime?: StringFilter<"ShiftType"> | string
+    endTime?: StringFilter<"ShiftType"> | string
+    color?: StringFilter<"ShiftType"> | string
     isActive?: BoolFilter<"ShiftType"> | boolean
     createdAt?: DateTimeFilter<"ShiftType"> | Date | string
     updatedAt?: DateTimeFilter<"ShiftType"> | Date | string
@@ -25303,6 +25333,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     startTime?: SortOrder
+    endTime?: SortOrder
+    color?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -25316,6 +25348,8 @@ export namespace Prisma {
     NOT?: ShiftTypeWhereInput | ShiftTypeWhereInput[]
     name?: StringFilter<"ShiftType"> | string
     startTime?: StringFilter<"ShiftType"> | string
+    endTime?: StringFilter<"ShiftType"> | string
+    color?: StringFilter<"ShiftType"> | string
     isActive?: BoolFilter<"ShiftType"> | boolean
     createdAt?: DateTimeFilter<"ShiftType"> | Date | string
     updatedAt?: DateTimeFilter<"ShiftType"> | Date | string
@@ -25326,6 +25360,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     startTime?: SortOrder
+    endTime?: SortOrder
+    color?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -25341,6 +25377,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"ShiftType"> | string
     name?: StringWithAggregatesFilter<"ShiftType"> | string
     startTime?: StringWithAggregatesFilter<"ShiftType"> | string
+    endTime?: StringWithAggregatesFilter<"ShiftType"> | string
+    color?: StringWithAggregatesFilter<"ShiftType"> | string
     isActive?: BoolWithAggregatesFilter<"ShiftType"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"ShiftType"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ShiftType"> | Date | string
@@ -27320,6 +27358,8 @@ export namespace Prisma {
     id?: string
     name: string
     startTime: string
+    endTime: string
+    color?: string
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -27330,6 +27370,8 @@ export namespace Prisma {
     id?: string
     name: string
     startTime: string
+    endTime: string
+    color?: string
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -27340,6 +27382,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     startTime?: StringFieldUpdateOperationsInput | string
+    endTime?: StringFieldUpdateOperationsInput | string
+    color?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27350,6 +27394,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     startTime?: StringFieldUpdateOperationsInput | string
+    endTime?: StringFieldUpdateOperationsInput | string
+    color?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27360,6 +27406,8 @@ export namespace Prisma {
     id?: string
     name: string
     startTime: string
+    endTime: string
+    color?: string
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -27369,6 +27417,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     startTime?: StringFieldUpdateOperationsInput | string
+    endTime?: StringFieldUpdateOperationsInput | string
+    color?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27378,6 +27428,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     startTime?: StringFieldUpdateOperationsInput | string
+    endTime?: StringFieldUpdateOperationsInput | string
+    color?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29288,6 +29340,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     startTime?: SortOrder
+    endTime?: SortOrder
+    color?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -29297,6 +29351,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     startTime?: SortOrder
+    endTime?: SortOrder
+    color?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -29306,6 +29362,8 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     startTime?: SortOrder
+    endTime?: SortOrder
+    color?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -30722,6 +30780,8 @@ export namespace Prisma {
     id?: string
     name: string
     startTime: string
+    endTime: string
+    color?: string
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -30731,6 +30791,8 @@ export namespace Prisma {
     id?: string
     name: string
     startTime: string
+    endTime: string
+    color?: string
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -30805,6 +30867,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     startTime?: StringFieldUpdateOperationsInput | string
+    endTime?: StringFieldUpdateOperationsInput | string
+    color?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30814,6 +30878,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     startTime?: StringFieldUpdateOperationsInput | string
+    endTime?: StringFieldUpdateOperationsInput | string
+    color?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

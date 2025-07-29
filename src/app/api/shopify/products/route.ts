@@ -1,67 +1,131 @@
 import { NextResponse } from 'next/server';
-import { productAdapter } from '../../../lib/firestore-adapters';
+import { fetchShopifyProducts } from '../../../../lib/shopify-client';
+import { prisma } from '../../../../lib/prisma';
 
-// TODO: Implement Firestore adapter for Shopify products sync
 export async function GET() {
-  return NextResponse.json({
-    message: 'Shopify products API not yet migrated to Firestore. TODO: Implement Firestore adapter.',
-    products: []
-  });
+  try {
+    console.log('📦 Fetching Shopify products...');
+    const shopifyProducts = await fetchShopifyProducts();
+    console.log(`✅ Fetched ${shopifyProducts.length} products from Shopify`);
+
+    return NextResponse.json({
+      success: true,
+      products: shopifyProducts,
+      count: shopifyProducts.length
+    });
+  } catch (error) {
+    console.error('❌ Error fetching Shopify products:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to fetch Shopify products',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
 }
 
 export async function POST() {
   try {
-    // Fetch products from Shopify REST API
-    const shopUrl = process.env.SHOPIFY_SHOP_URL;
-    const accessToken = process.env.SHOPIFY_ACCESS_TOKEN;
-    const apiVersion = process.env.SHOPIFY_API_VERSION || '2023-10';
-    if (!shopUrl || !accessToken) {
-      return NextResponse.json({ message: 'Missing Shopify credentials' }, { status: 500 });
-    }
-    const url = `https://${shopUrl}/admin/api/${apiVersion}/products.json?limit=250`;
-    const response = await fetch(url, {
-      headers: {
-        'X-Shopify-Access-Token': accessToken,
-        'Content-Type': 'application/json',
-      },
+    console.log('🔄 Syncing Shopify products to PostgreSQL...');
+    const shopifyProducts = await fetchShopifyProducts();
+    console.log(`📦 Fetched ${shopifyProducts.length} products from Shopify`);
+
+    // Get existing product IDs to avoid unnecessary database calls
+    const existingProductIds = await prisma.productWithCustomData.findMany({
+      select: { variantId: true }
     });
-    if (!response.ok) {
-      return NextResponse.json({ message: 'Failed to fetch products from Shopify', status: response.status }, { status: 500 });
-    }
-    const data = await response.json();
-    const products = data.products || [];
+    const existingIdsSet = new Set(existingProductIds.map(p => p.variantId));
+    
+    console.log(`📋 Found ${existingIdsSet.size} existing products in database`);
+
     let synced = 0;
+    let skipped = 0;
     let errors = 0;
-    for (const product of products) {
-      try {
-        // Use variantId as Firestore doc ID if possible
-        for (const variant of product.variants || []) {
-          await productAdapter.upsert({
-            variantId: variant.id.toString(),
-            shopifyProductId: product.id.toString(),
-            shopifyName: product.title,
-            shopifySku: variant.sku,
-            shopifyPrice: variant.price,
-            shopifyInventory: variant.inventory_quantity,
-            ...variant
+
+    // Process products in batches
+    const BATCH_SIZE = 10;
+    
+    for (let i = 0; i < shopifyProducts.length; i += BATCH_SIZE) {
+      const batch = shopifyProducts.slice(i, i + BATCH_SIZE);
+      console.log(`🔄 Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(shopifyProducts.length / BATCH_SIZE)} (${batch.length} products)`);
+      
+      // Filter out products that already exist
+      const newProducts = batch.filter(product => !existingIdsSet.has(product.id.toString()));
+      
+      if (newProducts.length === 0) {
+        console.log(`⏭️ All products in batch already exist, skipping`);
+        skipped += batch.length;
+        continue;
+      }
+      
+      // Process only new products
+      const batchPromises = newProducts.map(async (shopifyProduct) => {
+        try {
+          // Create new product
+          await prisma.productWithCustomData.create({
+            data: {
+              variantId: shopifyProduct.id.toString(),
+              shopifyProductId: shopifyProduct.product_id.toString(),
+              shopifySku: shopifyProduct.sku,
+              shopifyName: shopifyProduct.title, // Variant title
+              shopifyTitle: shopifyProduct.product_title, // Base product title
+              shopifyPrice: parseFloat(shopifyProduct.price),
+              shopifyInventory: shopifyProduct.inventory_quantity,
+              displayName: shopifyProduct.product_title, // Use base product title as default display name
+              isDraft: false,
+              totalCost: 0
+            }
           });
+
+          console.log(`✅ Synced product: ${shopifyProduct.title}`);
+          return { success: true, productId: shopifyProduct.id };
+        } catch (error) {
+          console.error(`❌ Error syncing product ${shopifyProduct.id}:`, error);
+          return { success: false, productId: shopifyProduct.id, error };
         }
-        synced++;
-      } catch (err) {
-        errors++;
+      });
+      
+      // Wait for batch to complete
+      const batchResults = await Promise.allSettled(batchPromises);
+      
+      // Count results
+      batchResults.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          if (result.value.success) {
+            synced++;
+          } else {
+            errors++;
+          }
+        } else {
+          errors++;
+        }
+      });
+      
+      // Add skipped count for existing products
+      skipped += (batch.length - newProducts.length);
+      
+      // Small delay between batches
+      if (i + BATCH_SIZE < shopifyProducts.length) {
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
+
+    console.log(`🎉 Sync completed: ${synced} synced, ${skipped} skipped, ${errors} errors`);
+
     return NextResponse.json({
-      message: 'Products synced to Firestore.',
+      success: true,
+      message: 'Shopify products synced to PostgreSQL',
       synced,
+      skipped,
       errors,
-      timestamp: new Date().toISOString(),
+      total: shopifyProducts.length
     });
+
   } catch (error) {
+    console.error('❌ Error syncing Shopify products:', error);
     return NextResponse.json({
-      message: 'Error syncing products',
-      error: error instanceof Error ? error.message : error,
-      timestamp: new Date().toISOString(),
+      success: false,
+      error: 'Failed to sync Shopify products',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 } 

@@ -55,9 +55,17 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       // Get all unique variantIds from all orders
       const uniqueVariantIds = new Set<string>()
       orders.forEach(order => {
-        const lineItems = Array.isArray(order.lineItems)
-          ? order.lineItems 
-          : (typeof order.lineItems === 'string' && order.lineItems ? JSON.parse(order.lineItems) : []);
+        let lineItems: any[] = [];
+        if (Array.isArray(order.lineItems)) {
+          lineItems = order.lineItems;
+        } else if (typeof order.lineItems === 'string' && order.lineItems) {
+          try {
+            lineItems = JSON.parse(order.lineItems);
+          } catch (err) {
+            console.error('Failed to parse lineItems JSON:', err, order.lineItems);
+            lineItems = [];
+          }
+        }
         lineItems.forEach((item: any) => {
           // Try multiple possible field names for variant ID
           const variantId = item.variant_id || item.variantId || item.variantid;
@@ -166,9 +174,17 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       // Skip dispatched orders
       if (order.isDispatched) return;
       
-      const lineItems = Array.isArray(order.lineItems) 
-        ? order.lineItems 
-        : JSON.parse(order.lineItems as string);
+      let lineItems: any[] = [];
+      if (Array.isArray(order.lineItems)) {
+        lineItems = order.lineItems;
+      } else if (typeof order.lineItems === 'string' && order.lineItems) {
+        try {
+          lineItems = JSON.parse(order.lineItems);
+        } catch (err) {
+          console.error('Failed to parse lineItems JSON:', err, order.lineItems);
+          lineItems = [];
+        }
+      }
       
       lineItems.forEach((item: any) => {
         const variantId = item.variant_id?.toString() || item.variantId?.toString();
@@ -303,17 +319,28 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     const sorted = [...filtered].sort((a, b) => {
       // Calculate dispatch time: delivery time - travel time
       const getDispatchTime = (order: Order) => {
-        // Extract delivery time from order
+        // Extract delivery time from order - use deliveryTime field first, then fallback to tags
         const deliveryTime = order.deliveryTime || 
           order.tags?.match(/(\d{1,2}:\d{2}\s*[AP]M\s*-\s*\d{1,2}:\d{2}\s*[AP]M)/)?.[1];
         
         if (!deliveryTime) return null;
         
-        // Parse time like "9:00 AM - 9:15 AM" and use the start time
-        const timeMatch = deliveryTime.match(/(\d{1,2}:\d{2}\s*[AP]M)/);
-        if (!timeMatch) return null;
+        // Parse time - handle both 24-hour format (16:30) and 12-hour format (9:00 AM)
+        let timeMatch = deliveryTime.match(/(\d{1,2}:\d{2})\s*([AP]M)/);
+        let deliveryTimeStr;
         
-        const deliveryTimeStr = timeMatch[1];
+        if (timeMatch) {
+          // 12-hour format like "9:00 AM"
+          deliveryTimeStr = timeMatch[1] + ' ' + timeMatch[2];
+        } else {
+          // 24-hour format like "16:30"
+          timeMatch = deliveryTime.match(/(\d{1,2}:\d{2})/);
+          if (timeMatch) {
+            deliveryTimeStr = timeMatch[1];
+          } else {
+            return null;
+          }
+        }
         
         // Convert delivery time to minutes since midnight
         const deliveryDate = new Date(`2000-01-01 ${deliveryTimeStr}`);
@@ -331,6 +358,18 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       
       const dispatchTimeA = getDispatchTime(a);
       const dispatchTimeB = getDispatchTime(b);
+      
+      // Debug logging for first few orders
+      if (Math.random() < 0.1) { // Only log 10% of the time to avoid spam
+        console.log('🔍 Sorting debug:', {
+          orderA: a.orderNumber,
+          deliveryTimeA: a.deliveryTime,
+          dispatchTimeA,
+          orderB: b.orderNumber,
+          deliveryTimeB: b.deliveryTime,
+          dispatchTimeB
+        });
+      }
       
       // If both have dispatch times, compare them
       if (dispatchTimeA !== null && dispatchTimeB !== null) {
@@ -358,9 +397,17 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         // Get all unique variantIds from all orders
         const uniqueVariantIds = new Set<string>()
         orders.forEach(order => {
-          const lineItems = Array.isArray(order.lineItems) 
-            ? order.lineItems 
-            : (typeof order.lineItems === 'string' && order.lineItems ? JSON.parse(order.lineItems) : []);
+          let lineItems: any[] = [];
+          if (Array.isArray(order.lineItems)) {
+            lineItems = order.lineItems;
+          } else if (typeof order.lineItems === 'string' && order.lineItems) {
+            try {
+              lineItems = JSON.parse(order.lineItems);
+            } catch (err) {
+              console.error('Failed to parse lineItems JSON:', err, order.lineItems);
+              lineItems = [];
+            }
+          }
           lineItems.forEach((item: any) => {
             console.log('Debug line item:', {
               item,

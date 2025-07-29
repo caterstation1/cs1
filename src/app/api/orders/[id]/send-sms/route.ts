@@ -59,7 +59,6 @@ export async function POST(
       orderNumber: order.orderNumber,
       customerName: `${order.customerFirstName} ${order.customerLastName}`,
       deliveryTime: order.deliveryTime,
-      totalPrice: order.totalPrice
     })
 
     // Format the SMS message
@@ -102,103 +101,65 @@ export async function POST(
       throw new Error(`Clicksend API error: ${clicksendResponse.status}`)
     }
 
-    const clicksendData = await clicksendResponse.json()
-    console.log('✅ Clicksend success response:', clicksendData)
-    
-    // Extract message ID from Clicksend response
-    const messageId = clicksendData.data?.messages?.[0]?.message_id || 'unknown'
-    console.log('🆔 Clicksend message ID:', messageId)
+    const responseData = await clicksendResponse.json()
+    console.log('✅ SMS sent successfully:', responseData)
 
-    // Update order to track SMS sent
-    console.log('💾 Updating order with SMS history...')
+    // Update order with SMS history
+    const smsHistory = order.smsHistory ? JSON.parse(JSON.stringify(order.smsHistory)) : []
+    smsHistory.push({
+      timestamp: new Date().toISOString(),
+      phone: driverPhone,
+      message: message,
+      status: 'sent'
+    })
+
     await prisma.order.update({
       where: { id },
       data: {
         lastSmsSent: new Date(),
-        smsHistory: {
-          push: {
-            timestamp: new Date(),
-            phone: driverPhone,
-            messageId: messageId,
-            status: 'SUCCESS',
-            provider: 'clicksend'
-          }
-        }
+        smsHistory: smsHistory
       }
     })
 
-    console.log('✅ SMS process completed successfully')
+    console.log('✅ Order updated with SMS history')
 
     return NextResponse.json({
       success: true,
-      messageId: messageId,
-      status: 'SUCCESS',
-      provider: 'clicksend'
+      message: 'SMS sent successfully',
+      orderId: id,
+      driverPhone: driverPhone,
+      timestamp: new Date().toISOString()
     })
 
   } catch (error) {
-    console.error('❌ Error in SMS API:', error)
-    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    console.error('❌ Error sending SMS:', error)
     return NextResponse.json(
-      { error: 'Failed to send SMS', details: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        error: 'Failed to send SMS',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
 }
 
 function formatOrderSMS(order: any): string {
-  console.log('📝 Starting SMS message formatting...')
-  
-  const lineItems = Array.isArray(order.lineItems) 
-    ? order.lineItems 
-    : JSON.parse(order.lineItems as string)
-
-  console.log('📦 Line items for SMS:', lineItems)
-
-  const items = lineItems
-    .map((item: any) => `${item.quantity}x ${item.title}`)
-    .join('\n')
-
-  const address = order.shippingAddress
-  const fullAddress = [
-    address.address1,
-    address.address2,
-    address.city,
-    address.province,
-    address.zip
-  ].filter(Boolean).join(', ')
-
+  const customerName = `${order.customerFirstName} ${order.customerLastName}`
+  const orderNumber = order.orderNumber
   const deliveryTime = order.deliveryTime || 'TBD'
-  const customerPhone = order.customerPhone || 'No phone provided'
-
-  // Filter out delivery date/time information from notes
-  let filteredNotes = order.note || 'No special instructions'
-  if (filteredNotes.includes('Delivery Date:') || filteredNotes.includes('Delivery Time:')) {
-    // Remove everything from "Delivery Date:" onwards
-    const deliveryDateIndex = filteredNotes.indexOf('Delivery Date:')
-    if (deliveryDateIndex !== -1) {
-      filteredNotes = filteredNotes.substring(0, deliveryDateIndex).trim()
-    }
-    
-    // If notes are now empty after filtering, set to default
-    if (!filteredNotes) {
-      filteredNotes = 'No special instructions'
-    }
+  const deliveryDate = order.deliveryDate || 'TBD'
+  
+  // Format address if available
+  let address = 'Address TBD'
+  if (order.shippingAddress) {
+    const shipping = order.shippingAddress
+    address = `${shipping.address1 || ''} ${shipping.city || ''} ${shipping.zip || ''}`.trim()
   }
-
-  const message = `#${order.orderNumber}
-
-${fullAddress}
-
-${order.customerFirstName} ${order.customerLastName} - ${customerPhone}
-
-Delivery: ${deliveryTime}
-
-Items:
-${items}
-
-Notes: ${filteredNotes}`
-
-  console.log('📨 Final SMS message length:', message.length)
-  return message
-} 
+  
+  return `CaterStation Order #${orderNumber}
+Customer: ${customerName}
+Delivery: ${deliveryDate} at ${deliveryTime}
+Address: ${address}
+Total: $${order.totalPrice}
+Please confirm delivery time and address.`
+}

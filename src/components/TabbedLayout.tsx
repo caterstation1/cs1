@@ -78,20 +78,20 @@ export function TabbedLayout() {
       try {
           // Fetch Shopify Products
           console.log('Fetching Shopify products...')
-          const shopifyResponse = await fetch('/api/shopify/products')
+          const shopifyResponse = await fetch('/api/products')
           console.log('Shopify response status:', shopifyResponse.status)
           console.log('Shopify response ok:', shopifyResponse.ok)
-          
-          if (!shopifyResponse.ok) {
-            const errorData = await shopifyResponse.json()
-            console.error('Shopify response error:', errorData)
-            throw new Error(errorData.error || 'Failed to fetch Shopify products')
-        }
-          
-          const shopifyData = await shopifyResponse.json()
-          console.log('Shopify data received:', shopifyData.variants?.length || 0, 'variants')
-          console.log('Setting shopifyProducts to:', shopifyData.variants || [])
-          setShopifyProducts(shopifyData.variants || [])
+          const shopifyContentType = shopifyResponse.headers.get('content-type');
+          if (shopifyResponse.ok && shopifyContentType && shopifyContentType.includes('application/json')) {
+            const shopifyData = await shopifyResponse.json();
+            console.log('Shopify data received:', shopifyData.variants?.length || 0, 'variants')
+            console.log('Setting shopifyProducts to:', shopifyData.variants || [])
+            setShopifyProducts(shopifyData.variants || [])
+          } else {
+            const text = await shopifyResponse.text();
+            console.error('Shopify response error:', text);
+            setShopifyError(text || 'Failed to fetch Shopify products');
+          }
       } catch (error) {
           console.error('Error fetching Shopify products:', error)
           setShopifyError(error instanceof Error ? error.message : 'Failed to fetch Shopify products')

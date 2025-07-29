@@ -1,96 +1,99 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
-    const shift = await prisma.shift.findUnique({
+    const { id } = await params;
+    
+    console.log(`🔍 Fetching roster assignment ${id} from PostgreSQL...`);
+    
+    const assignment = await prisma.rosterAssignment.findUnique({
       where: { id },
       include: {
-        staff: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true
-          }
-        }
+        staff: true,
+        shiftType: true
       }
-    })
-
-    if (!shift) {
+    });
+    
+    if (!assignment) {
       return NextResponse.json(
-        { error: 'Shift not found' },
+        { error: 'Roster assignment not found' },
         { status: 404 }
-      )
+      );
     }
-
-    return NextResponse.json(shift)
+    
+    console.log(`✅ Found roster assignment for ${assignment.staff.firstName} ${assignment.staff.lastName}`);
+    return NextResponse.json(assignment);
   } catch (error) {
-    console.error('Error fetching shift:', error)
+    console.error('❌ Error fetching roster assignment:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch shift' },
+      { error: 'Failed to fetch roster assignment' },
       { status: 500 }
-    )
+    );
   }
 }
 
 export async function PUT(
-  request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
-    const data = await request.json()
+    const { id } = await params;
+    const body = await request.json();
     
-    const shift = await prisma.shift.update({
+    console.log(`🔄 Updating roster assignment ${id} in PostgreSQL...`);
+    
+    const assignment = await prisma.rosterAssignment.update({
       where: { id },
       data: {
-        clockIn: data.clockIn ? new Date(data.clockIn) : undefined,
-        clockOut: data.clockOut ? new Date(data.clockOut) : undefined,
-        totalHours: data.totalHours
+        staffId: body.staffId,
+        shiftTypeId: body.shiftTypeId,
+        startTime: body.startTime,
+        endTime: body.endTime,
+        date: body.date ? new Date(body.date) : undefined,
+        notes: body.notes,
+        assignedBy: body.assignedBy
       },
       include: {
-        staff: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true
-          }
-        }
+        staff: true,
+        shiftType: true
       }
-    })
-
-    return NextResponse.json(shift)
+    });
+    
+    console.log(`✅ Updated roster assignment for ${assignment.staff.firstName} ${assignment.staff.lastName}`);
+    return NextResponse.json(assignment);
   } catch (error) {
-    console.error('Error updating shift:', error)
+    console.error('❌ Error updating roster assignment:', error);
     return NextResponse.json(
-      { error: 'Failed to update shift' },
+      { error: 'Failed to update roster assignment' },
       { status: 500 }
-    )
+    );
   }
 }
 
 export async function DELETE(
-  request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
-    await prisma.shift.delete({
+    const { id } = await params;
+    
+    console.log(`🗑️ Deleting roster assignment ${id} from PostgreSQL...`);
+    
+    await prisma.rosterAssignment.delete({
       where: { id }
-    })
-
-    return NextResponse.json({ success: true })
+    });
+    
+    console.log(`✅ Deleted roster assignment: ${id}`);
+    return NextResponse.json({ message: 'Roster assignment deleted successfully' });
   } catch (error) {
-    console.error('Error deleting shift:', error)
+    console.error('❌ Error deleting roster assignment:', error);
     return NextResponse.json(
-      { error: 'Failed to delete shift' },
+      { error: 'Failed to delete roster assignment' },
       { status: 500 }
-    )
+    );
   }
 } 

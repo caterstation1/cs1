@@ -209,8 +209,10 @@ model Staff {
 // New: Shift Types for roster management
 model ShiftType {
   id                String             @id @default(uuid())
-  name              String // e.g.,Morning", Afternoon", "Full Day", Delivery"
-  startTime         String // Format: HH:MM" (e.g., 7007  endTime   String   // Format: HH:MM" (e.g., 15, "15  color     String   @default("#3B82) // Hex color for UI
+  name              String // e.g., "Morning", "Afternoon", "Full Day", "Delivery"
+  startTime         String // Format: "HH:MM" (e.g., "07:00")
+  endTime           String // Format: "HH:MM" (e.g., "15:00")
+  color             String             @default("#3B82F6") // Hex color for UI
   isActive          Boolean            @default(true)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt

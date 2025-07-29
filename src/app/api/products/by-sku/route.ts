@@ -1,35 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { productAdapter } from '@/lib/firestore-adapters';
-
-interface ProductWithVariantId {
-  id: string;
-  variantId: string;
-  [key: string]: any;
-}
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
+    const { searchParams } = new URL(request.url);
+    const sku = searchParams.get('sku');
     const variantIds = searchParams.getAll('variantId');
 
-    if (!variantIds || variantIds.length === 0) {
-      return NextResponse.json({ error: 'variantId is required' }, { status: 400 });
+    // Handle single SKU lookup
+    if (sku && variantIds.length === 0) {
+      const product = await prisma.productWithCustomData.findFirst({
+        where: {
+          shopifySku: sku
+        }
+      });
+
+      if (!product) {
+        return NextResponse.json(
+          { error: 'Product not found' },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json(product);
     }
 
-    // Fetch all products with these variantIds from Firestore
-    const allProducts = (await productAdapter.findMany()) as ProductWithVariantId[];
-    const products = allProducts.filter(product => variantIds.includes(product.variantId));
+    // Handle multiple variantId lookup
+    if (variantIds.length > 0) {
+      const products = await prisma.productWithCustomData.findMany({
+        where: {
+          variantId: {
+            in: variantIds
+          }
+        }
+      });
 
-    // Return as a map for easy lookup
-    const productMap = Object.fromEntries(
-      products.map(product => [product.variantId, product])
-    );
+      // Create a map of variantId to product
+      const productMap = products.reduce((acc, product) => {
+        acc[product.variantId] = product;
+        return acc;
+      }, {} as Record<string, any>);
 
-    return NextResponse.json(productMap);
-  } catch (error) {
-    console.error('Error fetching products by variantId:', error);
+      return NextResponse.json(productMap);
+    }
+
     return NextResponse.json(
-      { error: 'Failed to fetch products', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Either sku or variantId parameter is required' },
+      { status: 400 }
+    );
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch products' },
       { status: 500 }
     );
   }

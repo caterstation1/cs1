@@ -1,89 +1,86 @@
-import { Product } from '@/types/product';
 import { prisma } from './prisma';
+import { ShopifyOrder as ShopifyClientOrder } from './shopify-client';
+import { formatLocalDate, parseLocalDate } from './date-utils';
 
-interface ShopifyOrder {
-  id: string;
-  order_number: string;
-  customer: {
-    first_name: string;
-    last_name: string;
-    company?: string;
-    phone?: string;
-  };
-  shipping_address: {
-    address1: string;
-    address2?: string;
-    city: string;
-    province?: string;
-    zip: string;
-    country: string;
-  };
-  line_items: Array<{
-    sku: string;
-    title: string;
-    quantity: number;
-    price: string;
-  }>;
-  note?: string;
-  note_attributes?: Array<{ name: string; value: string }>;
-  tags: string;
-  created_at: string;
-}
+// Use the interface from shopify-client
+type ShopifyOrder = ShopifyClientOrder;
 
 export async function parseShopifyOrder(shopifyOrder: ShopifyOrder) {
   try {
-    // Extract delivery time and date from note_attributes, note, or tags
-    const { deliveryTime, deliveryDate } = extractDeliveryInfo(shopifyOrder.note_attributes, shopifyOrder.note, shopifyOrder.tags);
+    console.log('🔄 Parsing Shopify order:', shopifyOrder.id);
     
-    // Create the parsed order
-    const parsedOrder = await prisma.parsedOrder.create({
-      data: {
-        id: shopifyOrder.id,
-        shopifyOrderId: shopifyOrder.id,
-        orderNumber: shopifyOrder.order_number,
-        deliveryTime,
-        deliveryDate,
-        deliveryAddress: shopifyOrder.shipping_address,
-        customerName: `${shopifyOrder.customer.first_name} ${shopifyOrder.customer.last_name}`,
-        customerCompany: shopifyOrder.customer.company || null,
-        customerPhone: shopifyOrder.customer.phone || '',
-        orderNotes: shopifyOrder.note || null,
-        lineItems: {
-          create: await Promise.all(shopifyOrder.line_items.map(async (item) => {
-            // Fetch product details from our database
-            const product = await prisma.product.findFirst({
-              where: { 
-                OR: [
-                  { variantSku: item.sku },
-                  { skuSearch: item.sku }
-                ]
-              }
-            });
+    const { deliveryTime, deliveryDate } = extractDeliveryInfo(
+      shopifyOrder.note_attributes,
+      shopifyOrder.note || undefined,
+      shopifyOrder.tags
+    );
 
-            return {
-              id: `${shopifyOrder.id}-${item.sku}`,
-              sku: item.sku,
-              title: item.title,
-              quantity: item.quantity,
-              price: item.price,
-              handle: product?.handle || null,
-              meat1: product?.meat1 || null,
-              meat2: product?.meat2 || null,
-              serveware: product?.serveware || null,
-              option1: product?.option1 || null,
-              option2: product?.option2 || null,
-            };
-          }))
-        }
+    // Transform line items to match our expected format
+    const transformedLineItems = shopifyOrder.line_items.map((item: any) => ({
+      id: item.id?.toString() || item.sku,
+      variant_id: item.variant_id,
+      sku: item.sku,
+      title: item.title,
+      quantity: item.quantity,
+      price: parseFloat(item.price),
+      variant_title: item.variant_title,
+      vendor: item.vendor || 'Cater Station',
+      product_id: item.id // We'll need this for product lookup
+    }));
+
+    const parsedOrder = {
+      id: shopifyOrder.id.toString(),
+      orderNumber: shopifyOrder.order_number.toString(),
+      name: `#${shopifyOrder.order_number}`, // Generate name from order number
+      customerFirstName: shopifyOrder.customer.first_name,
+      customerLastName: shopifyOrder.customer.last_name,
+      customerCompany: shopifyOrder.shipping_address?.company,
+      customerPhone: shopifyOrder.customer.phone,
+      customerEmail: shopifyOrder.customer.email,
+      shippingAddress: {
+        address1: shopifyOrder.shipping_address?.address1,
+        address2: shopifyOrder.shipping_address?.address2,
+        city: shopifyOrder.shipping_address?.city,
+        province: shopifyOrder.shipping_address?.province,
+        zip: shopifyOrder.shipping_address?.zip,
+        country: shopifyOrder.shipping_address?.country,
+        company: shopifyOrder.shipping_address?.company,
+        phone: shopifyOrder.shipping_address?.phone
       },
-      include: {
-        lineItems: true
-      }
+      deliveryTime,
+      deliveryDate: deliveryDate?.toISOString().split('T')[0],
+      lineItems: transformedLineItems,
+      createdAt: shopifyOrder.created_at,
+      updatedAt: shopifyOrder.updated_at,
+      processedAt: shopifyOrder.processed_at,
+      tags: shopifyOrder.tags,
+      note: shopifyOrder.note,
+      financialStatus: shopifyOrder.financial_status,
+      fulfillmentStatus: shopifyOrder.fulfillment_status,
+      totalPrice: parseFloat(shopifyOrder.total_price),
+      subtotalPrice: parseFloat(shopifyOrder.subtotal_price),
+      totalTax: parseFloat(shopifyOrder.total_tax),
+      currency: shopifyOrder.currency,
+      // Add flags for tracking
+      hasLocalEdits: false,
+      isDispatched: false,
+      // Add timestamps for sync tracking
+      syncedAt: new Date().toISOString(),
+      shopifyId: shopifyOrder.id
+    };
+
+    console.log('✅ Parsed order:', {
+      id: parsedOrder.id,
+      orderNumber: parsedOrder.orderNumber,
+      customerName: `${parsedOrder.customerFirstName} ${parsedOrder.customerLastName}`,
+      deliveryTime: parsedOrder.deliveryTime,
+      deliveryDate: parsedOrder.deliveryDate,
+      lineItemsCount: parsedOrder.lineItems.length
     });
 
     return parsedOrder;
   } catch (error) {
-    console.error('Error parsing Shopify order:', error);
+    console.error('❌ Error parsing Shopify order:', error);
     throw error;
   }
 }
@@ -112,15 +109,21 @@ function extractDeliveryInfo(note_attributes?: Array<{ name: string; value: stri
   let deliveryTime = '';
   let deliveryDate: Date | null = null;
 
+  console.log('🔍 Extracting delivery info:', { note_attributes, note, tags });
+
   // 1. Try note_attributes
   if (note_attributes && Array.isArray(note_attributes)) {
     for (const attr of note_attributes) {
       if (attr.name.toLowerCase().includes('delivery date') && attr.value) {
-        const parsed = new Date(attr.value);
-        if (!isNaN(parsed.getTime())) deliveryDate = parsed;
+        // Fix: Parse date in local time to avoid timezone issues
+        deliveryDate = parseLocalDate(attr.value);
+        if (deliveryDate) {
+          console.log('📅 Found delivery date in note_attributes:', attr.value);
+        }
       }
       if (attr.name.toLowerCase().includes('delivery time') && attr.value) {
         deliveryTime = parseFirstTimeTo24Hour(attr.value);
+        console.log('⏰ Found delivery time in note_attributes:', attr.value, '->', deliveryTime);
       }
     }
   }
@@ -131,11 +134,15 @@ function extractDeliveryInfo(note_attributes?: Array<{ name: string; value: stri
     const dateMatch = note.match(/Delivery Date: ([^|]+)/i);
     const timeMatch = note.match(/Delivery Time: ([^|]+)/i);
     if (!deliveryDate && dateMatch && dateMatch[1]) {
-      const parsed = new Date(dateMatch[1].trim());
-      if (!isNaN(parsed.getTime())) deliveryDate = parsed;
+      // Fix: Parse date in local time to avoid timezone issues
+      deliveryDate = parseLocalDate(dateMatch[1].trim());
+      if (deliveryDate) {
+        console.log('📅 Found delivery date in note:', dateMatch[1].trim());
+      }
     }
     if (!deliveryTime && timeMatch && timeMatch[1]) {
       deliveryTime = parseFirstTimeTo24Hour(timeMatch[1].trim());
+      console.log('⏰ Found delivery time in note:', timeMatch[1].trim(), '->', deliveryTime);
     }
   }
 
@@ -145,29 +152,35 @@ function extractDeliveryInfo(note_attributes?: Array<{ name: string; value: stri
     for (const tag of tagArray) {
       if (!deliveryTime && tag.includes('delivery_time:')) {
         deliveryTime = parseFirstTimeTo24Hour(tag.replace('delivery_time:', '').trim());
+        console.log('⏰ Found delivery time in tags:', tag, '->', deliveryTime);
       }
       if (!deliveryDate && tag.includes('delivery_date:')) {
         const dateStr = tag.replace('delivery_date:', '').trim();
-        const parsed = new Date(dateStr);
-        if (!isNaN(parsed.getTime())) deliveryDate = parsed;
+        // Fix: Parse date in local time to avoid timezone issues
+        deliveryDate = parseLocalDate(dateStr);
+        if (deliveryDate) {
+          console.log('📅 Found delivery date in tags:', dateStr);
+        }
       }
     }
   }
 
-  // 4. Fallback: if still not found, use current date
-  if (!deliveryDate) deliveryDate = new Date();
+  // 4. Fallback: if still not found, use current date in local time
+  if (!deliveryDate) {
+    // Fix: Create date in local time to avoid timezone issues
+    deliveryDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 0, 0, 0, 0);
+    console.log('📅 Using fallback delivery date:', deliveryDate);
+  }
 
+  console.log('✅ Final delivery info:', { deliveryTime, deliveryDate });
   return { deliveryTime, deliveryDate };
 }
 
 export async function updateParsedOrder(orderId: string, updates: any) {
   try {
-    const updatedOrder = await prisma.parsedOrder.update({
+    const updatedOrder = await prisma.order.update({
       where: { id: orderId },
-      data: updates,
-      include: {
-        lineItems: true
-      }
+      data: updates
     });
     return updatedOrder;
   } catch (error) {

@@ -1,8 +1,16 @@
-import { NextResponse } from 'next/server';
-// TODO: Implement Firestore adapter for other products
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+
 export async function GET() {
-  return NextResponse.json({
-    message: 'Other products API not yet migrated to Firestore. TODO: Implement Firestore adapter.',
-    products: []
-  });
+  try {
+    const products = await prisma.otherProduct.findMany({
+      orderBy: {
+        name: 'asc'
+      }
+    })
+    return NextResponse.json({ products })
+  } catch (error) {
+    console.error('Error fetching other products:', error)
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
+  }
 } 

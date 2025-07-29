@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { Card, CardContent } from '@/components/ui/card'
@@ -70,7 +70,7 @@ export default function RosterPage() {
   const weekDates = getWeekDates(currentWeek)
 
   // Fetch data
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true)
       const [staffRes, shiftTypesRes, assignmentsRes] = await Promise.all([
@@ -101,11 +101,11 @@ export default function RosterPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [weekDates])
 
   useEffect(() => {
     fetchData()
-  }, [currentWeek])
+  }, [currentWeek, fetchData])
 
   // Navigation
   const previousWeek = () => {

@@ -68,16 +68,16 @@ export function StockPanel({
       console.log('📅 Fetching components for date:', dateString, '(selected date:', effectiveTargetDate.toDateString(), ')')
       
       const response = await fetch(`/api/daily-components?date=${dateString}`)
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      const contentType = response.headers.get('content-type');
+      if (response.ok && contentType && contentType.includes('application/json')) {
+        const data: DailyComponentsResponse = await response.json();
+        console.log('📦 Daily components data:', data);
+        setComponentRequirements(data.components || [])
+      } else {
+        const text = await response.text();
+        console.error('Failed to fetch daily components:', response.status, response.statusText, text);
+        setComponentRequirements([]);
       }
-
-      const data: DailyComponentsResponse = await response.json()
-      
-      console.log('📦 Daily components data:', data)
-      
-      setComponentRequirements(data.components || [])
     } catch (err) {
       console.error('❌ Error fetching daily components:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch daily components')

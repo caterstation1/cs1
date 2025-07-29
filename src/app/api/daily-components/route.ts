@@ -1,28 +1,26 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../lib/firebase';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Fetch all components from Firestore
-    const snapshot = await db.collection('components').get();
-    const dailyComponents = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
+    console.log('🧩 Fetching daily components from PostgreSQL...');
+    
+    // Fetch all components from PostgreSQL
+    const dailyComponents = await prisma.component.findMany({
+      orderBy: {
+        name: 'asc'
+      }
+    });
+    
+    console.log(`✅ Successfully fetched ${dailyComponents.length} daily components`);
     return NextResponse.json({
-      message: 'Fetched daily components from Firestore.',
+      message: 'Fetched daily components from PostgreSQL.',
       dailyComponents
     });
   } catch (error) {
-    console.error('Error fetching daily components:', error);
+    console.error('❌ Error fetching daily components:', error);
     
-    // Check if it's a Firebase quota exceeded error
-    if (error instanceof Error && error.message.includes('quota')) {
-      return NextResponse.json({
-        message: 'Firebase quota exceeded. Please upgrade your plan or try again later.',
-        details: 'The free tier has been exceeded. Consider upgrading to a paid plan.',
-        dailyComponents: []
-      }, { status: 429 }); // Too Many Requests
-    }
-    
-    // For other errors, return empty array instead of 500
+    // Return empty array instead of error
     return NextResponse.json({
       message: 'Error fetching daily components',
       error: error instanceof Error ? error.message : 'Unknown error',

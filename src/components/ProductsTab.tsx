@@ -15,33 +15,40 @@ import { SetRuleModal } from './SetRuleModal';
 import { ManageRulesModal } from './ManageRulesModal';
 import { debounce } from 'lodash';
 
-// Shopify product type
+// Shopify product type (matching ProductWithCustomData schema)
 interface ShopifyProduct {
-  product_id: string;
-  product_title: string;
-  handle: string;
-  variant_id: string;
-  variant_title: string;
-  sku: string | null;
-  price: number;
-  inventoryQuantity: number;
-  shopify_title: string;
-  shopify_variant_title: string;
-  shopify_sku: string | null;
-  shopify_price: number;
-  shopify_inventory: number;
-  meat1: string | null;
-  meat2: string | null;
-  option1: string | null;
-  option2: string | null;
-  serveware: string | null;
-  timerA: number | null;
-  timerB: number | null;
-  ingredients: any | null;
-  totalCost: number;
-  hasCustomData: boolean;
-  customDataId: string | null;
-  displayName: string | null;
+  id: string;
+  variantId: string;
+  createdAt: string;
+  updatedAt: string;
+  
+  // Shopify data (read-only, synced from Shopify)
+  shopifyProductId: string;
+  shopifySku?: string;
+  shopifyName: string;
+  shopifyTitle: string;
+  shopifyPrice: string;
+  shopifyInventory: number;
+  
+  // Custom operational data (editable)
+  displayName?: string;
+  meat1?: string;
+  meat2?: string;
+  timer1?: number | null;
+  timer2?: number | null;
+  option1?: string;
+  option2?: string;
+  serveware: boolean;
+  isDraft: boolean;
+  
+  // Legacy fields for backward compatibility
+  name?: string;
+  description?: string;
+  variantSku?: string;
+  timerA?: number | null;
+  timerB?: number | null;
+  ingredients?: any;
+  totalCost?: number;
 }
 
 // Form data schema
@@ -66,7 +73,7 @@ export function ProductsTab() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isApplyingRules, setIsApplyingRules] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState<keyof ShopifyProduct>('shopify_title');
+  const [sortField, setSortField] = useState<keyof ShopifyProduct>('shopifyTitle');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ShopifyProduct | null>(null);
@@ -81,8 +88,8 @@ export function ProductsTab() {
     
     if (searchTerm) {
       filtered = productsArray.filter(product => 
-        product.shopify_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.shopify_variant_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.shopifyTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.shopifyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (product.displayName && product.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
@@ -99,9 +106,12 @@ export function ProductsTab() {
 
   // Debounced search handler
   const debouncedSetSearchTerm = useCallback(
-    debounce((value: string) => {
-      setSearchTerm(value);
-    }, 300),
+    (value: string) => {
+      const timeoutId = setTimeout(() => {
+        setSearchTerm(value);
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    },
     []
   );
 
@@ -124,17 +134,16 @@ export function ProductsTab() {
   // Fetch products function
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await fetch('/api/shopify/products');
-      if (response.ok) {
-      const data = await response.json();
-        
-        // Extract variants array from the response object
-        const productsArray = data.variants || (Array.isArray(data) ? data : []);
+      const response = await fetch('/api/products-with-custom-data');
+      const contentType = response.headers.get('content-type');
+      if (response.ok && contentType && contentType.includes('application/json')) {
+        const data = await response.json();
         
         // Ensure we always set an array
-        setProducts(Array.isArray(productsArray) ? productsArray : []);
+        setProducts(Array.isArray(data) ? data : []);
       } else {
-        console.error('Failed to fetch products:', response.status, response.statusText);
+        const text = await response.text();
+        console.error('Failed to fetch products:', response.status, response.statusText, text);
         setProducts([]);
       }
     } catch (error) {
@@ -213,11 +222,11 @@ export function ProductsTab() {
       displayName: product.displayName || '',
       meat1: product.meat1 || '',
       meat2: product.meat2 || '',
-      timer1: product.timerA || null,
-      timer2: product.timerB || null,
+      timer1: product.timer1 || product.timerA || null,
+      timer2: product.timer2 || product.timerB || null,
       option1: product.option1 || '',
       option2: product.option2 || '',
-      serveware: product.serveware === 'Yes' || product.serveware === 'true' || (typeof product.serveware === 'boolean' && product.serveware),
+      serveware: product.serveware || false,
       ingredients: product.ingredients || [],
       totalCost: product.totalCost || 0,
     };
@@ -234,7 +243,7 @@ export function ProductsTab() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          variantId: editingProduct.variant_id,
+          variantId: editingProduct.variantId,
           ...data
         })
       });
@@ -342,21 +351,24 @@ export function ProductsTab() {
         </TableHeader>
         <TableBody>
             {safeProducts.map((product: ShopifyProduct) => (
-              <TableRow key={product.variant_id} className="cursor-pointer" onClick={() => handleEdit(product)}>
+              <TableRow key={product.variantId} className="cursor-pointer" onClick={() => handleEdit(product)}>
                 <TableCell>
                   <div>
-                    <div className="font-medium">{product.shopify_title}</div>
-                    {product.displayName && (
-                      <div className="text-sm text-gray-500">{product.displayName}</div>
+                    <div className="font-medium">{product.shopifyTitle}</div>
+                    {product.shopifyName !== product.shopifyTitle && (
+                      <div className="text-sm text-gray-500">{product.shopifyName}</div>
+                    )}
+                    {product.displayName && product.displayName !== product.shopifyTitle && (
+                      <div className="text-sm text-blue-600">{product.displayName}</div>
                     )}
                   </div>
                 </TableCell>
-                <TableCell>{product.shopify_variant_title}</TableCell>
-                <TableCell>{product.shopify_sku}</TableCell>
-                <TableCell>${product.shopify_price}</TableCell>
-                <TableCell>{product.shopify_inventory}</TableCell>
+                <TableCell>{product.shopifyName}</TableCell>
+                <TableCell>{product.shopifySku}</TableCell>
+                <TableCell>${product.shopifyPrice}</TableCell>
+                <TableCell>{product.shopifyInventory}</TableCell>
                 <TableCell>
-                  {product.hasCustomData && (
+                  {product.displayName && (
                     <Badge variant="secondary">Has Custom Data</Badge>
                   )}
                 </TableCell>
@@ -386,10 +398,10 @@ export function ProductsTab() {
             <DialogDescription>
               {editingProduct ? (
                 <div className="space-y-2">
-                  <div><strong>Shopify Product:</strong> {editingProduct.shopify_title}</div>
-                  <div><strong>Variant:</strong> {editingProduct.shopify_variant_title}</div>
-                  <div><strong>SKU:</strong> {editingProduct.shopify_sku}</div>
-                  <div><strong>Price:</strong> ${editingProduct.shopify_price}</div>
+                  <div><strong>Shopify Product:</strong> {editingProduct.shopifyTitle}</div>
+                  <div><strong>Variant:</strong> {editingProduct.shopifyName}</div>
+                  <div><strong>SKU:</strong> {editingProduct.shopifySku}</div>
+                  <div><strong>Price:</strong> ${editingProduct.shopifyPrice}</div>
                   {editingProduct.option1 && <div><strong>Option 1:</strong> {editingProduct.option1}</div>}
                   {editingProduct.option2 && <div><strong>Option 2:</strong> {editingProduct.option2}</div>}
                 </div>

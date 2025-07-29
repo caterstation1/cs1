@@ -120,9 +120,17 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const statusColor = getStatusColor(order.fulfillmentStatus)
   
   // Parse line items
-  const lineItems = Array.isArray(order.lineItems)
-    ? order.lineItems
-    : (typeof order.lineItems === 'string' && order.lineItems ? JSON.parse(order.lineItems) : []);
+  let lineItems: any[] = [];
+  if (Array.isArray(order.lineItems)) {
+    lineItems = order.lineItems;
+  } else if (typeof order.lineItems === 'string' && order.lineItems) {
+    try {
+      lineItems = JSON.parse(order.lineItems);
+    } catch (err) {
+      console.error('Failed to parse lineItems JSON:', err, order.lineItems);
+      lineItems = [];
+    }
+  }
   
   // Get status badge color
   const statusBadgeColor = getStatusColor(order.fulfillmentStatus)
@@ -224,17 +232,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const extractedDeliveryTime = extractDeliveryTime(order.tags);
   
   // Extract delivery address
-  const deliveryAddress = (() => {
-    if (!order.shippingAddress) return '';
-    if (typeof order.shippingAddress === 'string') {
-      try {
-        return order.shippingAddress ? JSON.parse(order.shippingAddress) : {};
-      } catch {
-        return {};
-      }
-    }
-    return order.shippingAddress;
-  })();
+  const deliveryAddress = extractDeliveryAddress(order.shippingAddress);
   
   // Use customerPhone directly from the order (populated by sync process)
   const deliveryPhone = order.customerPhone || 'No phone'
@@ -352,9 +350,17 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
 
   // Update the useEffect to initialize editedLineItems
   useEffect(() => {
-    const parsedLineItems = Array.isArray(order.lineItems) 
-      ? order.lineItems 
-      : JSON.parse(order.lineItems as string);
+    let parsedLineItems: any[] = [];
+    if (Array.isArray(order.lineItems)) {
+      parsedLineItems = order.lineItems;
+    } else if (typeof order.lineItems === 'string' && order.lineItems) {
+      try {
+        parsedLineItems = JSON.parse(order.lineItems);
+      } catch (err) {
+        console.error('Failed to parse lineItems JSON:', err, order.lineItems);
+        parsedLineItems = [];
+      }
+    }
     setEditedLineItems(parsedLineItems);
   }, [order.lineItems]);
 
@@ -368,9 +374,18 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       setNote(order.note || '');
       setAddress(order.shippingAddress?.address1 || '');
       setDeliveryDate(order.deliveryDate || '');
-      const parsedLineItems = Array.isArray(order.lineItems) 
-        ? order.lineItems 
-        : JSON.parse(order.lineItems as string);
+      
+      let parsedLineItems: any[] = [];
+      if (Array.isArray(order.lineItems)) {
+        parsedLineItems = order.lineItems;
+      } else if (typeof order.lineItems === 'string' && order.lineItems) {
+        try {
+          parsedLineItems = JSON.parse(order.lineItems);
+        } catch (err) {
+          console.error('Failed to parse lineItems JSON:', err, order.lineItems);
+          parsedLineItems = [];
+        }
+      }
       setEditedLineItems(parsedLineItems);
     }
   }, [order]);
@@ -562,10 +577,19 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       fulfillment_status: null
     }
 
-    const updatedLineItems = Array.isArray(order.lineItems) 
-      ? [...order.lineItems, newLineItem]
-      : [...JSON.parse(order.lineItems as string), newLineItem]
+    let currentLineItems: any[] = [];
+    if (Array.isArray(order.lineItems)) {
+      currentLineItems = order.lineItems;
+    } else if (typeof order.lineItems === 'string' && order.lineItems) {
+      try {
+        currentLineItems = JSON.parse(order.lineItems);
+      } catch (err) {
+        console.error('Failed to parse lineItems JSON:', err, order.lineItems);
+        currentLineItems = [];
+      }
+    }
 
+    const updatedLineItems = [...currentLineItems, newLineItem];
     handleUpdate({ lineItems: updatedLineItems })
     setSearchQuery('')
     setSearchResults([])
@@ -573,10 +597,19 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
 
   // Add handleRemoveProduct function
   const handleRemoveProduct = (index: number) => {
-    const updatedLineItems = Array.isArray(order.lineItems)
-      ? order.lineItems.filter((item: any, i: number) => i !== index)
-      : JSON.parse(order.lineItems as string).filter((item: any, i: number) => i !== index)
+    let currentLineItems: any[] = [];
+    if (Array.isArray(order.lineItems)) {
+      currentLineItems = order.lineItems;
+    } else if (typeof order.lineItems === 'string' && order.lineItems) {
+      try {
+        currentLineItems = JSON.parse(order.lineItems);
+      } catch (err) {
+        console.error('Failed to parse lineItems JSON:', err, order.lineItems);
+        currentLineItems = [];
+      }
+    }
 
+    const updatedLineItems = currentLineItems.filter((item: any, i: number) => i !== index);
     handleUpdate({ lineItems: updatedLineItems })
   }
 

@@ -50,18 +50,26 @@ export default function DeliveryMapModal({
     }
     
     try {
+      console.log('📍 Geocoding address:', address);
+      
       const response = await fetch(`/api/maps/geocode?address=${encodeURIComponent(address)}`);
+      const data = await response.json();
+      
       if (!response.ok) {
+        // Check if it's a billing issue
+        if (data.error && data.error.includes('REQUEST_DENIED')) {
+          throw new Error('Google Maps API billing not enabled. Please contact your administrator to enable billing for the Google Maps API.');
+        }
         throw new Error('Failed to geocode address');
       }
-      const data = await response.json();
       
       // Cache the result
       geocodingCache[address] = data;
       
+      console.log('✅ Geocoded address:', data);
       return data;
     } catch (error) {
-      console.error('Error geocoding address:', error);
+      console.error('❌ Error geocoding address:', error);
       return null;
     }
   };
@@ -133,17 +141,24 @@ export default function DeliveryMapModal({
     setError(null);
     
     try {
+      console.log('🛣️ Fetching travel time from', ORIGIN_ADDRESS, 'to', deliveryAddress);
+      
       const response = await fetch(`/api/maps/travel-time?origin=${encodeURIComponent(ORIGIN_ADDRESS)}&destination=${encodeURIComponent(deliveryAddress)}`);
       const data = await response.json();
       
       if (!response.ok) {
+        // Check if it's a billing issue
+        if (data.error && data.error.includes('REQUEST_DENIED')) {
+          throw new Error('Google Maps API billing not enabled. Please contact your administrator to enable billing for the Google Maps API.');
+        }
         throw new Error(data.error || 'Failed to fetch travel time');
       }
       
       if (!data.durationInMinutes) {
-        throw new Error('No travel time data received');
+        throw new Error('Could not calculate travel time for the given addresses');
       }
       
+      console.log('✅ Travel time calculated:', data.durationInMinutes, 'minutes');
       setTravelTime(data.durationInMinutes);
       
       // Update the order's travel time if it wasn't manually set
@@ -152,7 +167,7 @@ export default function DeliveryMapModal({
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred while fetching travel time';
-      console.error('Error in fetchTravelTime:', err);
+      console.error('❌ Error in fetchTravelTime:', err);
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -187,8 +202,20 @@ export default function DeliveryMapModal({
                   <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
                 </div>
               ) : error ? (
-                <div className="flex items-center justify-center h-full text-red-500">
-                  {error}
+                <div className="flex items-center justify-center h-full p-4 text-center">
+                  <div className="text-red-500">
+                    <div className="font-semibold mb-2">Maps Unavailable</div>
+                    <div className="text-sm text-gray-600">
+                      {error.includes('billing not enabled') ? (
+                        <>
+                          Google Maps API requires billing to be enabled.<br/>
+                          Please contact your administrator to set up billing.
+                        </>
+                      ) : (
+                        error
+                      )}
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <iframe
@@ -210,8 +237,20 @@ export default function DeliveryMapModal({
                   <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
                 </div>
               ) : error ? (
-                <div className="flex items-center justify-center h-full text-red-500">
-                  {error}
+                <div className="flex items-center justify-center h-full p-4 text-center">
+                  <div className="text-red-500">
+                    <div className="font-semibold mb-2">Street View Unavailable</div>
+                    <div className="text-sm text-gray-600">
+                      {error.includes('billing not enabled') ? (
+                        <>
+                          Google Maps API requires billing to be enabled.<br/>
+                          Please contact your administrator to set up billing.
+                        </>
+                      ) : (
+                        error
+                      )}
+                    </div>
+                  </div>
                 </div>
               ) : coordinates ? (
                 <iframe
@@ -222,10 +261,6 @@ export default function DeliveryMapModal({
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  onError={(e) => {
-                    console.error('Street view error:', e);
-                    setError('Unable to load street view. Please check the address format.');
-                  }}
                 />
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-500">

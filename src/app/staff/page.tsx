@@ -104,7 +104,7 @@ export default function StaffPage() {
   // Fetch staff on component mount
   useEffect(() => {
     fetchStaff()
-  }, [])
+  }, [fetchStaff])
 
   return (
     <div className="container mx-auto py-10">

@@ -297,6 +297,8 @@ exports.Prisma.ShiftTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   startTime: 'startTime',
+  endTime: 'endTime',
+  color: 'color',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

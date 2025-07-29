@@ -1,44 +1,73 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Get the current user's session
-    const session = await getServerSession(authOptions)
+    const { searchParams } = new URL(request.url);
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
     
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    console.log('📅 Fetching roster assignments from PostgreSQL...');
+    
+    let whereClause = {};
+    if (startDate && endDate) {
+      whereClause = {
+        date: {
+          gte: new Date(startDate),
+          lte: new Date(endDate)
+        }
+      };
     }
-
-    // Get the staff member
-    const staff = await prisma.staff.findUnique({
-      where: { email: session.user.email }
-    })
-
-    if (!staff) {
-      return NextResponse.json(
-        { error: 'Staff member not found' },
-        { status: 404 }
-      )
-    }
-
-    // Get all shifts for the staff member
-    const shifts = await prisma.shift.findMany({
-      where: { staffId: staff.id },
-      orderBy: { date: 'desc' }
-    })
-
-    return NextResponse.json(shifts)
+    
+    const assignments = await prisma.rosterAssignment.findMany({
+      where: whereClause,
+      include: {
+        staff: true,
+        shiftType: true
+      },
+      orderBy: {
+        date: 'asc'
+      }
+    });
+    
+    console.log(`✅ Successfully fetched ${assignments.length} roster assignments`);
+    return NextResponse.json(assignments);
   } catch (error) {
-    console.error('Error fetching shifts:', error)
+    console.error('❌ Error fetching roster assignments:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch shifts' },
+      { error: 'Failed to fetch roster assignments' },
       { status: 500 }
-    )
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    
+    const assignment = await prisma.rosterAssignment.create({
+      data: {
+        staffId: body.staffId,
+        shiftTypeId: body.shiftTypeId,
+        startTime: body.startTime,
+        endTime: body.endTime,
+        date: new Date(body.date),
+        notes: body.notes,
+        assignedBy: body.assignedBy
+      },
+      include: {
+        staff: true,
+        shiftType: true
+      }
+    });
+    
+    console.log(`✅ Created roster assignment for ${assignment.staff.firstName} ${assignment.staff.lastName}`);
+    return NextResponse.json(assignment, { status: 201 });
+  } catch (error) {
+    console.error('❌ Error creating roster assignment:', error);
+    return NextResponse.json(
+      { error: 'Failed to create roster assignment' },
+      { status: 500 }
+    );
   }
 } 

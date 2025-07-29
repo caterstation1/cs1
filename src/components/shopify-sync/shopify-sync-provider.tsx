@@ -36,33 +36,36 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
       setSyncStatus('Checking Shopify credentials...');
       
       const response = await fetch('/api/shopify/sync-orders', {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
         }
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to sync Shopify orders');
-      }
 
-      const data = await response.json();
-      setLastSyncTime(new Date());
-      setSyncStatus(`Last sync successful: ${data.synced} synced, ${data.skipped} skipped, ${data.errors} errors`);
-      console.log('Shopify sync completed successfully:', {
-        ...data,
-        timestamp: new Date().toISOString()
-      });
+      const contentType = response.headers.get('content-type');
+      if (response.ok && contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        setLastSyncTime(new Date());
+        setSyncStatus(`Last sync successful: ${data.synced} synced, ${data.skipped} skipped, ${data.errors} errors`);
+        console.log('Shopify sync completed successfully:', {
+          ...data,
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        const text = await response.text();
+        throw new Error(text || 'Unexpected response');
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-      const errorStack = err instanceof Error ? err.stack : null;
-      
+      let errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      let errorStack = err instanceof Error ? err.stack : null;
+      // If the error is a SyntaxError from response.json(), provide a clearer message
+      if (errorMessage.includes('Unexpected end of JSON input')) {
+        errorMessage = 'Shopify sync failed: Invalid or empty response from server.';
+      }
       setError(errorMessage);
       setErrorDetails(errorStack || 'No additional details available');
       setSyncStatus('Sync failed');
-      
       console.error('Error syncing Shopify orders:', {
         error: errorMessage,
         stack: errorStack,
