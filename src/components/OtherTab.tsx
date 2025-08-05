@@ -67,21 +67,47 @@ const formSchema = z.object({
   cost: z.coerce.number().min(0, "Cost must be a positive number"),
 })
 
-// List of suppliers (can be expanded as needed)
-const suppliers = [
-  "Local Market",
-  "Specialty Supplier",
-  "Farmers Market",
-  "Online Store",
-  "Wholesale Club",
-  "Other"
-]
+// Supplier interface
+interface Supplier {
+  id: string
+  name: string
+  contactName: string
+  contactNumber: string
+  contactEmail: string
+  createdAt: string
+  updatedAt: string
+}
 
 export function OtherTab({ products, setProducts, isLoading, error: propError }: OtherTabProps) {
   const [error, setError] = useState<string | null>(propError || null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<OtherProduct | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [suppliers, setSuppliers] = useState<Supplier[]>([])
+  const [isLoadingSuppliers, setIsLoadingSuppliers] = useState(false)
+
+  // Fetch suppliers from API
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      setIsLoadingSuppliers(true)
+      try {
+        const response = await fetch('/api/suppliers')
+        if (!response.ok) {
+          throw new Error('Failed to fetch suppliers')
+        }
+        const data = await response.json()
+        setSuppliers(data)
+        console.log('✅ Fetched suppliers:', data)
+      } catch (error) {
+        console.error('❌ Error fetching suppliers:', error)
+        setError('Failed to load suppliers')
+      } finally {
+        setIsLoadingSuppliers(false)
+      }
+    }
+
+    fetchSuppliers()
+  }, [])
 
   // Update error state when prop changes
   useEffect(() => {
@@ -274,11 +300,21 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {suppliers.map((supplier) => (
-                            <SelectItem key={supplier} value={supplier}>
-                              {supplier}
+                          {isLoadingSuppliers ? (
+                            <SelectItem value="" disabled>
+                              Loading suppliers...
                             </SelectItem>
-                          ))}
+                          ) : suppliers.length === 0 ? (
+                            <SelectItem value="" disabled>
+                              No suppliers available
+                            </SelectItem>
+                          ) : (
+                            suppliers.map((supplier) => (
+                              <SelectItem key={supplier.id} value={supplier.name}>
+                                {supplier.name}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
