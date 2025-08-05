@@ -271,7 +271,10 @@ export function ProductsTab() {
     return <div className="flex items-center justify-center p-8">Loading products...</div>;
   }
 
-  const safeProducts: ShopifyProduct[] = filteredAndSortedProducts;
+  const safeProducts: ShopifyProduct[] = Array.isArray(filteredAndSortedProducts) ? filteredAndSortedProducts : [];
+  
+  // Debug logging
+  console.log('ProductsTab render - products:', products, 'filteredAndSortedProducts:', filteredAndSortedProducts, 'safeProducts:', safeProducts);
 
   return (
     <div className="space-y-4">
@@ -350,42 +353,56 @@ export function ProductsTab() {
           </TableRow>
         </TableHeader>
         <TableBody>
-            {safeProducts.map((product: ShopifyProduct) => (
-              <TableRow key={product.variantId} className="cursor-pointer" onClick={() => handleEdit(product)}>
-                <TableCell>
-                  <div>
-                    <div className="font-medium">{product.shopifyTitle}</div>
-                    {product.shopifyName !== product.shopifyTitle && (
-                      <div className="text-sm text-gray-500">{product.shopifyName}</div>
-                    )}
-                    {product.displayName && product.displayName !== product.shopifyTitle && (
-                      <div className="text-sm text-blue-600">{product.displayName}</div>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>{product.shopifyName}</TableCell>
-                <TableCell>{product.shopifySku}</TableCell>
-                <TableCell>${product.shopifyPrice}</TableCell>
-                <TableCell>{product.shopifyInventory}</TableCell>
-                <TableCell>
-                  {product.displayName && (
-                    <Badge variant="secondary">Has Custom Data</Badge>
-                  )}
-                </TableCell>
-              <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(product);
-                    }}
-                  >
-                    <Edit className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+            {(() => {
+              try {
+                const productsArray = Array.isArray(safeProducts) ? safeProducts : [];
+                return productsArray.map((product: ShopifyProduct) => (
+                  <TableRow key={product.variantId} className="cursor-pointer" onClick={() => handleEdit(product)}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{product.shopifyTitle}</div>
+                        {product.shopifyName !== product.shopifyTitle && (
+                          <div className="text-sm text-gray-500">{product.shopifyName}</div>
+                        )}
+                        {product.displayName && product.displayName !== product.shopifyTitle && (
+                          <div className="text-sm text-blue-600">{product.displayName}</div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{product.shopifyName}</TableCell>
+                    <TableCell>{product.shopifySku}</TableCell>
+                    <TableCell>${product.shopifyPrice}</TableCell>
+                    <TableCell>{product.shopifyInventory}</TableCell>
+                    <TableCell>
+                      {product.displayName && (
+                        <Badge variant="secondary">Has Custom Data</Badge>
+                      )}
+                    </TableCell>
+                  <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(product);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+                ))
+              } catch (error) {
+                console.error('Error rendering ProductsTab:', error);
+                return (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-red-500">
+                      Error rendering products. Please try refreshing the page.
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+            })()}
         </TableBody>
       </Table>
       </div>
