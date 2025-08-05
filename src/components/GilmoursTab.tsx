@@ -74,10 +74,15 @@ export function GilmoursTab({ products, setProducts, isLoading, error }: Gilmour
       
       console.log(`🔍 Price Debug - Raw value: "${value}", Cleaned: "${cleaned}"`)
       
-      const parsed = isInteger ? parseInt(cleaned, 10) : parseFloat(cleaned)
+      // Handle currency formatting (remove $, commas, etc.)
+      let numericValue = cleaned
+        .replace(/[$,\s]/g, '') // Remove $, commas, and spaces
+        .replace(/[^\d.-]/g, '') // Keep only digits, decimal points, and minus signs
+      
+      const parsed = isInteger ? parseInt(numericValue, 10) : parseFloat(numericValue)
       const result = isNaN(parsed) ? 0 : parsed
       
-      console.log(`🔍 Price Debug - Parsed result: ${result}`)
+      console.log(`🔍 Price Debug - After currency cleanup: "${numericValue}", Parsed result: ${result}`)
       return result
     }
 
