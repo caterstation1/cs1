@@ -23,7 +23,6 @@ interface GilmoursTabProps {
 
 export function GilmoursTab({ products, setProducts, isLoading, error }: GilmoursTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [debugData, setDebugData] = useState<any>(null)
   
   // Debug logging
   console.log('GilmoursTab render - products:', products, 'type:', typeof products, 'isArray:', Array.isArray(products))
@@ -118,13 +117,7 @@ export function GilmoursTab({ products, setProducts, isLoading, error }: Gilmour
 
     const productsArray = Array.from(newProducts.values())
     
-    // Store debug data for UI display
-    setDebugData({
-      headers,
-      columnIndices: { skuIndex, brandIndex, descIndex, packIndex, uomIndex, priceIndex, qtyIndex },
-      firstRows: rows.slice(0, 3),
-      processedProducts: productsArray.slice(0, 3)
-    })
+
     
     // Save to database via API
     try {
@@ -172,38 +165,7 @@ export function GilmoursTab({ products, setProducts, isLoading, error }: Gilmour
         </Button>
       </div>
 
-      {/* Debug Panel */}
-      {debugData && (
-        <div className="mb-4 p-4 bg-gray-100 rounded-lg">
-          <h3 className="font-bold mb-2">🔍 Debug Information</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <strong>Headers:</strong>
-              <pre className="bg-white p-2 rounded mt-1 overflow-x-auto">
-                {JSON.stringify(debugData.headers, null, 2)}
-              </pre>
-            </div>
-            <div>
-              <strong>Column Indices:</strong>
-              <pre className="bg-white p-2 rounded mt-1 overflow-x-auto">
-                {JSON.stringify(debugData.columnIndices, null, 2)}
-              </pre>
-            </div>
-            <div>
-              <strong>First 3 Raw Rows:</strong>
-              <pre className="bg-white p-2 rounded mt-1 overflow-x-auto">
-                {JSON.stringify(debugData.firstRows, null, 2)}
-              </pre>
-            </div>
-            <div>
-              <strong>First 3 Processed Products:</strong>
-              <pre className="bg-white p-2 rounded mt-1 overflow-x-auto">
-                {JSON.stringify(debugData.processedProducts, null, 2)}
-              </pre>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       <div className="rounded-md border">
         <Table>

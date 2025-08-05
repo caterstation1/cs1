@@ -102,6 +102,26 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
   }, [])
 
   // Clean and format allergen information
+  // Helper function to parse numbers safely with currency support
+  const parseNumber = (value: string | undefined, isInteger = false): number => {
+    if (!value) return 0
+    const cleaned = value.replace(/^["']|["']$/g, '').trim()
+    if (!cleaned) return 0
+    
+    console.log(`🔍 Bidfood Price Debug - Raw value: "${value}", Cleaned: "${cleaned}"`)
+    
+    // Handle currency formatting (remove $, commas, etc.)
+    let numericValue = cleaned
+      .replace(/[$,\s]/g, '') // Remove $, commas, and spaces
+      .replace(/[^\d.-]/g, '') // Keep only digits, decimal points, and minus signs
+    
+    const parsed = isInteger ? parseInt(numericValue, 10) : parseFloat(numericValue)
+    const result = isNaN(parsed) ? 0 : parsed
+    
+    console.log(`🔍 Bidfood Price Debug - After currency cleanup: "${numericValue}", Parsed result: ${result}`)
+    return result
+  }
+
   const cleanAllergens = (contains: string): string => {
     if (!contains) return ''
     
@@ -225,9 +245,9 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
           packSize: packSize || '',
           ctnQty: ctnQty || '',
           uom: uom || '',
-          qty: Number(qty) || 0,
-          lastPricePaid: Number(lastPricePaid) || 0,
-          totalExGST: Number(totalExGST) || 0,
+          qty: parseNumber(qty, true),
+          lastPricePaid: parseNumber(lastPricePaid),
+          totalExGST: parseNumber(totalExGST),
           contains: processedContains,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
