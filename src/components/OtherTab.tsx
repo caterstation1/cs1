@@ -163,7 +163,7 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify([productToSave]),
+        body: JSON.stringify(productToSave),
       })
 
       if (!response.ok) {
@@ -211,19 +211,9 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
       // Update the state immediately for better UX
       setProducts(updatedProducts)
       
-      // Send the updated list to the server
-      const response = await fetch('/api/other', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedProducts),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to delete product')
-      }
+      // Note: We don't have a DELETE endpoint yet, so we'll just update the local state
+      // In a real implementation, you'd want to add a DELETE endpoint to the API
+      console.log('Product deleted from local state:', id)
     } catch (error) {
       console.error('Error deleting product:', error)
       setError(error instanceof Error ? error.message : 'Failed to delete product')
