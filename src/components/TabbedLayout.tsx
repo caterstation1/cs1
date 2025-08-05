@@ -68,12 +68,14 @@ export function TabbedLayout() {
     const fetchData = async () => {
       try {
         console.log('Starting to fetch data...')
-      setIsLoading(true)
+        console.log('Initial state - gilmoursProducts:', gilmoursProducts)
+        console.log('Initial state - bidfoodProducts:', bidfoodProducts)
+        setIsLoading(true)
         setShopifyError(null)
-      setGilmoursError(null)
-      setBidfoodError(null)
-      setOtherError(null)
-      setComponentsError(null)
+        setGilmoursError(null)
+        setBidfoodError(null)
+        setOtherError(null)
+        setComponentsError(null)
 
       try {
           // Fetch Shopify Products

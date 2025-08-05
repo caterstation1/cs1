@@ -41,6 +41,9 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
   const [allergenMap, setAllergenMap] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(propError || null)
   const [isUploading, setIsUploading] = useState(false)
+  
+  // Debug logging
+  console.log('BidfoodTab render - products:', products, 'type:', typeof products, 'isArray:', Array.isArray(products))
 
   // Predefined mapping for common allergen descriptions
   const allergenDescriptionMap: Record<string, string> = {
@@ -330,26 +333,40 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
                 </TableCell>
               </TableRow>
             ) : (
-              (products || []).map((product) => (
-                <TableRow key={product.productCode}>
-                  <TableCell>{product.productCode}</TableCell>
-                  <TableCell>{product.brand}</TableCell>
-                  <TableCell>{product.description}</TableCell>
-                  <TableCell>{product.packSize}</TableCell>
-                  <TableCell>{product.ctnQty}</TableCell>
-                  <TableCell>{product.uom}</TableCell>
-                  <TableCell>{product.qty}</TableCell>
-                  <TableCell>${product.lastPricePaid.toFixed(2)}</TableCell>
-                  <TableCell>
-                    ${(product.uom.toLowerCase() === 'carton' 
-                      ? (product.lastPricePaid / Number(product.ctnQty || 1))
-                      : product.lastPricePaid
-                    ).toFixed(2)}
-                  </TableCell>
-                  <TableCell>${product.totalExGST.toFixed(2)}</TableCell>
-                  <TableCell>{simplifyAllergens(product.contains)}</TableCell>
-                </TableRow>
-              ))
+              (() => {
+                try {
+                  const productsArray = Array.isArray(products) ? products : []
+                  return productsArray.map((product) => (
+                    <TableRow key={product.productCode}>
+                      <TableCell>{product.productCode}</TableCell>
+                      <TableCell>{product.brand}</TableCell>
+                      <TableCell>{product.description}</TableCell>
+                      <TableCell>{product.packSize}</TableCell>
+                      <TableCell>{product.ctnQty}</TableCell>
+                      <TableCell>{product.uom}</TableCell>
+                      <TableCell>{product.qty}</TableCell>
+                      <TableCell>${product.lastPricePaid.toFixed(2)}</TableCell>
+                      <TableCell>
+                        ${(product.uom.toLowerCase() === 'carton' 
+                          ? (product.lastPricePaid / Number(product.ctnQty || 1))
+                          : product.lastPricePaid
+                        ).toFixed(2)}
+                      </TableCell>
+                      <TableCell>${product.totalExGST.toFixed(2)}</TableCell>
+                      <TableCell>{simplifyAllergens(product.contains)}</TableCell>
+                    </TableRow>
+                  ))
+                } catch (error) {
+                  console.error('Error rendering Bidfood products:', error)
+                  return (
+                    <TableRow>
+                      <TableCell colSpan={10} className="text-center text-red-500">
+                        Error rendering products. Please try refreshing the page.
+                      </TableCell>
+                    </TableRow>
+                  )
+                }
+              })()
             )}
           </TableBody>
         </Table>

@@ -23,6 +23,9 @@ interface GilmoursTabProps {
 
 export function GilmoursTab({ products, setProducts, isLoading, error }: GilmoursTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  // Debug logging
+  console.log('GilmoursTab render - products:', products, 'type:', typeof products, 'isArray:', Array.isArray(products))
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -156,17 +159,31 @@ export function GilmoursTab({ products, setProducts, isLoading, error }: Gilmour
                 </TableCell>
               </TableRow>
             ) : (
-              (products || []).map((product) => (
-                <TableRow key={product.sku}>
-                  <TableCell>{product.sku}</TableCell>
-                  <TableCell>{product.brand}</TableCell>
-                  <TableCell>{product.description}</TableCell>
-                  <TableCell>{product.packSize}</TableCell>
-                  <TableCell>{product.uom}</TableCell>
-                  <TableCell>${product.price.toFixed(2)}</TableCell>
-                  <TableCell>{product.quantity}</TableCell>
-                </TableRow>
-              ))
+              (() => {
+                try {
+                  const productsArray = Array.isArray(products) ? products : []
+                  return productsArray.map((product) => (
+                    <TableRow key={product.sku}>
+                      <TableCell>{product.sku}</TableCell>
+                      <TableCell>{product.brand}</TableCell>
+                      <TableCell>{product.description}</TableCell>
+                      <TableCell>{product.packSize}</TableCell>
+                      <TableCell>{product.uom}</TableCell>
+                      <TableCell>${product.price.toFixed(2)}</TableCell>
+                      <TableCell>{product.quantity}</TableCell>
+                    </TableRow>
+                  ))
+                } catch (error) {
+                  console.error('Error rendering Gilmours products:', error)
+                  return (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-red-500">
+                        Error rendering products. Please try refreshing the page.
+                      </TableCell>
+                    </TableRow>
+                  )
+                }
+              })()
             )}
           </TableBody>
         </Table>
