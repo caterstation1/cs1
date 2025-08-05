@@ -84,9 +84,9 @@ export function TabbedLayout() {
           const shopifyContentType = shopifyResponse.headers.get('content-type');
           if (shopifyResponse.ok && shopifyContentType && shopifyContentType.includes('application/json')) {
             const shopifyData = await shopifyResponse.json();
-            console.log('Shopify data received:', shopifyData.variants?.length || 0, 'variants')
-            console.log('Setting shopifyProducts to:', shopifyData.variants || [])
-            setShopifyProducts(shopifyData.variants || [])
+            console.log('Shopify data received:', shopifyData?.variants?.length || 0, 'variants')
+            console.log('Setting shopifyProducts to:', shopifyData?.variants || [])
+            setShopifyProducts(Array.isArray(shopifyData?.variants) ? shopifyData.variants : [])
           } else {
             const text = await shopifyResponse.text();
             console.error('Shopify response error:', text);
@@ -106,8 +106,8 @@ export function TabbedLayout() {
           throw new Error(errorData.error || 'Failed to fetch Gilmours products')
         }
         const gilmoursData = await gilmoursResponse.json()
-          console.log('Gilmours data received:', gilmoursData.length || 0, 'products')
-        setGilmoursProducts(gilmoursData)
+          console.log('Gilmours data received:', gilmoursData?.products?.length || 0, 'products')
+        setGilmoursProducts(Array.isArray(gilmoursData?.products) ? gilmoursData.products : [])
       } catch (error) {
         console.error('Error fetching Gilmours products:', error)
         setGilmoursError(error instanceof Error ? error.message : 'Failed to fetch Gilmours products')
@@ -122,8 +122,8 @@ export function TabbedLayout() {
           throw new Error(errorData.error || 'Failed to fetch Bidfood products')
         }
         const bidfoodData = await bidfoodResponse.json()
-          console.log('Bidfood data received:', bidfoodData.length || 0, 'products')
-        setBidfoodProducts(bidfoodData)
+          console.log('Bidfood data received:', bidfoodData?.products?.length || 0, 'products')
+        setBidfoodProducts(Array.isArray(bidfoodData?.products) ? bidfoodData.products : [])
       } catch (error) {
         console.error('Error fetching Bidfood products:', error)
         setBidfoodError(error instanceof Error ? error.message : 'Failed to fetch Bidfood products')
@@ -138,8 +138,8 @@ export function TabbedLayout() {
           throw new Error(errorData.error || 'Failed to fetch Other products')
         }
         const otherData = await otherResponse.json()
-          console.log('Other data received:', otherData.length || 0, 'products')
-        setOtherProducts(otherData)
+          console.log('Other data received:', otherData?.products?.length || 0, 'products')
+        setOtherProducts(Array.isArray(otherData?.products) ? otherData.products : [])
       } catch (error) {
         console.error('Error fetching Other products:', error)
         setOtherError(error instanceof Error ? error.message : 'Failed to fetch Other products')
@@ -154,8 +154,8 @@ export function TabbedLayout() {
           throw new Error(errorData.error || 'Failed to fetch components')
         }
         const componentsData = await componentsResponse.json()
-          console.log('Components data received:', componentsData.length || 0, 'components')
-        setComponents(componentsData)
+          console.log('Components data received:', componentsData?.length || 0, 'components')
+        setComponents(Array.isArray(componentsData) ? componentsData : [])
       } catch (error) {
         console.error('Error fetching components:', error)
         setComponentsError(error instanceof Error ? error.message : 'Failed to fetch components')

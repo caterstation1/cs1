@@ -149,14 +149,14 @@ export function GilmoursTab({ products, setProducts, isLoading, error }: Gilmour
                   Loading products...
                 </TableCell>
               </TableRow>
-            ) : products.length === 0 ? (
+            ) : (!products || products.length === 0) ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-4">
                   No products found. Upload a CSV file to get started.
                 </TableCell>
               </TableRow>
             ) : (
-              products.map((product) => (
+              (products || []).map((product) => (
                 <TableRow key={product.sku}>
                   <TableCell>{product.sku}</TableCell>
                   <TableCell>{product.brand}</TableCell>

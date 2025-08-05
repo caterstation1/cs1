@@ -26,24 +26,47 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    const product = await prisma.gilmoursProduct.create({
-      data: {
-        sku: body.sku,
-        brand: body.brand,
-        description: body.description,
-        packSize: body.packSize,
-        uom: body.uom,
-        price: body.price,
-        quantity: body.quantity
-      }
-    });
+    // Handle both single product and array of products
+    const productsToCreate = Array.isArray(body) ? body : [body];
     
-    console.log(`✅ Created Gilmours product: ${product.brand} - ${product.description}`);
-    return NextResponse.json(product, { status: 201 });
+    const createdProducts = [];
+    
+    for (const productData of productsToCreate) {
+      try {
+        const product = await prisma.gilmoursProduct.upsert({
+          where: { sku: productData.sku },
+          update: {
+            brand: productData.brand,
+            description: productData.description,
+            packSize: productData.packSize,
+            uom: productData.uom,
+            price: productData.price,
+            quantity: productData.quantity
+          },
+          create: {
+            sku: productData.sku,
+            brand: productData.brand,
+            description: productData.description,
+            packSize: productData.packSize,
+            uom: productData.uom,
+            price: productData.price,
+            quantity: productData.quantity
+          }
+        });
+        
+        createdProducts.push(product);
+      } catch (error) {
+        console.error(`❌ Error creating/updating Gilmours product ${productData.sku}:`, error);
+        // Continue with other products even if one fails
+      }
+    }
+    
+    console.log(`✅ Created/updated ${createdProducts.length} Gilmours products`);
+    return NextResponse.json(createdProducts, { status: 201 });
   } catch (error) {
-    console.error('❌ Error creating Gilmours product:', error);
+    console.error('❌ Error creating Gilmours products:', error);
     return NextResponse.json(
-      { error: 'Failed to create Gilmours product' },
+      { error: 'Failed to create Gilmours products' },
       { status: 500 }
     );
   }

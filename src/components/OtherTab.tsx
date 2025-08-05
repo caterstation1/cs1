@@ -362,14 +362,14 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
                   Loading products...
                 </TableCell>
               </TableRow>
-            ) : products.length === 0 ? (
+            ) : (!products || products.length === 0) ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center">
                   No products found. Add a product to get started.
                 </TableCell>
               </TableRow>
             ) : (
-              products.map((product) => (
+              (products || []).map((product) => (
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.supplier}</TableCell>

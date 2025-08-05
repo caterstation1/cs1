@@ -323,14 +323,14 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
                   Loading products...
                 </TableCell>
               </TableRow>
-            ) : products.length === 0 ? (
+            ) : (!products || products.length === 0) ? (
               <TableRow>
                 <TableCell colSpan={10} className="text-center">
                   No products found. Upload a CSV file to get started.
                 </TableCell>
               </TableRow>
             ) : (
-              products.map((product) => (
+              (products || []).map((product) => (
                 <TableRow key={product.productCode}>
                   <TableCell>{product.productCode}</TableCell>
                   <TableCell>{product.brand}</TableCell>

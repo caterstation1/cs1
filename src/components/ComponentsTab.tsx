@@ -586,9 +586,9 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
         </div>
       )}
 
-      {isLoading && components.length === 0 ? (
+      {isLoading && (!components || components.length === 0) ? (
         <div className="text-center py-8">Loading components...</div>
-      ) : components.length === 0 ? (
+      ) : (!components || components.length === 0) ? (
         <div className="text-center py-8">
           No components found. Add your first component to get started.
         </div>
@@ -606,7 +606,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
               </TableRow>
             </TableHeader>
             <TableBody>
-              {components.map((component) => (
+              {(components || []).map((component) => (
                 <TableRow key={component.id}>
                   <TableCell className="font-medium">{component.name}</TableCell>
                   <TableCell>{component.description}</TableCell>
