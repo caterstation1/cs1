@@ -128,6 +128,12 @@ export function SetRuleModal({ isOpen, onClose, onRuleApplied }: SetRuleModalPro
       }
 
       // Apply the rule to matching products only
+      console.log('🚀 About to call /api/product-rules/apply');
+      console.log('📝 Request payload:', { 
+        action: 'apply-matching',
+        matchPattern: searchTerm 
+      });
+      
       const applyResponse = await fetch('/api/product-rules/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,6 +142,9 @@ export function SetRuleModal({ isOpen, onClose, onRuleApplied }: SetRuleModalPro
           matchPattern: searchTerm 
         })
       });
+      
+      console.log('📡 Response status:', applyResponse.status);
+      console.log('📡 Response ok:', applyResponse.ok);
 
       if (!applyResponse.ok) {
         throw new Error('Failed to apply rule');
@@ -154,7 +163,10 @@ export function SetRuleModal({ isOpen, onClose, onRuleApplied }: SetRuleModalPro
       }, 1500); // Give user 1.5 seconds to see the success message
 
     } catch (error) {
-      console.error('Error applying rule:', error);
+      console.error('❌ Error applying rule:', error);
+      console.error('❌ Error type:', typeof error);
+      console.error('❌ Error message:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
       setResult({ updated: 0, errors: 1 });
     } finally {
       setIsApplying(false);
