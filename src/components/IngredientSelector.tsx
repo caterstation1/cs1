@@ -83,17 +83,35 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
                 return []
               }
 
-              const data = await response.json()
+              const responseData = await response.json()
+              
+              // Handle different response formats
+              let data: any[] = []
+              if (Array.isArray(responseData)) {
+                data = responseData
+              } else if (responseData.products && Array.isArray(responseData.products)) {
+                data = responseData.products
+              } else if (responseData.components && Array.isArray(responseData.components)) {
+                data = responseData.components
+              } else {
+                console.warn(`Unexpected response format for ${source}:`, responseData)
+                data = []
+              }
               
               // Filter based on search term
               const filteredData = data.filter((item: any) => {
                 const searchLower = searchTerm.toLowerCase()
+                
+                // Check various fields that might contain the search term
                 const nameMatch = item.name?.toLowerCase().includes(searchLower)
                 const descriptionMatch = item.description?.toLowerCase().includes(searchLower)
                 const skuMatch = item.sku?.toLowerCase().includes(searchLower)
                 const productCodeMatch = item.productCode?.toLowerCase().includes(searchLower)
+                const brandMatch = item.brand?.toLowerCase().includes(searchLower)
+                const packSizeMatch = item.packSize?.toLowerCase().includes(searchLower)
+                const uomMatch = item.uom?.toLowerCase().includes(searchLower)
                 
-                return nameMatch || descriptionMatch || skuMatch || productCodeMatch
+                return nameMatch || descriptionMatch || skuMatch || productCodeMatch || brandMatch || packSizeMatch || uomMatch
               })
               
               return filteredData.map((item: any) => ({
@@ -235,15 +253,15 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
                     </div>
                   </TableCell>
                   <TableCell className="max-w-[200px]">
-                    <div className="truncate" title={result.name || result.description}>
-                      {result.name || result.description}
+                    <div className="truncate" title={result.name || result.description || result.brand}>
+                      {result.name || result.description || result.brand}
                     </div>
                   </TableCell>
                   <TableCell>{result.source}</TableCell>
                   <TableCell>
                     ${(result.source === 'Products' 
                       ? (result.cost !== undefined ? result.cost : 0)
-                      : (result.price || result.cost || result.lastPricePaid || 0)
+                      : (result.price || result.cost || result.lastPricePaid || result.totalCost || 0)
                     ).toFixed(2)}
                   </TableCell>
                   <TableCell>
