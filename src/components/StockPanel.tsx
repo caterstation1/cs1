@@ -70,7 +70,7 @@ export function StockPanel({
       const response = await fetch(`/api/daily-components?date=${dateString}`)
       const contentType = response.headers.get('content-type');
       if (response.ok && contentType && contentType.includes('application/json')) {
-        const data: DailyComponentsResponse = await response.json();
+        const data = await response.json();
         console.log('📦 Daily components data:', data);
         setComponentRequirements(data.components || [])
       } else {
