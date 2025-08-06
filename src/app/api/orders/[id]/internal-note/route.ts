@@ -5,13 +5,14 @@ const prisma = new PrismaClient()
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { internalNote } = await request.json()
     
+    const { id } = await params
     const updatedOrder = await prisma.order.update({
-      where: { id: params.id },
+      where: { id },
       data: { internalNote }
     })
 
@@ -27,11 +28,12 @@ export async function PUT(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const order = await prisma.order.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { internalNote: true }
     })
 
