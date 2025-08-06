@@ -160,26 +160,31 @@ export async function applyRulesToMatchingProducts(matchPattern?: string): Promi
     console.log('🚀 Starting applyRulesToAllProducts...');
     
     // Build where clause based on whether we have a specific pattern to match
-    let whereClause: any = {
-      OR: [
-        { displayName: null },
-        { meat1: null },
-        { meat2: null },
-        { timer1: null },
-        { timer2: null },
-        { option1: null },
-        { option2: null },
-        { serveware: false },
-        { totalCost: 0 }
-      ]
-    };
+    let whereClause: any = {};
 
-    // If we have a specific pattern, add it to the where clause
     if (matchPattern) {
-      whereClause.OR.push(
-        { shopifyName: { contains: matchPattern, mode: 'insensitive' } },
-        { shopifyTitle: { contains: matchPattern, mode: 'insensitive' } }
-      );
+      // If we have a specific pattern, only match products with that pattern
+      whereClause = {
+        OR: [
+          { shopifyName: { contains: matchPattern, mode: 'insensitive' } },
+          { shopifyTitle: { contains: matchPattern, mode: 'insensitive' } }
+        ]
+      };
+    } else {
+      // If no pattern, apply to products that need rule application
+      whereClause = {
+        OR: [
+          { displayName: null },
+          { meat1: null },
+          { meat2: null },
+          { timer1: null },
+          { timer2: null },
+          { option1: null },
+          { option2: null },
+          { serveware: false },
+          { totalCost: 0 }
+        ]
+      };
     }
 
     // Get total count first
@@ -188,6 +193,7 @@ export async function applyRulesToMatchingProducts(matchPattern?: string): Promi
     })
 
     console.log(`📦 Found ${totalCount} products that need rule application${matchPattern ? ` matching "${matchPattern}"` : ''}`);
+    console.log('🔍 Where clause:', JSON.stringify(whereClause, null, 2));
 
     let updated = 0
     let errors = 0
@@ -277,6 +283,11 @@ export async function applyRulesToMatchingProducts(matchPattern?: string): Promi
     return { updated, errors }
   } catch (error) {
     console.error('❌ Error applying rules to all products:', error)
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      matchPattern
+    })
     return { updated: 0, errors: 1 }
   }
 }
