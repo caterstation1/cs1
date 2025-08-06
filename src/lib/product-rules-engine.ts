@@ -101,6 +101,8 @@ export async function applyProductRules(productTitle: string, variantTitle?: str
         if (rule.setIngredients && result.ingredients === undefined) {
           result.ingredients = Array.isArray(rule.setIngredients) ? rule.setIngredients : []
           console.log(`   🧀 Set ingredients:`, rule.setIngredients);
+          console.log(`   🧀 Ingredients type:`, typeof rule.setIngredients);
+          console.log(`   🧀 Ingredients is array:`, Array.isArray(rule.setIngredients));
         }
         if (rule.setTotalCost !== null && rule.setTotalCost !== undefined && result.totalCost === undefined) {
           result.totalCost = rule.setTotalCost
@@ -255,6 +257,8 @@ export async function applyRulesToMatchingProducts(matchPattern?: string): Promi
             // Handle ingredients separately to avoid type issues
             if (suggestedData.ingredients !== undefined) {
               updateData.ingredients = suggestedData.ingredients
+              console.log(`   🧀 Updating ingredients in database:`, suggestedData.ingredients);
+              console.log(`   🧀 Ingredients type for DB:`, typeof suggestedData.ingredients);
             } else {
               updateData.ingredients = product.ingredients
             }

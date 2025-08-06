@@ -26,6 +26,11 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
+    console.log('📝 Creating product rule with data:', JSON.stringify(body, null, 2));
+    console.log('🧀 setIngredients value:', body.setIngredients);
+    console.log('🧀 setIngredients type:', typeof body.setIngredients);
+    console.log('🧀 setIngredients is array:', Array.isArray(body.setIngredients));
+    
     const rule = await prisma.productRule.create({
       data: {
         name: body.name,
