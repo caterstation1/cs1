@@ -3,7 +3,11 @@ import { seedInitialRules, applyRulesToAllProducts, applyRulesToMatchingProducts
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 PRODUCT RULES APPLY ENDPOINT CALLED - DEBUG VERSION');
+    
     const { action, variantTitle, productTitle } = await request.json()
+    
+    console.log('📝 Request data:', { action, variantTitle, productTitle });
 
     if (action === 'seed') {
       await seedInitialRules()
@@ -23,7 +27,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'apply-matching' && request.body) {
+      console.log('🎯 APPLY-MATCHING ACTION DETECTED');
       const { matchPattern } = await request.json()
+      console.log('🔍 Match pattern:', matchPattern);
       const result = await applyRulesToMatchingProducts(matchPattern)
       return NextResponse.json({ 
         success: true, 
