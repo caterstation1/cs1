@@ -201,9 +201,11 @@ export async function applyRulesToMatchingProducts(matchPattern?: string): Promi
     let errors = 0
     const batchSize = 10 // Much smaller batches to prevent timeouts
     let skip = 0
+    const totalBatches = Math.ceil(totalCount / batchSize)
 
     while (skip < totalCount) {
-      console.log(`\n🔄 Processing batch ${Math.floor(skip / batchSize) + 1}/${Math.ceil(totalCount / batchSize)} (${skip + 1}-${Math.min(skip + batchSize, totalCount)})`);
+      const currentBatch = Math.floor(skip / batchSize) + 1
+      console.log(`\n🔄 Processing batch ${currentBatch}/${totalBatches} (${skip + 1}-${Math.min(skip + batchSize, totalCount)}) - Progress: ${Math.round((currentBatch / totalBatches) * 100)}%`);
       
       // Get batch of products
       const products = await prisma.productWithCustomData.findMany({
