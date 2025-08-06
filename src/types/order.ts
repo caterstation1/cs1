@@ -35,4 +35,5 @@ export interface Order {
   deliveryDate?: string
   hasLocalEdits?: boolean
   isDispatched?: boolean
+  internalNote?: string
 } 

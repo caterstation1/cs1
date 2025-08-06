@@ -15,7 +15,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Search, Car, MessageSquare, Settings } from 'lucide-react'
+import { Search, Car, MessageSquare, Settings, Phone, StickyNote } from 'lucide-react'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -85,11 +85,13 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [hasManualTravelTime, setHasManualTravelTime] = useState(false)
   const [isLoadingDrivers, setIsLoadingDrivers] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isInternalNoteModalOpen, setIsInternalNoteModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Product[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [editedLineItems, setEditedLineItems] = useState<any[]>([])
   const [note, setNote] = useState(order.note || '')
+  const [internalNote, setInternalNote] = useState(order.internalNote || '')
   const [address, setAddress] = useState(order.shippingAddress?.address1 || '')
   const [deliveryDate, setDeliveryDate] = useState(order.deliveryDate || '')
   
@@ -1213,6 +1215,27 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             >
               Edit
             </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleSendSMS(order.customerPhone)}
+              disabled={!order.customerPhone}
+              className="bg-white border-gray-200 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+              title={order.customerPhone ? 'Send SMS to customer' : 'No phone number available'}
+            >
+              <Phone className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsInternalNoteModalOpen(true)}
+              className="bg-white border-gray-200 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+              title="Add internal note"
+            >
+              <StickyNote className="h-4 w-4" />
+            </Button>
           </div>
 
           {/* Regular products */}
@@ -1253,7 +1276,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                       </span>
                     )}
                     {timerTimes.length > 0 && (
-                          <span className="absolute left-[60%] text-blue-600 text-[1.4rem] font-medium align-middle">
+                          <span className="absolute left-[60%] text-blue-500 text-[1.4rem] font-medium align-middle">
                         {timerTimes.map((time, i) => (
                           <span key={i} className={isTimerPassed(variantId, i, time) ? 'text-red-600 font-bold' : ''}>
                             {i > 0 && <span className="mx-1">•</span>}
@@ -1264,7 +1287,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                     )}
                     {/* Options inline with product */}
                     {(product?.option1 || product?.option2) && (
-                      <span className="absolute left-[75%] text-blue-600 text-[1.4rem] align-middle">
+                      <span className="absolute left-[75%] text-blue-500 text-[1.4rem] align-middle">
                         {product.option1 && (
                           <span>{product.option1}</span>
                         )}
@@ -1583,9 +1606,9 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           
           {/* Rule Suggestions */}
           {ruleSuggestions && Object.keys(ruleSuggestions).length > 0 && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
-              <div className="text-sm font-medium text-blue-800 mb-2">💡 Rule Suggestions</div>
-              <div className="text-xs text-blue-700 space-y-1">
+                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+            <div className="text-sm font-medium text-blue-700 mb-2">💡 Rule Suggestions</div>
+            <div className="text-xs text-blue-600 space-y-1">
                 {ruleSuggestions.meat1 && <div>• Meat 1: <span className="font-medium">{ruleSuggestions.meat1}</span></div>}
                 {ruleSuggestions.meat2 && <div>• Meat 2: <span className="font-medium">{ruleSuggestions.meat2}</span></div>}
                 {ruleSuggestions.timer1 && <div>• Timer 1: <span className="font-medium">{ruleSuggestions.timer1} min</span></div>}
@@ -1596,7 +1619,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                   <div>• Serveware: <span className="font-medium">{ruleSuggestions.serveware ? 'Yes' : 'No'}</span></div>
                 )}
               </div>
-              <div className="text-xs text-blue-600 mt-2">
+              <div className="text-xs text-blue-500 mt-2">
                 These suggestions are based on automatic rules. You can override them below.
               </div>
             </div>
@@ -1674,6 +1697,48 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           }
         }}
       />
+
+      {/* Internal Note Modal */}
+      <Dialog open={isInternalNoteModalOpen} onOpenChange={setIsInternalNoteModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Internal Note</DialogTitle>
+            <DialogDescription>
+              Add an internal note for this order. This note is only visible to staff.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="internalNote">Note</Label>
+              <textarea
+                id="internalNote"
+                value={internalNote}
+                onChange={(e) => setInternalNote(e.target.value)}
+                className="w-full h-32 p-2 border border-gray-300 rounded-md resize-none"
+                placeholder="Enter internal note..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsInternalNoteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              type="button" 
+              onClick={async () => {
+                try {
+                  await handleUpdate({ internalNote });
+                  setIsInternalNoteModalOpen(false);
+                } catch (error) {
+                  console.error('Error updating internal note:', error);
+                }
+              }}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
