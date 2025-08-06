@@ -152,31 +152,46 @@ function matchesRule(variantTitle: string, rule: ProductRule): boolean {
  * Applies rules to all products that don't have custom data
  */
 export async function applyRulesToAllProducts(): Promise<{ updated: number; errors: number }> {
+  return applyRulesToMatchingProducts();
+}
+
+export async function applyRulesToMatchingProducts(matchPattern?: string): Promise<{ updated: number; errors: number }> {
   try {
     console.log('🚀 Starting applyRulesToAllProducts...');
     
+    // Build where clause based on whether we have a specific pattern to match
+    let whereClause: any = {
+      OR: [
+        { displayName: null },
+        { meat1: null },
+        { meat2: null },
+        { timer1: null },
+        { timer2: null },
+        { option1: null },
+        { option2: null },
+        { serveware: false },
+        { totalCost: 0 }
+      ]
+    };
+
+    // If we have a specific pattern, add it to the where clause
+    if (matchPattern) {
+      whereClause.OR.push(
+        { shopifyName: { contains: matchPattern, mode: 'insensitive' } },
+        { shopifyTitle: { contains: matchPattern, mode: 'insensitive' } }
+      );
+    }
+
     // Get total count first
     const totalCount = await prisma.productWithCustomData.count({
-      where: {
-        OR: [
-          { displayName: null },
-          { meat1: null },
-          { meat2: null },
-          { timer1: null },
-          { timer2: null },
-          { option1: null },
-          { option2: null },
-          { serveware: false }, // Only apply to products without serveware set
-          { totalCost: 0 } // Only apply to products without totalCost set
-        ]
-      }
+      where: whereClause
     })
 
-    console.log(`📦 Found ${totalCount} products that need rule application`);
+    console.log(`📦 Found ${totalCount} products that need rule application${matchPattern ? ` matching "${matchPattern}"` : ''}`);
 
     let updated = 0
     let errors = 0
-    const batchSize = 50 // Process in smaller batches to avoid timeouts
+    const batchSize = 10 // Much smaller batches to prevent timeouts
     let skip = 0
 
     while (skip < totalCount) {
@@ -184,21 +199,24 @@ export async function applyRulesToAllProducts(): Promise<{ updated: number; erro
       
       // Get batch of products
       const products = await prisma.productWithCustomData.findMany({
-        where: {
-          OR: [
-            { displayName: null },
-            { meat1: null },
-            { meat2: null },
-            { timer1: null },
-            { timer2: null },
-            { option1: null },
-            { option2: null },
-            { serveware: false },
-            { totalCost: 0 }
-          ]
-        },
+        where: whereClause,
         skip,
-        take: batchSize
+        take: batchSize,
+        select: {
+          id: true,
+          shopifyName: true,
+          shopifyTitle: true,
+          displayName: true,
+          meat1: true,
+          meat2: true,
+          timer1: true,
+          timer2: true,
+          option1: true,
+          option2: true,
+          serveware: true,
+          totalCost: true,
+          ingredients: true
+        }
       })
 
       for (const product of products) {

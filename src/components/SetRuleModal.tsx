@@ -127,11 +127,14 @@ export function SetRuleModal({ isOpen, onClose, onRuleApplied }: SetRuleModalPro
         throw new Error('Failed to create rule');
       }
 
-      // Apply the rule to all products
+      // Apply the rule to matching products only
       const applyResponse = await fetch('/api/product-rules/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'apply-all' })
+        body: JSON.stringify({ 
+          action: 'apply-matching',
+          matchPattern: searchTerm 
+        })
       });
 
       if (!applyResponse.ok) {
