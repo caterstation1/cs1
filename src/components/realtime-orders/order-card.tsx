@@ -1337,7 +1337,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             console.log('🔍 Internal note display check - order.internalNote:', order.internalNote);
             console.log('🔍 Internal note display check - condition result:', !!order.internalNote);
             return order.internalNote && (
-              <div className="absolute left-[42%] top-[calc(100%+0.5rem)] p-2 bg-blue-50 border border-blue-200 rounded-md max-w-[40%]">
+              <div className="absolute left-[42%] top-8 p-2 bg-blue-50 border border-blue-200 rounded-md max-w-[40%] z-20">
                 <div className="flex items-center gap-2">
                   <StickyNote className="h-4 w-4 text-blue-600" />
                   <span className="text-sm font-medium text-blue-800">Internal Note:</span>
