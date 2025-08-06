@@ -221,7 +221,7 @@ export default function CalendarPage() {
           <StockPanel 
             autoRefresh={false} // No auto-refresh on calendar page
             showRefreshButton={true}
-            targetDate={new Date('2025-07-07')} // Use July 7th, 2025 for testing (has orders with components)
+            targetDate={selectedDate} // Use the selected calendar date
           />
         </div>
       </div>
