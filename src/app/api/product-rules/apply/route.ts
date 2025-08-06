@@ -5,9 +5,10 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🚀 PRODUCT RULES APPLY ENDPOINT CALLED - DEBUG VERSION');
     
-    const { action, variantTitle, productTitle } = await request.json()
+    const body = await request.json()
+    const { action, variantTitle, productTitle, matchPattern } = body
     
-    console.log('📝 Request data:', { action, variantTitle, productTitle });
+    console.log('📝 Request data:', { action, variantTitle, productTitle, matchPattern });
 
     if (action === 'seed') {
       await seedInitialRules()
@@ -26,9 +27,8 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    if (action === 'apply-matching' && request.body) {
+    if (action === 'apply-matching') {
       console.log('🎯 APPLY-MATCHING ACTION DETECTED');
-      const { matchPattern } = await request.json()
       console.log('🔍 Match pattern:', matchPattern);
       const result = await applyRulesToMatchingProducts(matchPattern)
       return NextResponse.json({ 
