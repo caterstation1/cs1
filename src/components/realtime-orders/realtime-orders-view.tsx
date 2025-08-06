@@ -237,7 +237,7 @@ export default function RealtimeOrdersView() {
             autoRefresh={true}
             refreshInterval={60000} // Refresh every minute
             showRefreshButton={true}
-            targetDate={today} // Pass today's date explicitly
+            targetDate={new Date('2025-07-07')} // Use July 7th, 2025 for testing (has orders with components)
           />
         </div>
       </div>
