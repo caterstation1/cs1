@@ -313,6 +313,7 @@ model Order {
   isDispatched         Boolean   @default(false)
   lastSmsSent          DateTime?
   smsHistory           Json?
+  internalNote         String?
 
   @@index([orderNumber])
   @@index([createdAt])

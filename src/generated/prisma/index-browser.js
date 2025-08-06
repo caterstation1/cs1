@@ -380,7 +380,8 @@ exports.Prisma.OrderScalarFieldEnum = {
   driverId: 'driverId',
   isDispatched: 'isDispatched',
   lastSmsSent: 'lastSmsSent',
-  smsHistory: 'smsHistory'
+  smsHistory: 'smsHistory',
+  internalNote: 'internalNote'
 };
 
 exports.Prisma.ShopifyOrderScalarFieldEnum = {

@@ -18790,6 +18790,7 @@ export namespace Prisma {
     driverId: string | null
     isDispatched: boolean | null
     lastSmsSent: Date | null
+    internalNote: string | null
   }
 
   export type OrderMaxAggregateOutputType = {
@@ -18828,6 +18829,7 @@ export namespace Prisma {
     driverId: string | null
     isDispatched: boolean | null
     lastSmsSent: Date | null
+    internalNote: string | null
   }
 
   export type OrderCountAggregateOutputType = {
@@ -18871,6 +18873,7 @@ export namespace Prisma {
     isDispatched: number
     lastSmsSent: number
     smsHistory: number
+    internalNote: number
     _all: number
   }
 
@@ -18925,6 +18928,7 @@ export namespace Prisma {
     driverId?: true
     isDispatched?: true
     lastSmsSent?: true
+    internalNote?: true
   }
 
   export type OrderMaxAggregateInputType = {
@@ -18963,6 +18967,7 @@ export namespace Prisma {
     driverId?: true
     isDispatched?: true
     lastSmsSent?: true
+    internalNote?: true
   }
 
   export type OrderCountAggregateInputType = {
@@ -19006,6 +19011,7 @@ export namespace Prisma {
     isDispatched?: true
     lastSmsSent?: true
     smsHistory?: true
+    internalNote?: true
     _all?: true
   }
 
@@ -19136,6 +19142,7 @@ export namespace Prisma {
     isDispatched: boolean
     lastSmsSent: Date | null
     smsHistory: JsonValue | null
+    internalNote: string | null
     _count: OrderCountAggregateOutputType | null
     _avg: OrderAvgAggregateOutputType | null
     _sum: OrderSumAggregateOutputType | null
@@ -19198,6 +19205,7 @@ export namespace Prisma {
     isDispatched?: boolean
     lastSmsSent?: boolean
     smsHistory?: boolean
+    internalNote?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -19241,6 +19249,7 @@ export namespace Prisma {
     isDispatched?: boolean
     lastSmsSent?: boolean
     smsHistory?: boolean
+    internalNote?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -19284,6 +19293,7 @@ export namespace Prisma {
     isDispatched?: boolean
     lastSmsSent?: boolean
     smsHistory?: boolean
+    internalNote?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectScalar = {
@@ -19327,9 +19337,10 @@ export namespace Prisma {
     isDispatched?: boolean
     lastSmsSent?: boolean
     smsHistory?: boolean
+    internalNote?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "orderNumber" | "createdAt" | "updatedAt" | "processedAt" | "cancelledAt" | "closedAt" | "totalPrice" | "subtotalPrice" | "totalTax" | "currency" | "financialStatus" | "fulfillmentStatus" | "tags" | "note" | "customerEmail" | "customerFirstName" | "customerLastName" | "customerPhone" | "shippingAddress" | "billingAddress" | "lineItems" | "source" | "hasLocalEdits" | "syncedAt" | "dbCreatedAt" | "dbUpdatedAt" | "noteAttributes" | "deliveryDate" | "deliveryTime" | "pickupDate" | "pickupTime" | "deliveryInstructions" | "travelTime" | "leaveTime" | "driverId" | "isDispatched" | "lastSmsSent" | "smsHistory", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "orderNumber" | "createdAt" | "updatedAt" | "processedAt" | "cancelledAt" | "closedAt" | "totalPrice" | "subtotalPrice" | "totalTax" | "currency" | "financialStatus" | "fulfillmentStatus" | "tags" | "note" | "customerEmail" | "customerFirstName" | "customerLastName" | "customerPhone" | "shippingAddress" | "billingAddress" | "lineItems" | "source" | "hasLocalEdits" | "syncedAt" | "dbCreatedAt" | "dbUpdatedAt" | "noteAttributes" | "deliveryDate" | "deliveryTime" | "pickupDate" | "pickupTime" | "deliveryInstructions" | "travelTime" | "leaveTime" | "driverId" | "isDispatched" | "lastSmsSent" | "smsHistory" | "internalNote", ExtArgs["result"]["order"]>
 
   export type $OrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Order"
@@ -19375,6 +19386,7 @@ export namespace Prisma {
       isDispatched: boolean
       lastSmsSent: Date | null
       smsHistory: Prisma.JsonValue | null
+      internalNote: string | null
     }, ExtArgs["result"]["order"]>
     composites: {}
   }
@@ -19838,6 +19850,7 @@ export namespace Prisma {
     readonly isDispatched: FieldRef<"Order", 'Boolean'>
     readonly lastSmsSent: FieldRef<"Order", 'DateTime'>
     readonly smsHistory: FieldRef<"Order", 'Json'>
+    readonly internalNote: FieldRef<"Order", 'String'>
   }
     
 
@@ -24096,7 +24109,8 @@ export namespace Prisma {
     driverId: 'driverId',
     isDispatched: 'isDispatched',
     lastSmsSent: 'lastSmsSent',
-    smsHistory: 'smsHistory'
+    smsHistory: 'smsHistory',
+    internalNote: 'internalNote'
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
@@ -25663,6 +25677,7 @@ export namespace Prisma {
     isDispatched?: BoolFilter<"Order"> | boolean
     lastSmsSent?: DateTimeNullableFilter<"Order"> | Date | string | null
     smsHistory?: JsonNullableFilter<"Order">
+    internalNote?: StringNullableFilter<"Order"> | string | null
   }
 
   export type OrderOrderByWithRelationInput = {
@@ -25706,6 +25721,7 @@ export namespace Prisma {
     isDispatched?: SortOrder
     lastSmsSent?: SortOrderInput | SortOrder
     smsHistory?: SortOrderInput | SortOrder
+    internalNote?: SortOrderInput | SortOrder
   }
 
   export type OrderWhereUniqueInput = Prisma.AtLeast<{
@@ -25752,6 +25768,7 @@ export namespace Prisma {
     isDispatched?: BoolFilter<"Order"> | boolean
     lastSmsSent?: DateTimeNullableFilter<"Order"> | Date | string | null
     smsHistory?: JsonNullableFilter<"Order">
+    internalNote?: StringNullableFilter<"Order"> | string | null
   }, "id" | "shopifyId">
 
   export type OrderOrderByWithAggregationInput = {
@@ -25795,6 +25812,7 @@ export namespace Prisma {
     isDispatched?: SortOrder
     lastSmsSent?: SortOrderInput | SortOrder
     smsHistory?: SortOrderInput | SortOrder
+    internalNote?: SortOrderInput | SortOrder
     _count?: OrderCountOrderByAggregateInput
     _avg?: OrderAvgOrderByAggregateInput
     _max?: OrderMaxOrderByAggregateInput
@@ -25846,6 +25864,7 @@ export namespace Prisma {
     isDispatched?: BoolWithAggregatesFilter<"Order"> | boolean
     lastSmsSent?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     smsHistory?: JsonNullableWithAggregatesFilter<"Order">
+    internalNote?: StringNullableWithAggregatesFilter<"Order"> | string | null
   }
 
   export type ShopifyOrderWhereInput = {
@@ -27728,6 +27747,7 @@ export namespace Prisma {
     isDispatched?: boolean
     lastSmsSent?: Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
+    internalNote?: string | null
   }
 
   export type OrderUncheckedCreateInput = {
@@ -27771,6 +27791,7 @@ export namespace Prisma {
     isDispatched?: boolean
     lastSmsSent?: Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
+    internalNote?: string | null
   }
 
   export type OrderUpdateInput = {
@@ -27814,6 +27835,7 @@ export namespace Prisma {
     isDispatched?: BoolFieldUpdateOperationsInput | boolean
     lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
+    internalNote?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderUncheckedUpdateInput = {
@@ -27857,6 +27879,7 @@ export namespace Prisma {
     isDispatched?: BoolFieldUpdateOperationsInput | boolean
     lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
+    internalNote?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderCreateManyInput = {
@@ -27900,6 +27923,7 @@ export namespace Prisma {
     isDispatched?: boolean
     lastSmsSent?: Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
+    internalNote?: string | null
   }
 
   export type OrderUpdateManyMutationInput = {
@@ -27943,6 +27967,7 @@ export namespace Prisma {
     isDispatched?: BoolFieldUpdateOperationsInput | boolean
     lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
+    internalNote?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderUncheckedUpdateManyInput = {
@@ -27986,6 +28011,7 @@ export namespace Prisma {
     isDispatched?: BoolFieldUpdateOperationsInput | boolean
     lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
+    internalNote?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ShopifyOrderCreateInput = {
@@ -29561,6 +29587,7 @@ export namespace Prisma {
     isDispatched?: SortOrder
     lastSmsSent?: SortOrder
     smsHistory?: SortOrder
+    internalNote?: SortOrder
   }
 
   export type OrderAvgOrderByAggregateInput = {
@@ -29606,6 +29633,7 @@ export namespace Prisma {
     driverId?: SortOrder
     isDispatched?: SortOrder
     lastSmsSent?: SortOrder
+    internalNote?: SortOrder
   }
 
   export type OrderMinOrderByAggregateInput = {
@@ -29644,6 +29672,7 @@ export namespace Prisma {
     driverId?: SortOrder
     isDispatched?: SortOrder
     lastSmsSent?: SortOrder
+    internalNote?: SortOrder
   }
 
   export type OrderSumOrderByAggregateInput = {
