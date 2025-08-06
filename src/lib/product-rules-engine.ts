@@ -155,8 +155,8 @@ export async function applyRulesToAllProducts(): Promise<{ updated: number; erro
   try {
     console.log('🚀 Starting applyRulesToAllProducts...');
     
-    // Get all products that need rule application
-    const products = await prisma.productWithCustomData.findMany({
+    // Get total count first
+    const totalCount = await prisma.productWithCustomData.count({
       where: {
         OR: [
           { displayName: null },
@@ -172,59 +172,86 @@ export async function applyRulesToAllProducts(): Promise<{ updated: number; erro
       }
     })
 
-    console.log(`📦 Found ${products.length} products that need rule application`);
+    console.log(`📦 Found ${totalCount} products that need rule application`);
 
     let updated = 0
     let errors = 0
+    const batchSize = 50 // Process in smaller batches to avoid timeouts
+    let skip = 0
 
-    for (const product of products) {
-      try {
-        console.log(`\n🔍 Processing product: "${product.shopifyName}" (ID: ${product.id})`);
-        
-        // Check both shopifyName and shopifyTitle for rule matching
-        const suggestedDataFromName = await applyProductRules(product.shopifyName)
-        const suggestedDataFromTitle = await applyProductRules(product.shopifyTitle)
-        
-        // Merge the suggested data, prioritizing shopifyName matches
-        const suggestedData = { ...suggestedDataFromTitle, ...suggestedDataFromName }
-        
-        // Only update if we have new data to set
-        const hasNewData = Object.values(suggestedData).some(value => value !== undefined)
-        
-        if (hasNewData) {
-          console.log(`✅ Updating product "${product.shopifyName}" with new data:`, suggestedData);
+    while (skip < totalCount) {
+      console.log(`\n🔄 Processing batch ${Math.floor(skip / batchSize) + 1}/${Math.ceil(totalCount / batchSize)} (${skip + 1}-${Math.min(skip + batchSize, totalCount)})`);
+      
+      // Get batch of products
+      const products = await prisma.productWithCustomData.findMany({
+        where: {
+          OR: [
+            { displayName: null },
+            { meat1: null },
+            { meat2: null },
+            { timer1: null },
+            { timer2: null },
+            { option1: null },
+            { option2: null },
+            { serveware: false },
+            { totalCost: 0 }
+          ]
+        },
+        skip,
+        take: batchSize
+      })
+
+      for (const product of products) {
+        try {
+          // Check both shopifyName and shopifyTitle for rule matching
+          const suggestedDataFromName = await applyProductRules(product.shopifyName)
+          const suggestedDataFromTitle = await applyProductRules(product.shopifyTitle)
           
-          const updateData: any = {
-            displayName: suggestedData.displayName ?? product.displayName,
-            meat1: suggestedData.meat1 ?? product.meat1,
-            meat2: suggestedData.meat2 ?? product.meat2,
-            timer1: suggestedData.timer1 ?? product.timer1,
-            timer2: suggestedData.timer2 ?? product.timer2,
-            option1: suggestedData.option1 ?? product.option1,
-            option2: suggestedData.option2 ?? product.option2,
-            serveware: suggestedData.serveware ?? product.serveware,
-            totalCost: suggestedData.totalCost ?? product.totalCost,
-          }
+          // Merge the suggested data, prioritizing shopifyName matches
+          const suggestedData = { ...suggestedDataFromTitle, ...suggestedDataFromName }
+          
+          // Only update if we have new data to set
+          const hasNewData = Object.values(suggestedData).some(value => value !== undefined)
+          
+          if (hasNewData) {
+            console.log(`✅ Updating product "${product.shopifyName}" with new data`);
+            
+            const updateData: any = {
+              displayName: suggestedData.displayName ?? product.displayName,
+              meat1: suggestedData.meat1 ?? product.meat1,
+              meat2: suggestedData.meat2 ?? product.meat2,
+              timer1: suggestedData.timer1 ?? product.timer1,
+              timer2: suggestedData.timer2 ?? product.timer2,
+              option1: suggestedData.option1 ?? product.option1,
+              option2: suggestedData.option2 ?? product.option2,
+              serveware: suggestedData.serveware ?? product.serveware,
+              totalCost: suggestedData.totalCost ?? product.totalCost,
+            }
 
-          // Handle ingredients separately to avoid type issues
-          if (suggestedData.ingredients !== undefined) {
-            updateData.ingredients = suggestedData.ingredients
-          } else {
-            updateData.ingredients = product.ingredients
-          }
+            // Handle ingredients separately to avoid type issues
+            if (suggestedData.ingredients !== undefined) {
+              updateData.ingredients = suggestedData.ingredients
+            } else {
+              updateData.ingredients = product.ingredients
+            }
 
-          await prisma.productWithCustomData.update({
-            where: { id: product.id },
-            data: updateData
-          })
-          updated++
-          console.log(`✅ Successfully updated product "${product.shopifyName}"`);
-        } else {
-          console.log(`⏭️ No new data to apply for product "${product.shopifyName}"`);
+            await prisma.productWithCustomData.update({
+              where: { id: product.id },
+              data: updateData
+            })
+            updated++
+          }
+        } catch (error) {
+          console.error(`❌ Error applying rules to product ${product.id}:`, error)
+          errors++
         }
-      } catch (error) {
-        console.error(`❌ Error applying rules to product ${product.id}:`, error)
-        errors++
+      }
+
+      skip += batchSize
+      
+      // Add a small delay between batches to prevent overwhelming the database
+      if (skip < totalCount) {
+        await new Promise(resolve => setTimeout(resolve, 100))
       }
     }
 

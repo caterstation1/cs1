@@ -225,7 +225,7 @@ export function SetRuleModal({ isOpen, onClose, onRuleApplied }: SetRuleModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Set Product Rule</DialogTitle>
           <DialogDescription>
@@ -252,73 +252,82 @@ export function SetRuleModal({ isOpen, onClose, onRuleApplied }: SetRuleModalPro
           <div className="space-y-3">
             <Label>Set Custom Data Fields</Label>
             {ruleFields.map((ruleField, index) => (
-              <div key={ruleField.id} className="flex gap-2 items-start">
-                <div className="flex-1 space-y-2">
-                  <Select 
-                    value={ruleField.field} 
-                    onValueChange={(value) => updateRuleField(ruleField.id, 'field', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a field to populate" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getAvailableFields(ruleField.id).map((field) => (
-                        <SelectItem key={field.value} value={field.value}>
-                          <div>
-                            <div className="font-medium">{field.label}</div>
-                            <div className="text-xs text-gray-500">{field.description}</div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {ruleField.field && (
-                    <p className="text-xs text-blue-600">
-                      {getFieldDescription(ruleField.field)}
-                    </p>
-                  )}
+              <div key={ruleField.id} className="space-y-3 p-4 border rounded-lg">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+                  <div className="space-y-2">
+                    <Label>Field Type</Label>
+                    <Select 
+                      value={ruleField.field} 
+                      onValueChange={(value) => updateRuleField(ruleField.id, 'field', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a field to populate" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getAvailableFields(ruleField.id).map((field) => (
+                          <SelectItem key={field.value} value={field.value}>
+                            <div>
+                              <div className="font-medium">{field.label}</div>
+                              <div className="text-xs text-gray-500">{field.description}</div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {ruleField.field && (
+                      <p className="text-xs text-blue-600">
+                        {getFieldDescription(ruleField.field)}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="lg:col-span-2 space-y-2">
+                    <Label>Value</Label>
+                    {ruleField.field === 'ingredients' ? (
+                      <IngredientSelector
+                        onIngredientsChange={(ingredients) => {
+                          updateRuleField(ruleField.id, 'ingredients', ingredients);
+                        }}
+                        initialIngredients={ruleField.ingredients || []}
+                      />
+                    ) : (
+                      <Input
+                        placeholder={getFieldPlaceholder(ruleField.field)}
+                        value={ruleField.value}
+                        onChange={(e) => updateRuleField(ruleField.id, 'value', e.target.value)}
+                      />
+                    )}
+                    {ruleField.field === 'serveware' && (
+                      <p className="text-xs text-gray-500">
+                        Enter &quot;Yes&quot; or &quot;No&quot; (case insensitive)
+                      </p>
+                    )}
+                    {ruleField.field.includes('timer') && (
+                      <p className="text-xs text-gray-500">
+                        Enter number of minutes
+                      </p>
+                    )}
+                    {ruleField.field === 'totalCost' && (
+                      <p className="text-xs text-gray-500">
+                        Enter total cost (e.g., 25.50)
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1 space-y-2">
-                  {ruleField.field === 'ingredients' ? (
-                    <IngredientSelector
-                      onIngredientsChange={(ingredients) => {
-                        updateRuleField(ruleField.id, 'ingredients', ingredients);
-                      }}
-                      initialIngredients={ruleField.ingredients || []}
-                    />
-                  ) : (
-                    <Input
-                      placeholder={getFieldPlaceholder(ruleField.field)}
-                      value={ruleField.value}
-                      onChange={(e) => updateRuleField(ruleField.id, 'value', e.target.value)}
-                    />
-                  )}
-                  {ruleField.field === 'serveware' && (
-                    <p className="text-xs text-gray-500">
-                      Enter &quot;Yes&quot; or &quot;No&quot; (case insensitive)
-                    </p>
-                  )}
-                  {ruleField.field.includes('timer') && (
-                    <p className="text-xs text-gray-500">
-                      Enter number of minutes
-                    </p>
-                  )}
-                  {ruleField.field === 'totalCost' && (
-                    <p className="text-xs text-gray-500">
-                      Enter total cost (e.g., 25.50)
-                    </p>
-                  )}
-                </div>
+                
                 {ruleFields.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeRuleField(ruleField.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeRuleField(ruleField.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Remove Field
+                    </Button>
+                  </div>
                 )}
               </div>
             ))}
