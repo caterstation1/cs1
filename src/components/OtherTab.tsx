@@ -299,7 +299,7 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
                               No suppliers available
                             </SelectItem>
                           ) : (
-                            suppliers.map((supplier) => (
+                            suppliers.filter(supplier => supplier && supplier.name).map((supplier) => (
                               <SelectItem key={supplier.id} value={supplier.name}>
                                 {supplier.name}
                               </SelectItem>
