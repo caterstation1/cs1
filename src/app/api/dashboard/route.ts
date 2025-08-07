@@ -5,14 +5,21 @@ export async function GET() {
   try {
     console.log('📊 Fetching dashboard data...');
     
-    // Get today's and tomorrow's dates
+    // Get date ranges
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     
-    // Format dates for comparison
+    // Calculate date ranges for week, month, year
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+    
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const startOfYear = new Date(today.getFullYear(), 0, 1);
+    
+    // Format dates for delivery date comparison
     const todayString = today.toISOString().split('T')[0];
     const tomorrowString = tomorrow.toISOString().split('T')[0];
     const yesterdayString = yesterday.toISOString().split('T')[0];
@@ -47,35 +54,101 @@ export async function GET() {
       }
     });
     
-    // Yesterday's data
+    // Yesterday's data (orders made yesterday)
     const yesterdayOrders = await prisma.order.findMany({
       where: {
-        deliveryDate: yesterdayString
+        createdAt: {
+          gte: new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate()),
+          lt: new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1)
+        }
       }
     });
     
-    // Calculate metrics
+    // Week to Date (orders made this week)
+    const weekToDateOrders = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: startOfWeek
+        }
+      }
+    });
+    
+    // Month to Date (orders made this month)
+    const monthToDateOrders = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: startOfMonth
+        }
+      }
+    });
+    
+    // Year to Date (orders made this year)
+    const yearToDateOrders = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: startOfYear
+        }
+      }
+    });
+    
+    // Historic periods (previous week and previous month)
+    const previousWeekStart = new Date(startOfWeek);
+    previousWeekStart.setDate(previousWeekStart.getDate() - 7);
+    const previousWeekEnd = new Date(startOfWeek);
+    previousWeekEnd.setDate(previousWeekEnd.getDate() - 1);
+    
+    const previousMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const previousMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+    
+    const historicPeriod1Orders = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: previousWeekStart,
+          lte: previousWeekEnd
+        }
+      }
+    });
+    
+    const historicPeriod2Orders = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: previousMonthStart,
+          lte: previousMonthEnd
+        }
+      }
+    });
+    
+    // Calculate metrics with cost estimates
     const calculatePeriodData = (orders: any[]) => {
       const salesValue = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
       const orderCount = orders.length;
+      const costOfSales = salesValue * 0.6; // Estimate 60% cost of sales
+      const totalGP = salesValue - costOfSales;
+      const gpPercentage = salesValue > 0 ? (totalGP / salesValue) * 100 : 0;
+      const staffCosts = orderCount * 25; // Estimate $25 per order for staff
+      const totalGPWithStaffing = totalGP - staffCosts;
+      const totalGPWithStaffingPercentage = salesValue > 0 ? (totalGPWithStaffing / salesValue) * 100 : 0;
       
       return {
         salesValue,
-        costOfSales: 0,
-        totalGP: salesValue,
-        gpPercentage: 100,
-        staffCosts: 0,
-        totalGPWithStaffing: salesValue,
-        totalGPWithStaffingPercentage: 100,
+        costOfSales,
+        totalGP,
+        gpPercentage,
+        staffCosts,
+        totalGPWithStaffing,
+        totalGPWithStaffingPercentage,
         orderCount
       };
     };
     
-    // Sales Today (orders we made today)
+    // Calculate all period data
     const todayData = calculatePeriodData(salesTodayOrders);
-    
-    // Yesterday data
     const yesterdayData = calculatePeriodData(yesterdayOrders);
+    const weekToDate = calculatePeriodData(weekToDateOrders);
+    const monthToDate = calculatePeriodData(monthToDateOrders);
+    const yearToDate = calculatePeriodData(yearToDateOrders);
+    const historicPeriod1 = calculatePeriodData(historicPeriod1Orders);
+    const historicPeriod2 = calculatePeriodData(historicPeriod2Orders);
     
     // Out the door data
     const outTheDoorToday = {
@@ -106,13 +179,13 @@ export async function GET() {
     });
     
     const dashboardData = {
-      today: todayData, // Sales we made today
+      today: todayData,
       yesterday: yesterdayData,
-      weekToDate: calculatePeriodData([]), // No week data
-      monthToDate: calculatePeriodData([]), // No month data
-      yearToDate: calculatePeriodData([]), // No year data
-      historicPeriod1: calculatePeriodData([]), // No historic data
-      historicPeriod2: calculatePeriodData([]), // No historic data
+      weekToDate,
+      monthToDate,
+      yearToDate,
+      historicPeriod1,
+      historicPeriod2,
       outTheDoorToday,
       outTheDoorTomorrow,
       staffClockedIn,
