@@ -249,8 +249,12 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
 
       console.log('Submitting component payload:', JSON.stringify(payload, null, 2))
 
-      const response = await fetch('/api/components', {
-        method: 'POST',
+      const url = editingComponent 
+        ? `/api/components/${editingComponent.id}`
+        : '/api/components';
+      
+      const response = await fetch(url, {
+        method: editingComponent ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -292,6 +296,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
         isVegetarian: false,
         isVegan: false,
         isHalal: false,
+        isComponentListItem: true,
         totalCost: 0
       });
     } catch (error) {
@@ -321,6 +326,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
       isVegetarian: component.isVegetarian,
       isVegan: component.isVegan,
       isHalal: component.isHalal,
+      isComponentListItem: component.isComponentListItem,
       totalCost: component.totalCost
     })
     setIsDialogOpen(true)
@@ -342,6 +348,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
       isVegetarian: false,
       isVegan: false,
       isHalal: false,
+      isComponentListItem: true,
       totalCost: 0
     })
     setIsDialogOpen(true)
