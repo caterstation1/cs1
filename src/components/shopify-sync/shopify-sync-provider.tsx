@@ -88,6 +88,13 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
     // Check if we're in production and database is unavailable
     const isProduction = process.env.NODE_ENV === 'production';
     
+    // For now, disable Shopify sync in production due to database issues
+    if (isProduction) {
+      console.log('🛑 Shopify sync disabled in production due to database connection issues');
+      setSyncStatus('Database unavailable');
+      return;
+    }
+    
     // Initial sync when component mounts - wrapped in try-catch to prevent crashes
     const initialSync = async () => {
       try {
@@ -126,7 +133,9 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
   useEffect(() => {
     let retryTimeout: NodeJS.Timeout;
 
-    if (error && !error.includes('Database connection failed')) {
+    // Don't retry if we're in production or if it's a database error
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (error && !error.includes('Database connection failed') && !isProduction) {
       console.log('Sync failed, scheduling retry in 30 seconds...');
       retryTimeout = setTimeout(() => {
         console.log('Retrying failed sync...');
