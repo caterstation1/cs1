@@ -185,6 +185,7 @@ exports.Prisma.ComponentScalarFieldEnum = {
   isVegetarian: 'isVegetarian',
   isVegan: 'isVegan',
   isHalal: 'isHalal',
+  isComponentListItem: 'isComponentListItem',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

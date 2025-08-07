@@ -62,6 +62,7 @@ export interface Component {
   isVegetarian: boolean
   isVegan: boolean
   isHalal: boolean
+  isComponentListItem: boolean
   createdAt: string
   updatedAt: string
 }
@@ -98,6 +99,7 @@ const formSchema = z.object({
   isVegetarian: z.boolean(),
   isVegan: z.boolean(),
   isHalal: z.boolean(),
+  isComponentListItem: z.boolean(),
   totalCost: z.number().min(0)
 });
 
@@ -123,6 +125,7 @@ type FormValues = {
   isVegetarian: boolean;
   isVegan: boolean;
   isHalal: boolean;
+  isComponentListItem: boolean;
   totalCost: number;
 }
 
@@ -156,6 +159,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
       isVegetarian: false,
       isVegan: false,
       isHalal: false,
+      isComponentListItem: true,
       totalCost: 0
     }
   })
@@ -568,6 +572,23 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                     )}
                   />
                 </div>
+
+                {/* Component List Item Checkbox */}
+                <FormField
+                  control={form.control}
+                  name="isComponentListItem"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel>Component list item</FormLabel>
+                    </FormItem>
+                  )}
+                />
 
                 <DialogFooter>
                   <Button type="submit" disabled={isSubmitting}>

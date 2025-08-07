@@ -41,7 +41,8 @@ export async function POST(request: Request) {
         hasEgg: body.hasEgg || false,
         isVegetarian: body.isVegetarian || false,
         isVegan: body.isVegan || false,
-        isHalal: body.isHalal || false
+        isHalal: body.isHalal || false,
+        isComponentListItem: body.isComponentListItem !== undefined ? body.isComponentListItem : true
       }
     });
     

@@ -58,23 +58,24 @@ model Supplier {
 }
 
 model Component {
-  id             String   @id @default(uuid())
-  name           String   @unique
-  description    String
-  ingredients    Json
-  totalCost      Float
-  hasGluten      Boolean  @default(false)
-  hasDairy       Boolean  @default(false)
-  hasSoy         Boolean  @default(false)
-  hasOnionGarlic Boolean  @default(false)
-  hasSesame      Boolean  @default(false)
-  hasNuts        Boolean  @default(false)
-  hasEgg         Boolean  @default(false)
-  isVegetarian   Boolean  @default(false)
-  isVegan        Boolean  @default(false)
-  isHalal        Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                 String   @id @default(uuid())
+  name               String   @unique
+  description        String
+  ingredients        Json
+  totalCost          Float
+  hasGluten          Boolean  @default(false)
+  hasDairy           Boolean  @default(false)
+  hasSoy             Boolean  @default(false)
+  hasOnionGarlic     Boolean  @default(false)
+  hasSesame          Boolean  @default(false)
+  hasNuts            Boolean  @default(false)
+  hasEgg             Boolean  @default(false)
+  isVegetarian       Boolean  @default(false)
+  isVegan            Boolean  @default(false)
+  isHalal            Boolean  @default(false)
+  isComponentListItem Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model Product {

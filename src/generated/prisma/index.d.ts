@@ -6898,6 +6898,7 @@ export namespace Prisma {
     isVegetarian: boolean | null
     isVegan: boolean | null
     isHalal: boolean | null
+    isComponentListItem: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6917,6 +6918,7 @@ export namespace Prisma {
     isVegetarian: boolean | null
     isVegan: boolean | null
     isHalal: boolean | null
+    isComponentListItem: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6937,6 +6939,7 @@ export namespace Prisma {
     isVegetarian: number
     isVegan: number
     isHalal: number
+    isComponentListItem: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6966,6 +6969,7 @@ export namespace Prisma {
     isVegetarian?: true
     isVegan?: true
     isHalal?: true
+    isComponentListItem?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6985,6 +6989,7 @@ export namespace Prisma {
     isVegetarian?: true
     isVegan?: true
     isHalal?: true
+    isComponentListItem?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -7005,6 +7010,7 @@ export namespace Prisma {
     isVegetarian?: true
     isVegan?: true
     isHalal?: true
+    isComponentListItem?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -7112,6 +7118,7 @@ export namespace Prisma {
     isVegetarian: boolean
     isVegan: boolean
     isHalal: boolean
+    isComponentListItem: boolean
     createdAt: Date
     updatedAt: Date
     _count: ComponentCountAggregateOutputType | null
@@ -7151,6 +7158,7 @@ export namespace Prisma {
     isVegetarian?: boolean
     isVegan?: boolean
     isHalal?: boolean
+    isComponentListItem?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["component"]>
@@ -7171,6 +7179,7 @@ export namespace Prisma {
     isVegetarian?: boolean
     isVegan?: boolean
     isHalal?: boolean
+    isComponentListItem?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["component"]>
@@ -7191,6 +7200,7 @@ export namespace Prisma {
     isVegetarian?: boolean
     isVegan?: boolean
     isHalal?: boolean
+    isComponentListItem?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["component"]>
@@ -7211,11 +7221,12 @@ export namespace Prisma {
     isVegetarian?: boolean
     isVegan?: boolean
     isHalal?: boolean
+    isComponentListItem?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "ingredients" | "totalCost" | "hasGluten" | "hasDairy" | "hasSoy" | "hasOnionGarlic" | "hasSesame" | "hasNuts" | "hasEgg" | "isVegetarian" | "isVegan" | "isHalal" | "createdAt" | "updatedAt", ExtArgs["result"]["component"]>
+  export type ComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "ingredients" | "totalCost" | "hasGluten" | "hasDairy" | "hasSoy" | "hasOnionGarlic" | "hasSesame" | "hasNuts" | "hasEgg" | "isVegetarian" | "isVegan" | "isHalal" | "isComponentListItem" | "createdAt" | "updatedAt", ExtArgs["result"]["component"]>
 
   export type $ComponentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Component"
@@ -7236,6 +7247,7 @@ export namespace Prisma {
       isVegetarian: boolean
       isVegan: boolean
       isHalal: boolean
+      isComponentListItem: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["component"]>
@@ -7676,6 +7688,7 @@ export namespace Prisma {
     readonly isVegetarian: FieldRef<"Component", 'Boolean'>
     readonly isVegan: FieldRef<"Component", 'Boolean'>
     readonly isHalal: FieldRef<"Component", 'Boolean'>
+    readonly isComponentListItem: FieldRef<"Component", 'Boolean'>
     readonly createdAt: FieldRef<"Component", 'DateTime'>
     readonly updatedAt: FieldRef<"Component", 'DateTime'>
   }
@@ -23884,6 +23897,7 @@ export namespace Prisma {
     isVegetarian: 'isVegetarian',
     isVegan: 'isVegan',
     isHalal: 'isHalal',
+    isComponentListItem: 'isComponentListItem',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -24637,6 +24651,7 @@ export namespace Prisma {
     isVegetarian?: BoolFilter<"Component"> | boolean
     isVegan?: BoolFilter<"Component"> | boolean
     isHalal?: BoolFilter<"Component"> | boolean
+    isComponentListItem?: BoolFilter<"Component"> | boolean
     createdAt?: DateTimeFilter<"Component"> | Date | string
     updatedAt?: DateTimeFilter<"Component"> | Date | string
   }
@@ -24657,6 +24672,7 @@ export namespace Prisma {
     isVegetarian?: SortOrder
     isVegan?: SortOrder
     isHalal?: SortOrder
+    isComponentListItem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24680,6 +24696,7 @@ export namespace Prisma {
     isVegetarian?: BoolFilter<"Component"> | boolean
     isVegan?: BoolFilter<"Component"> | boolean
     isHalal?: BoolFilter<"Component"> | boolean
+    isComponentListItem?: BoolFilter<"Component"> | boolean
     createdAt?: DateTimeFilter<"Component"> | Date | string
     updatedAt?: DateTimeFilter<"Component"> | Date | string
   }, "id" | "name">
@@ -24700,6 +24717,7 @@ export namespace Prisma {
     isVegetarian?: SortOrder
     isVegan?: SortOrder
     isHalal?: SortOrder
+    isComponentListItem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ComponentCountOrderByAggregateInput
@@ -24728,6 +24746,7 @@ export namespace Prisma {
     isVegetarian?: BoolWithAggregatesFilter<"Component"> | boolean
     isVegan?: BoolWithAggregatesFilter<"Component"> | boolean
     isHalal?: BoolWithAggregatesFilter<"Component"> | boolean
+    isComponentListItem?: BoolWithAggregatesFilter<"Component"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Component"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Component"> | Date | string
   }
@@ -26513,6 +26532,7 @@ export namespace Prisma {
     isVegetarian?: boolean
     isVegan?: boolean
     isHalal?: boolean
+    isComponentListItem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26533,6 +26553,7 @@ export namespace Prisma {
     isVegetarian?: boolean
     isVegan?: boolean
     isHalal?: boolean
+    isComponentListItem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26553,6 +26574,7 @@ export namespace Prisma {
     isVegetarian?: BoolFieldUpdateOperationsInput | boolean
     isVegan?: BoolFieldUpdateOperationsInput | boolean
     isHalal?: BoolFieldUpdateOperationsInput | boolean
+    isComponentListItem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26573,6 +26595,7 @@ export namespace Prisma {
     isVegetarian?: BoolFieldUpdateOperationsInput | boolean
     isVegan?: BoolFieldUpdateOperationsInput | boolean
     isHalal?: BoolFieldUpdateOperationsInput | boolean
+    isComponentListItem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26593,6 +26616,7 @@ export namespace Prisma {
     isVegetarian?: boolean
     isVegan?: boolean
     isHalal?: boolean
+    isComponentListItem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26613,6 +26637,7 @@ export namespace Prisma {
     isVegetarian?: BoolFieldUpdateOperationsInput | boolean
     isVegan?: BoolFieldUpdateOperationsInput | boolean
     isHalal?: BoolFieldUpdateOperationsInput | boolean
+    isComponentListItem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26633,6 +26658,7 @@ export namespace Prisma {
     isVegetarian?: BoolFieldUpdateOperationsInput | boolean
     isVegan?: BoolFieldUpdateOperationsInput | boolean
     isHalal?: BoolFieldUpdateOperationsInput | boolean
+    isComponentListItem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -28720,6 +28746,7 @@ export namespace Prisma {
     isVegetarian?: SortOrder
     isVegan?: SortOrder
     isHalal?: SortOrder
+    isComponentListItem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -28743,6 +28770,7 @@ export namespace Prisma {
     isVegetarian?: SortOrder
     isVegan?: SortOrder
     isHalal?: SortOrder
+    isComponentListItem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -28762,6 +28790,7 @@ export namespace Prisma {
     isVegetarian?: SortOrder
     isVegan?: SortOrder
     isHalal?: SortOrder
+    isComponentListItem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
