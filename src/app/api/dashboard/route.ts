@@ -78,7 +78,7 @@ export async function GET() {
     };
     
     // Staff data - empty array since no staff data available
-    const staffClockedIn = [];
+    const staffClockedIn: any[] = [];
     
     // Delivery map data using real order data
     const deliveryMap = todayOrders.slice(0, 10).map((order, index) => {
