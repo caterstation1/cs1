@@ -115,9 +115,10 @@ export default function RosterPage() {
         variant: "destructive",
       })
     } finally {
+      console.log('✅ Setting loading to false')
       setLoading(false)
     }
-  }, [weekDates])
+  }, [currentWeek])
 
   useEffect(() => {
     fetchData()
@@ -253,6 +254,8 @@ export default function RosterPage() {
       })
     }
   }
+  
+  console.log('🔍 Loading state:', loading, 'Staff count:', staff.length)
   
   if (loading) {
     return (
