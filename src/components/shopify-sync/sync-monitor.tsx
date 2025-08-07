@@ -34,12 +34,10 @@ export function SyncMonitor() {
         
         {error && (
           <div className="mt-2 p-2 bg-red-50 rounded border border-red-200">
-            <p className="text-red-600 font-medium">{error}</p>
-            {errorDetails && (
-              <pre className="mt-1 text-xs text-red-500 whitespace-pre-wrap">
-                {errorDetails}
-              </pre>
-            )}
+            <p className="text-red-600 font-medium">Sync failed</p>
+            <p className="text-xs text-red-500">
+              Check database connection and Shopify credentials
+            </p>
           </div>
         )}
       </div>

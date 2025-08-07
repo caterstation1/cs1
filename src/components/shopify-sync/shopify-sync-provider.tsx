@@ -59,13 +59,20 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
     } catch (err) {
       let errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       let errorStack = err instanceof Error ? err.stack : null;
-      // If the error is a SyntaxError from response.json(), provide a clearer message
-      if (errorMessage.includes('Unexpected end of JSON input')) {
+      
+      // Handle database connection errors gracefully
+      if (errorMessage.includes('Can\'t reach database server') || errorMessage.includes('mainline.proxy.rlwy.net')) {
+        errorMessage = 'Database connection failed';
+        setSyncStatus('Database unavailable');
+      } else if (errorMessage.includes('Unexpected end of JSON input')) {
         errorMessage = 'Shopify sync failed: Invalid or empty response from server.';
+        setSyncStatus('Sync failed');
+      } else {
+        setSyncStatus('Sync failed');
       }
+      
       setError(errorMessage);
       setErrorDetails(errorStack || 'No additional details available');
-      setSyncStatus('Sync failed');
       console.error('Error syncing Shopify orders:', {
         error: errorMessage,
         stack: errorStack,
@@ -78,11 +85,23 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
 
   // Set up interval for automatic syncing and initial sync
   useEffect(() => {
-    // Initial sync when component mounts
-    syncOrders();
+    // Initial sync when component mounts - wrapped in try-catch to prevent crashes
+    const initialSync = async () => {
+      try {
+        await syncOrders();
+      } catch (err) {
+        console.error('Initial sync failed, but continuing:', err);
+      }
+    };
+    
+    initialSync();
 
     // Set up interval for subsequent syncs
-    const interval = setInterval(syncOrders, 60000); // Sync every minute
+    const interval = setInterval(() => {
+      syncOrders().catch(err => {
+        console.error('Periodic sync failed, but continuing:', err);
+      });
+    }, 60000); // Sync every minute
     
     return () => {
       console.log('Cleaning up sync interval');
