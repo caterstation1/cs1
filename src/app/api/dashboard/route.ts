@@ -34,12 +34,6 @@ export async function GET() {
       }
     });
     
-    console.log('🔍 Sales Today Debug:');
-    console.log('  - Date range:', new Date(today.getFullYear(), today.getMonth(), today.getDate()), 'to', new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1));
-    console.log('  - Orders found:', salesTodayOrders.length);
-    console.log('  - Order IDs:', salesTodayOrders.map(o => o.id));
-    console.log('  - Total value:', salesTodayOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0));
-    
     // Out the Door Today = Orders we DELIVERED today (by deliveryDate)
     const outTheDoorTodayOrders = await prisma.order.findMany({
       where: {
