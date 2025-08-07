@@ -24,8 +24,8 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
   const [selectedDelivery, setSelectedDelivery] = useState<DeliveryPoint | null>(null)
 
   useEffect(() => {
-    // Load Google Maps API with proper async pattern
-    const loadGoogleMaps = async () => {
+    // Load Google Maps API
+    const loadGoogleMaps = () => {
       if ((window as any).google && (window as any).google.maps) {
         initializeMap()
         return
@@ -36,25 +36,12 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
         return
       }
 
-      return new Promise<void>((resolve) => {
-        const script = document.createElement('script')
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`
-        script.async = true
-        script.defer = true
-        
-        // Set up global callback
-        ;(window as any).initMap = () => {
-          initializeMap()
-          resolve()
-        }
-        
-        script.onerror = () => {
-          console.error('Failed to load Google Maps API')
-          resolve()
-        }
-        
-        document.head.appendChild(script)
-      })
+      const script = document.createElement('script')
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`
+      script.async = true
+      script.defer = true
+      script.onload = initializeMap
+      document.head.appendChild(script)
     }
 
     const initializeMap = () => {
@@ -92,32 +79,20 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
     const newMarkers: any[] = []
 
     deliveryPoints.forEach((point, index) => {
-      // Create marker element
-      const markerElement = document.createElement('div')
-      markerElement.innerHTML = `
-        <div style="
-          width: 32px; 
-          height: 32px; 
-          background: #EF4444; 
-          border: 2px solid white; 
-          border-radius: 50%; 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          color: white; 
-          font-weight: bold; 
-          font-size: 10px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        ">
-          ${index + 1}
-        </div>
-      `
-
-      const marker = new (window as any).google.maps.marker.AdvancedMarkerElement({
+      const marker = new (window as any).google.maps.Marker({
         position: { lat: point.coordinates[0], lng: point.coordinates[1] },
         map: map,
         title: `Order #${point.orderNumber}`,
-        content: markerElement
+        icon: {
+          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="12" fill="#EF4444" stroke="white" stroke-width="2"/>
+              <text x="16" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="bold">${index + 1}</text>
+            </svg>
+          `)}`,
+          scaledSize: new (window as any).google.maps.Size(32, 32),
+          anchor: new (window as any).google.maps.Point(16, 16)
+        }
       })
 
       const infoWindow = new (window as any).google.maps.InfoWindow({
@@ -152,7 +127,7 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
     // Fit bounds to show all markers
     if (newMarkers.length > 0) {
       const bounds = new (window as any).google.maps.LatLngBounds()
-      newMarkers.forEach(marker => bounds.extend(marker.position))
+      newMarkers.forEach(marker => bounds.extend(marker.getPosition()!))
       map.fitBounds(bounds)
     }
   }, [map, deliveryPoints])
