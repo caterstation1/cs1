@@ -5,35 +5,34 @@ export async function GET() {
   try {
     console.log('📊 Fetching dashboard data...');
     
-    // Get date ranges in Auckland timezone (UTC+12)
-    // Use a simple fixed offset for now - Auckland is UTC+12
-    const now = new Date();
-    const aucklandOffset = 12; // UTC+12
-    const aucklandTime = new Date(now.getTime() + (aucklandOffset * 60 * 60 * 1000));
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
     
-    const today = new Date(aucklandTime.getFullYear(), aucklandTime.getMonth(), aucklandTime.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    // Get yesterday and tomorrow
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = yesterday.toISOString().split('T')[0];
     
-    // Calculate date ranges for week, month, year in Auckland time
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = tomorrow.toISOString().split('T')[0];
+    
+    // Calculate date ranges for week, month, year
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
     
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const startOfYear = new Date(today.getFullYear(), 0, 1);
     
-    // Format dates for delivery date comparison
-    const todayString = today.toISOString().split('T')[0];
-    const tomorrowString = tomorrow.toISOString().split('T')[0];
-    const yesterdayString = yesterday.toISOString().split('T')[0];
-    
     // Sales Today = Orders we MADE today (by createdAt)
-    // Try using deliveryDate instead to match the working version
+    // Simple date comparison - if creation date is the same as today's date
     const salesTodayOrders = await prisma.order.findMany({
       where: {
-        deliveryDate: todayString
+        createdAt: {
+          gte: new Date(todayString + 'T00:00:00.000Z'),
+          lt: new Date(todayString + 'T23:59:59.999Z')
+        }
       }
     });
     
