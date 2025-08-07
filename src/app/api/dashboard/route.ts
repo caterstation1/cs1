@@ -6,9 +6,20 @@ export async function GET() {
     console.log('📊 Fetching dashboard data...');
     
     // Get date ranges in Auckland timezone (UTC+12/+13)
-    const aucklandOffset = 12; // UTC+12 (adjust for daylight saving if needed)
+    // Auckland is UTC+12 in winter (April-September) and UTC+13 in summer (October-March)
     const now = new Date();
+    const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
+    const isDaylightSaving = currentMonth >= 10 || currentMonth <= 3; // October to March
+    const aucklandOffset = isDaylightSaving ? 13 : 12; // UTC+13 in summer, UTC+12 in winter
+    
+    console.log('🔍 Timezone Debug:');
+    console.log('  - Current UTC time:', now.toISOString());
+    console.log('  - Current month:', currentMonth);
+    console.log('  - Is daylight saving:', isDaylightSaving);
+    console.log('  - Auckland offset:', aucklandOffset);
+    
     const aucklandTime = new Date(now.getTime() + (aucklandOffset * 60 * 60 * 1000));
+    console.log('  - Auckland time:', aucklandTime.toISOString());
     
     const today = new Date(aucklandTime.getFullYear(), aucklandTime.getMonth(), aucklandTime.getDate());
     const tomorrow = new Date(today);
