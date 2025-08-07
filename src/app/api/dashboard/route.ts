@@ -165,11 +165,24 @@ export async function GET() {
     // Delivery map data - use out the door orders for today
     const deliveryMap = outTheDoorTodayOrders.slice(0, 10).map((order, index) => {
       const shippingAddress = order.shippingAddress as any;
+      const address = shippingAddress?.address1 || 'Unknown Address';
+      
+      // Default to Auckland coordinates if no proper address
+      let coordinates: [number, number] = [-36.8485, 174.7633]; // Auckland, NZ
+      
+      // If we have a proper address, we could geocode it here
+      // For now, use Auckland as default and add some offset for multiple orders
+      if (outTheDoorTodayOrders.length > 1) {
+        // Add small offset to spread markers around Auckland
+        const offset = (index * 0.01) - (outTheDoorTodayOrders.length * 0.005);
+        coordinates = [-36.8485 + offset, 174.7633 + offset];
+      }
+      
       return {
         orderNumber: order.orderNumber?.toString() || `Order ${index + 1}`,
         deliveryTime: order.deliveryTime || '12:00',
-        address: shippingAddress?.address1 || 'Unknown Address',
-        coordinates: [0, 0] as [number, number], // Will need geocoding
+        address: address,
+        coordinates: coordinates,
         salesValue: order.totalPrice || 0
       };
     });

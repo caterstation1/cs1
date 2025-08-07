@@ -45,6 +45,18 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
       if (!apiKey) {
         console.error('❌ Google Maps API key not found!')
         console.log('💡 Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in your environment variables')
+        // Show fallback content
+        if (mapRef.current) {
+          mapRef.current.innerHTML = `
+            <div class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+              <div class="text-center">
+                <MapPin className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                <p class="text-gray-600">Map unavailable</p>
+                <p class="text-sm text-gray-500">Google Maps API key not configured</p>
+              </div>
+            </div>
+          `
+        }
         return
       }
 
@@ -59,6 +71,18 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
       }
       script.onerror = () => {
         console.error('❌ Failed to load Google Maps script')
+        // Show fallback content
+        if (mapRef.current) {
+          mapRef.current.innerHTML = `
+            <div class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+              <div class="text-center">
+                <MapPin className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                <p class="text-gray-600">Map unavailable</p>
+                <p class="text-sm text-gray-500">Please check your Google Maps API key</p>
+              </div>
+            </div>
+          `
+        }
       }
       document.head.appendChild(script)
     }
@@ -71,6 +95,16 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
       }
       if (!(window as any).google) {
         console.error('❌ Google Maps not loaded')
+        // Show fallback content
+        mapRef.current.innerHTML = `
+          <div class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+            <div class="text-center">
+              <MapPin className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+              <p class="text-gray-600">Map unavailable</p>
+              <p class="text-sm text-gray-500">Google Maps failed to load</p>
+            </div>
+          </div>
+        `
         return
       }
 
@@ -93,9 +127,21 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
           }
         ]
       })
+      
+      // Ensure the map container is properly sized
+      setTimeout(() => {
+        if (mapInstance && mapRef.current) {
+          mapInstance.setCenter(defaultCenter)
+        }
+      }, 100)
 
       console.log('✅ Map initialized successfully')
       setMap(mapInstance)
+      
+      // Clear loading state
+      if (mapRef.current) {
+        mapRef.current.innerHTML = ''
+      }
     }
 
     loadGoogleMaps()
@@ -183,9 +229,14 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
           {/* Interactive Map */}
           <div 
             ref={mapRef} 
-            className="h-64 w-full rounded-lg border"
+            className="h-64 w-full rounded-lg border flex items-center justify-center bg-gray-50"
             style={{ minHeight: '256px' }}
-          />
+          >
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+              <p className="text-sm text-gray-600">Loading map...</p>
+            </div>
+          </div>
           
           {/* Delivery List */}
           <div className="space-y-2">
