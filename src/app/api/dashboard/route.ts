@@ -5,21 +5,11 @@ export async function GET() {
   try {
     console.log('📊 Fetching dashboard data...');
     
-    // Get date ranges in Auckland timezone (UTC+12/+13)
-    // Auckland is UTC+12 in winter (April-September) and UTC+13 in summer (October-March)
+    // Get date ranges in Auckland timezone (UTC+12)
+    // Use a simple fixed offset for now - Auckland is UTC+12
     const now = new Date();
-    const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
-    const isDaylightSaving = currentMonth >= 10 || currentMonth <= 3; // October to March
-    const aucklandOffset = isDaylightSaving ? 13 : 12; // UTC+13 in summer, UTC+12 in winter
-    
-    console.log('🔍 Timezone Debug:');
-    console.log('  - Current UTC time:', now.toISOString());
-    console.log('  - Current month:', currentMonth);
-    console.log('  - Is daylight saving:', isDaylightSaving);
-    console.log('  - Auckland offset:', aucklandOffset);
-    
+    const aucklandOffset = 12; // UTC+12
     const aucklandTime = new Date(now.getTime() + (aucklandOffset * 60 * 60 * 1000));
-    console.log('  - Auckland time:', aucklandTime.toISOString());
     
     const today = new Date(aucklandTime.getFullYear(), aucklandTime.getMonth(), aucklandTime.getDate());
     const tomorrow = new Date(today);
@@ -40,12 +30,10 @@ export async function GET() {
     const yesterdayString = yesterday.toISOString().split('T')[0];
     
     // Sales Today = Orders we MADE today (by createdAt)
+    // Try using deliveryDate instead to match the working version
     const salesTodayOrders = await prisma.order.findMany({
       where: {
-        createdAt: {
-          gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-          lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
-        }
+        deliveryDate: todayString
       }
     });
     
