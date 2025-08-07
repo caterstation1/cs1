@@ -5,108 +5,89 @@ export async function GET() {
   try {
     console.log('📊 Fetching dashboard data...');
     
-    // Get today's date
+    // Get today's and tomorrow's dates
     const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     
-    // Get date ranges
-    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+    // Format dates for delivery date comparison
+    const todayString = today.toISOString().split('T')[0];
+    const tomorrowString = tomorrow.toISOString().split('T')[0];
+    const yesterdayString = yesterday.toISOString().split('T')[0];
     
-    const startOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
-    const endOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);
-    
-    // Fetch orders for today and yesterday
+    // Fetch orders by delivery date
     const todayOrders = await prisma.order.findMany({
       where: {
-        createdAt: {
-          gte: startOfToday,
-          lte: endOfToday
-        }
+        deliveryDate: todayString
+      }
+    });
+    
+    const tomorrowOrders = await prisma.order.findMany({
+      where: {
+        deliveryDate: tomorrowString
       }
     });
     
     const yesterdayOrders = await prisma.order.findMany({
       where: {
-        createdAt: {
-          gte: startOfYesterday,
-          lte: endOfYesterday
-        }
+        deliveryDate: yesterdayString
       }
     });
     
-    // Calculate basic metrics
+    // Calculate basic metrics using real data only
     const calculatePeriodData = (orders: any[]) => {
       const salesValue = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
       const orderCount = orders.length;
-      const costOfSales = salesValue * 0.6; // Estimate 60% cost
-      const totalGP = salesValue - costOfSales;
-      const gpPercentage = salesValue > 0 ? (totalGP / salesValue) * 100 : 0;
-      const staffCosts = orderCount * 50; // Estimate $50 per order for staff
-      const totalGPWithStaffing = totalGP - staffCosts;
-      const totalGPWithStaffingPercentage = salesValue > 0 ? (totalGPWithStaffing / salesValue) * 100 : 0;
       
       return {
         salesValue,
-        costOfSales,
-        totalGP,
-        gpPercentage,
-        staffCosts,
-        totalGPWithStaffing,
-        totalGPWithStaffingPercentage,
+        costOfSales: 0, // No cost data available
+        totalGP: salesValue, // No cost data, so GP = sales
+        gpPercentage: 100, // No cost data
+        staffCosts: 0, // No staff cost data available
+        totalGPWithStaffing: salesValue, // No staff costs
+        totalGPWithStaffingPercentage: 100, // No staff costs
         orderCount
       };
     };
     
-    // Calculate data for different periods
+    // Calculate data for different periods using real data
     const todayData = calculatePeriodData(todayOrders);
     const yesterdayData = calculatePeriodData(yesterdayOrders);
     
-    // Mock data for other periods (you can expand this later)
-    const weekToDate = { ...todayData, salesValue: todayData.salesValue * 5 };
-    const monthToDate = { ...todayData, salesValue: todayData.salesValue * 20 };
-    const yearToDate = { ...todayData, salesValue: todayData.salesValue * 240 };
-    const historicPeriod1 = { ...yesterdayData, salesValue: yesterdayData.salesValue * 1.1 };
-    const historicPeriod2 = { ...yesterdayData, salesValue: yesterdayData.salesValue * 0.9 };
+    // For other periods, use actual data or empty data
+    const weekToDate = calculatePeriodData([]); // No week data available
+    const monthToDate = calculatePeriodData([]); // No month data available
+    const yearToDate = calculatePeriodData([]); // No year data available
+    const historicPeriod1 = calculatePeriodData([]); // No historic data available
+    const historicPeriod2 = calculatePeriodData([]); // No historic data available
     
-    // Out the door data
+    // Out the door data using real delivery dates
     const outTheDoorToday = {
       salesValue: todayData.salesValue,
       orderCount: todayData.orderCount,
-      orders: todayOrders.slice(0, 5) // First 5 orders
+      orders: todayOrders.slice(0, 5) // First 5 orders for today
     };
     
     const outTheDoorTomorrow = {
-      salesValue: todayData.salesValue * 0.8, // Estimate 80% of today
-      orderCount: Math.floor(todayData.orderCount * 0.8),
-      orders: []
+      salesValue: calculatePeriodData(tomorrowOrders).salesValue,
+      orderCount: tomorrowOrders.length,
+      orders: tomorrowOrders.slice(0, 5) // First 5 orders for tomorrow
     };
     
-    // Staff data (mock for now)
-    const staffClockedIn = [
-      {
-        id: '1',
-        name: 'John Smith',
-        clockInTime: '08:00',
-        role: 'Driver'
-      },
-      {
-        id: '2',
-        name: 'Jane Doe',
-        clockInTime: '07:30',
-        role: 'Kitchen'
-      }
-    ];
+    // Staff data - empty array since no staff data available
+    const staffClockedIn = [];
     
-    // Delivery map data
+    // Delivery map data using real order data
     const deliveryMap = todayOrders.slice(0, 10).map((order, index) => {
       const shippingAddress = order.shippingAddress as any;
       return {
         orderNumber: order.orderNumber?.toString() || `Order ${index + 1}`,
         deliveryTime: order.deliveryTime || '12:00',
         address: shippingAddress?.address1 || 'Unknown Address',
-        coordinates: [-36.8485, 174.7633] as [number, number], // Auckland coordinates
+        coordinates: [0, 0] as [number, number], // No real coordinates available
         salesValue: order.totalPrice || 0
       };
     });
