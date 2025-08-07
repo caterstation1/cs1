@@ -26,31 +26,61 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
   useEffect(() => {
     // Load Google Maps API
     const loadGoogleMaps = () => {
+      console.log('🗺️ Loading Google Maps...')
+      console.log('🔑 API Key:', process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? 'Set' : 'NOT SET')
+      
       if ((window as any).google && (window as any).google.maps) {
+        console.log('✅ Google Maps already loaded')
         initializeMap()
         return
       }
 
       // Check if script is already loading
       if (document.querySelector('script[src*="maps.googleapis.com"]')) {
+        console.log('⏳ Google Maps script already loading')
         return
       }
 
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+      if (!apiKey) {
+        console.error('❌ Google Maps API key not found!')
+        console.log('💡 Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in your environment variables')
+        return
+      }
+
+      console.log('📡 Loading Google Maps script...')
       const script = document.createElement('script')
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
       script.async = true
       script.defer = true
-      script.onload = initializeMap
+      script.onload = () => {
+        console.log('✅ Google Maps script loaded successfully')
+        initializeMap()
+      }
+      script.onerror = () => {
+        console.error('❌ Failed to load Google Maps script')
+      }
       document.head.appendChild(script)
     }
 
     const initializeMap = () => {
-      if (!mapRef.current || !(window as any).google) return
+      console.log('🗺️ Initializing map...')
+      if (!mapRef.current) {
+        console.error('❌ Map ref not found')
+        return
+      }
+      if (!(window as any).google) {
+        console.error('❌ Google Maps not loaded')
+        return
+      }
 
       // Default to Auckland if no delivery points
       const defaultCenter = deliveryPoints.length > 0 
         ? { lat: deliveryPoints[0].coordinates[0], lng: deliveryPoints[0].coordinates[1] }
         : { lat: -36.8485, lng: 174.7633 }
+
+      console.log('📍 Map center:', defaultCenter)
+      console.log('📊 Delivery points:', deliveryPoints.length)
 
       const mapInstance = new (window as any).google.maps.Map(mapRef.current, {
         center: defaultCenter,
@@ -64,6 +94,7 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
         ]
       })
 
+      console.log('✅ Map initialized successfully')
       setMap(mapInstance)
     }
 
