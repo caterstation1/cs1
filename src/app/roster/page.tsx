@@ -79,6 +79,17 @@ export default function RosterPage() {
         fetch(`/api/roster/assignments?startDate=${weekDates[0].toISOString()}&endDate=${weekDates[6].toISOString()}`)
       ])
 
+      // Check for API errors
+      if (!staffRes.ok) {
+        console.error('Staff API error:', staffRes.status, staffRes.statusText)
+      }
+      if (!shiftTypesRes.ok) {
+        console.error('Shift types API error:', shiftTypesRes.status, shiftTypesRes.statusText)
+      }
+      if (!assignmentsRes.ok) {
+        console.error('Assignments API error:', assignmentsRes.status, assignmentsRes.statusText)
+      }
+
       const staffData = await staffRes.json()
       const shiftTypesData = await shiftTypesRes.json()
       const assignmentsData = await assignmentsRes.json()
@@ -88,9 +99,14 @@ export default function RosterPage() {
       console.log('Sample assignment date format:', assignmentsData[0]?.date)
       console.log('Staff data:', staffData.filter((s: Staff) => s.isActive))
 
-      setStaff(staffData.filter((s: Staff) => s.isActive))
-      setShiftTypes(shiftTypesData)
-      setAssignments(assignmentsData)
+      // Ensure data is arrays and handle errors gracefully
+      const safeStaffData = Array.isArray(staffData) ? staffData : []
+      const safeShiftTypesData = Array.isArray(shiftTypesData) ? shiftTypesData : []
+      const safeAssignmentsData = Array.isArray(assignmentsData) ? assignmentsData : []
+
+      setStaff(safeStaffData.filter((s: Staff) => s.isActive))
+      setShiftTypes(safeShiftTypesData)
+      setAssignments(safeAssignmentsData)
     } catch (error) {
       console.error('Error fetching roster data:', error)
       toast({
@@ -243,6 +259,23 @@ export default function RosterPage() {
       <div className="container mx-auto py-10">
         <div className="flex items-center justify-center h-64">
           <div className="text-lg">Loading roster...</div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state if no staff data
+  if (staff.length === 0) {
+    return (
+      <div className="container mx-auto py-10">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold mb-2">No Staff Available</h2>
+            <p className="text-gray-600 mb-4">Please add staff members to create a roster.</p>
+            <Button onClick={() => window.location.href = '/staff'}>
+              Manage Staff
+            </Button>
+          </div>
         </div>
       </div>
     )
