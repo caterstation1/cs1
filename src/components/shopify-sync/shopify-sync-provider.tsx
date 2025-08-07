@@ -85,21 +85,34 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
 
   // Set up interval for automatic syncing and initial sync
   useEffect(() => {
+    // Check if we're in production and database is unavailable
+    const isProduction = process.env.NODE_ENV === 'production';
+    
     // Initial sync when component mounts - wrapped in try-catch to prevent crashes
     const initialSync = async () => {
       try {
         await syncOrders();
       } catch (err) {
         console.error('Initial sync failed, but continuing:', err);
+        // If we're in production and get database errors, disable auto-sync
+        if (isProduction && err instanceof Error && err.message.includes('database')) {
+          console.log('Database unavailable in production, disabling auto-sync');
+          return;
+        }
       }
     };
     
     initialSync();
 
-    // Set up interval for subsequent syncs
+    // Set up interval for subsequent syncs (only if not in production with DB issues)
     const interval = setInterval(() => {
       syncOrders().catch(err => {
         console.error('Periodic sync failed, but continuing:', err);
+        // Stop retrying if database is consistently unavailable
+        if (isProduction && err instanceof Error && err.message.includes('database')) {
+          console.log('Stopping sync retries due to database issues');
+          clearInterval(interval);
+        }
       });
     }, 60000); // Sync every minute
     
@@ -113,7 +126,7 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
   useEffect(() => {
     let retryTimeout: NodeJS.Timeout;
 
-    if (error) {
+    if (error && !error.includes('Database connection failed')) {
       console.log('Sync failed, scheduling retry in 30 seconds...');
       retryTimeout = setTimeout(() => {
         console.log('Retrying failed sync...');
