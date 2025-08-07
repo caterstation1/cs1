@@ -100,13 +100,16 @@ export async function GET() {
     ];
     
     // Delivery map data
-    const deliveryMap = todayOrders.slice(0, 10).map((order, index) => ({
-      orderNumber: order.orderNumber?.toString() || `Order ${index + 1}`,
-      deliveryTime: order.deliveryTime || '12:00',
-      address: order.shippingAddress?.address1 || 'Unknown Address',
-      coordinates: [-36.8485, 174.7633] as [number, number], // Auckland coordinates
-      salesValue: order.totalPrice || 0
-    }));
+    const deliveryMap = todayOrders.slice(0, 10).map((order, index) => {
+      const shippingAddress = order.shippingAddress as any;
+      return {
+        orderNumber: order.orderNumber?.toString() || `Order ${index + 1}`,
+        deliveryTime: order.deliveryTime || '12:00',
+        address: shippingAddress?.address1 || 'Unknown Address',
+        coordinates: [-36.8485, 174.7633] as [number, number], // Auckland coordinates
+        salesValue: order.totalPrice || 0
+      };
+    });
     
     const dashboardData = {
       today: todayData,
