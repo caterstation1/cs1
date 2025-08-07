@@ -5,14 +5,18 @@ export async function GET() {
   try {
     console.log('📊 Fetching dashboard data...');
     
-    // Get date ranges
-    const today = new Date();
+    // Get date ranges in Auckland timezone (UTC+12/+13)
+    const aucklandOffset = 12; // UTC+12 (adjust for daylight saving if needed)
+    const now = new Date();
+    const aucklandTime = new Date(now.getTime() + (aucklandOffset * 60 * 60 * 1000));
+    
+    const today = new Date(aucklandTime.getFullYear(), aucklandTime.getMonth(), aucklandTime.getDate());
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     
-    // Calculate date ranges for week, month, year
+    // Calculate date ranges for week, month, year in Auckland time
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
     
