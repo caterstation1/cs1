@@ -118,25 +118,19 @@ export async function GET() {
       }
     });
     
-    // Calculate metrics with cost estimates
+    // Calculate metrics (no cost data available)
     const calculatePeriodData = (orders: any[]) => {
       const salesValue = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
       const orderCount = orders.length;
-      const costOfSales = salesValue * 0.6; // Estimate 60% cost of sales
-      const totalGP = salesValue - costOfSales;
-      const gpPercentage = salesValue > 0 ? (totalGP / salesValue) * 100 : 0;
-      const staffCosts = orderCount * 25; // Estimate $25 per order for staff
-      const totalGPWithStaffing = totalGP - staffCosts;
-      const totalGPWithStaffingPercentage = salesValue > 0 ? (totalGPWithStaffing / salesValue) * 100 : 0;
       
       return {
         salesValue,
-        costOfSales,
-        totalGP,
-        gpPercentage,
-        staffCosts,
-        totalGPWithStaffing,
-        totalGPWithStaffingPercentage,
+        costOfSales: 0, // No cost data available
+        totalGP: salesValue, // No costs, so GP = sales
+        gpPercentage: 100, // No costs, so 100%
+        staffCosts: 0, // No staff cost data available
+        totalGPWithStaffing: salesValue, // No staff costs
+        totalGPWithStaffingPercentage: 100, // No staff costs
         orderCount
       };
     };
