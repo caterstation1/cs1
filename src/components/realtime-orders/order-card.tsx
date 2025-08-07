@@ -1336,8 +1336,15 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           {(() => {
             console.log('🔍 Internal note display check - order.internalNote:', order.internalNote);
             console.log('🔍 Internal note display check - condition result:', !!order.internalNote);
+            
+            // Check if there are addons
+            const hasAddons = lineItems.some((item: any) => item.sku?.startsWith('ADD'));
+            console.log('🔍 Has addons:', hasAddons);
+            
             return order.internalNote && (
-              <div className="absolute left-[42%] top-8 p-2 bg-blue-50 border border-blue-200 rounded-md max-w-[40%] z-20">
+              <div className={`absolute left-[42%] p-2 bg-blue-50 border border-blue-200 rounded-md max-w-[40%] z-20 ${
+                hasAddons ? 'top-16' : 'top-2'
+              }`}>
                 <div className="flex items-center gap-2">
                   <StickyNote className="h-4 w-4 text-blue-600" />
                   <span className="text-sm font-medium text-blue-800">Internal Note:</span>
