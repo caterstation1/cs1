@@ -464,7 +464,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   }, [orders, toast, isInitialLoad])
   
   // Handle bulk travel time update
-  // Print labels function - use the existing print page with proper LabelCard rendering
+  // Print labels function - simple and working approach
   const handlePrintLabels = async () => {
     if (!selectedDate) {
       toast({
@@ -476,52 +476,11 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     }
 
     const dateStr = format(selectedDate, 'yyyy-MM-dd')
+    const url = `/labels/print?date=${encodeURIComponent(dateStr)}`
     
-    try {
-      // Use the existing print page which has proper LabelCard rendering
-      const url = `/labels/print?date=${encodeURIComponent(dateStr)}`
-      
-      // Create a hidden iframe to load the print page
-      const iframe = document.createElement('iframe')
-      iframe.style.width = '0'
-      iframe.style.height = '0'
-      iframe.style.border = '0'
-      iframe.style.position = 'fixed'
-      iframe.style.left = '-9999px'
-      document.body.appendChild(iframe)
-      
-      // Load the print page in the iframe
-      iframe.src = url
-      
-      // Wait for the page to load and then trigger print
-      iframe.onload = () => {
-        setTimeout(() => {
-          try {
-            // Try to trigger print in the iframe
-            iframe.contentWindow?.print()
-          } catch (error) {
-            console.error('Failed to print in iframe:', error)
-            // Fallback: open in new tab
-            window.open(url, '_blank')
-          }
-          
-          // Clean up the iframe after a delay
-          setTimeout(() => {
-            if (document.body.contains(iframe)) {
-              document.body.removeChild(iframe)
-            }
-          }, 5000) // Give enough time for print dialog
-        }, 1000) // Wait for the page to fully load
-      }
-      
-    } catch (error) {
-      console.error('Print error:', error)
-      toast({
-        title: 'Print failed',
-        description: 'Failed to print labels: ' + (error as Error).message,
-        variant: 'destructive',
-      })
-    }
+    // Simple approach: open the print page in a new window
+    // This is the original working solution that properly renders labels
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   const handleBulkTravelTimeUpdate = async () => {
