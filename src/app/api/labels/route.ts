@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
           phoneSecondary: '',
           productTitle: meta?.displayName || item.title || '', // Use displayName from custom data
           peopleText: item.peopleText || '',
-          meat1: item.shopifyName || undefined, // Use shopifyName for meat/variant info
+          meat1: item.variant_title || undefined, // Use variant_title for meat/variant info
           meat2: undefined, // No longer using separate meat2 field
           option1: meta?.option1 || undefined,
           option2: meta?.option2 || undefined,
