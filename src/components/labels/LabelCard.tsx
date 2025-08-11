@@ -51,8 +51,8 @@ export const LabelCard: React.FC<{ data: LabelData; landscape?: boolean }> = ({ 
       {/* Options block */}
       <div style={{ marginTop: 16, textAlign: 'center', fontSize: 32 }}>
         {data.peopleText && <div style={{ marginBottom: 6 }}>{data.peopleText}</div>}
-        {(data.meat1 || data.meat2) && (
-          <div>{[data.meat1, data.meat2].filter(Boolean).join(' / ')}</div>
+        {data.meat1 && (
+          <div>{data.meat1}</div>
         )}
         {(data.option1 || data.option2) && (
           <div>{[data.option1, data.option2].filter(Boolean).join('..')}</div>

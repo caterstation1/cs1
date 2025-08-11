@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
       const addons = items.filter((it) => typeof it.sku === 'string' && it.sku.startsWith('ADD'))
       const products = items.filter((it) => !(typeof it.sku === 'string' && it.sku.startsWith('ADD')))
 
-      const addonNames = addons.map((it) => it.title).filter(Boolean)
+      const addonNames = addons.map((it) => it.variant_title || it.title).filter(Boolean)
 
       // Build label count by expanding quantities
       const expanded: Array<{ item: any; idx: number }> = []
@@ -125,10 +125,10 @@ export async function GET(request: NextRequest) {
           deliveryWindow,
           phonePrimary,
           phoneSecondary: '',
-          productTitle: item.title || '',
+          productTitle: item.variant_title || item.title || '',
           peopleText: item.peopleText || '',
-          meat1: meta?.meat1 || undefined,
-          meat2: meta?.meat2 || undefined,
+          meat1: item.variant_title || undefined,
+          meat2: undefined, // No longer using separate meat2 field
           option1: meta?.option1 || undefined,
           option2: meta?.option2 || undefined,
           flags: [meta?.meat1 && 'GF' && undefined].filter(Boolean).join(''), // placeholder; flags can be enriched later
