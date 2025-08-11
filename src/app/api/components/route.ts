@@ -5,10 +5,9 @@ export async function GET() {
   try {
     console.log('🧩 Fetching components from PostgreSQL...');
     
-    const components = await prisma.component.findMany({
-      orderBy: {
-        name: 'asc'
-      }
+    const components = await (prisma as any).component.findMany({
+      orderBy: { name: 'asc' },
+      include: { images: { orderBy: { position: 'asc' } } }
     });
     
     console.log(`✅ Successfully fetched ${components.length} components`);
@@ -45,9 +44,26 @@ export async function POST(request: Request) {
         isComponentListItem: body.isComponentListItem !== undefined ? body.isComponentListItem : true
       }
     });
+
+    if (Array.isArray(body.images) && body.images.length) {
+      await (prisma as any).componentImage.createMany({
+        data: body.images.slice(0, 5).map((img: any, idx: number) => ({
+          componentId: component.id,
+          publicId: img.publicId || img.public_id,
+          url: img.url || img.secure_url,
+          alt: img.alt || null,
+          position: Number(img.position ?? idx)
+        }))
+      })
+    }
+
+    const withImages = await (prisma as any).component.findUnique({
+      where: { id: component.id },
+      include: { images: { orderBy: { position: 'asc' } } }
+    })
     
     console.log(`✅ Created component: ${component.name}`);
-    return NextResponse.json(component, { status: 201 });
+    return NextResponse.json(withImages, { status: 201 });
   } catch (error) {
     console.error('❌ Error creating component:', error);
     return NextResponse.json(

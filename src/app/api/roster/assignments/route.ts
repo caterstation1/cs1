@@ -25,7 +25,8 @@ export async function GET(request: NextRequest) {
       },
       include: {
         staff: true,
-        shiftType: true
+        shiftType: true,
+        tasks: true
       },
       orderBy: {
         date: 'asc'
@@ -57,11 +58,18 @@ export async function POST(request: NextRequest) {
         endTime: body.endTime || null,
         date: new Date(body.date),
         notes: body.notes || null,
-        assignedBy: 'system' // TODO: Get from auth context
+        assignedBy: 'system', // TODO: Get from auth context
+        tasks: {
+          create: body.tasks?.map((task: any) => ({
+            title: task.title,
+            description: task.description || null
+          })) || []
+        }
       },
       include: {
         staff: true,
-        shiftType: true
+        shiftType: true,
+        tasks: true
       }
     })
     

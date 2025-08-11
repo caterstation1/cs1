@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import { withRetry } from '@/lib/prisma'
 
 interface ShopifySyncContextType {
   lastSyncTime: Date | null
@@ -13,6 +14,14 @@ interface ShopifySyncContextType {
 
 const ShopifySyncContext = createContext<ShopifySyncContextType | undefined>(undefined)
 
+export function useShopifySync() {
+  const context = useContext(ShopifySyncContext)
+  if (!context) {
+    throw new Error('useShopifySync must be used within a ShopifySyncProvider')
+  }
+  return context
+}
+
 export function ShopifySyncProvider({ children }: { children: React.ReactNode }) {
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
@@ -21,134 +30,107 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
   const [syncStatus, setSyncStatus] = useState<string>('Ready')
 
   const syncOrders = async () => {
-    if (isSyncing) {
-      console.log('Sync already in progress, skipping...');
-      return;
-    }
+    if (isSyncing) return
 
-    setIsSyncing(true);
-    setError(null);
-    setErrorDetails(null);
-    setSyncStatus('Starting sync...');
-    
     try {
-      console.log('Starting Shopify sync at:', new Date().toISOString());
-      setSyncStatus('Checking Shopify credentials...');
-      
-      const response = await fetch('/api/shopify/sync-orders', {
-        method: 'POST',
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      });
+      setIsSyncing(true)
+      setError(null)
+      setErrorDetails(null)
+      setSyncStatus('Syncing...')
 
-      const contentType = response.headers.get('content-type');
-      if (response.ok && contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        setLastSyncTime(new Date());
-        setSyncStatus(`Last sync successful: ${data.synced} synced, ${data.skipped} skipped, ${data.errors} errors`);
-        console.log('Shopify sync completed successfully:', {
-          ...data,
-          timestamp: new Date().toISOString()
-        });
-      } else {
-        const text = await response.text();
-        throw new Error(text || 'Unexpected response');
-      }
+      // Use the retry wrapper for database operations
+      const result = await withRetry(async () => {
+        const response = await fetch('/api/shopify/sync-orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || `HTTP ${response.status}`)
+        }
+
+        return response.json()
+      })
+
+      setLastSyncTime(new Date())
+      setSyncStatus('Last sync: ' + new Date().toLocaleTimeString())
+      console.log('✅ Shopify sync completed successfully:', result)
     } catch (err) {
-      let errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-      let errorStack = err instanceof Error ? err.stack : null;
+      let errorMessage = err instanceof Error ? err.message : 'An unknown error occurred'
+      let errorStack = err instanceof Error ? err.stack : null
       
       // Handle database connection errors gracefully
-      if (errorMessage.includes('Can\'t reach database server') || errorMessage.includes('mainline.proxy.rlwy.net')) {
-        errorMessage = 'Database connection failed';
-        setSyncStatus('Database unavailable');
+      if (errorMessage.includes('Can\'t reach database server') || 
+          errorMessage.includes('mainline.proxy.rlwy.net') ||
+          errorMessage.includes('connection')) {
+        errorMessage = 'Database connection temporarily unavailable'
+        setSyncStatus('Connection issue - will retry')
       } else if (errorMessage.includes('Unexpected end of JSON input')) {
-        errorMessage = 'Shopify sync failed: Invalid or empty response from server.';
-        setSyncStatus('Sync failed');
+        errorMessage = 'Shopify sync failed: Invalid or empty response from server.'
+        setSyncStatus('Sync failed')
       } else {
-        setSyncStatus('Sync failed');
+        setSyncStatus('Sync failed')
       }
       
-      setError(errorMessage);
-      setErrorDetails(errorStack || 'No additional details available');
+      setError(errorMessage)
+      setErrorDetails(errorStack || 'No additional details available')
       console.error('Error syncing Shopify orders:', {
         error: errorMessage,
         stack: errorStack,
         timestamp: new Date().toISOString()
-      });
+      })
     } finally {
-      setIsSyncing(false);
+      setIsSyncing(false)
     }
   }
 
   // Set up interval for automatic syncing and initial sync
   useEffect(() => {
-    // Check if we're in production and database is unavailable
-    const isProduction = process.env.NODE_ENV === 'production';
-    
-    // For now, disable Shopify sync in production due to database issues
-    if (isProduction) {
-      console.log('🛑 Shopify sync disabled in production due to database connection issues');
-      setSyncStatus('Database unavailable');
-      return;
-    }
-    
     // Initial sync when component mounts - wrapped in try-catch to prevent crashes
     const initialSync = async () => {
       try {
-        await syncOrders();
+        await syncOrders()
       } catch (err) {
-        console.error('Initial sync failed, but continuing:', err);
-        // If we're in production and get database errors, disable auto-sync
-        if (isProduction && err instanceof Error && err.message.includes('database')) {
-          console.log('Database unavailable in production, disabling auto-sync');
-          return;
-        }
+        console.error('Initial sync failed, but continuing:', err)
       }
-    };
+    }
     
-    initialSync();
+    initialSync()
 
-    // Set up interval for subsequent syncs (only if not in production with DB issues)
+    // Set up interval for subsequent syncs
     const interval = setInterval(() => {
       syncOrders().catch(err => {
-        console.error('Periodic sync failed, but continuing:', err);
-        // Stop retrying if database is consistently unavailable
-        if (isProduction && err instanceof Error && err.message.includes('database')) {
-          console.log('Stopping sync retries due to database issues');
-          clearInterval(interval);
-        }
-      });
-    }, 60000); // Sync every minute
+        console.error('Periodic sync failed, but continuing:', err)
+      })
+    }, 60000) // Sync every minute
     
     return () => {
-      console.log('Cleaning up sync interval');
-      clearInterval(interval);
+      console.log('Cleaning up sync interval')
+      clearInterval(interval)
     }
-  }, []); // Empty dependency array since syncOrders is stable
+  }, [])
 
   // Add a retry mechanism for failed syncs
   useEffect(() => {
-    let retryTimeout: NodeJS.Timeout;
+    let retryTimeout: NodeJS.Timeout
 
-    // Don't retry if we're in production or if it's a database error
-    const isProduction = process.env.NODE_ENV === 'production';
-    if (error && !error.includes('Database connection failed') && !isProduction) {
-      console.log('Sync failed, scheduling retry in 30 seconds...');
+    if (error && error.includes('Database connection temporarily unavailable')) {
+      console.log('Database connection issue detected, scheduling retry in 30 seconds...')
       retryTimeout = setTimeout(() => {
-        console.log('Retrying failed sync...');
-        syncOrders();
-      }, 30000); // Retry after 30 seconds
+        console.log('Retrying failed sync...')
+        syncOrders()
+      }, 30000) // Retry after 30 seconds
     }
 
     return () => {
       if (retryTimeout) {
-        clearTimeout(retryTimeout);
+        clearTimeout(retryTimeout)
       }
-    };
-  }, [error]);
+    }
+  }, [error])
 
   return (
     <ShopifySyncContext.Provider value={{ 
@@ -162,12 +144,4 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
       {children}
     </ShopifySyncContext.Provider>
   )
-}
-
-export function useShopifySync() {
-  const context = useContext(ShopifySyncContext)
-  if (context === undefined) {
-    throw new Error('useShopifySync must be used within a ShopifySyncProvider')
-  }
-  return context
 } 

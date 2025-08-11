@@ -190,6 +190,17 @@ exports.Prisma.ComponentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ComponentImageScalarFieldEnum = {
+  id: 'id',
+  componentId: 'componentId',
+  publicId: 'publicId',
+  url: 'url',
+  alt: 'alt',
+  position: 'position',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -305,6 +316,31 @@ exports.Prisma.ShiftTypeScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ShiftScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  clockIn: 'clockIn',
+  clockOut: 'clockOut',
+  totalHours: 'totalHours',
+  date: 'date',
+  mileage: 'mileage',
+  notes: 'notes',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ShiftTaskScalarFieldEnum = {
+  id: 'id',
+  shiftId: 'shiftId',
+  title: 'title',
+  description: 'description',
+  isCompleted: 'isCompleted',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.RosterAssignmentScalarFieldEnum = {
   id: 'id',
   staffId: 'staffId',
@@ -318,16 +354,11 @@ exports.Prisma.RosterAssignmentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.ShiftScalarFieldEnum = {
+exports.Prisma.RosterAssignmentTaskScalarFieldEnum = {
   id: 'id',
-  staffId: 'staffId',
-  clockIn: 'clockIn',
-  clockOut: 'clockOut',
-  totalHours: 'totalHours',
-  date: 'date',
-  mileage: 'mileage',
-  notes: 'notes',
-  status: 'status',
+  rosterAssignmentId: 'rosterAssignmentId',
+  title: 'title',
+  description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -469,14 +500,17 @@ exports.Prisma.ModelName = {
   OtherProduct: 'OtherProduct',
   Supplier: 'Supplier',
   Component: 'Component',
+  ComponentImage: 'ComponentImage',
   Product: 'Product',
   ProductCustomData: 'ProductCustomData',
   ProductWithCustomData: 'ProductWithCustomData',
   ProductRule: 'ProductRule',
   Staff: 'Staff',
   ShiftType: 'ShiftType',
-  RosterAssignment: 'RosterAssignment',
   Shift: 'Shift',
+  ShiftTask: 'ShiftTask',
+  RosterAssignment: 'RosterAssignment',
+  RosterAssignmentTask: 'RosterAssignmentTask',
   Reimbursement: 'Reimbursement',
   Order: 'Order',
   ShopifyOrder: 'ShopifyOrder',

@@ -4,14 +4,16 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { Order } from '@/types/order'
 import OrderCard from './order-card'
 import { Button } from '@/components/ui/button'
-import { Loader2, Volume2, VolumeX } from 'lucide-react'
+import { Loader2, Volume2, VolumeX, Printer } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
 import { fetchProducts, clearProductCache } from '@/lib/product-service'
+import { format } from 'date-fns'
 
 interface OrderCardListProps {
   orders: Order[]
   onUpdateOrder: (orderId: string, updates: Partial<Order>) => Promise<Order>
   onBulkUpdateComplete?: () => void // Optional callback for parent to re-fetch orders
+  selectedDate?: Date // Date for printing labels
 }
 
 // Global audio state - shared across all order cards
@@ -30,7 +32,7 @@ function safeFormatDate(dateString: string | undefined | null): string {
   return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString();
 }
 
-export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete }: OrderCardListProps) {
+export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete, selectedDate }: OrderCardListProps) {
   const [filter, setFilter] = useState<'all' | 'undispatched' | 'unfulfilled' | 'fulfilled'>('undispatched')
   const [isUpdatingTravelTimes, setIsUpdatingTravelTimes] = useState(false)
   const [products, setProducts] = useState<Record<string, any>>({})
@@ -462,6 +464,117 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   }, [orders, toast, isInitialLoad])
   
   // Handle bulk travel time update
+  // Print labels function
+  const handlePrintLabels = async () => {
+    if (!selectedDate) {
+      toast({
+        title: 'No date selected',
+        description: 'Please select a date to print labels',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    const dateStr = format(selectedDate, 'yyyy-MM-dd')
+    
+    try {
+      // Fetch labels data
+      const res = await fetch(`/api/labels?date=${encodeURIComponent(dateStr)}`)
+      if (!res.ok) throw new Error('Failed to load labels')
+      const json = await res.json()
+      
+      if (!json.labels || json.labels.length === 0) {
+        toast({
+          title: 'No labels found',
+          description: 'No labels found for this date',
+          variant: 'destructive',
+        })
+        return
+      }
+      
+      // Create a simple print-friendly page directly in the current window
+      const printWindow = window.open('', '_blank', 'width=800,height=600')
+      if (!printWindow) {
+        // Fallback to the original approach
+        const url = `/labels/print?date=${encodeURIComponent(dateStr)}`
+        window.open(url, '_blank')
+        return
+      }
+      
+      // Create a simple HTML page for printing
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Labels for ${format(selectedDate, 'MMM d, yyyy')}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+              .label { 
+                width: 100mm; height: 62mm; 
+                border: 1px solid #ccc; 
+                margin: 5mm; 
+                padding: 5mm; 
+                page-break-inside: avoid;
+                display: inline-block;
+                vertical-align: top;
+              }
+              .label-content { font-size: 12px; }
+              .customer-name { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+              .address { margin-bottom: 5px; }
+              .product { font-weight: bold; margin-bottom: 3px; }
+              .details { font-size: 10px; color: #666; }
+              @media print {
+                body { margin: 0; padding: 0; }
+                .label { border: none; margin: 0; padding: 5mm; }
+              }
+            </style>
+          </head>
+          <body>
+            ${json.labels.map((label: any) => `
+              <div class="label">
+                <div class="label-content">
+                  <div class="customer-name">${label.customerName || 'Customer'}</div>
+                  <div class="address">${label.address || 'Address'}</div>
+                  <div class="product">${label.productTitle || 'Product'}</div>
+                  <div class="details">
+                    ${label.meat1 ? `Meat 1: ${label.meat1}<br>` : ''}
+                    ${label.meat2 ? `Meat 2: ${label.meat2}<br>` : ''}
+                    ${label.option1 ? `Option 1: ${label.option1}<br>` : ''}
+                    ${label.option2 ? `Option 2: ${label.option2}<br>` : ''}
+                    ${label.serveware ? 'Serveware: Yes<br>' : ''}
+                    ${label.notes ? `Notes: ${label.notes}` : ''}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </body>
+        </html>
+      `
+      
+      printWindow.document.write(html)
+      printWindow.document.close()
+      
+      // Wait for content to load and then print
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print()
+          // Close the window after printing
+          setTimeout(() => {
+            printWindow.close()
+          }, 1000)
+        }, 500)
+      }
+      
+    } catch (error) {
+      console.error('Print error:', error)
+      toast({
+        title: 'Print failed',
+        description: 'Failed to print labels: ' + (error as Error).message,
+        variant: 'destructive',
+      })
+    }
+  }
+
   const handleBulkTravelTimeUpdate = async () => {
     setIsUpdatingTravelTimes(true)
     try {
@@ -569,6 +682,13 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
             }`}
           >
             Fulfilled
+          </button>
+          <button
+            onClick={handlePrintLabels}
+            className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 flex items-center gap-1"
+            title="Print labels for this date"
+          >
+            <Printer className="h-4 w-4" />
           </button>
         </div>
         

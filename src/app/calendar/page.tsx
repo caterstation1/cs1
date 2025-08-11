@@ -155,6 +155,8 @@ export default function CalendarPage() {
     setSelectedDate(prev => addDays(endOfMonth(prev), 1))
   }
 
+
+
   useEffect(() => {
     fetchOrders()
   }, [])
@@ -228,7 +230,9 @@ export default function CalendarPage() {
       {/* Main content: OrderCardList */}
       <div className="flex-1 w-full max-w-full overflow-x-hidden">
         <div className="rounded-lg bg-white shadow p-4 w-full max-w-full overflow-x-hidden">
-          <div className="font-bold text-lg mb-2">Orders for {format(selectedDate, 'EEE, MMM d, yyyy')}</div>
+          <div className="font-bold text-lg mb-2">
+            Orders for {format(selectedDate, 'EEE, MMM d, yyyy')}
+          </div>
           <div className="min-h-[300px] w-full max-w-full overflow-x-hidden">
             {loading ? (
               <div className="text-center py-8 text-muted-foreground">Loading orders...</div>
@@ -239,11 +243,15 @@ export default function CalendarPage() {
                 orders={filteredOrders} 
                 onUpdateOrder={handleUpdateOrder}
                 onBulkUpdateComplete={fetchOrders}
+                selectedDate={selectedDate}
               />
             )}
           </div>
         </div>
+
       </div>
+      
+
     </div>
   )
 } 

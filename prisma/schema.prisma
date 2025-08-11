@@ -76,6 +76,22 @@ model Component {
   isComponentListItem Boolean  @default(true)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  images             ComponentImage[]
+}
+
+// Images associated with a Component (stored in Cloudinary; DB stores metadata)
+model ComponentImage {
+  id          String   @id @default(uuid())
+  componentId String
+  publicId    String   // Cloudinary public_id
+  url         String   // Cloudinary secure_url
+  alt         String?
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  component   Component @relation(fields: [componentId], references: [id])
+
+  @@index([componentId])
 }
 
 model Product {
@@ -220,26 +236,6 @@ model ShiftType {
   rosterAssignments RosterAssignment[]
 }
 
-// New: Roster Assignments
-model RosterAssignment {
-  id         String    @id @default(uuid())
-  staffId    String
-  shiftTypeId String?  // Made optional
-  startTime  String?   // Custom start time (HH:MM format)
-  endTime    String?   // Custom end time (HH:MM format)
-  date       DateTime  // Date of the shift
-  notes      String?   // Optional notes for the shift
-  assignedBy String    // Staff ID who made the assignment
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  staff      Staff     @relation(fields: [staffId], references: [id])
-  shiftType  ShiftType? @relation(fields: [shiftTypeId], references: [id]) // Made optional
-
-  @@index([staffId])
-  @@index([date])
-  @@index([shiftTypeId])
-}
-
 // Enhanced: Shift model (existing but with new fields)
 model Shift {
   id         String    @id @default(uuid())
@@ -255,9 +251,59 @@ model Shift {
   updatedAt  DateTime  @updatedAt
   staff      Staff     @relation(fields: [staffId], references: [id])
   reimbursements Reimbursement[]
+  tasks      ShiftTask[]
 
   @@index([staffId])
   @@index([date])
+}
+
+// New: Shift Tasks
+model ShiftTask {
+  id          String   @id @default(uuid())
+  shiftId     String
+  title       String   // Task title/duty
+  description String?  // Optional detailed description
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  shift       Shift    @relation(fields: [shiftId], references: [id])
+
+  @@index([shiftId])
+}
+
+// Enhanced: Roster Assignment with tasks
+model RosterAssignment {
+  id         String    @id @default(uuid())
+  staffId    String
+  shiftTypeId String?  // Made optional
+  startTime  String?   // Custom start time (HH:MM format)
+  endTime    String?   // Custom end time (HH:MM format)
+  date       DateTime  // Date of the shift
+  notes      String?   // Optional notes for the shift
+  assignedBy String    // Staff ID who made the assignment
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  staff      Staff     @relation(fields: [staffId], references: [id])
+  shiftType  ShiftType? @relation(fields: [shiftTypeId], references: [id]) // Made optional
+  tasks      RosterAssignmentTask[]
+
+  @@index([staffId])
+  @@index([date])
+  @@index([shiftTypeId])
+}
+
+// New: Roster Assignment Tasks
+model RosterAssignmentTask {
+  id                  String            @id @default(uuid())
+  rosterAssignmentId  String
+  title               String            // Task title/duty
+  description         String?           // Optional detailed description
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  rosterAssignment    RosterAssignment @relation(fields: [rosterAssignmentId], references: [id])
+
+  @@index([rosterAssignmentId])
 }
 
 // New: Reimbursements

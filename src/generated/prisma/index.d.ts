@@ -39,6 +39,11 @@ export type Supplier = $Result.DefaultSelection<Prisma.$SupplierPayload>
  */
 export type Component = $Result.DefaultSelection<Prisma.$ComponentPayload>
 /**
+ * Model ComponentImage
+ * 
+ */
+export type ComponentImage = $Result.DefaultSelection<Prisma.$ComponentImagePayload>
+/**
  * Model Product
  * 
  */
@@ -69,15 +74,25 @@ export type Staff = $Result.DefaultSelection<Prisma.$StaffPayload>
  */
 export type ShiftType = $Result.DefaultSelection<Prisma.$ShiftTypePayload>
 /**
+ * Model Shift
+ * 
+ */
+export type Shift = $Result.DefaultSelection<Prisma.$ShiftPayload>
+/**
+ * Model ShiftTask
+ * 
+ */
+export type ShiftTask = $Result.DefaultSelection<Prisma.$ShiftTaskPayload>
+/**
  * Model RosterAssignment
  * 
  */
 export type RosterAssignment = $Result.DefaultSelection<Prisma.$RosterAssignmentPayload>
 /**
- * Model Shift
+ * Model RosterAssignmentTask
  * 
  */
-export type Shift = $Result.DefaultSelection<Prisma.$ShiftPayload>
+export type RosterAssignmentTask = $Result.DefaultSelection<Prisma.$RosterAssignmentTaskPayload>
 /**
  * Model Reimbursement
  * 
@@ -280,6 +295,16 @@ export class PrismaClient<
   get component(): Prisma.ComponentDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.componentImage`: Exposes CRUD operations for the **ComponentImage** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ComponentImages
+    * const componentImages = await prisma.componentImage.findMany()
+    * ```
+    */
+  get componentImage(): Prisma.ComponentImageDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.product`: Exposes CRUD operations for the **Product** model.
     * Example usage:
     * ```ts
@@ -340,6 +365,26 @@ export class PrismaClient<
   get shiftType(): Prisma.ShiftTypeDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.shift`: Exposes CRUD operations for the **Shift** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Shifts
+    * const shifts = await prisma.shift.findMany()
+    * ```
+    */
+  get shift(): Prisma.ShiftDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.shiftTask`: Exposes CRUD operations for the **ShiftTask** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ShiftTasks
+    * const shiftTasks = await prisma.shiftTask.findMany()
+    * ```
+    */
+  get shiftTask(): Prisma.ShiftTaskDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.rosterAssignment`: Exposes CRUD operations for the **RosterAssignment** model.
     * Example usage:
     * ```ts
@@ -350,14 +395,14 @@ export class PrismaClient<
   get rosterAssignment(): Prisma.RosterAssignmentDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.shift`: Exposes CRUD operations for the **Shift** model.
+   * `prisma.rosterAssignmentTask`: Exposes CRUD operations for the **RosterAssignmentTask** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Shifts
-    * const shifts = await prisma.shift.findMany()
+    * // Fetch zero or more RosterAssignmentTasks
+    * const rosterAssignmentTasks = await prisma.rosterAssignmentTask.findMany()
     * ```
     */
-  get shift(): Prisma.ShiftDelegate<ExtArgs, ClientOptions>;
+  get rosterAssignmentTask(): Prisma.RosterAssignmentTaskDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.reimbursement`: Exposes CRUD operations for the **Reimbursement** model.
@@ -853,14 +898,17 @@ export namespace Prisma {
     OtherProduct: 'OtherProduct',
     Supplier: 'Supplier',
     Component: 'Component',
+    ComponentImage: 'ComponentImage',
     Product: 'Product',
     ProductCustomData: 'ProductCustomData',
     ProductWithCustomData: 'ProductWithCustomData',
     ProductRule: 'ProductRule',
     Staff: 'Staff',
     ShiftType: 'ShiftType',
-    RosterAssignment: 'RosterAssignment',
     Shift: 'Shift',
+    ShiftTask: 'ShiftTask',
+    RosterAssignment: 'RosterAssignment',
+    RosterAssignmentTask: 'RosterAssignmentTask',
     Reimbursement: 'Reimbursement',
     Order: 'Order',
     ShopifyOrder: 'ShopifyOrder',
@@ -884,7 +932,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "supplier" | "component" | "product" | "productCustomData" | "productWithCustomData" | "productRule" | "staff" | "shiftType" | "rosterAssignment" | "shift" | "reimbursement" | "order" | "shopifyOrder" | "parsedOrder" | "parsedLineItem"
+      modelProps: "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "supplier" | "component" | "componentImage" | "product" | "productCustomData" | "productWithCustomData" | "productRule" | "staff" | "shiftType" | "shift" | "shiftTask" | "rosterAssignment" | "rosterAssignmentTask" | "reimbursement" | "order" | "shopifyOrder" | "parsedOrder" | "parsedLineItem"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1255,6 +1303,80 @@ export namespace Prisma {
           count: {
             args: Prisma.ComponentCountArgs<ExtArgs>
             result: $Utils.Optional<ComponentCountAggregateOutputType> | number
+          }
+        }
+      }
+      ComponentImage: {
+        payload: Prisma.$ComponentImagePayload<ExtArgs>
+        fields: Prisma.ComponentImageFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ComponentImageFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ComponentImageFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload>
+          }
+          findFirst: {
+            args: Prisma.ComponentImageFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ComponentImageFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload>
+          }
+          findMany: {
+            args: Prisma.ComponentImageFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload>[]
+          }
+          create: {
+            args: Prisma.ComponentImageCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload>
+          }
+          createMany: {
+            args: Prisma.ComponentImageCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ComponentImageCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload>[]
+          }
+          delete: {
+            args: Prisma.ComponentImageDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload>
+          }
+          update: {
+            args: Prisma.ComponentImageUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload>
+          }
+          deleteMany: {
+            args: Prisma.ComponentImageDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ComponentImageUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ComponentImageUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload>[]
+          }
+          upsert: {
+            args: Prisma.ComponentImageUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ComponentImagePayload>
+          }
+          aggregate: {
+            args: Prisma.ComponentImageAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateComponentImage>
+          }
+          groupBy: {
+            args: Prisma.ComponentImageGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ComponentImageGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ComponentImageCountArgs<ExtArgs>
+            result: $Utils.Optional<ComponentImageCountAggregateOutputType> | number
           }
         }
       }
@@ -1702,6 +1824,154 @@ export namespace Prisma {
           }
         }
       }
+      Shift: {
+        payload: Prisma.$ShiftPayload<ExtArgs>
+        fields: Prisma.ShiftFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ShiftFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ShiftFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          findFirst: {
+            args: Prisma.ShiftFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ShiftFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          findMany: {
+            args: Prisma.ShiftFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>[]
+          }
+          create: {
+            args: Prisma.ShiftCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          createMany: {
+            args: Prisma.ShiftCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ShiftCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>[]
+          }
+          delete: {
+            args: Prisma.ShiftDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          update: {
+            args: Prisma.ShiftUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          deleteMany: {
+            args: Prisma.ShiftDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ShiftUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ShiftUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>[]
+          }
+          upsert: {
+            args: Prisma.ShiftUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          aggregate: {
+            args: Prisma.ShiftAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateShift>
+          }
+          groupBy: {
+            args: Prisma.ShiftGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ShiftGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ShiftCountArgs<ExtArgs>
+            result: $Utils.Optional<ShiftCountAggregateOutputType> | number
+          }
+        }
+      }
+      ShiftTask: {
+        payload: Prisma.$ShiftTaskPayload<ExtArgs>
+        fields: Prisma.ShiftTaskFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ShiftTaskFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ShiftTaskFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload>
+          }
+          findFirst: {
+            args: Prisma.ShiftTaskFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ShiftTaskFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload>
+          }
+          findMany: {
+            args: Prisma.ShiftTaskFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload>[]
+          }
+          create: {
+            args: Prisma.ShiftTaskCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload>
+          }
+          createMany: {
+            args: Prisma.ShiftTaskCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ShiftTaskCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload>[]
+          }
+          delete: {
+            args: Prisma.ShiftTaskDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload>
+          }
+          update: {
+            args: Prisma.ShiftTaskUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload>
+          }
+          deleteMany: {
+            args: Prisma.ShiftTaskDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ShiftTaskUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ShiftTaskUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload>[]
+          }
+          upsert: {
+            args: Prisma.ShiftTaskUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftTaskPayload>
+          }
+          aggregate: {
+            args: Prisma.ShiftTaskAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateShiftTask>
+          }
+          groupBy: {
+            args: Prisma.ShiftTaskGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ShiftTaskGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ShiftTaskCountArgs<ExtArgs>
+            result: $Utils.Optional<ShiftTaskCountAggregateOutputType> | number
+          }
+        }
+      }
       RosterAssignment: {
         payload: Prisma.$RosterAssignmentPayload<ExtArgs>
         fields: Prisma.RosterAssignmentFieldRefs
@@ -1776,77 +2046,77 @@ export namespace Prisma {
           }
         }
       }
-      Shift: {
-        payload: Prisma.$ShiftPayload<ExtArgs>
-        fields: Prisma.ShiftFieldRefs
+      RosterAssignmentTask: {
+        payload: Prisma.$RosterAssignmentTaskPayload<ExtArgs>
+        fields: Prisma.RosterAssignmentTaskFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ShiftFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload> | null
+            args: Prisma.RosterAssignmentTaskFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ShiftFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+            args: Prisma.RosterAssignmentTaskFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload>
           }
           findFirst: {
-            args: Prisma.ShiftFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload> | null
+            args: Prisma.RosterAssignmentTaskFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ShiftFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+            args: Prisma.RosterAssignmentTaskFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload>
           }
           findMany: {
-            args: Prisma.ShiftFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>[]
+            args: Prisma.RosterAssignmentTaskFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload>[]
           }
           create: {
-            args: Prisma.ShiftCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+            args: Prisma.RosterAssignmentTaskCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload>
           }
           createMany: {
-            args: Prisma.ShiftCreateManyArgs<ExtArgs>
+            args: Prisma.RosterAssignmentTaskCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ShiftCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>[]
+            args: Prisma.RosterAssignmentTaskCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload>[]
           }
           delete: {
-            args: Prisma.ShiftDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+            args: Prisma.RosterAssignmentTaskDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload>
           }
           update: {
-            args: Prisma.ShiftUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+            args: Prisma.RosterAssignmentTaskUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload>
           }
           deleteMany: {
-            args: Prisma.ShiftDeleteManyArgs<ExtArgs>
+            args: Prisma.RosterAssignmentTaskDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ShiftUpdateManyArgs<ExtArgs>
+            args: Prisma.RosterAssignmentTaskUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.ShiftUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>[]
+            args: Prisma.RosterAssignmentTaskUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload>[]
           }
           upsert: {
-            args: Prisma.ShiftUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+            args: Prisma.RosterAssignmentTaskUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAssignmentTaskPayload>
           }
           aggregate: {
-            args: Prisma.ShiftAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateShift>
+            args: Prisma.RosterAssignmentTaskAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRosterAssignmentTask>
           }
           groupBy: {
-            args: Prisma.ShiftGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ShiftGroupByOutputType>[]
+            args: Prisma.RosterAssignmentTaskGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RosterAssignmentTaskGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ShiftCountArgs<ExtArgs>
-            result: $Utils.Optional<ShiftCountAggregateOutputType> | number
+            args: Prisma.RosterAssignmentTaskCountArgs<ExtArgs>
+            result: $Utils.Optional<RosterAssignmentTaskCountAggregateOutputType> | number
           }
         }
       }
@@ -2309,14 +2579,17 @@ export namespace Prisma {
     otherProduct?: OtherProductOmit
     supplier?: SupplierOmit
     component?: ComponentOmit
+    componentImage?: ComponentImageOmit
     product?: ProductOmit
     productCustomData?: ProductCustomDataOmit
     productWithCustomData?: ProductWithCustomDataOmit
     productRule?: ProductRuleOmit
     staff?: StaffOmit
     shiftType?: ShiftTypeOmit
-    rosterAssignment?: RosterAssignmentOmit
     shift?: ShiftOmit
+    shiftTask?: ShiftTaskOmit
+    rosterAssignment?: RosterAssignmentOmit
+    rosterAssignmentTask?: RosterAssignmentTaskOmit
     reimbursement?: ReimbursementOmit
     order?: OrderOmit
     shopifyOrder?: ShopifyOrderOmit
@@ -2412,6 +2685,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type ComponentCountOutputType
+   */
+
+  export type ComponentCountOutputType = {
+    images: number
+  }
+
+  export type ComponentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    images?: boolean | ComponentCountOutputTypeCountImagesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ComponentCountOutputType without action
+   */
+  export type ComponentCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentCountOutputType
+     */
+    select?: ComponentCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ComponentCountOutputType without action
+   */
+  export type ComponentCountOutputTypeCountImagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ComponentImageWhereInput
+  }
+
+
+  /**
    * Count Type StaffCountOutputType
    */
 
@@ -2488,10 +2792,12 @@ export namespace Prisma {
 
   export type ShiftCountOutputType = {
     reimbursements: number
+    tasks: number
   }
 
   export type ShiftCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     reimbursements?: boolean | ShiftCountOutputTypeCountReimbursementsArgs
+    tasks?: boolean | ShiftCountOutputTypeCountTasksArgs
   }
 
   // Custom InputTypes
@@ -2510,6 +2816,44 @@ export namespace Prisma {
    */
   export type ShiftCountOutputTypeCountReimbursementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ReimbursementWhereInput
+  }
+
+  /**
+   * ShiftCountOutputType without action
+   */
+  export type ShiftCountOutputTypeCountTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShiftTaskWhereInput
+  }
+
+
+  /**
+   * Count Type RosterAssignmentCountOutputType
+   */
+
+  export type RosterAssignmentCountOutputType = {
+    tasks: number
+  }
+
+  export type RosterAssignmentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tasks?: boolean | RosterAssignmentCountOutputTypeCountTasksArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * RosterAssignmentCountOutputType without action
+   */
+  export type RosterAssignmentCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentCountOutputType
+     */
+    select?: RosterAssignmentCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * RosterAssignmentCountOutputType without action
+   */
+  export type RosterAssignmentCountOutputTypeCountTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RosterAssignmentTaskWhereInput
   }
 
 
@@ -7161,6 +7505,8 @@ export namespace Prisma {
     isComponentListItem?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    images?: boolean | Component$imagesArgs<ExtArgs>
+    _count?: boolean | ComponentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["component"]>
 
   export type ComponentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7227,10 +7573,18 @@ export namespace Prisma {
   }
 
   export type ComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "ingredients" | "totalCost" | "hasGluten" | "hasDairy" | "hasSoy" | "hasOnionGarlic" | "hasSesame" | "hasNuts" | "hasEgg" | "isVegetarian" | "isVegan" | "isHalal" | "isComponentListItem" | "createdAt" | "updatedAt", ExtArgs["result"]["component"]>
+  export type ComponentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    images?: boolean | Component$imagesArgs<ExtArgs>
+    _count?: boolean | ComponentCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ComponentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ComponentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $ComponentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Component"
-    objects: {}
+    objects: {
+      images: Prisma.$ComponentImagePayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
@@ -7644,6 +7998,7 @@ export namespace Prisma {
    */
   export interface Prisma__ComponentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    images<T extends Component$imagesArgs<ExtArgs> = {}>(args?: Subset<T, Component$imagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7708,6 +8063,10 @@ export namespace Prisma {
      */
     omit?: ComponentOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
+    /**
      * Filter, which Component to fetch.
      */
     where: ComponentWhereUniqueInput
@@ -7726,6 +8085,10 @@ export namespace Prisma {
      */
     omit?: ComponentOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
+    /**
      * Filter, which Component to fetch.
      */
     where: ComponentWhereUniqueInput
@@ -7743,6 +8106,10 @@ export namespace Prisma {
      * Omit specific fields from the Component
      */
     omit?: ComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
     /**
      * Filter, which Component to fetch.
      */
@@ -7792,6 +8159,10 @@ export namespace Prisma {
      */
     omit?: ComponentOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
+    /**
      * Filter, which Component to fetch.
      */
     where?: ComponentWhereInput
@@ -7840,6 +8211,10 @@ export namespace Prisma {
      */
     omit?: ComponentOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
+    /**
      * Filter, which Components to fetch.
      */
     where?: ComponentWhereInput
@@ -7882,6 +8257,10 @@ export namespace Prisma {
      * Omit specific fields from the Component
      */
     omit?: ComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
     /**
      * The data needed to create a Component.
      */
@@ -7930,6 +8309,10 @@ export namespace Prisma {
      * Omit specific fields from the Component
      */
     omit?: ComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
     /**
      * The data needed to update a Component.
      */
@@ -7997,6 +8380,10 @@ export namespace Prisma {
      */
     omit?: ComponentOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
+    /**
      * The filter to search for the Component to update in case it exists.
      */
     where: ComponentWhereUniqueInput
@@ -8023,6 +8410,10 @@ export namespace Prisma {
      */
     omit?: ComponentOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
+    /**
      * Filter which Component to delete.
      */
     where: ComponentWhereUniqueInput
@@ -8043,6 +8434,30 @@ export namespace Prisma {
   }
 
   /**
+   * Component.images
+   */
+  export type Component$imagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    where?: ComponentImageWhereInput
+    orderBy?: ComponentImageOrderByWithRelationInput | ComponentImageOrderByWithRelationInput[]
+    cursor?: ComponentImageWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ComponentImageScalarFieldEnum | ComponentImageScalarFieldEnum[]
+  }
+
+  /**
    * Component without action
    */
   export type ComponentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8054,6 +8469,1141 @@ export namespace Prisma {
      * Omit specific fields from the Component
      */
     omit?: ComponentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ComponentImage
+   */
+
+  export type AggregateComponentImage = {
+    _count: ComponentImageCountAggregateOutputType | null
+    _avg: ComponentImageAvgAggregateOutputType | null
+    _sum: ComponentImageSumAggregateOutputType | null
+    _min: ComponentImageMinAggregateOutputType | null
+    _max: ComponentImageMaxAggregateOutputType | null
+  }
+
+  export type ComponentImageAvgAggregateOutputType = {
+    position: number | null
+  }
+
+  export type ComponentImageSumAggregateOutputType = {
+    position: number | null
+  }
+
+  export type ComponentImageMinAggregateOutputType = {
+    id: string | null
+    componentId: string | null
+    publicId: string | null
+    url: string | null
+    alt: string | null
+    position: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ComponentImageMaxAggregateOutputType = {
+    id: string | null
+    componentId: string | null
+    publicId: string | null
+    url: string | null
+    alt: string | null
+    position: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ComponentImageCountAggregateOutputType = {
+    id: number
+    componentId: number
+    publicId: number
+    url: number
+    alt: number
+    position: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ComponentImageAvgAggregateInputType = {
+    position?: true
+  }
+
+  export type ComponentImageSumAggregateInputType = {
+    position?: true
+  }
+
+  export type ComponentImageMinAggregateInputType = {
+    id?: true
+    componentId?: true
+    publicId?: true
+    url?: true
+    alt?: true
+    position?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ComponentImageMaxAggregateInputType = {
+    id?: true
+    componentId?: true
+    publicId?: true
+    url?: true
+    alt?: true
+    position?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ComponentImageCountAggregateInputType = {
+    id?: true
+    componentId?: true
+    publicId?: true
+    url?: true
+    alt?: true
+    position?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ComponentImageAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ComponentImage to aggregate.
+     */
+    where?: ComponentImageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ComponentImages to fetch.
+     */
+    orderBy?: ComponentImageOrderByWithRelationInput | ComponentImageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ComponentImageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ComponentImages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ComponentImages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ComponentImages
+    **/
+    _count?: true | ComponentImageCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ComponentImageAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ComponentImageSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ComponentImageMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ComponentImageMaxAggregateInputType
+  }
+
+  export type GetComponentImageAggregateType<T extends ComponentImageAggregateArgs> = {
+        [P in keyof T & keyof AggregateComponentImage]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateComponentImage[P]>
+      : GetScalarType<T[P], AggregateComponentImage[P]>
+  }
+
+
+
+
+  export type ComponentImageGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ComponentImageWhereInput
+    orderBy?: ComponentImageOrderByWithAggregationInput | ComponentImageOrderByWithAggregationInput[]
+    by: ComponentImageScalarFieldEnum[] | ComponentImageScalarFieldEnum
+    having?: ComponentImageScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ComponentImageCountAggregateInputType | true
+    _avg?: ComponentImageAvgAggregateInputType
+    _sum?: ComponentImageSumAggregateInputType
+    _min?: ComponentImageMinAggregateInputType
+    _max?: ComponentImageMaxAggregateInputType
+  }
+
+  export type ComponentImageGroupByOutputType = {
+    id: string
+    componentId: string
+    publicId: string
+    url: string
+    alt: string | null
+    position: number
+    createdAt: Date
+    updatedAt: Date
+    _count: ComponentImageCountAggregateOutputType | null
+    _avg: ComponentImageAvgAggregateOutputType | null
+    _sum: ComponentImageSumAggregateOutputType | null
+    _min: ComponentImageMinAggregateOutputType | null
+    _max: ComponentImageMaxAggregateOutputType | null
+  }
+
+  type GetComponentImageGroupByPayload<T extends ComponentImageGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ComponentImageGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ComponentImageGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ComponentImageGroupByOutputType[P]>
+            : GetScalarType<T[P], ComponentImageGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ComponentImageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    componentId?: boolean
+    publicId?: boolean
+    url?: boolean
+    alt?: boolean
+    position?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    component?: boolean | ComponentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["componentImage"]>
+
+  export type ComponentImageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    componentId?: boolean
+    publicId?: boolean
+    url?: boolean
+    alt?: boolean
+    position?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    component?: boolean | ComponentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["componentImage"]>
+
+  export type ComponentImageSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    componentId?: boolean
+    publicId?: boolean
+    url?: boolean
+    alt?: boolean
+    position?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    component?: boolean | ComponentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["componentImage"]>
+
+  export type ComponentImageSelectScalar = {
+    id?: boolean
+    componentId?: boolean
+    publicId?: boolean
+    url?: boolean
+    alt?: boolean
+    position?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ComponentImageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "componentId" | "publicId" | "url" | "alt" | "position" | "createdAt" | "updatedAt", ExtArgs["result"]["componentImage"]>
+  export type ComponentImageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    component?: boolean | ComponentDefaultArgs<ExtArgs>
+  }
+  export type ComponentImageIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    component?: boolean | ComponentDefaultArgs<ExtArgs>
+  }
+  export type ComponentImageIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    component?: boolean | ComponentDefaultArgs<ExtArgs>
+  }
+
+  export type $ComponentImagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ComponentImage"
+    objects: {
+      component: Prisma.$ComponentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      componentId: string
+      publicId: string
+      url: string
+      alt: string | null
+      position: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["componentImage"]>
+    composites: {}
+  }
+
+  type ComponentImageGetPayload<S extends boolean | null | undefined | ComponentImageDefaultArgs> = $Result.GetResult<Prisma.$ComponentImagePayload, S>
+
+  type ComponentImageCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ComponentImageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ComponentImageCountAggregateInputType | true
+    }
+
+  export interface ComponentImageDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ComponentImage'], meta: { name: 'ComponentImage' } }
+    /**
+     * Find zero or one ComponentImage that matches the filter.
+     * @param {ComponentImageFindUniqueArgs} args - Arguments to find a ComponentImage
+     * @example
+     * // Get one ComponentImage
+     * const componentImage = await prisma.componentImage.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ComponentImageFindUniqueArgs>(args: SelectSubset<T, ComponentImageFindUniqueArgs<ExtArgs>>): Prisma__ComponentImageClient<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ComponentImage that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ComponentImageFindUniqueOrThrowArgs} args - Arguments to find a ComponentImage
+     * @example
+     * // Get one ComponentImage
+     * const componentImage = await prisma.componentImage.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ComponentImageFindUniqueOrThrowArgs>(args: SelectSubset<T, ComponentImageFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ComponentImageClient<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ComponentImage that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ComponentImageFindFirstArgs} args - Arguments to find a ComponentImage
+     * @example
+     * // Get one ComponentImage
+     * const componentImage = await prisma.componentImage.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ComponentImageFindFirstArgs>(args?: SelectSubset<T, ComponentImageFindFirstArgs<ExtArgs>>): Prisma__ComponentImageClient<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ComponentImage that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ComponentImageFindFirstOrThrowArgs} args - Arguments to find a ComponentImage
+     * @example
+     * // Get one ComponentImage
+     * const componentImage = await prisma.componentImage.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ComponentImageFindFirstOrThrowArgs>(args?: SelectSubset<T, ComponentImageFindFirstOrThrowArgs<ExtArgs>>): Prisma__ComponentImageClient<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ComponentImages that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ComponentImageFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ComponentImages
+     * const componentImages = await prisma.componentImage.findMany()
+     * 
+     * // Get first 10 ComponentImages
+     * const componentImages = await prisma.componentImage.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const componentImageWithIdOnly = await prisma.componentImage.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ComponentImageFindManyArgs>(args?: SelectSubset<T, ComponentImageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ComponentImage.
+     * @param {ComponentImageCreateArgs} args - Arguments to create a ComponentImage.
+     * @example
+     * // Create one ComponentImage
+     * const ComponentImage = await prisma.componentImage.create({
+     *   data: {
+     *     // ... data to create a ComponentImage
+     *   }
+     * })
+     * 
+     */
+    create<T extends ComponentImageCreateArgs>(args: SelectSubset<T, ComponentImageCreateArgs<ExtArgs>>): Prisma__ComponentImageClient<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ComponentImages.
+     * @param {ComponentImageCreateManyArgs} args - Arguments to create many ComponentImages.
+     * @example
+     * // Create many ComponentImages
+     * const componentImage = await prisma.componentImage.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ComponentImageCreateManyArgs>(args?: SelectSubset<T, ComponentImageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ComponentImages and returns the data saved in the database.
+     * @param {ComponentImageCreateManyAndReturnArgs} args - Arguments to create many ComponentImages.
+     * @example
+     * // Create many ComponentImages
+     * const componentImage = await prisma.componentImage.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ComponentImages and only return the `id`
+     * const componentImageWithIdOnly = await prisma.componentImage.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ComponentImageCreateManyAndReturnArgs>(args?: SelectSubset<T, ComponentImageCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ComponentImage.
+     * @param {ComponentImageDeleteArgs} args - Arguments to delete one ComponentImage.
+     * @example
+     * // Delete one ComponentImage
+     * const ComponentImage = await prisma.componentImage.delete({
+     *   where: {
+     *     // ... filter to delete one ComponentImage
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ComponentImageDeleteArgs>(args: SelectSubset<T, ComponentImageDeleteArgs<ExtArgs>>): Prisma__ComponentImageClient<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ComponentImage.
+     * @param {ComponentImageUpdateArgs} args - Arguments to update one ComponentImage.
+     * @example
+     * // Update one ComponentImage
+     * const componentImage = await prisma.componentImage.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ComponentImageUpdateArgs>(args: SelectSubset<T, ComponentImageUpdateArgs<ExtArgs>>): Prisma__ComponentImageClient<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ComponentImages.
+     * @param {ComponentImageDeleteManyArgs} args - Arguments to filter ComponentImages to delete.
+     * @example
+     * // Delete a few ComponentImages
+     * const { count } = await prisma.componentImage.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ComponentImageDeleteManyArgs>(args?: SelectSubset<T, ComponentImageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ComponentImages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ComponentImageUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ComponentImages
+     * const componentImage = await prisma.componentImage.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ComponentImageUpdateManyArgs>(args: SelectSubset<T, ComponentImageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ComponentImages and returns the data updated in the database.
+     * @param {ComponentImageUpdateManyAndReturnArgs} args - Arguments to update many ComponentImages.
+     * @example
+     * // Update many ComponentImages
+     * const componentImage = await prisma.componentImage.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ComponentImages and only return the `id`
+     * const componentImageWithIdOnly = await prisma.componentImage.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ComponentImageUpdateManyAndReturnArgs>(args: SelectSubset<T, ComponentImageUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ComponentImage.
+     * @param {ComponentImageUpsertArgs} args - Arguments to update or create a ComponentImage.
+     * @example
+     * // Update or create a ComponentImage
+     * const componentImage = await prisma.componentImage.upsert({
+     *   create: {
+     *     // ... data to create a ComponentImage
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ComponentImage we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ComponentImageUpsertArgs>(args: SelectSubset<T, ComponentImageUpsertArgs<ExtArgs>>): Prisma__ComponentImageClient<$Result.GetResult<Prisma.$ComponentImagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ComponentImages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ComponentImageCountArgs} args - Arguments to filter ComponentImages to count.
+     * @example
+     * // Count the number of ComponentImages
+     * const count = await prisma.componentImage.count({
+     *   where: {
+     *     // ... the filter for the ComponentImages we want to count
+     *   }
+     * })
+    **/
+    count<T extends ComponentImageCountArgs>(
+      args?: Subset<T, ComponentImageCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ComponentImageCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ComponentImage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ComponentImageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ComponentImageAggregateArgs>(args: Subset<T, ComponentImageAggregateArgs>): Prisma.PrismaPromise<GetComponentImageAggregateType<T>>
+
+    /**
+     * Group by ComponentImage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ComponentImageGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ComponentImageGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ComponentImageGroupByArgs['orderBy'] }
+        : { orderBy?: ComponentImageGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ComponentImageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetComponentImageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ComponentImage model
+   */
+  readonly fields: ComponentImageFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ComponentImage.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ComponentImageClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    component<T extends ComponentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ComponentDefaultArgs<ExtArgs>>): Prisma__ComponentClient<$Result.GetResult<Prisma.$ComponentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ComponentImage model
+   */
+  interface ComponentImageFieldRefs {
+    readonly id: FieldRef<"ComponentImage", 'String'>
+    readonly componentId: FieldRef<"ComponentImage", 'String'>
+    readonly publicId: FieldRef<"ComponentImage", 'String'>
+    readonly url: FieldRef<"ComponentImage", 'String'>
+    readonly alt: FieldRef<"ComponentImage", 'String'>
+    readonly position: FieldRef<"ComponentImage", 'Int'>
+    readonly createdAt: FieldRef<"ComponentImage", 'DateTime'>
+    readonly updatedAt: FieldRef<"ComponentImage", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ComponentImage findUnique
+   */
+  export type ComponentImageFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    /**
+     * Filter, which ComponentImage to fetch.
+     */
+    where: ComponentImageWhereUniqueInput
+  }
+
+  /**
+   * ComponentImage findUniqueOrThrow
+   */
+  export type ComponentImageFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    /**
+     * Filter, which ComponentImage to fetch.
+     */
+    where: ComponentImageWhereUniqueInput
+  }
+
+  /**
+   * ComponentImage findFirst
+   */
+  export type ComponentImageFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    /**
+     * Filter, which ComponentImage to fetch.
+     */
+    where?: ComponentImageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ComponentImages to fetch.
+     */
+    orderBy?: ComponentImageOrderByWithRelationInput | ComponentImageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ComponentImages.
+     */
+    cursor?: ComponentImageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ComponentImages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ComponentImages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ComponentImages.
+     */
+    distinct?: ComponentImageScalarFieldEnum | ComponentImageScalarFieldEnum[]
+  }
+
+  /**
+   * ComponentImage findFirstOrThrow
+   */
+  export type ComponentImageFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    /**
+     * Filter, which ComponentImage to fetch.
+     */
+    where?: ComponentImageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ComponentImages to fetch.
+     */
+    orderBy?: ComponentImageOrderByWithRelationInput | ComponentImageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ComponentImages.
+     */
+    cursor?: ComponentImageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ComponentImages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ComponentImages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ComponentImages.
+     */
+    distinct?: ComponentImageScalarFieldEnum | ComponentImageScalarFieldEnum[]
+  }
+
+  /**
+   * ComponentImage findMany
+   */
+  export type ComponentImageFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    /**
+     * Filter, which ComponentImages to fetch.
+     */
+    where?: ComponentImageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ComponentImages to fetch.
+     */
+    orderBy?: ComponentImageOrderByWithRelationInput | ComponentImageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ComponentImages.
+     */
+    cursor?: ComponentImageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ComponentImages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ComponentImages.
+     */
+    skip?: number
+    distinct?: ComponentImageScalarFieldEnum | ComponentImageScalarFieldEnum[]
+  }
+
+  /**
+   * ComponentImage create
+   */
+  export type ComponentImageCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ComponentImage.
+     */
+    data: XOR<ComponentImageCreateInput, ComponentImageUncheckedCreateInput>
+  }
+
+  /**
+   * ComponentImage createMany
+   */
+  export type ComponentImageCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ComponentImages.
+     */
+    data: ComponentImageCreateManyInput | ComponentImageCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ComponentImage createManyAndReturn
+   */
+  export type ComponentImageCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * The data used to create many ComponentImages.
+     */
+    data: ComponentImageCreateManyInput | ComponentImageCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ComponentImage update
+   */
+  export type ComponentImageUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ComponentImage.
+     */
+    data: XOR<ComponentImageUpdateInput, ComponentImageUncheckedUpdateInput>
+    /**
+     * Choose, which ComponentImage to update.
+     */
+    where: ComponentImageWhereUniqueInput
+  }
+
+  /**
+   * ComponentImage updateMany
+   */
+  export type ComponentImageUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ComponentImages.
+     */
+    data: XOR<ComponentImageUpdateManyMutationInput, ComponentImageUncheckedUpdateManyInput>
+    /**
+     * Filter which ComponentImages to update
+     */
+    where?: ComponentImageWhereInput
+    /**
+     * Limit how many ComponentImages to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ComponentImage updateManyAndReturn
+   */
+  export type ComponentImageUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * The data used to update ComponentImages.
+     */
+    data: XOR<ComponentImageUpdateManyMutationInput, ComponentImageUncheckedUpdateManyInput>
+    /**
+     * Filter which ComponentImages to update
+     */
+    where?: ComponentImageWhereInput
+    /**
+     * Limit how many ComponentImages to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ComponentImage upsert
+   */
+  export type ComponentImageUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ComponentImage to update in case it exists.
+     */
+    where: ComponentImageWhereUniqueInput
+    /**
+     * In case the ComponentImage found by the `where` argument doesn't exist, create a new ComponentImage with this data.
+     */
+    create: XOR<ComponentImageCreateInput, ComponentImageUncheckedCreateInput>
+    /**
+     * In case the ComponentImage was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ComponentImageUpdateInput, ComponentImageUncheckedUpdateInput>
+  }
+
+  /**
+   * ComponentImage delete
+   */
+  export type ComponentImageDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
+    /**
+     * Filter which ComponentImage to delete.
+     */
+    where: ComponentImageWhereUniqueInput
+  }
+
+  /**
+   * ComponentImage deleteMany
+   */
+  export type ComponentImageDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ComponentImages to delete
+     */
+    where?: ComponentImageWhereInput
+    /**
+     * Limit how many ComponentImages to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ComponentImage without action
+   */
+  export type ComponentImageDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ComponentImage
+     */
+    select?: ComponentImageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ComponentImage
+     */
+    omit?: ComponentImageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ComponentImageInclude<ExtArgs> | null
   }
 
 
@@ -15283,1156 +16833,6 @@ export namespace Prisma {
 
 
   /**
-   * Model RosterAssignment
-   */
-
-  export type AggregateRosterAssignment = {
-    _count: RosterAssignmentCountAggregateOutputType | null
-    _min: RosterAssignmentMinAggregateOutputType | null
-    _max: RosterAssignmentMaxAggregateOutputType | null
-  }
-
-  export type RosterAssignmentMinAggregateOutputType = {
-    id: string | null
-    staffId: string | null
-    shiftTypeId: string | null
-    startTime: string | null
-    endTime: string | null
-    date: Date | null
-    notes: string | null
-    assignedBy: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type RosterAssignmentMaxAggregateOutputType = {
-    id: string | null
-    staffId: string | null
-    shiftTypeId: string | null
-    startTime: string | null
-    endTime: string | null
-    date: Date | null
-    notes: string | null
-    assignedBy: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type RosterAssignmentCountAggregateOutputType = {
-    id: number
-    staffId: number
-    shiftTypeId: number
-    startTime: number
-    endTime: number
-    date: number
-    notes: number
-    assignedBy: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type RosterAssignmentMinAggregateInputType = {
-    id?: true
-    staffId?: true
-    shiftTypeId?: true
-    startTime?: true
-    endTime?: true
-    date?: true
-    notes?: true
-    assignedBy?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type RosterAssignmentMaxAggregateInputType = {
-    id?: true
-    staffId?: true
-    shiftTypeId?: true
-    startTime?: true
-    endTime?: true
-    date?: true
-    notes?: true
-    assignedBy?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type RosterAssignmentCountAggregateInputType = {
-    id?: true
-    staffId?: true
-    shiftTypeId?: true
-    startTime?: true
-    endTime?: true
-    date?: true
-    notes?: true
-    assignedBy?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type RosterAssignmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which RosterAssignment to aggregate.
-     */
-    where?: RosterAssignmentWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of RosterAssignments to fetch.
-     */
-    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: RosterAssignmentWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` RosterAssignments from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` RosterAssignments.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned RosterAssignments
-    **/
-    _count?: true | RosterAssignmentCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: RosterAssignmentMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: RosterAssignmentMaxAggregateInputType
-  }
-
-  export type GetRosterAssignmentAggregateType<T extends RosterAssignmentAggregateArgs> = {
-        [P in keyof T & keyof AggregateRosterAssignment]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateRosterAssignment[P]>
-      : GetScalarType<T[P], AggregateRosterAssignment[P]>
-  }
-
-
-
-
-  export type RosterAssignmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: RosterAssignmentWhereInput
-    orderBy?: RosterAssignmentOrderByWithAggregationInput | RosterAssignmentOrderByWithAggregationInput[]
-    by: RosterAssignmentScalarFieldEnum[] | RosterAssignmentScalarFieldEnum
-    having?: RosterAssignmentScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: RosterAssignmentCountAggregateInputType | true
-    _min?: RosterAssignmentMinAggregateInputType
-    _max?: RosterAssignmentMaxAggregateInputType
-  }
-
-  export type RosterAssignmentGroupByOutputType = {
-    id: string
-    staffId: string
-    shiftTypeId: string | null
-    startTime: string | null
-    endTime: string | null
-    date: Date
-    notes: string | null
-    assignedBy: string
-    createdAt: Date
-    updatedAt: Date
-    _count: RosterAssignmentCountAggregateOutputType | null
-    _min: RosterAssignmentMinAggregateOutputType | null
-    _max: RosterAssignmentMaxAggregateOutputType | null
-  }
-
-  type GetRosterAssignmentGroupByPayload<T extends RosterAssignmentGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<RosterAssignmentGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof RosterAssignmentGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], RosterAssignmentGroupByOutputType[P]>
-            : GetScalarType<T[P], RosterAssignmentGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type RosterAssignmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    staffId?: boolean
-    shiftTypeId?: boolean
-    startTime?: boolean
-    endTime?: boolean
-    date?: boolean
-    notes?: boolean
-    assignedBy?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
-    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
-  }, ExtArgs["result"]["rosterAssignment"]>
-
-  export type RosterAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    staffId?: boolean
-    shiftTypeId?: boolean
-    startTime?: boolean
-    endTime?: boolean
-    date?: boolean
-    notes?: boolean
-    assignedBy?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
-    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
-  }, ExtArgs["result"]["rosterAssignment"]>
-
-  export type RosterAssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    staffId?: boolean
-    shiftTypeId?: boolean
-    startTime?: boolean
-    endTime?: boolean
-    date?: boolean
-    notes?: boolean
-    assignedBy?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
-    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
-  }, ExtArgs["result"]["rosterAssignment"]>
-
-  export type RosterAssignmentSelectScalar = {
-    id?: boolean
-    staffId?: boolean
-    shiftTypeId?: boolean
-    startTime?: boolean
-    endTime?: boolean
-    date?: boolean
-    notes?: boolean
-    assignedBy?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type RosterAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffId" | "shiftTypeId" | "startTime" | "endTime" | "date" | "notes" | "assignedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["rosterAssignment"]>
-  export type RosterAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
-    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
-  }
-  export type RosterAssignmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
-    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
-  }
-  export type RosterAssignmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    staff?: boolean | StaffDefaultArgs<ExtArgs>
-    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
-  }
-
-  export type $RosterAssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "RosterAssignment"
-    objects: {
-      staff: Prisma.$StaffPayload<ExtArgs>
-      shiftType: Prisma.$ShiftTypePayload<ExtArgs> | null
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      staffId: string
-      shiftTypeId: string | null
-      startTime: string | null
-      endTime: string | null
-      date: Date
-      notes: string | null
-      assignedBy: string
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["rosterAssignment"]>
-    composites: {}
-  }
-
-  type RosterAssignmentGetPayload<S extends boolean | null | undefined | RosterAssignmentDefaultArgs> = $Result.GetResult<Prisma.$RosterAssignmentPayload, S>
-
-  type RosterAssignmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<RosterAssignmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: RosterAssignmentCountAggregateInputType | true
-    }
-
-  export interface RosterAssignmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RosterAssignment'], meta: { name: 'RosterAssignment' } }
-    /**
-     * Find zero or one RosterAssignment that matches the filter.
-     * @param {RosterAssignmentFindUniqueArgs} args - Arguments to find a RosterAssignment
-     * @example
-     * // Get one RosterAssignment
-     * const rosterAssignment = await prisma.rosterAssignment.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends RosterAssignmentFindUniqueArgs>(args: SelectSubset<T, RosterAssignmentFindUniqueArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one RosterAssignment that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {RosterAssignmentFindUniqueOrThrowArgs} args - Arguments to find a RosterAssignment
-     * @example
-     * // Get one RosterAssignment
-     * const rosterAssignment = await prisma.rosterAssignment.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends RosterAssignmentFindUniqueOrThrowArgs>(args: SelectSubset<T, RosterAssignmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first RosterAssignment that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RosterAssignmentFindFirstArgs} args - Arguments to find a RosterAssignment
-     * @example
-     * // Get one RosterAssignment
-     * const rosterAssignment = await prisma.rosterAssignment.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends RosterAssignmentFindFirstArgs>(args?: SelectSubset<T, RosterAssignmentFindFirstArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first RosterAssignment that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RosterAssignmentFindFirstOrThrowArgs} args - Arguments to find a RosterAssignment
-     * @example
-     * // Get one RosterAssignment
-     * const rosterAssignment = await prisma.rosterAssignment.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends RosterAssignmentFindFirstOrThrowArgs>(args?: SelectSubset<T, RosterAssignmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more RosterAssignments that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RosterAssignmentFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all RosterAssignments
-     * const rosterAssignments = await prisma.rosterAssignment.findMany()
-     * 
-     * // Get first 10 RosterAssignments
-     * const rosterAssignments = await prisma.rosterAssignment.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const rosterAssignmentWithIdOnly = await prisma.rosterAssignment.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends RosterAssignmentFindManyArgs>(args?: SelectSubset<T, RosterAssignmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a RosterAssignment.
-     * @param {RosterAssignmentCreateArgs} args - Arguments to create a RosterAssignment.
-     * @example
-     * // Create one RosterAssignment
-     * const RosterAssignment = await prisma.rosterAssignment.create({
-     *   data: {
-     *     // ... data to create a RosterAssignment
-     *   }
-     * })
-     * 
-     */
-    create<T extends RosterAssignmentCreateArgs>(args: SelectSubset<T, RosterAssignmentCreateArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many RosterAssignments.
-     * @param {RosterAssignmentCreateManyArgs} args - Arguments to create many RosterAssignments.
-     * @example
-     * // Create many RosterAssignments
-     * const rosterAssignment = await prisma.rosterAssignment.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends RosterAssignmentCreateManyArgs>(args?: SelectSubset<T, RosterAssignmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many RosterAssignments and returns the data saved in the database.
-     * @param {RosterAssignmentCreateManyAndReturnArgs} args - Arguments to create many RosterAssignments.
-     * @example
-     * // Create many RosterAssignments
-     * const rosterAssignment = await prisma.rosterAssignment.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many RosterAssignments and only return the `id`
-     * const rosterAssignmentWithIdOnly = await prisma.rosterAssignment.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends RosterAssignmentCreateManyAndReturnArgs>(args?: SelectSubset<T, RosterAssignmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a RosterAssignment.
-     * @param {RosterAssignmentDeleteArgs} args - Arguments to delete one RosterAssignment.
-     * @example
-     * // Delete one RosterAssignment
-     * const RosterAssignment = await prisma.rosterAssignment.delete({
-     *   where: {
-     *     // ... filter to delete one RosterAssignment
-     *   }
-     * })
-     * 
-     */
-    delete<T extends RosterAssignmentDeleteArgs>(args: SelectSubset<T, RosterAssignmentDeleteArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one RosterAssignment.
-     * @param {RosterAssignmentUpdateArgs} args - Arguments to update one RosterAssignment.
-     * @example
-     * // Update one RosterAssignment
-     * const rosterAssignment = await prisma.rosterAssignment.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends RosterAssignmentUpdateArgs>(args: SelectSubset<T, RosterAssignmentUpdateArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more RosterAssignments.
-     * @param {RosterAssignmentDeleteManyArgs} args - Arguments to filter RosterAssignments to delete.
-     * @example
-     * // Delete a few RosterAssignments
-     * const { count } = await prisma.rosterAssignment.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends RosterAssignmentDeleteManyArgs>(args?: SelectSubset<T, RosterAssignmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more RosterAssignments.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RosterAssignmentUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many RosterAssignments
-     * const rosterAssignment = await prisma.rosterAssignment.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends RosterAssignmentUpdateManyArgs>(args: SelectSubset<T, RosterAssignmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more RosterAssignments and returns the data updated in the database.
-     * @param {RosterAssignmentUpdateManyAndReturnArgs} args - Arguments to update many RosterAssignments.
-     * @example
-     * // Update many RosterAssignments
-     * const rosterAssignment = await prisma.rosterAssignment.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more RosterAssignments and only return the `id`
-     * const rosterAssignmentWithIdOnly = await prisma.rosterAssignment.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends RosterAssignmentUpdateManyAndReturnArgs>(args: SelectSubset<T, RosterAssignmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one RosterAssignment.
-     * @param {RosterAssignmentUpsertArgs} args - Arguments to update or create a RosterAssignment.
-     * @example
-     * // Update or create a RosterAssignment
-     * const rosterAssignment = await prisma.rosterAssignment.upsert({
-     *   create: {
-     *     // ... data to create a RosterAssignment
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the RosterAssignment we want to update
-     *   }
-     * })
-     */
-    upsert<T extends RosterAssignmentUpsertArgs>(args: SelectSubset<T, RosterAssignmentUpsertArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of RosterAssignments.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RosterAssignmentCountArgs} args - Arguments to filter RosterAssignments to count.
-     * @example
-     * // Count the number of RosterAssignments
-     * const count = await prisma.rosterAssignment.count({
-     *   where: {
-     *     // ... the filter for the RosterAssignments we want to count
-     *   }
-     * })
-    **/
-    count<T extends RosterAssignmentCountArgs>(
-      args?: Subset<T, RosterAssignmentCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], RosterAssignmentCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a RosterAssignment.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RosterAssignmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends RosterAssignmentAggregateArgs>(args: Subset<T, RosterAssignmentAggregateArgs>): Prisma.PrismaPromise<GetRosterAssignmentAggregateType<T>>
-
-    /**
-     * Group by RosterAssignment.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RosterAssignmentGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends RosterAssignmentGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: RosterAssignmentGroupByArgs['orderBy'] }
-        : { orderBy?: RosterAssignmentGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, RosterAssignmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRosterAssignmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the RosterAssignment model
-   */
-  readonly fields: RosterAssignmentFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for RosterAssignment.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__RosterAssignmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    staff<T extends StaffDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StaffDefaultArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    shiftType<T extends RosterAssignment$shiftTypeArgs<ExtArgs> = {}>(args?: Subset<T, RosterAssignment$shiftTypeArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the RosterAssignment model
-   */
-  interface RosterAssignmentFieldRefs {
-    readonly id: FieldRef<"RosterAssignment", 'String'>
-    readonly staffId: FieldRef<"RosterAssignment", 'String'>
-    readonly shiftTypeId: FieldRef<"RosterAssignment", 'String'>
-    readonly startTime: FieldRef<"RosterAssignment", 'String'>
-    readonly endTime: FieldRef<"RosterAssignment", 'String'>
-    readonly date: FieldRef<"RosterAssignment", 'DateTime'>
-    readonly notes: FieldRef<"RosterAssignment", 'String'>
-    readonly assignedBy: FieldRef<"RosterAssignment", 'String'>
-    readonly createdAt: FieldRef<"RosterAssignment", 'DateTime'>
-    readonly updatedAt: FieldRef<"RosterAssignment", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * RosterAssignment findUnique
-   */
-  export type RosterAssignmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-    /**
-     * Filter, which RosterAssignment to fetch.
-     */
-    where: RosterAssignmentWhereUniqueInput
-  }
-
-  /**
-   * RosterAssignment findUniqueOrThrow
-   */
-  export type RosterAssignmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-    /**
-     * Filter, which RosterAssignment to fetch.
-     */
-    where: RosterAssignmentWhereUniqueInput
-  }
-
-  /**
-   * RosterAssignment findFirst
-   */
-  export type RosterAssignmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-    /**
-     * Filter, which RosterAssignment to fetch.
-     */
-    where?: RosterAssignmentWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of RosterAssignments to fetch.
-     */
-    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for RosterAssignments.
-     */
-    cursor?: RosterAssignmentWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` RosterAssignments from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` RosterAssignments.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of RosterAssignments.
-     */
-    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
-  }
-
-  /**
-   * RosterAssignment findFirstOrThrow
-   */
-  export type RosterAssignmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-    /**
-     * Filter, which RosterAssignment to fetch.
-     */
-    where?: RosterAssignmentWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of RosterAssignments to fetch.
-     */
-    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for RosterAssignments.
-     */
-    cursor?: RosterAssignmentWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` RosterAssignments from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` RosterAssignments.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of RosterAssignments.
-     */
-    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
-  }
-
-  /**
-   * RosterAssignment findMany
-   */
-  export type RosterAssignmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-    /**
-     * Filter, which RosterAssignments to fetch.
-     */
-    where?: RosterAssignmentWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of RosterAssignments to fetch.
-     */
-    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing RosterAssignments.
-     */
-    cursor?: RosterAssignmentWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` RosterAssignments from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` RosterAssignments.
-     */
-    skip?: number
-    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
-  }
-
-  /**
-   * RosterAssignment create
-   */
-  export type RosterAssignmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-    /**
-     * The data needed to create a RosterAssignment.
-     */
-    data: XOR<RosterAssignmentCreateInput, RosterAssignmentUncheckedCreateInput>
-  }
-
-  /**
-   * RosterAssignment createMany
-   */
-  export type RosterAssignmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many RosterAssignments.
-     */
-    data: RosterAssignmentCreateManyInput | RosterAssignmentCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * RosterAssignment createManyAndReturn
-   */
-  export type RosterAssignmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * The data used to create many RosterAssignments.
-     */
-    data: RosterAssignmentCreateManyInput | RosterAssignmentCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * RosterAssignment update
-   */
-  export type RosterAssignmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-    /**
-     * The data needed to update a RosterAssignment.
-     */
-    data: XOR<RosterAssignmentUpdateInput, RosterAssignmentUncheckedUpdateInput>
-    /**
-     * Choose, which RosterAssignment to update.
-     */
-    where: RosterAssignmentWhereUniqueInput
-  }
-
-  /**
-   * RosterAssignment updateMany
-   */
-  export type RosterAssignmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update RosterAssignments.
-     */
-    data: XOR<RosterAssignmentUpdateManyMutationInput, RosterAssignmentUncheckedUpdateManyInput>
-    /**
-     * Filter which RosterAssignments to update
-     */
-    where?: RosterAssignmentWhereInput
-    /**
-     * Limit how many RosterAssignments to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * RosterAssignment updateManyAndReturn
-   */
-  export type RosterAssignmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * The data used to update RosterAssignments.
-     */
-    data: XOR<RosterAssignmentUpdateManyMutationInput, RosterAssignmentUncheckedUpdateManyInput>
-    /**
-     * Filter which RosterAssignments to update
-     */
-    where?: RosterAssignmentWhereInput
-    /**
-     * Limit how many RosterAssignments to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * RosterAssignment upsert
-   */
-  export type RosterAssignmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-    /**
-     * The filter to search for the RosterAssignment to update in case it exists.
-     */
-    where: RosterAssignmentWhereUniqueInput
-    /**
-     * In case the RosterAssignment found by the `where` argument doesn't exist, create a new RosterAssignment with this data.
-     */
-    create: XOR<RosterAssignmentCreateInput, RosterAssignmentUncheckedCreateInput>
-    /**
-     * In case the RosterAssignment was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<RosterAssignmentUpdateInput, RosterAssignmentUncheckedUpdateInput>
-  }
-
-  /**
-   * RosterAssignment delete
-   */
-  export type RosterAssignmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-    /**
-     * Filter which RosterAssignment to delete.
-     */
-    where: RosterAssignmentWhereUniqueInput
-  }
-
-  /**
-   * RosterAssignment deleteMany
-   */
-  export type RosterAssignmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which RosterAssignments to delete
-     */
-    where?: RosterAssignmentWhereInput
-    /**
-     * Limit how many RosterAssignments to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * RosterAssignment.shiftType
-   */
-  export type RosterAssignment$shiftTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the ShiftType
-     */
-    select?: ShiftTypeSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the ShiftType
-     */
-    omit?: ShiftTypeOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ShiftTypeInclude<ExtArgs> | null
-    where?: ShiftTypeWhereInput
-  }
-
-  /**
-   * RosterAssignment without action
-   */
-  export type RosterAssignmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RosterAssignment
-     */
-    select?: RosterAssignmentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RosterAssignment
-     */
-    omit?: RosterAssignmentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RosterAssignmentInclude<ExtArgs> | null
-  }
-
-
-  /**
    * Model Shift
    */
 
@@ -16684,6 +17084,7 @@ export namespace Prisma {
     updatedAt?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
     reimbursements?: boolean | Shift$reimbursementsArgs<ExtArgs>
+    tasks?: boolean | Shift$tasksArgs<ExtArgs>
     _count?: boolean | ShiftCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["shift"]>
 
@@ -16735,6 +17136,7 @@ export namespace Prisma {
   export type ShiftInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     staff?: boolean | StaffDefaultArgs<ExtArgs>
     reimbursements?: boolean | Shift$reimbursementsArgs<ExtArgs>
+    tasks?: boolean | Shift$tasksArgs<ExtArgs>
     _count?: boolean | ShiftCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ShiftIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -16749,6 +17151,7 @@ export namespace Prisma {
     objects: {
       staff: Prisma.$StaffPayload<ExtArgs>
       reimbursements: Prisma.$ReimbursementPayload<ExtArgs>[]
+      tasks: Prisma.$ShiftTaskPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -17158,6 +17561,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     staff<T extends StaffDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StaffDefaultArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     reimbursements<T extends Shift$reimbursementsArgs<ExtArgs> = {}>(args?: Subset<T, Shift$reimbursementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReimbursementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tasks<T extends Shift$tasksArgs<ExtArgs> = {}>(args?: Subset<T, Shift$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -17618,6 +18022,30 @@ export namespace Prisma {
   }
 
   /**
+   * Shift.tasks
+   */
+  export type Shift$tasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    where?: ShiftTaskWhereInput
+    orderBy?: ShiftTaskOrderByWithRelationInput | ShiftTaskOrderByWithRelationInput[]
+    cursor?: ShiftTaskWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ShiftTaskScalarFieldEnum | ShiftTaskScalarFieldEnum[]
+  }
+
+  /**
    * Shift without action
    */
   export type ShiftDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17633,6 +18061,3354 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ShiftInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ShiftTask
+   */
+
+  export type AggregateShiftTask = {
+    _count: ShiftTaskCountAggregateOutputType | null
+    _min: ShiftTaskMinAggregateOutputType | null
+    _max: ShiftTaskMaxAggregateOutputType | null
+  }
+
+  export type ShiftTaskMinAggregateOutputType = {
+    id: string | null
+    shiftId: string | null
+    title: string | null
+    description: string | null
+    isCompleted: boolean | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShiftTaskMaxAggregateOutputType = {
+    id: string | null
+    shiftId: string | null
+    title: string | null
+    description: string | null
+    isCompleted: boolean | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShiftTaskCountAggregateOutputType = {
+    id: number
+    shiftId: number
+    title: number
+    description: number
+    isCompleted: number
+    completedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ShiftTaskMinAggregateInputType = {
+    id?: true
+    shiftId?: true
+    title?: true
+    description?: true
+    isCompleted?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShiftTaskMaxAggregateInputType = {
+    id?: true
+    shiftId?: true
+    title?: true
+    description?: true
+    isCompleted?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShiftTaskCountAggregateInputType = {
+    id?: true
+    shiftId?: true
+    title?: true
+    description?: true
+    isCompleted?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ShiftTaskAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ShiftTask to aggregate.
+     */
+    where?: ShiftTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShiftTasks to fetch.
+     */
+    orderBy?: ShiftTaskOrderByWithRelationInput | ShiftTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ShiftTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShiftTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShiftTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ShiftTasks
+    **/
+    _count?: true | ShiftTaskCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ShiftTaskMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ShiftTaskMaxAggregateInputType
+  }
+
+  export type GetShiftTaskAggregateType<T extends ShiftTaskAggregateArgs> = {
+        [P in keyof T & keyof AggregateShiftTask]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateShiftTask[P]>
+      : GetScalarType<T[P], AggregateShiftTask[P]>
+  }
+
+
+
+
+  export type ShiftTaskGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShiftTaskWhereInput
+    orderBy?: ShiftTaskOrderByWithAggregationInput | ShiftTaskOrderByWithAggregationInput[]
+    by: ShiftTaskScalarFieldEnum[] | ShiftTaskScalarFieldEnum
+    having?: ShiftTaskScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ShiftTaskCountAggregateInputType | true
+    _min?: ShiftTaskMinAggregateInputType
+    _max?: ShiftTaskMaxAggregateInputType
+  }
+
+  export type ShiftTaskGroupByOutputType = {
+    id: string
+    shiftId: string
+    title: string
+    description: string | null
+    isCompleted: boolean
+    completedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ShiftTaskCountAggregateOutputType | null
+    _min: ShiftTaskMinAggregateOutputType | null
+    _max: ShiftTaskMaxAggregateOutputType | null
+  }
+
+  type GetShiftTaskGroupByPayload<T extends ShiftTaskGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ShiftTaskGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ShiftTaskGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ShiftTaskGroupByOutputType[P]>
+            : GetScalarType<T[P], ShiftTaskGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ShiftTaskSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shiftId?: boolean
+    title?: boolean
+    description?: boolean
+    isCompleted?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["shiftTask"]>
+
+  export type ShiftTaskSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shiftId?: boolean
+    title?: boolean
+    description?: boolean
+    isCompleted?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["shiftTask"]>
+
+  export type ShiftTaskSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    shiftId?: boolean
+    title?: boolean
+    description?: boolean
+    isCompleted?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["shiftTask"]>
+
+  export type ShiftTaskSelectScalar = {
+    id?: boolean
+    shiftId?: boolean
+    title?: boolean
+    description?: boolean
+    isCompleted?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ShiftTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shiftId" | "title" | "description" | "isCompleted" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["shiftTask"]>
+  export type ShiftTaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }
+  export type ShiftTaskIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }
+  export type ShiftTaskIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    shift?: boolean | ShiftDefaultArgs<ExtArgs>
+  }
+
+  export type $ShiftTaskPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ShiftTask"
+    objects: {
+      shift: Prisma.$ShiftPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      shiftId: string
+      title: string
+      description: string | null
+      isCompleted: boolean
+      completedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["shiftTask"]>
+    composites: {}
+  }
+
+  type ShiftTaskGetPayload<S extends boolean | null | undefined | ShiftTaskDefaultArgs> = $Result.GetResult<Prisma.$ShiftTaskPayload, S>
+
+  type ShiftTaskCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ShiftTaskFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ShiftTaskCountAggregateInputType | true
+    }
+
+  export interface ShiftTaskDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ShiftTask'], meta: { name: 'ShiftTask' } }
+    /**
+     * Find zero or one ShiftTask that matches the filter.
+     * @param {ShiftTaskFindUniqueArgs} args - Arguments to find a ShiftTask
+     * @example
+     * // Get one ShiftTask
+     * const shiftTask = await prisma.shiftTask.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ShiftTaskFindUniqueArgs>(args: SelectSubset<T, ShiftTaskFindUniqueArgs<ExtArgs>>): Prisma__ShiftTaskClient<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ShiftTask that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ShiftTaskFindUniqueOrThrowArgs} args - Arguments to find a ShiftTask
+     * @example
+     * // Get one ShiftTask
+     * const shiftTask = await prisma.shiftTask.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ShiftTaskFindUniqueOrThrowArgs>(args: SelectSubset<T, ShiftTaskFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ShiftTaskClient<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ShiftTask that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTaskFindFirstArgs} args - Arguments to find a ShiftTask
+     * @example
+     * // Get one ShiftTask
+     * const shiftTask = await prisma.shiftTask.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ShiftTaskFindFirstArgs>(args?: SelectSubset<T, ShiftTaskFindFirstArgs<ExtArgs>>): Prisma__ShiftTaskClient<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ShiftTask that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTaskFindFirstOrThrowArgs} args - Arguments to find a ShiftTask
+     * @example
+     * // Get one ShiftTask
+     * const shiftTask = await prisma.shiftTask.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ShiftTaskFindFirstOrThrowArgs>(args?: SelectSubset<T, ShiftTaskFindFirstOrThrowArgs<ExtArgs>>): Prisma__ShiftTaskClient<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ShiftTasks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTaskFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ShiftTasks
+     * const shiftTasks = await prisma.shiftTask.findMany()
+     * 
+     * // Get first 10 ShiftTasks
+     * const shiftTasks = await prisma.shiftTask.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const shiftTaskWithIdOnly = await prisma.shiftTask.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ShiftTaskFindManyArgs>(args?: SelectSubset<T, ShiftTaskFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ShiftTask.
+     * @param {ShiftTaskCreateArgs} args - Arguments to create a ShiftTask.
+     * @example
+     * // Create one ShiftTask
+     * const ShiftTask = await prisma.shiftTask.create({
+     *   data: {
+     *     // ... data to create a ShiftTask
+     *   }
+     * })
+     * 
+     */
+    create<T extends ShiftTaskCreateArgs>(args: SelectSubset<T, ShiftTaskCreateArgs<ExtArgs>>): Prisma__ShiftTaskClient<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ShiftTasks.
+     * @param {ShiftTaskCreateManyArgs} args - Arguments to create many ShiftTasks.
+     * @example
+     * // Create many ShiftTasks
+     * const shiftTask = await prisma.shiftTask.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ShiftTaskCreateManyArgs>(args?: SelectSubset<T, ShiftTaskCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ShiftTasks and returns the data saved in the database.
+     * @param {ShiftTaskCreateManyAndReturnArgs} args - Arguments to create many ShiftTasks.
+     * @example
+     * // Create many ShiftTasks
+     * const shiftTask = await prisma.shiftTask.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ShiftTasks and only return the `id`
+     * const shiftTaskWithIdOnly = await prisma.shiftTask.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ShiftTaskCreateManyAndReturnArgs>(args?: SelectSubset<T, ShiftTaskCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ShiftTask.
+     * @param {ShiftTaskDeleteArgs} args - Arguments to delete one ShiftTask.
+     * @example
+     * // Delete one ShiftTask
+     * const ShiftTask = await prisma.shiftTask.delete({
+     *   where: {
+     *     // ... filter to delete one ShiftTask
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ShiftTaskDeleteArgs>(args: SelectSubset<T, ShiftTaskDeleteArgs<ExtArgs>>): Prisma__ShiftTaskClient<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ShiftTask.
+     * @param {ShiftTaskUpdateArgs} args - Arguments to update one ShiftTask.
+     * @example
+     * // Update one ShiftTask
+     * const shiftTask = await prisma.shiftTask.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ShiftTaskUpdateArgs>(args: SelectSubset<T, ShiftTaskUpdateArgs<ExtArgs>>): Prisma__ShiftTaskClient<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ShiftTasks.
+     * @param {ShiftTaskDeleteManyArgs} args - Arguments to filter ShiftTasks to delete.
+     * @example
+     * // Delete a few ShiftTasks
+     * const { count } = await prisma.shiftTask.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ShiftTaskDeleteManyArgs>(args?: SelectSubset<T, ShiftTaskDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ShiftTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTaskUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ShiftTasks
+     * const shiftTask = await prisma.shiftTask.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ShiftTaskUpdateManyArgs>(args: SelectSubset<T, ShiftTaskUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ShiftTasks and returns the data updated in the database.
+     * @param {ShiftTaskUpdateManyAndReturnArgs} args - Arguments to update many ShiftTasks.
+     * @example
+     * // Update many ShiftTasks
+     * const shiftTask = await prisma.shiftTask.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ShiftTasks and only return the `id`
+     * const shiftTaskWithIdOnly = await prisma.shiftTask.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ShiftTaskUpdateManyAndReturnArgs>(args: SelectSubset<T, ShiftTaskUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ShiftTask.
+     * @param {ShiftTaskUpsertArgs} args - Arguments to update or create a ShiftTask.
+     * @example
+     * // Update or create a ShiftTask
+     * const shiftTask = await prisma.shiftTask.upsert({
+     *   create: {
+     *     // ... data to create a ShiftTask
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ShiftTask we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ShiftTaskUpsertArgs>(args: SelectSubset<T, ShiftTaskUpsertArgs<ExtArgs>>): Prisma__ShiftTaskClient<$Result.GetResult<Prisma.$ShiftTaskPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ShiftTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTaskCountArgs} args - Arguments to filter ShiftTasks to count.
+     * @example
+     * // Count the number of ShiftTasks
+     * const count = await prisma.shiftTask.count({
+     *   where: {
+     *     // ... the filter for the ShiftTasks we want to count
+     *   }
+     * })
+    **/
+    count<T extends ShiftTaskCountArgs>(
+      args?: Subset<T, ShiftTaskCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ShiftTaskCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ShiftTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTaskAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ShiftTaskAggregateArgs>(args: Subset<T, ShiftTaskAggregateArgs>): Prisma.PrismaPromise<GetShiftTaskAggregateType<T>>
+
+    /**
+     * Group by ShiftTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftTaskGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ShiftTaskGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ShiftTaskGroupByArgs['orderBy'] }
+        : { orderBy?: ShiftTaskGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ShiftTaskGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetShiftTaskGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ShiftTask model
+   */
+  readonly fields: ShiftTaskFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ShiftTask.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ShiftTaskClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    shift<T extends ShiftDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ShiftDefaultArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ShiftTask model
+   */
+  interface ShiftTaskFieldRefs {
+    readonly id: FieldRef<"ShiftTask", 'String'>
+    readonly shiftId: FieldRef<"ShiftTask", 'String'>
+    readonly title: FieldRef<"ShiftTask", 'String'>
+    readonly description: FieldRef<"ShiftTask", 'String'>
+    readonly isCompleted: FieldRef<"ShiftTask", 'Boolean'>
+    readonly completedAt: FieldRef<"ShiftTask", 'DateTime'>
+    readonly createdAt: FieldRef<"ShiftTask", 'DateTime'>
+    readonly updatedAt: FieldRef<"ShiftTask", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ShiftTask findUnique
+   */
+  export type ShiftTaskFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftTask to fetch.
+     */
+    where: ShiftTaskWhereUniqueInput
+  }
+
+  /**
+   * ShiftTask findUniqueOrThrow
+   */
+  export type ShiftTaskFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftTask to fetch.
+     */
+    where: ShiftTaskWhereUniqueInput
+  }
+
+  /**
+   * ShiftTask findFirst
+   */
+  export type ShiftTaskFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftTask to fetch.
+     */
+    where?: ShiftTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShiftTasks to fetch.
+     */
+    orderBy?: ShiftTaskOrderByWithRelationInput | ShiftTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ShiftTasks.
+     */
+    cursor?: ShiftTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShiftTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShiftTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ShiftTasks.
+     */
+    distinct?: ShiftTaskScalarFieldEnum | ShiftTaskScalarFieldEnum[]
+  }
+
+  /**
+   * ShiftTask findFirstOrThrow
+   */
+  export type ShiftTaskFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftTask to fetch.
+     */
+    where?: ShiftTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShiftTasks to fetch.
+     */
+    orderBy?: ShiftTaskOrderByWithRelationInput | ShiftTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ShiftTasks.
+     */
+    cursor?: ShiftTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShiftTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShiftTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ShiftTasks.
+     */
+    distinct?: ShiftTaskScalarFieldEnum | ShiftTaskScalarFieldEnum[]
+  }
+
+  /**
+   * ShiftTask findMany
+   */
+  export type ShiftTaskFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which ShiftTasks to fetch.
+     */
+    where?: ShiftTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ShiftTasks to fetch.
+     */
+    orderBy?: ShiftTaskOrderByWithRelationInput | ShiftTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ShiftTasks.
+     */
+    cursor?: ShiftTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ShiftTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ShiftTasks.
+     */
+    skip?: number
+    distinct?: ShiftTaskScalarFieldEnum | ShiftTaskScalarFieldEnum[]
+  }
+
+  /**
+   * ShiftTask create
+   */
+  export type ShiftTaskCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ShiftTask.
+     */
+    data: XOR<ShiftTaskCreateInput, ShiftTaskUncheckedCreateInput>
+  }
+
+  /**
+   * ShiftTask createMany
+   */
+  export type ShiftTaskCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ShiftTasks.
+     */
+    data: ShiftTaskCreateManyInput | ShiftTaskCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ShiftTask createManyAndReturn
+   */
+  export type ShiftTaskCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * The data used to create many ShiftTasks.
+     */
+    data: ShiftTaskCreateManyInput | ShiftTaskCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ShiftTask update
+   */
+  export type ShiftTaskUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ShiftTask.
+     */
+    data: XOR<ShiftTaskUpdateInput, ShiftTaskUncheckedUpdateInput>
+    /**
+     * Choose, which ShiftTask to update.
+     */
+    where: ShiftTaskWhereUniqueInput
+  }
+
+  /**
+   * ShiftTask updateMany
+   */
+  export type ShiftTaskUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ShiftTasks.
+     */
+    data: XOR<ShiftTaskUpdateManyMutationInput, ShiftTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which ShiftTasks to update
+     */
+    where?: ShiftTaskWhereInput
+    /**
+     * Limit how many ShiftTasks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShiftTask updateManyAndReturn
+   */
+  export type ShiftTaskUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * The data used to update ShiftTasks.
+     */
+    data: XOR<ShiftTaskUpdateManyMutationInput, ShiftTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which ShiftTasks to update
+     */
+    where?: ShiftTaskWhereInput
+    /**
+     * Limit how many ShiftTasks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ShiftTask upsert
+   */
+  export type ShiftTaskUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ShiftTask to update in case it exists.
+     */
+    where: ShiftTaskWhereUniqueInput
+    /**
+     * In case the ShiftTask found by the `where` argument doesn't exist, create a new ShiftTask with this data.
+     */
+    create: XOR<ShiftTaskCreateInput, ShiftTaskUncheckedCreateInput>
+    /**
+     * In case the ShiftTask was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ShiftTaskUpdateInput, ShiftTaskUncheckedUpdateInput>
+  }
+
+  /**
+   * ShiftTask delete
+   */
+  export type ShiftTaskDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+    /**
+     * Filter which ShiftTask to delete.
+     */
+    where: ShiftTaskWhereUniqueInput
+  }
+
+  /**
+   * ShiftTask deleteMany
+   */
+  export type ShiftTaskDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ShiftTasks to delete
+     */
+    where?: ShiftTaskWhereInput
+    /**
+     * Limit how many ShiftTasks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ShiftTask without action
+   */
+  export type ShiftTaskDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftTask
+     */
+    select?: ShiftTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftTask
+     */
+    omit?: ShiftTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTaskInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model RosterAssignment
+   */
+
+  export type AggregateRosterAssignment = {
+    _count: RosterAssignmentCountAggregateOutputType | null
+    _min: RosterAssignmentMinAggregateOutputType | null
+    _max: RosterAssignmentMaxAggregateOutputType | null
+  }
+
+  export type RosterAssignmentMinAggregateOutputType = {
+    id: string | null
+    staffId: string | null
+    shiftTypeId: string | null
+    startTime: string | null
+    endTime: string | null
+    date: Date | null
+    notes: string | null
+    assignedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RosterAssignmentMaxAggregateOutputType = {
+    id: string | null
+    staffId: string | null
+    shiftTypeId: string | null
+    startTime: string | null
+    endTime: string | null
+    date: Date | null
+    notes: string | null
+    assignedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RosterAssignmentCountAggregateOutputType = {
+    id: number
+    staffId: number
+    shiftTypeId: number
+    startTime: number
+    endTime: number
+    date: number
+    notes: number
+    assignedBy: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type RosterAssignmentMinAggregateInputType = {
+    id?: true
+    staffId?: true
+    shiftTypeId?: true
+    startTime?: true
+    endTime?: true
+    date?: true
+    notes?: true
+    assignedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RosterAssignmentMaxAggregateInputType = {
+    id?: true
+    staffId?: true
+    shiftTypeId?: true
+    startTime?: true
+    endTime?: true
+    date?: true
+    notes?: true
+    assignedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RosterAssignmentCountAggregateInputType = {
+    id?: true
+    staffId?: true
+    shiftTypeId?: true
+    startTime?: true
+    endTime?: true
+    date?: true
+    notes?: true
+    assignedBy?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type RosterAssignmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RosterAssignment to aggregate.
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignments to fetch.
+     */
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: RosterAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned RosterAssignments
+    **/
+    _count?: true | RosterAssignmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: RosterAssignmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: RosterAssignmentMaxAggregateInputType
+  }
+
+  export type GetRosterAssignmentAggregateType<T extends RosterAssignmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateRosterAssignment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRosterAssignment[P]>
+      : GetScalarType<T[P], AggregateRosterAssignment[P]>
+  }
+
+
+
+
+  export type RosterAssignmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RosterAssignmentWhereInput
+    orderBy?: RosterAssignmentOrderByWithAggregationInput | RosterAssignmentOrderByWithAggregationInput[]
+    by: RosterAssignmentScalarFieldEnum[] | RosterAssignmentScalarFieldEnum
+    having?: RosterAssignmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: RosterAssignmentCountAggregateInputType | true
+    _min?: RosterAssignmentMinAggregateInputType
+    _max?: RosterAssignmentMaxAggregateInputType
+  }
+
+  export type RosterAssignmentGroupByOutputType = {
+    id: string
+    staffId: string
+    shiftTypeId: string | null
+    startTime: string | null
+    endTime: string | null
+    date: Date
+    notes: string | null
+    assignedBy: string
+    createdAt: Date
+    updatedAt: Date
+    _count: RosterAssignmentCountAggregateOutputType | null
+    _min: RosterAssignmentMinAggregateOutputType | null
+    _max: RosterAssignmentMaxAggregateOutputType | null
+  }
+
+  type GetRosterAssignmentGroupByPayload<T extends RosterAssignmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<RosterAssignmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof RosterAssignmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], RosterAssignmentGroupByOutputType[P]>
+            : GetScalarType<T[P], RosterAssignmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type RosterAssignmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    staffId?: boolean
+    shiftTypeId?: boolean
+    startTime?: boolean
+    endTime?: boolean
+    date?: boolean
+    notes?: boolean
+    assignedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+    tasks?: boolean | RosterAssignment$tasksArgs<ExtArgs>
+    _count?: boolean | RosterAssignmentCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["rosterAssignment"]>
+
+  export type RosterAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    staffId?: boolean
+    shiftTypeId?: boolean
+    startTime?: boolean
+    endTime?: boolean
+    date?: boolean
+    notes?: boolean
+    assignedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["rosterAssignment"]>
+
+  export type RosterAssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    staffId?: boolean
+    shiftTypeId?: boolean
+    startTime?: boolean
+    endTime?: boolean
+    date?: boolean
+    notes?: boolean
+    assignedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["rosterAssignment"]>
+
+  export type RosterAssignmentSelectScalar = {
+    id?: boolean
+    staffId?: boolean
+    shiftTypeId?: boolean
+    startTime?: boolean
+    endTime?: boolean
+    date?: boolean
+    notes?: boolean
+    assignedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type RosterAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffId" | "shiftTypeId" | "startTime" | "endTime" | "date" | "notes" | "assignedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["rosterAssignment"]>
+  export type RosterAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+    tasks?: boolean | RosterAssignment$tasksArgs<ExtArgs>
+    _count?: boolean | RosterAssignmentCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type RosterAssignmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }
+  export type RosterAssignmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+    shiftType?: boolean | RosterAssignment$shiftTypeArgs<ExtArgs>
+  }
+
+  export type $RosterAssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RosterAssignment"
+    objects: {
+      staff: Prisma.$StaffPayload<ExtArgs>
+      shiftType: Prisma.$ShiftTypePayload<ExtArgs> | null
+      tasks: Prisma.$RosterAssignmentTaskPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      staffId: string
+      shiftTypeId: string | null
+      startTime: string | null
+      endTime: string | null
+      date: Date
+      notes: string | null
+      assignedBy: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["rosterAssignment"]>
+    composites: {}
+  }
+
+  type RosterAssignmentGetPayload<S extends boolean | null | undefined | RosterAssignmentDefaultArgs> = $Result.GetResult<Prisma.$RosterAssignmentPayload, S>
+
+  type RosterAssignmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RosterAssignmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RosterAssignmentCountAggregateInputType | true
+    }
+
+  export interface RosterAssignmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RosterAssignment'], meta: { name: 'RosterAssignment' } }
+    /**
+     * Find zero or one RosterAssignment that matches the filter.
+     * @param {RosterAssignmentFindUniqueArgs} args - Arguments to find a RosterAssignment
+     * @example
+     * // Get one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends RosterAssignmentFindUniqueArgs>(args: SelectSubset<T, RosterAssignmentFindUniqueArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one RosterAssignment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {RosterAssignmentFindUniqueOrThrowArgs} args - Arguments to find a RosterAssignment
+     * @example
+     * // Get one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends RosterAssignmentFindUniqueOrThrowArgs>(args: SelectSubset<T, RosterAssignmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RosterAssignment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentFindFirstArgs} args - Arguments to find a RosterAssignment
+     * @example
+     * // Get one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends RosterAssignmentFindFirstArgs>(args?: SelectSubset<T, RosterAssignmentFindFirstArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RosterAssignment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentFindFirstOrThrowArgs} args - Arguments to find a RosterAssignment
+     * @example
+     * // Get one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends RosterAssignmentFindFirstOrThrowArgs>(args?: SelectSubset<T, RosterAssignmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more RosterAssignments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all RosterAssignments
+     * const rosterAssignments = await prisma.rosterAssignment.findMany()
+     * 
+     * // Get first 10 RosterAssignments
+     * const rosterAssignments = await prisma.rosterAssignment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const rosterAssignmentWithIdOnly = await prisma.rosterAssignment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends RosterAssignmentFindManyArgs>(args?: SelectSubset<T, RosterAssignmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a RosterAssignment.
+     * @param {RosterAssignmentCreateArgs} args - Arguments to create a RosterAssignment.
+     * @example
+     * // Create one RosterAssignment
+     * const RosterAssignment = await prisma.rosterAssignment.create({
+     *   data: {
+     *     // ... data to create a RosterAssignment
+     *   }
+     * })
+     * 
+     */
+    create<T extends RosterAssignmentCreateArgs>(args: SelectSubset<T, RosterAssignmentCreateArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many RosterAssignments.
+     * @param {RosterAssignmentCreateManyArgs} args - Arguments to create many RosterAssignments.
+     * @example
+     * // Create many RosterAssignments
+     * const rosterAssignment = await prisma.rosterAssignment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends RosterAssignmentCreateManyArgs>(args?: SelectSubset<T, RosterAssignmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many RosterAssignments and returns the data saved in the database.
+     * @param {RosterAssignmentCreateManyAndReturnArgs} args - Arguments to create many RosterAssignments.
+     * @example
+     * // Create many RosterAssignments
+     * const rosterAssignment = await prisma.rosterAssignment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many RosterAssignments and only return the `id`
+     * const rosterAssignmentWithIdOnly = await prisma.rosterAssignment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends RosterAssignmentCreateManyAndReturnArgs>(args?: SelectSubset<T, RosterAssignmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a RosterAssignment.
+     * @param {RosterAssignmentDeleteArgs} args - Arguments to delete one RosterAssignment.
+     * @example
+     * // Delete one RosterAssignment
+     * const RosterAssignment = await prisma.rosterAssignment.delete({
+     *   where: {
+     *     // ... filter to delete one RosterAssignment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends RosterAssignmentDeleteArgs>(args: SelectSubset<T, RosterAssignmentDeleteArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one RosterAssignment.
+     * @param {RosterAssignmentUpdateArgs} args - Arguments to update one RosterAssignment.
+     * @example
+     * // Update one RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends RosterAssignmentUpdateArgs>(args: SelectSubset<T, RosterAssignmentUpdateArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more RosterAssignments.
+     * @param {RosterAssignmentDeleteManyArgs} args - Arguments to filter RosterAssignments to delete.
+     * @example
+     * // Delete a few RosterAssignments
+     * const { count } = await prisma.rosterAssignment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends RosterAssignmentDeleteManyArgs>(args?: SelectSubset<T, RosterAssignmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RosterAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many RosterAssignments
+     * const rosterAssignment = await prisma.rosterAssignment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends RosterAssignmentUpdateManyArgs>(args: SelectSubset<T, RosterAssignmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RosterAssignments and returns the data updated in the database.
+     * @param {RosterAssignmentUpdateManyAndReturnArgs} args - Arguments to update many RosterAssignments.
+     * @example
+     * // Update many RosterAssignments
+     * const rosterAssignment = await prisma.rosterAssignment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more RosterAssignments and only return the `id`
+     * const rosterAssignmentWithIdOnly = await prisma.rosterAssignment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends RosterAssignmentUpdateManyAndReturnArgs>(args: SelectSubset<T, RosterAssignmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one RosterAssignment.
+     * @param {RosterAssignmentUpsertArgs} args - Arguments to update or create a RosterAssignment.
+     * @example
+     * // Update or create a RosterAssignment
+     * const rosterAssignment = await prisma.rosterAssignment.upsert({
+     *   create: {
+     *     // ... data to create a RosterAssignment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the RosterAssignment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends RosterAssignmentUpsertArgs>(args: SelectSubset<T, RosterAssignmentUpsertArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of RosterAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentCountArgs} args - Arguments to filter RosterAssignments to count.
+     * @example
+     * // Count the number of RosterAssignments
+     * const count = await prisma.rosterAssignment.count({
+     *   where: {
+     *     // ... the filter for the RosterAssignments we want to count
+     *   }
+     * })
+    **/
+    count<T extends RosterAssignmentCountArgs>(
+      args?: Subset<T, RosterAssignmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], RosterAssignmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a RosterAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends RosterAssignmentAggregateArgs>(args: Subset<T, RosterAssignmentAggregateArgs>): Prisma.PrismaPromise<GetRosterAssignmentAggregateType<T>>
+
+    /**
+     * Group by RosterAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends RosterAssignmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: RosterAssignmentGroupByArgs['orderBy'] }
+        : { orderBy?: RosterAssignmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, RosterAssignmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRosterAssignmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the RosterAssignment model
+   */
+  readonly fields: RosterAssignmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for RosterAssignment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__RosterAssignmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    staff<T extends StaffDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StaffDefaultArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    shiftType<T extends RosterAssignment$shiftTypeArgs<ExtArgs> = {}>(args?: Subset<T, RosterAssignment$shiftTypeArgs<ExtArgs>>): Prisma__ShiftTypeClient<$Result.GetResult<Prisma.$ShiftTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    tasks<T extends RosterAssignment$tasksArgs<ExtArgs> = {}>(args?: Subset<T, RosterAssignment$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the RosterAssignment model
+   */
+  interface RosterAssignmentFieldRefs {
+    readonly id: FieldRef<"RosterAssignment", 'String'>
+    readonly staffId: FieldRef<"RosterAssignment", 'String'>
+    readonly shiftTypeId: FieldRef<"RosterAssignment", 'String'>
+    readonly startTime: FieldRef<"RosterAssignment", 'String'>
+    readonly endTime: FieldRef<"RosterAssignment", 'String'>
+    readonly date: FieldRef<"RosterAssignment", 'DateTime'>
+    readonly notes: FieldRef<"RosterAssignment", 'String'>
+    readonly assignedBy: FieldRef<"RosterAssignment", 'String'>
+    readonly createdAt: FieldRef<"RosterAssignment", 'DateTime'>
+    readonly updatedAt: FieldRef<"RosterAssignment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * RosterAssignment findUnique
+   */
+  export type RosterAssignmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignment to fetch.
+     */
+    where: RosterAssignmentWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignment findUniqueOrThrow
+   */
+  export type RosterAssignmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignment to fetch.
+     */
+    where: RosterAssignmentWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignment findFirst
+   */
+  export type RosterAssignmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignment to fetch.
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignments to fetch.
+     */
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RosterAssignments.
+     */
+    cursor?: RosterAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RosterAssignments.
+     */
+    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignment findFirstOrThrow
+   */
+  export type RosterAssignmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignment to fetch.
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignments to fetch.
+     */
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RosterAssignments.
+     */
+    cursor?: RosterAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RosterAssignments.
+     */
+    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignment findMany
+   */
+  export type RosterAssignmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignments to fetch.
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignments to fetch.
+     */
+    orderBy?: RosterAssignmentOrderByWithRelationInput | RosterAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing RosterAssignments.
+     */
+    cursor?: RosterAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignments.
+     */
+    skip?: number
+    distinct?: RosterAssignmentScalarFieldEnum | RosterAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignment create
+   */
+  export type RosterAssignmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a RosterAssignment.
+     */
+    data: XOR<RosterAssignmentCreateInput, RosterAssignmentUncheckedCreateInput>
+  }
+
+  /**
+   * RosterAssignment createMany
+   */
+  export type RosterAssignmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many RosterAssignments.
+     */
+    data: RosterAssignmentCreateManyInput | RosterAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * RosterAssignment createManyAndReturn
+   */
+  export type RosterAssignmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many RosterAssignments.
+     */
+    data: RosterAssignmentCreateManyInput | RosterAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * RosterAssignment update
+   */
+  export type RosterAssignmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a RosterAssignment.
+     */
+    data: XOR<RosterAssignmentUpdateInput, RosterAssignmentUncheckedUpdateInput>
+    /**
+     * Choose, which RosterAssignment to update.
+     */
+    where: RosterAssignmentWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignment updateMany
+   */
+  export type RosterAssignmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update RosterAssignments.
+     */
+    data: XOR<RosterAssignmentUpdateManyMutationInput, RosterAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which RosterAssignments to update
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * Limit how many RosterAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * RosterAssignment updateManyAndReturn
+   */
+  export type RosterAssignmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to update RosterAssignments.
+     */
+    data: XOR<RosterAssignmentUpdateManyMutationInput, RosterAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which RosterAssignments to update
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * Limit how many RosterAssignments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * RosterAssignment upsert
+   */
+  export type RosterAssignmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the RosterAssignment to update in case it exists.
+     */
+    where: RosterAssignmentWhereUniqueInput
+    /**
+     * In case the RosterAssignment found by the `where` argument doesn't exist, create a new RosterAssignment with this data.
+     */
+    create: XOR<RosterAssignmentCreateInput, RosterAssignmentUncheckedCreateInput>
+    /**
+     * In case the RosterAssignment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<RosterAssignmentUpdateInput, RosterAssignmentUncheckedUpdateInput>
+  }
+
+  /**
+   * RosterAssignment delete
+   */
+  export type RosterAssignmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter which RosterAssignment to delete.
+     */
+    where: RosterAssignmentWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignment deleteMany
+   */
+  export type RosterAssignmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RosterAssignments to delete
+     */
+    where?: RosterAssignmentWhereInput
+    /**
+     * Limit how many RosterAssignments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * RosterAssignment.shiftType
+   */
+  export type RosterAssignment$shiftTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ShiftType
+     */
+    select?: ShiftTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ShiftType
+     */
+    omit?: ShiftTypeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftTypeInclude<ExtArgs> | null
+    where?: ShiftTypeWhereInput
+  }
+
+  /**
+   * RosterAssignment.tasks
+   */
+  export type RosterAssignment$tasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    where?: RosterAssignmentTaskWhereInput
+    orderBy?: RosterAssignmentTaskOrderByWithRelationInput | RosterAssignmentTaskOrderByWithRelationInput[]
+    cursor?: RosterAssignmentTaskWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: RosterAssignmentTaskScalarFieldEnum | RosterAssignmentTaskScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignment without action
+   */
+  export type RosterAssignmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignment
+     */
+    select?: RosterAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignment
+     */
+    omit?: RosterAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model RosterAssignmentTask
+   */
+
+  export type AggregateRosterAssignmentTask = {
+    _count: RosterAssignmentTaskCountAggregateOutputType | null
+    _min: RosterAssignmentTaskMinAggregateOutputType | null
+    _max: RosterAssignmentTaskMaxAggregateOutputType | null
+  }
+
+  export type RosterAssignmentTaskMinAggregateOutputType = {
+    id: string | null
+    rosterAssignmentId: string | null
+    title: string | null
+    description: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RosterAssignmentTaskMaxAggregateOutputType = {
+    id: string | null
+    rosterAssignmentId: string | null
+    title: string | null
+    description: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RosterAssignmentTaskCountAggregateOutputType = {
+    id: number
+    rosterAssignmentId: number
+    title: number
+    description: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type RosterAssignmentTaskMinAggregateInputType = {
+    id?: true
+    rosterAssignmentId?: true
+    title?: true
+    description?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RosterAssignmentTaskMaxAggregateInputType = {
+    id?: true
+    rosterAssignmentId?: true
+    title?: true
+    description?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RosterAssignmentTaskCountAggregateInputType = {
+    id?: true
+    rosterAssignmentId?: true
+    title?: true
+    description?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type RosterAssignmentTaskAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RosterAssignmentTask to aggregate.
+     */
+    where?: RosterAssignmentTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignmentTasks to fetch.
+     */
+    orderBy?: RosterAssignmentTaskOrderByWithRelationInput | RosterAssignmentTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: RosterAssignmentTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignmentTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignmentTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned RosterAssignmentTasks
+    **/
+    _count?: true | RosterAssignmentTaskCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: RosterAssignmentTaskMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: RosterAssignmentTaskMaxAggregateInputType
+  }
+
+  export type GetRosterAssignmentTaskAggregateType<T extends RosterAssignmentTaskAggregateArgs> = {
+        [P in keyof T & keyof AggregateRosterAssignmentTask]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRosterAssignmentTask[P]>
+      : GetScalarType<T[P], AggregateRosterAssignmentTask[P]>
+  }
+
+
+
+
+  export type RosterAssignmentTaskGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RosterAssignmentTaskWhereInput
+    orderBy?: RosterAssignmentTaskOrderByWithAggregationInput | RosterAssignmentTaskOrderByWithAggregationInput[]
+    by: RosterAssignmentTaskScalarFieldEnum[] | RosterAssignmentTaskScalarFieldEnum
+    having?: RosterAssignmentTaskScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: RosterAssignmentTaskCountAggregateInputType | true
+    _min?: RosterAssignmentTaskMinAggregateInputType
+    _max?: RosterAssignmentTaskMaxAggregateInputType
+  }
+
+  export type RosterAssignmentTaskGroupByOutputType = {
+    id: string
+    rosterAssignmentId: string
+    title: string
+    description: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: RosterAssignmentTaskCountAggregateOutputType | null
+    _min: RosterAssignmentTaskMinAggregateOutputType | null
+    _max: RosterAssignmentTaskMaxAggregateOutputType | null
+  }
+
+  type GetRosterAssignmentTaskGroupByPayload<T extends RosterAssignmentTaskGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<RosterAssignmentTaskGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof RosterAssignmentTaskGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], RosterAssignmentTaskGroupByOutputType[P]>
+            : GetScalarType<T[P], RosterAssignmentTaskGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type RosterAssignmentTaskSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    rosterAssignmentId?: boolean
+    title?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    rosterAssignment?: boolean | RosterAssignmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["rosterAssignmentTask"]>
+
+  export type RosterAssignmentTaskSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    rosterAssignmentId?: boolean
+    title?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    rosterAssignment?: boolean | RosterAssignmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["rosterAssignmentTask"]>
+
+  export type RosterAssignmentTaskSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    rosterAssignmentId?: boolean
+    title?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    rosterAssignment?: boolean | RosterAssignmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["rosterAssignmentTask"]>
+
+  export type RosterAssignmentTaskSelectScalar = {
+    id?: boolean
+    rosterAssignmentId?: boolean
+    title?: boolean
+    description?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type RosterAssignmentTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "rosterAssignmentId" | "title" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["rosterAssignmentTask"]>
+  export type RosterAssignmentTaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rosterAssignment?: boolean | RosterAssignmentDefaultArgs<ExtArgs>
+  }
+  export type RosterAssignmentTaskIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rosterAssignment?: boolean | RosterAssignmentDefaultArgs<ExtArgs>
+  }
+  export type RosterAssignmentTaskIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rosterAssignment?: boolean | RosterAssignmentDefaultArgs<ExtArgs>
+  }
+
+  export type $RosterAssignmentTaskPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RosterAssignmentTask"
+    objects: {
+      rosterAssignment: Prisma.$RosterAssignmentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      rosterAssignmentId: string
+      title: string
+      description: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["rosterAssignmentTask"]>
+    composites: {}
+  }
+
+  type RosterAssignmentTaskGetPayload<S extends boolean | null | undefined | RosterAssignmentTaskDefaultArgs> = $Result.GetResult<Prisma.$RosterAssignmentTaskPayload, S>
+
+  type RosterAssignmentTaskCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RosterAssignmentTaskFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RosterAssignmentTaskCountAggregateInputType | true
+    }
+
+  export interface RosterAssignmentTaskDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RosterAssignmentTask'], meta: { name: 'RosterAssignmentTask' } }
+    /**
+     * Find zero or one RosterAssignmentTask that matches the filter.
+     * @param {RosterAssignmentTaskFindUniqueArgs} args - Arguments to find a RosterAssignmentTask
+     * @example
+     * // Get one RosterAssignmentTask
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends RosterAssignmentTaskFindUniqueArgs>(args: SelectSubset<T, RosterAssignmentTaskFindUniqueArgs<ExtArgs>>): Prisma__RosterAssignmentTaskClient<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one RosterAssignmentTask that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {RosterAssignmentTaskFindUniqueOrThrowArgs} args - Arguments to find a RosterAssignmentTask
+     * @example
+     * // Get one RosterAssignmentTask
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends RosterAssignmentTaskFindUniqueOrThrowArgs>(args: SelectSubset<T, RosterAssignmentTaskFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RosterAssignmentTaskClient<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RosterAssignmentTask that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentTaskFindFirstArgs} args - Arguments to find a RosterAssignmentTask
+     * @example
+     * // Get one RosterAssignmentTask
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends RosterAssignmentTaskFindFirstArgs>(args?: SelectSubset<T, RosterAssignmentTaskFindFirstArgs<ExtArgs>>): Prisma__RosterAssignmentTaskClient<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RosterAssignmentTask that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentTaskFindFirstOrThrowArgs} args - Arguments to find a RosterAssignmentTask
+     * @example
+     * // Get one RosterAssignmentTask
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends RosterAssignmentTaskFindFirstOrThrowArgs>(args?: SelectSubset<T, RosterAssignmentTaskFindFirstOrThrowArgs<ExtArgs>>): Prisma__RosterAssignmentTaskClient<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more RosterAssignmentTasks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentTaskFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all RosterAssignmentTasks
+     * const rosterAssignmentTasks = await prisma.rosterAssignmentTask.findMany()
+     * 
+     * // Get first 10 RosterAssignmentTasks
+     * const rosterAssignmentTasks = await prisma.rosterAssignmentTask.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const rosterAssignmentTaskWithIdOnly = await prisma.rosterAssignmentTask.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends RosterAssignmentTaskFindManyArgs>(args?: SelectSubset<T, RosterAssignmentTaskFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a RosterAssignmentTask.
+     * @param {RosterAssignmentTaskCreateArgs} args - Arguments to create a RosterAssignmentTask.
+     * @example
+     * // Create one RosterAssignmentTask
+     * const RosterAssignmentTask = await prisma.rosterAssignmentTask.create({
+     *   data: {
+     *     // ... data to create a RosterAssignmentTask
+     *   }
+     * })
+     * 
+     */
+    create<T extends RosterAssignmentTaskCreateArgs>(args: SelectSubset<T, RosterAssignmentTaskCreateArgs<ExtArgs>>): Prisma__RosterAssignmentTaskClient<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many RosterAssignmentTasks.
+     * @param {RosterAssignmentTaskCreateManyArgs} args - Arguments to create many RosterAssignmentTasks.
+     * @example
+     * // Create many RosterAssignmentTasks
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends RosterAssignmentTaskCreateManyArgs>(args?: SelectSubset<T, RosterAssignmentTaskCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many RosterAssignmentTasks and returns the data saved in the database.
+     * @param {RosterAssignmentTaskCreateManyAndReturnArgs} args - Arguments to create many RosterAssignmentTasks.
+     * @example
+     * // Create many RosterAssignmentTasks
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many RosterAssignmentTasks and only return the `id`
+     * const rosterAssignmentTaskWithIdOnly = await prisma.rosterAssignmentTask.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends RosterAssignmentTaskCreateManyAndReturnArgs>(args?: SelectSubset<T, RosterAssignmentTaskCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a RosterAssignmentTask.
+     * @param {RosterAssignmentTaskDeleteArgs} args - Arguments to delete one RosterAssignmentTask.
+     * @example
+     * // Delete one RosterAssignmentTask
+     * const RosterAssignmentTask = await prisma.rosterAssignmentTask.delete({
+     *   where: {
+     *     // ... filter to delete one RosterAssignmentTask
+     *   }
+     * })
+     * 
+     */
+    delete<T extends RosterAssignmentTaskDeleteArgs>(args: SelectSubset<T, RosterAssignmentTaskDeleteArgs<ExtArgs>>): Prisma__RosterAssignmentTaskClient<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one RosterAssignmentTask.
+     * @param {RosterAssignmentTaskUpdateArgs} args - Arguments to update one RosterAssignmentTask.
+     * @example
+     * // Update one RosterAssignmentTask
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends RosterAssignmentTaskUpdateArgs>(args: SelectSubset<T, RosterAssignmentTaskUpdateArgs<ExtArgs>>): Prisma__RosterAssignmentTaskClient<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more RosterAssignmentTasks.
+     * @param {RosterAssignmentTaskDeleteManyArgs} args - Arguments to filter RosterAssignmentTasks to delete.
+     * @example
+     * // Delete a few RosterAssignmentTasks
+     * const { count } = await prisma.rosterAssignmentTask.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends RosterAssignmentTaskDeleteManyArgs>(args?: SelectSubset<T, RosterAssignmentTaskDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RosterAssignmentTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentTaskUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many RosterAssignmentTasks
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends RosterAssignmentTaskUpdateManyArgs>(args: SelectSubset<T, RosterAssignmentTaskUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RosterAssignmentTasks and returns the data updated in the database.
+     * @param {RosterAssignmentTaskUpdateManyAndReturnArgs} args - Arguments to update many RosterAssignmentTasks.
+     * @example
+     * // Update many RosterAssignmentTasks
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more RosterAssignmentTasks and only return the `id`
+     * const rosterAssignmentTaskWithIdOnly = await prisma.rosterAssignmentTask.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends RosterAssignmentTaskUpdateManyAndReturnArgs>(args: SelectSubset<T, RosterAssignmentTaskUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one RosterAssignmentTask.
+     * @param {RosterAssignmentTaskUpsertArgs} args - Arguments to update or create a RosterAssignmentTask.
+     * @example
+     * // Update or create a RosterAssignmentTask
+     * const rosterAssignmentTask = await prisma.rosterAssignmentTask.upsert({
+     *   create: {
+     *     // ... data to create a RosterAssignmentTask
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the RosterAssignmentTask we want to update
+     *   }
+     * })
+     */
+    upsert<T extends RosterAssignmentTaskUpsertArgs>(args: SelectSubset<T, RosterAssignmentTaskUpsertArgs<ExtArgs>>): Prisma__RosterAssignmentTaskClient<$Result.GetResult<Prisma.$RosterAssignmentTaskPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of RosterAssignmentTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentTaskCountArgs} args - Arguments to filter RosterAssignmentTasks to count.
+     * @example
+     * // Count the number of RosterAssignmentTasks
+     * const count = await prisma.rosterAssignmentTask.count({
+     *   where: {
+     *     // ... the filter for the RosterAssignmentTasks we want to count
+     *   }
+     * })
+    **/
+    count<T extends RosterAssignmentTaskCountArgs>(
+      args?: Subset<T, RosterAssignmentTaskCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], RosterAssignmentTaskCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a RosterAssignmentTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentTaskAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends RosterAssignmentTaskAggregateArgs>(args: Subset<T, RosterAssignmentTaskAggregateArgs>): Prisma.PrismaPromise<GetRosterAssignmentTaskAggregateType<T>>
+
+    /**
+     * Group by RosterAssignmentTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAssignmentTaskGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends RosterAssignmentTaskGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: RosterAssignmentTaskGroupByArgs['orderBy'] }
+        : { orderBy?: RosterAssignmentTaskGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, RosterAssignmentTaskGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRosterAssignmentTaskGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the RosterAssignmentTask model
+   */
+  readonly fields: RosterAssignmentTaskFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for RosterAssignmentTask.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__RosterAssignmentTaskClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    rosterAssignment<T extends RosterAssignmentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RosterAssignmentDefaultArgs<ExtArgs>>): Prisma__RosterAssignmentClient<$Result.GetResult<Prisma.$RosterAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the RosterAssignmentTask model
+   */
+  interface RosterAssignmentTaskFieldRefs {
+    readonly id: FieldRef<"RosterAssignmentTask", 'String'>
+    readonly rosterAssignmentId: FieldRef<"RosterAssignmentTask", 'String'>
+    readonly title: FieldRef<"RosterAssignmentTask", 'String'>
+    readonly description: FieldRef<"RosterAssignmentTask", 'String'>
+    readonly createdAt: FieldRef<"RosterAssignmentTask", 'DateTime'>
+    readonly updatedAt: FieldRef<"RosterAssignmentTask", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * RosterAssignmentTask findUnique
+   */
+  export type RosterAssignmentTaskFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignmentTask to fetch.
+     */
+    where: RosterAssignmentTaskWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignmentTask findUniqueOrThrow
+   */
+  export type RosterAssignmentTaskFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignmentTask to fetch.
+     */
+    where: RosterAssignmentTaskWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignmentTask findFirst
+   */
+  export type RosterAssignmentTaskFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignmentTask to fetch.
+     */
+    where?: RosterAssignmentTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignmentTasks to fetch.
+     */
+    orderBy?: RosterAssignmentTaskOrderByWithRelationInput | RosterAssignmentTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RosterAssignmentTasks.
+     */
+    cursor?: RosterAssignmentTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignmentTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignmentTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RosterAssignmentTasks.
+     */
+    distinct?: RosterAssignmentTaskScalarFieldEnum | RosterAssignmentTaskScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignmentTask findFirstOrThrow
+   */
+  export type RosterAssignmentTaskFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignmentTask to fetch.
+     */
+    where?: RosterAssignmentTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignmentTasks to fetch.
+     */
+    orderBy?: RosterAssignmentTaskOrderByWithRelationInput | RosterAssignmentTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RosterAssignmentTasks.
+     */
+    cursor?: RosterAssignmentTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignmentTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignmentTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RosterAssignmentTasks.
+     */
+    distinct?: RosterAssignmentTaskScalarFieldEnum | RosterAssignmentTaskScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignmentTask findMany
+   */
+  export type RosterAssignmentTaskFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which RosterAssignmentTasks to fetch.
+     */
+    where?: RosterAssignmentTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAssignmentTasks to fetch.
+     */
+    orderBy?: RosterAssignmentTaskOrderByWithRelationInput | RosterAssignmentTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing RosterAssignmentTasks.
+     */
+    cursor?: RosterAssignmentTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAssignmentTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAssignmentTasks.
+     */
+    skip?: number
+    distinct?: RosterAssignmentTaskScalarFieldEnum | RosterAssignmentTaskScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAssignmentTask create
+   */
+  export type RosterAssignmentTaskCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to create a RosterAssignmentTask.
+     */
+    data: XOR<RosterAssignmentTaskCreateInput, RosterAssignmentTaskUncheckedCreateInput>
+  }
+
+  /**
+   * RosterAssignmentTask createMany
+   */
+  export type RosterAssignmentTaskCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many RosterAssignmentTasks.
+     */
+    data: RosterAssignmentTaskCreateManyInput | RosterAssignmentTaskCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * RosterAssignmentTask createManyAndReturn
+   */
+  export type RosterAssignmentTaskCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * The data used to create many RosterAssignmentTasks.
+     */
+    data: RosterAssignmentTaskCreateManyInput | RosterAssignmentTaskCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * RosterAssignmentTask update
+   */
+  export type RosterAssignmentTaskUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to update a RosterAssignmentTask.
+     */
+    data: XOR<RosterAssignmentTaskUpdateInput, RosterAssignmentTaskUncheckedUpdateInput>
+    /**
+     * Choose, which RosterAssignmentTask to update.
+     */
+    where: RosterAssignmentTaskWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignmentTask updateMany
+   */
+  export type RosterAssignmentTaskUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update RosterAssignmentTasks.
+     */
+    data: XOR<RosterAssignmentTaskUpdateManyMutationInput, RosterAssignmentTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which RosterAssignmentTasks to update
+     */
+    where?: RosterAssignmentTaskWhereInput
+    /**
+     * Limit how many RosterAssignmentTasks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * RosterAssignmentTask updateManyAndReturn
+   */
+  export type RosterAssignmentTaskUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * The data used to update RosterAssignmentTasks.
+     */
+    data: XOR<RosterAssignmentTaskUpdateManyMutationInput, RosterAssignmentTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which RosterAssignmentTasks to update
+     */
+    where?: RosterAssignmentTaskWhereInput
+    /**
+     * Limit how many RosterAssignmentTasks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * RosterAssignmentTask upsert
+   */
+  export type RosterAssignmentTaskUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    /**
+     * The filter to search for the RosterAssignmentTask to update in case it exists.
+     */
+    where: RosterAssignmentTaskWhereUniqueInput
+    /**
+     * In case the RosterAssignmentTask found by the `where` argument doesn't exist, create a new RosterAssignmentTask with this data.
+     */
+    create: XOR<RosterAssignmentTaskCreateInput, RosterAssignmentTaskUncheckedCreateInput>
+    /**
+     * In case the RosterAssignmentTask was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<RosterAssignmentTaskUpdateInput, RosterAssignmentTaskUncheckedUpdateInput>
+  }
+
+  /**
+   * RosterAssignmentTask delete
+   */
+  export type RosterAssignmentTaskDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
+    /**
+     * Filter which RosterAssignmentTask to delete.
+     */
+    where: RosterAssignmentTaskWhereUniqueInput
+  }
+
+  /**
+   * RosterAssignmentTask deleteMany
+   */
+  export type RosterAssignmentTaskDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RosterAssignmentTasks to delete
+     */
+    where?: RosterAssignmentTaskWhereInput
+    /**
+     * Limit how many RosterAssignmentTasks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * RosterAssignmentTask without action
+   */
+  export type RosterAssignmentTaskDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAssignmentTask
+     */
+    select?: RosterAssignmentTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAssignmentTask
+     */
+    omit?: RosterAssignmentTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RosterAssignmentTaskInclude<ExtArgs> | null
   }
 
 
@@ -23905,6 +27681,20 @@ export namespace Prisma {
   export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
 
 
+  export const ComponentImageScalarFieldEnum: {
+    id: 'id',
+    componentId: 'componentId',
+    publicId: 'publicId',
+    url: 'url',
+    alt: 'alt',
+    position: 'position',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ComponentImageScalarFieldEnum = (typeof ComponentImageScalarFieldEnum)[keyof typeof ComponentImageScalarFieldEnum]
+
+
   export const ProductScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -24038,6 +27828,37 @@ export namespace Prisma {
   export type ShiftTypeScalarFieldEnum = (typeof ShiftTypeScalarFieldEnum)[keyof typeof ShiftTypeScalarFieldEnum]
 
 
+  export const ShiftScalarFieldEnum: {
+    id: 'id',
+    staffId: 'staffId',
+    clockIn: 'clockIn',
+    clockOut: 'clockOut',
+    totalHours: 'totalHours',
+    date: 'date',
+    mileage: 'mileage',
+    notes: 'notes',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof ShiftScalarFieldEnum]
+
+
+  export const ShiftTaskScalarFieldEnum: {
+    id: 'id',
+    shiftId: 'shiftId',
+    title: 'title',
+    description: 'description',
+    isCompleted: 'isCompleted',
+    completedAt: 'completedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ShiftTaskScalarFieldEnum = (typeof ShiftTaskScalarFieldEnum)[keyof typeof ShiftTaskScalarFieldEnum]
+
+
   export const RosterAssignmentScalarFieldEnum: {
     id: 'id',
     staffId: 'staffId',
@@ -24054,21 +27875,16 @@ export namespace Prisma {
   export type RosterAssignmentScalarFieldEnum = (typeof RosterAssignmentScalarFieldEnum)[keyof typeof RosterAssignmentScalarFieldEnum]
 
 
-  export const ShiftScalarFieldEnum: {
+  export const RosterAssignmentTaskScalarFieldEnum: {
     id: 'id',
-    staffId: 'staffId',
-    clockIn: 'clockIn',
-    clockOut: 'clockOut',
-    totalHours: 'totalHours',
-    date: 'date',
-    mileage: 'mileage',
-    notes: 'notes',
-    status: 'status',
+    rosterAssignmentId: 'rosterAssignmentId',
+    title: 'title',
+    description: 'description',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
-  export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof ShiftScalarFieldEnum]
+  export type RosterAssignmentTaskScalarFieldEnum = (typeof RosterAssignmentTaskScalarFieldEnum)[keyof typeof RosterAssignmentTaskScalarFieldEnum]
 
 
   export const ReimbursementScalarFieldEnum: {
@@ -24654,6 +28470,7 @@ export namespace Prisma {
     isComponentListItem?: BoolFilter<"Component"> | boolean
     createdAt?: DateTimeFilter<"Component"> | Date | string
     updatedAt?: DateTimeFilter<"Component"> | Date | string
+    images?: ComponentImageListRelationFilter
   }
 
   export type ComponentOrderByWithRelationInput = {
@@ -24675,6 +28492,7 @@ export namespace Prisma {
     isComponentListItem?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    images?: ComponentImageOrderByRelationAggregateInput
   }
 
   export type ComponentWhereUniqueInput = Prisma.AtLeast<{
@@ -24699,6 +28517,7 @@ export namespace Prisma {
     isComponentListItem?: BoolFilter<"Component"> | boolean
     createdAt?: DateTimeFilter<"Component"> | Date | string
     updatedAt?: DateTimeFilter<"Component"> | Date | string
+    images?: ComponentImageListRelationFilter
   }, "id" | "name">
 
   export type ComponentOrderByWithAggregationInput = {
@@ -24749,6 +28568,78 @@ export namespace Prisma {
     isComponentListItem?: BoolWithAggregatesFilter<"Component"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Component"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Component"> | Date | string
+  }
+
+  export type ComponentImageWhereInput = {
+    AND?: ComponentImageWhereInput | ComponentImageWhereInput[]
+    OR?: ComponentImageWhereInput[]
+    NOT?: ComponentImageWhereInput | ComponentImageWhereInput[]
+    id?: StringFilter<"ComponentImage"> | string
+    componentId?: StringFilter<"ComponentImage"> | string
+    publicId?: StringFilter<"ComponentImage"> | string
+    url?: StringFilter<"ComponentImage"> | string
+    alt?: StringNullableFilter<"ComponentImage"> | string | null
+    position?: IntFilter<"ComponentImage"> | number
+    createdAt?: DateTimeFilter<"ComponentImage"> | Date | string
+    updatedAt?: DateTimeFilter<"ComponentImage"> | Date | string
+    component?: XOR<ComponentScalarRelationFilter, ComponentWhereInput>
+  }
+
+  export type ComponentImageOrderByWithRelationInput = {
+    id?: SortOrder
+    componentId?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    alt?: SortOrderInput | SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    component?: ComponentOrderByWithRelationInput
+  }
+
+  export type ComponentImageWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ComponentImageWhereInput | ComponentImageWhereInput[]
+    OR?: ComponentImageWhereInput[]
+    NOT?: ComponentImageWhereInput | ComponentImageWhereInput[]
+    componentId?: StringFilter<"ComponentImage"> | string
+    publicId?: StringFilter<"ComponentImage"> | string
+    url?: StringFilter<"ComponentImage"> | string
+    alt?: StringNullableFilter<"ComponentImage"> | string | null
+    position?: IntFilter<"ComponentImage"> | number
+    createdAt?: DateTimeFilter<"ComponentImage"> | Date | string
+    updatedAt?: DateTimeFilter<"ComponentImage"> | Date | string
+    component?: XOR<ComponentScalarRelationFilter, ComponentWhereInput>
+  }, "id">
+
+  export type ComponentImageOrderByWithAggregationInput = {
+    id?: SortOrder
+    componentId?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    alt?: SortOrderInput | SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ComponentImageCountOrderByAggregateInput
+    _avg?: ComponentImageAvgOrderByAggregateInput
+    _max?: ComponentImageMaxOrderByAggregateInput
+    _min?: ComponentImageMinOrderByAggregateInput
+    _sum?: ComponentImageSumOrderByAggregateInput
+  }
+
+  export type ComponentImageScalarWhereWithAggregatesInput = {
+    AND?: ComponentImageScalarWhereWithAggregatesInput | ComponentImageScalarWhereWithAggregatesInput[]
+    OR?: ComponentImageScalarWhereWithAggregatesInput[]
+    NOT?: ComponentImageScalarWhereWithAggregatesInput | ComponentImageScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ComponentImage"> | string
+    componentId?: StringWithAggregatesFilter<"ComponentImage"> | string
+    publicId?: StringWithAggregatesFilter<"ComponentImage"> | string
+    url?: StringWithAggregatesFilter<"ComponentImage"> | string
+    alt?: StringNullableWithAggregatesFilter<"ComponentImage"> | string | null
+    position?: IntWithAggregatesFilter<"ComponentImage"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"ComponentImage"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ComponentImage"> | Date | string
   }
 
   export type ProductWhereInput = {
@@ -25417,89 +29308,6 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ShiftType"> | Date | string
   }
 
-  export type RosterAssignmentWhereInput = {
-    AND?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
-    OR?: RosterAssignmentWhereInput[]
-    NOT?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
-    id?: StringFilter<"RosterAssignment"> | string
-    staffId?: StringFilter<"RosterAssignment"> | string
-    shiftTypeId?: StringNullableFilter<"RosterAssignment"> | string | null
-    startTime?: StringNullableFilter<"RosterAssignment"> | string | null
-    endTime?: StringNullableFilter<"RosterAssignment"> | string | null
-    date?: DateTimeFilter<"RosterAssignment"> | Date | string
-    notes?: StringNullableFilter<"RosterAssignment"> | string | null
-    assignedBy?: StringFilter<"RosterAssignment"> | string
-    createdAt?: DateTimeFilter<"RosterAssignment"> | Date | string
-    updatedAt?: DateTimeFilter<"RosterAssignment"> | Date | string
-    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
-    shiftType?: XOR<ShiftTypeNullableScalarRelationFilter, ShiftTypeWhereInput> | null
-  }
-
-  export type RosterAssignmentOrderByWithRelationInput = {
-    id?: SortOrder
-    staffId?: SortOrder
-    shiftTypeId?: SortOrderInput | SortOrder
-    startTime?: SortOrderInput | SortOrder
-    endTime?: SortOrderInput | SortOrder
-    date?: SortOrder
-    notes?: SortOrderInput | SortOrder
-    assignedBy?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    staff?: StaffOrderByWithRelationInput
-    shiftType?: ShiftTypeOrderByWithRelationInput
-  }
-
-  export type RosterAssignmentWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
-    OR?: RosterAssignmentWhereInput[]
-    NOT?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
-    staffId?: StringFilter<"RosterAssignment"> | string
-    shiftTypeId?: StringNullableFilter<"RosterAssignment"> | string | null
-    startTime?: StringNullableFilter<"RosterAssignment"> | string | null
-    endTime?: StringNullableFilter<"RosterAssignment"> | string | null
-    date?: DateTimeFilter<"RosterAssignment"> | Date | string
-    notes?: StringNullableFilter<"RosterAssignment"> | string | null
-    assignedBy?: StringFilter<"RosterAssignment"> | string
-    createdAt?: DateTimeFilter<"RosterAssignment"> | Date | string
-    updatedAt?: DateTimeFilter<"RosterAssignment"> | Date | string
-    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
-    shiftType?: XOR<ShiftTypeNullableScalarRelationFilter, ShiftTypeWhereInput> | null
-  }, "id">
-
-  export type RosterAssignmentOrderByWithAggregationInput = {
-    id?: SortOrder
-    staffId?: SortOrder
-    shiftTypeId?: SortOrderInput | SortOrder
-    startTime?: SortOrderInput | SortOrder
-    endTime?: SortOrderInput | SortOrder
-    date?: SortOrder
-    notes?: SortOrderInput | SortOrder
-    assignedBy?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: RosterAssignmentCountOrderByAggregateInput
-    _max?: RosterAssignmentMaxOrderByAggregateInput
-    _min?: RosterAssignmentMinOrderByAggregateInput
-  }
-
-  export type RosterAssignmentScalarWhereWithAggregatesInput = {
-    AND?: RosterAssignmentScalarWhereWithAggregatesInput | RosterAssignmentScalarWhereWithAggregatesInput[]
-    OR?: RosterAssignmentScalarWhereWithAggregatesInput[]
-    NOT?: RosterAssignmentScalarWhereWithAggregatesInput | RosterAssignmentScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"RosterAssignment"> | string
-    staffId?: StringWithAggregatesFilter<"RosterAssignment"> | string
-    shiftTypeId?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
-    startTime?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
-    endTime?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
-    date?: DateTimeWithAggregatesFilter<"RosterAssignment"> | Date | string
-    notes?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
-    assignedBy?: StringWithAggregatesFilter<"RosterAssignment"> | string
-    createdAt?: DateTimeWithAggregatesFilter<"RosterAssignment"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"RosterAssignment"> | Date | string
-  }
-
   export type ShiftWhereInput = {
     AND?: ShiftWhereInput | ShiftWhereInput[]
     OR?: ShiftWhereInput[]
@@ -25517,6 +29325,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Shift"> | Date | string
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
     reimbursements?: ReimbursementListRelationFilter
+    tasks?: ShiftTaskListRelationFilter
   }
 
   export type ShiftOrderByWithRelationInput = {
@@ -25533,6 +29342,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     staff?: StaffOrderByWithRelationInput
     reimbursements?: ReimbursementOrderByRelationAggregateInput
+    tasks?: ShiftTaskOrderByRelationAggregateInput
   }
 
   export type ShiftWhereUniqueInput = Prisma.AtLeast<{
@@ -25552,6 +29362,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Shift"> | Date | string
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
     reimbursements?: ReimbursementListRelationFilter
+    tasks?: ShiftTaskListRelationFilter
   }, "id">
 
   export type ShiftOrderByWithAggregationInput = {
@@ -25588,6 +29399,222 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"Shift"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Shift"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Shift"> | Date | string
+  }
+
+  export type ShiftTaskWhereInput = {
+    AND?: ShiftTaskWhereInput | ShiftTaskWhereInput[]
+    OR?: ShiftTaskWhereInput[]
+    NOT?: ShiftTaskWhereInput | ShiftTaskWhereInput[]
+    id?: StringFilter<"ShiftTask"> | string
+    shiftId?: StringFilter<"ShiftTask"> | string
+    title?: StringFilter<"ShiftTask"> | string
+    description?: StringNullableFilter<"ShiftTask"> | string | null
+    isCompleted?: BoolFilter<"ShiftTask"> | boolean
+    completedAt?: DateTimeNullableFilter<"ShiftTask"> | Date | string | null
+    createdAt?: DateTimeFilter<"ShiftTask"> | Date | string
+    updatedAt?: DateTimeFilter<"ShiftTask"> | Date | string
+    shift?: XOR<ShiftScalarRelationFilter, ShiftWhereInput>
+  }
+
+  export type ShiftTaskOrderByWithRelationInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    isCompleted?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    shift?: ShiftOrderByWithRelationInput
+  }
+
+  export type ShiftTaskWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ShiftTaskWhereInput | ShiftTaskWhereInput[]
+    OR?: ShiftTaskWhereInput[]
+    NOT?: ShiftTaskWhereInput | ShiftTaskWhereInput[]
+    shiftId?: StringFilter<"ShiftTask"> | string
+    title?: StringFilter<"ShiftTask"> | string
+    description?: StringNullableFilter<"ShiftTask"> | string | null
+    isCompleted?: BoolFilter<"ShiftTask"> | boolean
+    completedAt?: DateTimeNullableFilter<"ShiftTask"> | Date | string | null
+    createdAt?: DateTimeFilter<"ShiftTask"> | Date | string
+    updatedAt?: DateTimeFilter<"ShiftTask"> | Date | string
+    shift?: XOR<ShiftScalarRelationFilter, ShiftWhereInput>
+  }, "id">
+
+  export type ShiftTaskOrderByWithAggregationInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    isCompleted?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ShiftTaskCountOrderByAggregateInput
+    _max?: ShiftTaskMaxOrderByAggregateInput
+    _min?: ShiftTaskMinOrderByAggregateInput
+  }
+
+  export type ShiftTaskScalarWhereWithAggregatesInput = {
+    AND?: ShiftTaskScalarWhereWithAggregatesInput | ShiftTaskScalarWhereWithAggregatesInput[]
+    OR?: ShiftTaskScalarWhereWithAggregatesInput[]
+    NOT?: ShiftTaskScalarWhereWithAggregatesInput | ShiftTaskScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ShiftTask"> | string
+    shiftId?: StringWithAggregatesFilter<"ShiftTask"> | string
+    title?: StringWithAggregatesFilter<"ShiftTask"> | string
+    description?: StringNullableWithAggregatesFilter<"ShiftTask"> | string | null
+    isCompleted?: BoolWithAggregatesFilter<"ShiftTask"> | boolean
+    completedAt?: DateTimeNullableWithAggregatesFilter<"ShiftTask"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ShiftTask"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ShiftTask"> | Date | string
+  }
+
+  export type RosterAssignmentWhereInput = {
+    AND?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
+    OR?: RosterAssignmentWhereInput[]
+    NOT?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
+    id?: StringFilter<"RosterAssignment"> | string
+    staffId?: StringFilter<"RosterAssignment"> | string
+    shiftTypeId?: StringNullableFilter<"RosterAssignment"> | string | null
+    startTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    endTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    date?: DateTimeFilter<"RosterAssignment"> | Date | string
+    notes?: StringNullableFilter<"RosterAssignment"> | string | null
+    assignedBy?: StringFilter<"RosterAssignment"> | string
+    createdAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+    shiftType?: XOR<ShiftTypeNullableScalarRelationFilter, ShiftTypeWhereInput> | null
+    tasks?: RosterAssignmentTaskListRelationFilter
+  }
+
+  export type RosterAssignmentOrderByWithRelationInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrderInput | SortOrder
+    startTime?: SortOrderInput | SortOrder
+    endTime?: SortOrderInput | SortOrder
+    date?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    staff?: StaffOrderByWithRelationInput
+    shiftType?: ShiftTypeOrderByWithRelationInput
+    tasks?: RosterAssignmentTaskOrderByRelationAggregateInput
+  }
+
+  export type RosterAssignmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
+    OR?: RosterAssignmentWhereInput[]
+    NOT?: RosterAssignmentWhereInput | RosterAssignmentWhereInput[]
+    staffId?: StringFilter<"RosterAssignment"> | string
+    shiftTypeId?: StringNullableFilter<"RosterAssignment"> | string | null
+    startTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    endTime?: StringNullableFilter<"RosterAssignment"> | string | null
+    date?: DateTimeFilter<"RosterAssignment"> | Date | string
+    notes?: StringNullableFilter<"RosterAssignment"> | string | null
+    assignedBy?: StringFilter<"RosterAssignment"> | string
+    createdAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAssignment"> | Date | string
+    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+    shiftType?: XOR<ShiftTypeNullableScalarRelationFilter, ShiftTypeWhereInput> | null
+    tasks?: RosterAssignmentTaskListRelationFilter
+  }, "id">
+
+  export type RosterAssignmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrderInput | SortOrder
+    startTime?: SortOrderInput | SortOrder
+    endTime?: SortOrderInput | SortOrder
+    date?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: RosterAssignmentCountOrderByAggregateInput
+    _max?: RosterAssignmentMaxOrderByAggregateInput
+    _min?: RosterAssignmentMinOrderByAggregateInput
+  }
+
+  export type RosterAssignmentScalarWhereWithAggregatesInput = {
+    AND?: RosterAssignmentScalarWhereWithAggregatesInput | RosterAssignmentScalarWhereWithAggregatesInput[]
+    OR?: RosterAssignmentScalarWhereWithAggregatesInput[]
+    NOT?: RosterAssignmentScalarWhereWithAggregatesInput | RosterAssignmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"RosterAssignment"> | string
+    staffId?: StringWithAggregatesFilter<"RosterAssignment"> | string
+    shiftTypeId?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
+    startTime?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
+    endTime?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
+    date?: DateTimeWithAggregatesFilter<"RosterAssignment"> | Date | string
+    notes?: StringNullableWithAggregatesFilter<"RosterAssignment"> | string | null
+    assignedBy?: StringWithAggregatesFilter<"RosterAssignment"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"RosterAssignment"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"RosterAssignment"> | Date | string
+  }
+
+  export type RosterAssignmentTaskWhereInput = {
+    AND?: RosterAssignmentTaskWhereInput | RosterAssignmentTaskWhereInput[]
+    OR?: RosterAssignmentTaskWhereInput[]
+    NOT?: RosterAssignmentTaskWhereInput | RosterAssignmentTaskWhereInput[]
+    id?: StringFilter<"RosterAssignmentTask"> | string
+    rosterAssignmentId?: StringFilter<"RosterAssignmentTask"> | string
+    title?: StringFilter<"RosterAssignmentTask"> | string
+    description?: StringNullableFilter<"RosterAssignmentTask"> | string | null
+    createdAt?: DateTimeFilter<"RosterAssignmentTask"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAssignmentTask"> | Date | string
+    rosterAssignment?: XOR<RosterAssignmentScalarRelationFilter, RosterAssignmentWhereInput>
+  }
+
+  export type RosterAssignmentTaskOrderByWithRelationInput = {
+    id?: SortOrder
+    rosterAssignmentId?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    rosterAssignment?: RosterAssignmentOrderByWithRelationInput
+  }
+
+  export type RosterAssignmentTaskWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: RosterAssignmentTaskWhereInput | RosterAssignmentTaskWhereInput[]
+    OR?: RosterAssignmentTaskWhereInput[]
+    NOT?: RosterAssignmentTaskWhereInput | RosterAssignmentTaskWhereInput[]
+    rosterAssignmentId?: StringFilter<"RosterAssignmentTask"> | string
+    title?: StringFilter<"RosterAssignmentTask"> | string
+    description?: StringNullableFilter<"RosterAssignmentTask"> | string | null
+    createdAt?: DateTimeFilter<"RosterAssignmentTask"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAssignmentTask"> | Date | string
+    rosterAssignment?: XOR<RosterAssignmentScalarRelationFilter, RosterAssignmentWhereInput>
+  }, "id">
+
+  export type RosterAssignmentTaskOrderByWithAggregationInput = {
+    id?: SortOrder
+    rosterAssignmentId?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: RosterAssignmentTaskCountOrderByAggregateInput
+    _max?: RosterAssignmentTaskMaxOrderByAggregateInput
+    _min?: RosterAssignmentTaskMinOrderByAggregateInput
+  }
+
+  export type RosterAssignmentTaskScalarWhereWithAggregatesInput = {
+    AND?: RosterAssignmentTaskScalarWhereWithAggregatesInput | RosterAssignmentTaskScalarWhereWithAggregatesInput[]
+    OR?: RosterAssignmentTaskScalarWhereWithAggregatesInput[]
+    NOT?: RosterAssignmentTaskScalarWhereWithAggregatesInput | RosterAssignmentTaskScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"RosterAssignmentTask"> | string
+    rosterAssignmentId?: StringWithAggregatesFilter<"RosterAssignmentTask"> | string
+    title?: StringWithAggregatesFilter<"RosterAssignmentTask"> | string
+    description?: StringNullableWithAggregatesFilter<"RosterAssignmentTask"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"RosterAssignmentTask"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"RosterAssignmentTask"> | Date | string
   }
 
   export type ReimbursementWhereInput = {
@@ -26535,6 +30562,7 @@ export namespace Prisma {
     isComponentListItem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    images?: ComponentImageCreateNestedManyWithoutComponentInput
   }
 
   export type ComponentUncheckedCreateInput = {
@@ -26556,6 +30584,7 @@ export namespace Prisma {
     isComponentListItem?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    images?: ComponentImageUncheckedCreateNestedManyWithoutComponentInput
   }
 
   export type ComponentUpdateInput = {
@@ -26577,6 +30606,7 @@ export namespace Prisma {
     isComponentListItem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    images?: ComponentImageUpdateManyWithoutComponentNestedInput
   }
 
   export type ComponentUncheckedUpdateInput = {
@@ -26598,6 +30628,7 @@ export namespace Prisma {
     isComponentListItem?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    images?: ComponentImageUncheckedUpdateManyWithoutComponentNestedInput
   }
 
   export type ComponentCreateManyInput = {
@@ -26659,6 +30690,82 @@ export namespace Prisma {
     isVegan?: BoolFieldUpdateOperationsInput | boolean
     isHalal?: BoolFieldUpdateOperationsInput | boolean
     isComponentListItem?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ComponentImageCreateInput = {
+    id?: string
+    publicId: string
+    url: string
+    alt?: string | null
+    position?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    component: ComponentCreateNestedOneWithoutImagesInput
+  }
+
+  export type ComponentImageUncheckedCreateInput = {
+    id?: string
+    componentId: string
+    publicId: string
+    url: string
+    alt?: string | null
+    position?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ComponentImageUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    alt?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    component?: ComponentUpdateOneRequiredWithoutImagesNestedInput
+  }
+
+  export type ComponentImageUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    componentId?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    alt?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ComponentImageCreateManyInput = {
+    id?: string
+    componentId: string
+    publicId: string
+    url: string
+    alt?: string | null
+    position?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ComponentImageUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    alt?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ComponentImageUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    componentId?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    alt?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -27480,95 +31587,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type RosterAssignmentCreateInput = {
-    id?: string
-    startTime?: string | null
-    endTime?: string | null
-    date: Date | string
-    notes?: string | null
-    assignedBy: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    staff: StaffCreateNestedOneWithoutRosterAssignmentsInput
-    shiftType?: ShiftTypeCreateNestedOneWithoutRosterAssignmentsInput
-  }
-
-  export type RosterAssignmentUncheckedCreateInput = {
-    id?: string
-    staffId: string
-    shiftTypeId?: string | null
-    startTime?: string | null
-    endTime?: string | null
-    date: Date | string
-    notes?: string | null
-    assignedBy: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type RosterAssignmentUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    startTime?: NullableStringFieldUpdateOperationsInput | string | null
-    endTime?: NullableStringFieldUpdateOperationsInput | string | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    staff?: StaffUpdateOneRequiredWithoutRosterAssignmentsNestedInput
-    shiftType?: ShiftTypeUpdateOneWithoutRosterAssignmentsNestedInput
-  }
-
-  export type RosterAssignmentUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    staffId?: StringFieldUpdateOperationsInput | string
-    shiftTypeId?: NullableStringFieldUpdateOperationsInput | string | null
-    startTime?: NullableStringFieldUpdateOperationsInput | string | null
-    endTime?: NullableStringFieldUpdateOperationsInput | string | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type RosterAssignmentCreateManyInput = {
-    id?: string
-    staffId: string
-    shiftTypeId?: string | null
-    startTime?: string | null
-    endTime?: string | null
-    date: Date | string
-    notes?: string | null
-    assignedBy: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type RosterAssignmentUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    startTime?: NullableStringFieldUpdateOperationsInput | string | null
-    endTime?: NullableStringFieldUpdateOperationsInput | string | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type RosterAssignmentUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    staffId?: StringFieldUpdateOperationsInput | string
-    shiftTypeId?: NullableStringFieldUpdateOperationsInput | string | null
-    startTime?: NullableStringFieldUpdateOperationsInput | string | null
-    endTime?: NullableStringFieldUpdateOperationsInput | string | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type ShiftCreateInput = {
     id?: string
     clockIn: Date | string
@@ -27582,6 +31600,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     staff: StaffCreateNestedOneWithoutShiftsInput
     reimbursements?: ReimbursementCreateNestedManyWithoutShiftInput
+    tasks?: ShiftTaskCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftUncheckedCreateInput = {
@@ -27597,6 +31616,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     reimbursements?: ReimbursementUncheckedCreateNestedManyWithoutShiftInput
+    tasks?: ShiftTaskUncheckedCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftUpdateInput = {
@@ -27612,6 +31632,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     staff?: StaffUpdateOneRequiredWithoutShiftsNestedInput
     reimbursements?: ReimbursementUpdateManyWithoutShiftNestedInput
+    tasks?: ShiftTaskUpdateManyWithoutShiftNestedInput
   }
 
   export type ShiftUncheckedUpdateInput = {
@@ -27627,6 +31648,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reimbursements?: ReimbursementUncheckedUpdateManyWithoutShiftNestedInput
+    tasks?: ShiftTaskUncheckedUpdateManyWithoutShiftNestedInput
   }
 
   export type ShiftCreateManyInput = {
@@ -27666,6 +31688,237 @@ export namespace Prisma {
     mileage?: NullableFloatFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftTaskCreateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    shift: ShiftCreateNestedOneWithoutTasksInput
+  }
+
+  export type ShiftTaskUncheckedCreateInput = {
+    id?: string
+    shiftId: string
+    title: string
+    description?: string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftTaskUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    shift?: ShiftUpdateOneRequiredWithoutTasksNestedInput
+  }
+
+  export type ShiftTaskUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shiftId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftTaskCreateManyInput = {
+    id?: string
+    shiftId: string
+    title: string
+    description?: string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftTaskUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftTaskUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shiftId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentCreateInput = {
+    id?: string
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    staff: StaffCreateNestedOneWithoutRosterAssignmentsInput
+    shiftType?: ShiftTypeCreateNestedOneWithoutRosterAssignmentsInput
+    tasks?: RosterAssignmentTaskCreateNestedManyWithoutRosterAssignmentInput
+  }
+
+  export type RosterAssignmentUncheckedCreateInput = {
+    id?: string
+    staffId: string
+    shiftTypeId?: string | null
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tasks?: RosterAssignmentTaskUncheckedCreateNestedManyWithoutRosterAssignmentInput
+  }
+
+  export type RosterAssignmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    staff?: StaffUpdateOneRequiredWithoutRosterAssignmentsNestedInput
+    shiftType?: ShiftTypeUpdateOneWithoutRosterAssignmentsNestedInput
+    tasks?: RosterAssignmentTaskUpdateManyWithoutRosterAssignmentNestedInput
+  }
+
+  export type RosterAssignmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: StringFieldUpdateOperationsInput | string
+    shiftTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tasks?: RosterAssignmentTaskUncheckedUpdateManyWithoutRosterAssignmentNestedInput
+  }
+
+  export type RosterAssignmentCreateManyInput = {
+    id?: string
+    staffId: string
+    shiftTypeId?: string | null
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: StringFieldUpdateOperationsInput | string
+    shiftTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentTaskCreateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rosterAssignment: RosterAssignmentCreateNestedOneWithoutTasksInput
+  }
+
+  export type RosterAssignmentTaskUncheckedCreateInput = {
+    id?: string
+    rosterAssignmentId: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentTaskUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rosterAssignment?: RosterAssignmentUpdateOneRequiredWithoutTasksNestedInput
+  }
+
+  export type RosterAssignmentTaskUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rosterAssignmentId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentTaskCreateManyInput = {
+    id?: string
+    rosterAssignmentId: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentTaskUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentTaskUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rosterAssignmentId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -28730,6 +32983,16 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type ComponentImageListRelationFilter = {
+    every?: ComponentImageWhereInput
+    some?: ComponentImageWhereInput
+    none?: ComponentImageWhereInput
+  }
+
+  export type ComponentImageOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ComponentCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -28831,6 +33094,52 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type ComponentScalarRelationFilter = {
+    is?: ComponentWhereInput
+    isNot?: ComponentWhereInput
+  }
+
+  export type ComponentImageCountOrderByAggregateInput = {
+    id?: SortOrder
+    componentId?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    alt?: SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ComponentImageAvgOrderByAggregateInput = {
+    position?: SortOrder
+  }
+
+  export type ComponentImageMaxOrderByAggregateInput = {
+    id?: SortOrder
+    componentId?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    alt?: SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ComponentImageMinOrderByAggregateInput = {
+    id?: SortOrder
+    componentId?: SortOrder
+    publicId?: SortOrder
+    url?: SortOrder
+    alt?: SortOrder
+    position?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ComponentImageSumOrderByAggregateInput = {
+    position?: SortOrder
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -29429,57 +33738,23 @@ export namespace Prisma {
     isNot?: StaffWhereInput
   }
 
-  export type ShiftTypeNullableScalarRelationFilter = {
-    is?: ShiftTypeWhereInput | null
-    isNot?: ShiftTypeWhereInput | null
-  }
-
-  export type RosterAssignmentCountOrderByAggregateInput = {
-    id?: SortOrder
-    staffId?: SortOrder
-    shiftTypeId?: SortOrder
-    startTime?: SortOrder
-    endTime?: SortOrder
-    date?: SortOrder
-    notes?: SortOrder
-    assignedBy?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type RosterAssignmentMaxOrderByAggregateInput = {
-    id?: SortOrder
-    staffId?: SortOrder
-    shiftTypeId?: SortOrder
-    startTime?: SortOrder
-    endTime?: SortOrder
-    date?: SortOrder
-    notes?: SortOrder
-    assignedBy?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type RosterAssignmentMinOrderByAggregateInput = {
-    id?: SortOrder
-    staffId?: SortOrder
-    shiftTypeId?: SortOrder
-    startTime?: SortOrder
-    endTime?: SortOrder
-    date?: SortOrder
-    notes?: SortOrder
-    assignedBy?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
   export type ReimbursementListRelationFilter = {
     every?: ReimbursementWhereInput
     some?: ReimbursementWhereInput
     none?: ReimbursementWhereInput
   }
 
+  export type ShiftTaskListRelationFilter = {
+    every?: ShiftTaskWhereInput
+    some?: ShiftTaskWhereInput
+    none?: ShiftTaskWhereInput
+  }
+
   export type ReimbursementOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ShiftTaskOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -29538,6 +33813,125 @@ export namespace Prisma {
   export type ShiftScalarRelationFilter = {
     is?: ShiftWhereInput
     isNot?: ShiftWhereInput
+  }
+
+  export type ShiftTaskCountOrderByAggregateInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    isCompleted?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShiftTaskMaxOrderByAggregateInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    isCompleted?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShiftTaskMinOrderByAggregateInput = {
+    id?: SortOrder
+    shiftId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    isCompleted?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShiftTypeNullableScalarRelationFilter = {
+    is?: ShiftTypeWhereInput | null
+    isNot?: ShiftTypeWhereInput | null
+  }
+
+  export type RosterAssignmentTaskListRelationFilter = {
+    every?: RosterAssignmentTaskWhereInput
+    some?: RosterAssignmentTaskWhereInput
+    none?: RosterAssignmentTaskWhereInput
+  }
+
+  export type RosterAssignmentTaskOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type RosterAssignmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrder
+    startTime?: SortOrder
+    endTime?: SortOrder
+    date?: SortOrder
+    notes?: SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAssignmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrder
+    startTime?: SortOrder
+    endTime?: SortOrder
+    date?: SortOrder
+    notes?: SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAssignmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    staffId?: SortOrder
+    shiftTypeId?: SortOrder
+    startTime?: SortOrder
+    endTime?: SortOrder
+    date?: SortOrder
+    notes?: SortOrder
+    assignedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAssignmentScalarRelationFilter = {
+    is?: RosterAssignmentWhereInput
+    isNot?: RosterAssignmentWhereInput
+  }
+
+  export type RosterAssignmentTaskCountOrderByAggregateInput = {
+    id?: SortOrder
+    rosterAssignmentId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAssignmentTaskMaxOrderByAggregateInput = {
+    id?: SortOrder
+    rosterAssignmentId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAssignmentTaskMinOrderByAggregateInput = {
+    id?: SortOrder
+    rosterAssignmentId?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ReimbursementCountOrderByAggregateInput = {
@@ -29921,8 +34315,64 @@ export namespace Prisma {
     set?: string | null
   }
 
+  export type ComponentImageCreateNestedManyWithoutComponentInput = {
+    create?: XOR<ComponentImageCreateWithoutComponentInput, ComponentImageUncheckedCreateWithoutComponentInput> | ComponentImageCreateWithoutComponentInput[] | ComponentImageUncheckedCreateWithoutComponentInput[]
+    connectOrCreate?: ComponentImageCreateOrConnectWithoutComponentInput | ComponentImageCreateOrConnectWithoutComponentInput[]
+    createMany?: ComponentImageCreateManyComponentInputEnvelope
+    connect?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+  }
+
+  export type ComponentImageUncheckedCreateNestedManyWithoutComponentInput = {
+    create?: XOR<ComponentImageCreateWithoutComponentInput, ComponentImageUncheckedCreateWithoutComponentInput> | ComponentImageCreateWithoutComponentInput[] | ComponentImageUncheckedCreateWithoutComponentInput[]
+    connectOrCreate?: ComponentImageCreateOrConnectWithoutComponentInput | ComponentImageCreateOrConnectWithoutComponentInput[]
+    createMany?: ComponentImageCreateManyComponentInputEnvelope
+    connect?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+  }
+
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type ComponentImageUpdateManyWithoutComponentNestedInput = {
+    create?: XOR<ComponentImageCreateWithoutComponentInput, ComponentImageUncheckedCreateWithoutComponentInput> | ComponentImageCreateWithoutComponentInput[] | ComponentImageUncheckedCreateWithoutComponentInput[]
+    connectOrCreate?: ComponentImageCreateOrConnectWithoutComponentInput | ComponentImageCreateOrConnectWithoutComponentInput[]
+    upsert?: ComponentImageUpsertWithWhereUniqueWithoutComponentInput | ComponentImageUpsertWithWhereUniqueWithoutComponentInput[]
+    createMany?: ComponentImageCreateManyComponentInputEnvelope
+    set?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+    disconnect?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+    delete?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+    connect?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+    update?: ComponentImageUpdateWithWhereUniqueWithoutComponentInput | ComponentImageUpdateWithWhereUniqueWithoutComponentInput[]
+    updateMany?: ComponentImageUpdateManyWithWhereWithoutComponentInput | ComponentImageUpdateManyWithWhereWithoutComponentInput[]
+    deleteMany?: ComponentImageScalarWhereInput | ComponentImageScalarWhereInput[]
+  }
+
+  export type ComponentImageUncheckedUpdateManyWithoutComponentNestedInput = {
+    create?: XOR<ComponentImageCreateWithoutComponentInput, ComponentImageUncheckedCreateWithoutComponentInput> | ComponentImageCreateWithoutComponentInput[] | ComponentImageUncheckedCreateWithoutComponentInput[]
+    connectOrCreate?: ComponentImageCreateOrConnectWithoutComponentInput | ComponentImageCreateOrConnectWithoutComponentInput[]
+    upsert?: ComponentImageUpsertWithWhereUniqueWithoutComponentInput | ComponentImageUpsertWithWhereUniqueWithoutComponentInput[]
+    createMany?: ComponentImageCreateManyComponentInputEnvelope
+    set?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+    disconnect?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+    delete?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+    connect?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
+    update?: ComponentImageUpdateWithWhereUniqueWithoutComponentInput | ComponentImageUpdateWithWhereUniqueWithoutComponentInput[]
+    updateMany?: ComponentImageUpdateManyWithWhereWithoutComponentInput | ComponentImageUpdateManyWithWhereWithoutComponentInput[]
+    deleteMany?: ComponentImageScalarWhereInput | ComponentImageScalarWhereInput[]
+  }
+
+  export type ComponentCreateNestedOneWithoutImagesInput = {
+    create?: XOR<ComponentCreateWithoutImagesInput, ComponentUncheckedCreateWithoutImagesInput>
+    connectOrCreate?: ComponentCreateOrConnectWithoutImagesInput
+    connect?: ComponentWhereUniqueInput
+  }
+
+  export type ComponentUpdateOneRequiredWithoutImagesNestedInput = {
+    create?: XOR<ComponentCreateWithoutImagesInput, ComponentUncheckedCreateWithoutImagesInput>
+    connectOrCreate?: ComponentCreateOrConnectWithoutImagesInput
+    upsert?: ComponentUpsertWithoutImagesInput
+    connect?: ComponentWhereUniqueInput
+    update?: XOR<XOR<ComponentUpdateToOneWithWhereWithoutImagesInput, ComponentUpdateWithoutImagesInput>, ComponentUncheckedUpdateWithoutImagesInput>
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -30083,36 +34533,6 @@ export namespace Prisma {
     deleteMany?: RosterAssignmentScalarWhereInput | RosterAssignmentScalarWhereInput[]
   }
 
-  export type StaffCreateNestedOneWithoutRosterAssignmentsInput = {
-    create?: XOR<StaffCreateWithoutRosterAssignmentsInput, StaffUncheckedCreateWithoutRosterAssignmentsInput>
-    connectOrCreate?: StaffCreateOrConnectWithoutRosterAssignmentsInput
-    connect?: StaffWhereUniqueInput
-  }
-
-  export type ShiftTypeCreateNestedOneWithoutRosterAssignmentsInput = {
-    create?: XOR<ShiftTypeCreateWithoutRosterAssignmentsInput, ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput>
-    connectOrCreate?: ShiftTypeCreateOrConnectWithoutRosterAssignmentsInput
-    connect?: ShiftTypeWhereUniqueInput
-  }
-
-  export type StaffUpdateOneRequiredWithoutRosterAssignmentsNestedInput = {
-    create?: XOR<StaffCreateWithoutRosterAssignmentsInput, StaffUncheckedCreateWithoutRosterAssignmentsInput>
-    connectOrCreate?: StaffCreateOrConnectWithoutRosterAssignmentsInput
-    upsert?: StaffUpsertWithoutRosterAssignmentsInput
-    connect?: StaffWhereUniqueInput
-    update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutRosterAssignmentsInput, StaffUpdateWithoutRosterAssignmentsInput>, StaffUncheckedUpdateWithoutRosterAssignmentsInput>
-  }
-
-  export type ShiftTypeUpdateOneWithoutRosterAssignmentsNestedInput = {
-    create?: XOR<ShiftTypeCreateWithoutRosterAssignmentsInput, ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput>
-    connectOrCreate?: ShiftTypeCreateOrConnectWithoutRosterAssignmentsInput
-    upsert?: ShiftTypeUpsertWithoutRosterAssignmentsInput
-    disconnect?: ShiftTypeWhereInput | boolean
-    delete?: ShiftTypeWhereInput | boolean
-    connect?: ShiftTypeWhereUniqueInput
-    update?: XOR<XOR<ShiftTypeUpdateToOneWithWhereWithoutRosterAssignmentsInput, ShiftTypeUpdateWithoutRosterAssignmentsInput>, ShiftTypeUncheckedUpdateWithoutRosterAssignmentsInput>
-  }
-
   export type StaffCreateNestedOneWithoutShiftsInput = {
     create?: XOR<StaffCreateWithoutShiftsInput, StaffUncheckedCreateWithoutShiftsInput>
     connectOrCreate?: StaffCreateOrConnectWithoutShiftsInput
@@ -30126,11 +34546,25 @@ export namespace Prisma {
     connect?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
   }
 
+  export type ShiftTaskCreateNestedManyWithoutShiftInput = {
+    create?: XOR<ShiftTaskCreateWithoutShiftInput, ShiftTaskUncheckedCreateWithoutShiftInput> | ShiftTaskCreateWithoutShiftInput[] | ShiftTaskUncheckedCreateWithoutShiftInput[]
+    connectOrCreate?: ShiftTaskCreateOrConnectWithoutShiftInput | ShiftTaskCreateOrConnectWithoutShiftInput[]
+    createMany?: ShiftTaskCreateManyShiftInputEnvelope
+    connect?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
+  }
+
   export type ReimbursementUncheckedCreateNestedManyWithoutShiftInput = {
     create?: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput> | ReimbursementCreateWithoutShiftInput[] | ReimbursementUncheckedCreateWithoutShiftInput[]
     connectOrCreate?: ReimbursementCreateOrConnectWithoutShiftInput | ReimbursementCreateOrConnectWithoutShiftInput[]
     createMany?: ReimbursementCreateManyShiftInputEnvelope
     connect?: ReimbursementWhereUniqueInput | ReimbursementWhereUniqueInput[]
+  }
+
+  export type ShiftTaskUncheckedCreateNestedManyWithoutShiftInput = {
+    create?: XOR<ShiftTaskCreateWithoutShiftInput, ShiftTaskUncheckedCreateWithoutShiftInput> | ShiftTaskCreateWithoutShiftInput[] | ShiftTaskUncheckedCreateWithoutShiftInput[]
+    connectOrCreate?: ShiftTaskCreateOrConnectWithoutShiftInput | ShiftTaskCreateOrConnectWithoutShiftInput[]
+    createMany?: ShiftTaskCreateManyShiftInputEnvelope
+    connect?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
   }
 
   export type StaffUpdateOneRequiredWithoutShiftsNestedInput = {
@@ -30155,6 +34589,20 @@ export namespace Prisma {
     deleteMany?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
   }
 
+  export type ShiftTaskUpdateManyWithoutShiftNestedInput = {
+    create?: XOR<ShiftTaskCreateWithoutShiftInput, ShiftTaskUncheckedCreateWithoutShiftInput> | ShiftTaskCreateWithoutShiftInput[] | ShiftTaskUncheckedCreateWithoutShiftInput[]
+    connectOrCreate?: ShiftTaskCreateOrConnectWithoutShiftInput | ShiftTaskCreateOrConnectWithoutShiftInput[]
+    upsert?: ShiftTaskUpsertWithWhereUniqueWithoutShiftInput | ShiftTaskUpsertWithWhereUniqueWithoutShiftInput[]
+    createMany?: ShiftTaskCreateManyShiftInputEnvelope
+    set?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
+    disconnect?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
+    delete?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
+    connect?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
+    update?: ShiftTaskUpdateWithWhereUniqueWithoutShiftInput | ShiftTaskUpdateWithWhereUniqueWithoutShiftInput[]
+    updateMany?: ShiftTaskUpdateManyWithWhereWithoutShiftInput | ShiftTaskUpdateManyWithWhereWithoutShiftInput[]
+    deleteMany?: ShiftTaskScalarWhereInput | ShiftTaskScalarWhereInput[]
+  }
+
   export type ReimbursementUncheckedUpdateManyWithoutShiftNestedInput = {
     create?: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput> | ReimbursementCreateWithoutShiftInput[] | ReimbursementUncheckedCreateWithoutShiftInput[]
     connectOrCreate?: ReimbursementCreateOrConnectWithoutShiftInput | ReimbursementCreateOrConnectWithoutShiftInput[]
@@ -30167,6 +34615,120 @@ export namespace Prisma {
     update?: ReimbursementUpdateWithWhereUniqueWithoutShiftInput | ReimbursementUpdateWithWhereUniqueWithoutShiftInput[]
     updateMany?: ReimbursementUpdateManyWithWhereWithoutShiftInput | ReimbursementUpdateManyWithWhereWithoutShiftInput[]
     deleteMany?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
+  }
+
+  export type ShiftTaskUncheckedUpdateManyWithoutShiftNestedInput = {
+    create?: XOR<ShiftTaskCreateWithoutShiftInput, ShiftTaskUncheckedCreateWithoutShiftInput> | ShiftTaskCreateWithoutShiftInput[] | ShiftTaskUncheckedCreateWithoutShiftInput[]
+    connectOrCreate?: ShiftTaskCreateOrConnectWithoutShiftInput | ShiftTaskCreateOrConnectWithoutShiftInput[]
+    upsert?: ShiftTaskUpsertWithWhereUniqueWithoutShiftInput | ShiftTaskUpsertWithWhereUniqueWithoutShiftInput[]
+    createMany?: ShiftTaskCreateManyShiftInputEnvelope
+    set?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
+    disconnect?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
+    delete?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
+    connect?: ShiftTaskWhereUniqueInput | ShiftTaskWhereUniqueInput[]
+    update?: ShiftTaskUpdateWithWhereUniqueWithoutShiftInput | ShiftTaskUpdateWithWhereUniqueWithoutShiftInput[]
+    updateMany?: ShiftTaskUpdateManyWithWhereWithoutShiftInput | ShiftTaskUpdateManyWithWhereWithoutShiftInput[]
+    deleteMany?: ShiftTaskScalarWhereInput | ShiftTaskScalarWhereInput[]
+  }
+
+  export type ShiftCreateNestedOneWithoutTasksInput = {
+    create?: XOR<ShiftCreateWithoutTasksInput, ShiftUncheckedCreateWithoutTasksInput>
+    connectOrCreate?: ShiftCreateOrConnectWithoutTasksInput
+    connect?: ShiftWhereUniqueInput
+  }
+
+  export type ShiftUpdateOneRequiredWithoutTasksNestedInput = {
+    create?: XOR<ShiftCreateWithoutTasksInput, ShiftUncheckedCreateWithoutTasksInput>
+    connectOrCreate?: ShiftCreateOrConnectWithoutTasksInput
+    upsert?: ShiftUpsertWithoutTasksInput
+    connect?: ShiftWhereUniqueInput
+    update?: XOR<XOR<ShiftUpdateToOneWithWhereWithoutTasksInput, ShiftUpdateWithoutTasksInput>, ShiftUncheckedUpdateWithoutTasksInput>
+  }
+
+  export type StaffCreateNestedOneWithoutRosterAssignmentsInput = {
+    create?: XOR<StaffCreateWithoutRosterAssignmentsInput, StaffUncheckedCreateWithoutRosterAssignmentsInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutRosterAssignmentsInput
+    connect?: StaffWhereUniqueInput
+  }
+
+  export type ShiftTypeCreateNestedOneWithoutRosterAssignmentsInput = {
+    create?: XOR<ShiftTypeCreateWithoutRosterAssignmentsInput, ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput>
+    connectOrCreate?: ShiftTypeCreateOrConnectWithoutRosterAssignmentsInput
+    connect?: ShiftTypeWhereUniqueInput
+  }
+
+  export type RosterAssignmentTaskCreateNestedManyWithoutRosterAssignmentInput = {
+    create?: XOR<RosterAssignmentTaskCreateWithoutRosterAssignmentInput, RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput> | RosterAssignmentTaskCreateWithoutRosterAssignmentInput[] | RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput[]
+    connectOrCreate?: RosterAssignmentTaskCreateOrConnectWithoutRosterAssignmentInput | RosterAssignmentTaskCreateOrConnectWithoutRosterAssignmentInput[]
+    createMany?: RosterAssignmentTaskCreateManyRosterAssignmentInputEnvelope
+    connect?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+  }
+
+  export type RosterAssignmentTaskUncheckedCreateNestedManyWithoutRosterAssignmentInput = {
+    create?: XOR<RosterAssignmentTaskCreateWithoutRosterAssignmentInput, RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput> | RosterAssignmentTaskCreateWithoutRosterAssignmentInput[] | RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput[]
+    connectOrCreate?: RosterAssignmentTaskCreateOrConnectWithoutRosterAssignmentInput | RosterAssignmentTaskCreateOrConnectWithoutRosterAssignmentInput[]
+    createMany?: RosterAssignmentTaskCreateManyRosterAssignmentInputEnvelope
+    connect?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+  }
+
+  export type StaffUpdateOneRequiredWithoutRosterAssignmentsNestedInput = {
+    create?: XOR<StaffCreateWithoutRosterAssignmentsInput, StaffUncheckedCreateWithoutRosterAssignmentsInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutRosterAssignmentsInput
+    upsert?: StaffUpsertWithoutRosterAssignmentsInput
+    connect?: StaffWhereUniqueInput
+    update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutRosterAssignmentsInput, StaffUpdateWithoutRosterAssignmentsInput>, StaffUncheckedUpdateWithoutRosterAssignmentsInput>
+  }
+
+  export type ShiftTypeUpdateOneWithoutRosterAssignmentsNestedInput = {
+    create?: XOR<ShiftTypeCreateWithoutRosterAssignmentsInput, ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput>
+    connectOrCreate?: ShiftTypeCreateOrConnectWithoutRosterAssignmentsInput
+    upsert?: ShiftTypeUpsertWithoutRosterAssignmentsInput
+    disconnect?: ShiftTypeWhereInput | boolean
+    delete?: ShiftTypeWhereInput | boolean
+    connect?: ShiftTypeWhereUniqueInput
+    update?: XOR<XOR<ShiftTypeUpdateToOneWithWhereWithoutRosterAssignmentsInput, ShiftTypeUpdateWithoutRosterAssignmentsInput>, ShiftTypeUncheckedUpdateWithoutRosterAssignmentsInput>
+  }
+
+  export type RosterAssignmentTaskUpdateManyWithoutRosterAssignmentNestedInput = {
+    create?: XOR<RosterAssignmentTaskCreateWithoutRosterAssignmentInput, RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput> | RosterAssignmentTaskCreateWithoutRosterAssignmentInput[] | RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput[]
+    connectOrCreate?: RosterAssignmentTaskCreateOrConnectWithoutRosterAssignmentInput | RosterAssignmentTaskCreateOrConnectWithoutRosterAssignmentInput[]
+    upsert?: RosterAssignmentTaskUpsertWithWhereUniqueWithoutRosterAssignmentInput | RosterAssignmentTaskUpsertWithWhereUniqueWithoutRosterAssignmentInput[]
+    createMany?: RosterAssignmentTaskCreateManyRosterAssignmentInputEnvelope
+    set?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+    disconnect?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+    delete?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+    connect?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+    update?: RosterAssignmentTaskUpdateWithWhereUniqueWithoutRosterAssignmentInput | RosterAssignmentTaskUpdateWithWhereUniqueWithoutRosterAssignmentInput[]
+    updateMany?: RosterAssignmentTaskUpdateManyWithWhereWithoutRosterAssignmentInput | RosterAssignmentTaskUpdateManyWithWhereWithoutRosterAssignmentInput[]
+    deleteMany?: RosterAssignmentTaskScalarWhereInput | RosterAssignmentTaskScalarWhereInput[]
+  }
+
+  export type RosterAssignmentTaskUncheckedUpdateManyWithoutRosterAssignmentNestedInput = {
+    create?: XOR<RosterAssignmentTaskCreateWithoutRosterAssignmentInput, RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput> | RosterAssignmentTaskCreateWithoutRosterAssignmentInput[] | RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput[]
+    connectOrCreate?: RosterAssignmentTaskCreateOrConnectWithoutRosterAssignmentInput | RosterAssignmentTaskCreateOrConnectWithoutRosterAssignmentInput[]
+    upsert?: RosterAssignmentTaskUpsertWithWhereUniqueWithoutRosterAssignmentInput | RosterAssignmentTaskUpsertWithWhereUniqueWithoutRosterAssignmentInput[]
+    createMany?: RosterAssignmentTaskCreateManyRosterAssignmentInputEnvelope
+    set?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+    disconnect?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+    delete?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+    connect?: RosterAssignmentTaskWhereUniqueInput | RosterAssignmentTaskWhereUniqueInput[]
+    update?: RosterAssignmentTaskUpdateWithWhereUniqueWithoutRosterAssignmentInput | RosterAssignmentTaskUpdateWithWhereUniqueWithoutRosterAssignmentInput[]
+    updateMany?: RosterAssignmentTaskUpdateManyWithWhereWithoutRosterAssignmentInput | RosterAssignmentTaskUpdateManyWithWhereWithoutRosterAssignmentInput[]
+    deleteMany?: RosterAssignmentTaskScalarWhereInput | RosterAssignmentTaskScalarWhereInput[]
+  }
+
+  export type RosterAssignmentCreateNestedOneWithoutTasksInput = {
+    create?: XOR<RosterAssignmentCreateWithoutTasksInput, RosterAssignmentUncheckedCreateWithoutTasksInput>
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutTasksInput
+    connect?: RosterAssignmentWhereUniqueInput
+  }
+
+  export type RosterAssignmentUpdateOneRequiredWithoutTasksNestedInput = {
+    create?: XOR<RosterAssignmentCreateWithoutTasksInput, RosterAssignmentUncheckedCreateWithoutTasksInput>
+    connectOrCreate?: RosterAssignmentCreateOrConnectWithoutTasksInput
+    upsert?: RosterAssignmentUpsertWithoutTasksInput
+    connect?: RosterAssignmentWhereUniqueInput
+    update?: XOR<XOR<RosterAssignmentUpdateToOneWithWhereWithoutTasksInput, RosterAssignmentUpdateWithoutTasksInput>, RosterAssignmentUncheckedUpdateWithoutTasksInput>
   }
 
   export type ShiftCreateNestedOneWithoutReimbursementsInput = {
@@ -30604,6 +35166,166 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type ComponentImageCreateWithoutComponentInput = {
+    id?: string
+    publicId: string
+    url: string
+    alt?: string | null
+    position?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ComponentImageUncheckedCreateWithoutComponentInput = {
+    id?: string
+    publicId: string
+    url: string
+    alt?: string | null
+    position?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ComponentImageCreateOrConnectWithoutComponentInput = {
+    where: ComponentImageWhereUniqueInput
+    create: XOR<ComponentImageCreateWithoutComponentInput, ComponentImageUncheckedCreateWithoutComponentInput>
+  }
+
+  export type ComponentImageCreateManyComponentInputEnvelope = {
+    data: ComponentImageCreateManyComponentInput | ComponentImageCreateManyComponentInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ComponentImageUpsertWithWhereUniqueWithoutComponentInput = {
+    where: ComponentImageWhereUniqueInput
+    update: XOR<ComponentImageUpdateWithoutComponentInput, ComponentImageUncheckedUpdateWithoutComponentInput>
+    create: XOR<ComponentImageCreateWithoutComponentInput, ComponentImageUncheckedCreateWithoutComponentInput>
+  }
+
+  export type ComponentImageUpdateWithWhereUniqueWithoutComponentInput = {
+    where: ComponentImageWhereUniqueInput
+    data: XOR<ComponentImageUpdateWithoutComponentInput, ComponentImageUncheckedUpdateWithoutComponentInput>
+  }
+
+  export type ComponentImageUpdateManyWithWhereWithoutComponentInput = {
+    where: ComponentImageScalarWhereInput
+    data: XOR<ComponentImageUpdateManyMutationInput, ComponentImageUncheckedUpdateManyWithoutComponentInput>
+  }
+
+  export type ComponentImageScalarWhereInput = {
+    AND?: ComponentImageScalarWhereInput | ComponentImageScalarWhereInput[]
+    OR?: ComponentImageScalarWhereInput[]
+    NOT?: ComponentImageScalarWhereInput | ComponentImageScalarWhereInput[]
+    id?: StringFilter<"ComponentImage"> | string
+    componentId?: StringFilter<"ComponentImage"> | string
+    publicId?: StringFilter<"ComponentImage"> | string
+    url?: StringFilter<"ComponentImage"> | string
+    alt?: StringNullableFilter<"ComponentImage"> | string | null
+    position?: IntFilter<"ComponentImage"> | number
+    createdAt?: DateTimeFilter<"ComponentImage"> | Date | string
+    updatedAt?: DateTimeFilter<"ComponentImage"> | Date | string
+  }
+
+  export type ComponentCreateWithoutImagesInput = {
+    id?: string
+    name: string
+    description: string
+    ingredients: JsonNullValueInput | InputJsonValue
+    totalCost: number
+    hasGluten?: boolean
+    hasDairy?: boolean
+    hasSoy?: boolean
+    hasOnionGarlic?: boolean
+    hasSesame?: boolean
+    hasNuts?: boolean
+    hasEgg?: boolean
+    isVegetarian?: boolean
+    isVegan?: boolean
+    isHalal?: boolean
+    isComponentListItem?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ComponentUncheckedCreateWithoutImagesInput = {
+    id?: string
+    name: string
+    description: string
+    ingredients: JsonNullValueInput | InputJsonValue
+    totalCost: number
+    hasGluten?: boolean
+    hasDairy?: boolean
+    hasSoy?: boolean
+    hasOnionGarlic?: boolean
+    hasSesame?: boolean
+    hasNuts?: boolean
+    hasEgg?: boolean
+    isVegetarian?: boolean
+    isVegan?: boolean
+    isHalal?: boolean
+    isComponentListItem?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ComponentCreateOrConnectWithoutImagesInput = {
+    where: ComponentWhereUniqueInput
+    create: XOR<ComponentCreateWithoutImagesInput, ComponentUncheckedCreateWithoutImagesInput>
+  }
+
+  export type ComponentUpsertWithoutImagesInput = {
+    update: XOR<ComponentUpdateWithoutImagesInput, ComponentUncheckedUpdateWithoutImagesInput>
+    create: XOR<ComponentCreateWithoutImagesInput, ComponentUncheckedCreateWithoutImagesInput>
+    where?: ComponentWhereInput
+  }
+
+  export type ComponentUpdateToOneWithWhereWithoutImagesInput = {
+    where?: ComponentWhereInput
+    data: XOR<ComponentUpdateWithoutImagesInput, ComponentUncheckedUpdateWithoutImagesInput>
+  }
+
+  export type ComponentUpdateWithoutImagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    ingredients?: JsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+    hasGluten?: BoolFieldUpdateOperationsInput | boolean
+    hasDairy?: BoolFieldUpdateOperationsInput | boolean
+    hasSoy?: BoolFieldUpdateOperationsInput | boolean
+    hasOnionGarlic?: BoolFieldUpdateOperationsInput | boolean
+    hasSesame?: BoolFieldUpdateOperationsInput | boolean
+    hasNuts?: BoolFieldUpdateOperationsInput | boolean
+    hasEgg?: BoolFieldUpdateOperationsInput | boolean
+    isVegetarian?: BoolFieldUpdateOperationsInput | boolean
+    isVegan?: BoolFieldUpdateOperationsInput | boolean
+    isHalal?: BoolFieldUpdateOperationsInput | boolean
+    isComponentListItem?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ComponentUncheckedUpdateWithoutImagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    ingredients?: JsonNullValueInput | InputJsonValue
+    totalCost?: FloatFieldUpdateOperationsInput | number
+    hasGluten?: BoolFieldUpdateOperationsInput | boolean
+    hasDairy?: BoolFieldUpdateOperationsInput | boolean
+    hasSoy?: BoolFieldUpdateOperationsInput | boolean
+    hasOnionGarlic?: BoolFieldUpdateOperationsInput | boolean
+    hasSesame?: BoolFieldUpdateOperationsInput | boolean
+    hasNuts?: BoolFieldUpdateOperationsInput | boolean
+    hasEgg?: BoolFieldUpdateOperationsInput | boolean
+    isVegetarian?: BoolFieldUpdateOperationsInput | boolean
+    isVegan?: BoolFieldUpdateOperationsInput | boolean
+    isHalal?: BoolFieldUpdateOperationsInput | boolean
+    isComponentListItem?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ShiftCreateWithoutStaffInput = {
     id?: string
     clockIn: Date | string
@@ -30616,6 +35338,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     reimbursements?: ReimbursementCreateNestedManyWithoutShiftInput
+    tasks?: ShiftTaskCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftUncheckedCreateWithoutStaffInput = {
@@ -30630,6 +35353,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     reimbursements?: ReimbursementUncheckedCreateNestedManyWithoutShiftInput
+    tasks?: ShiftTaskUncheckedCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftCreateOrConnectWithoutStaffInput = {
@@ -30652,6 +35376,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     shiftType?: ShiftTypeCreateNestedOneWithoutRosterAssignmentsInput
+    tasks?: RosterAssignmentTaskCreateNestedManyWithoutRosterAssignmentInput
   }
 
   export type RosterAssignmentUncheckedCreateWithoutStaffInput = {
@@ -30664,6 +35389,7 @@ export namespace Prisma {
     assignedBy: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    tasks?: RosterAssignmentTaskUncheckedCreateNestedManyWithoutRosterAssignmentInput
   }
 
   export type RosterAssignmentCreateOrConnectWithoutStaffInput = {
@@ -30751,6 +35477,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     staff: StaffCreateNestedOneWithoutRosterAssignmentsInput
+    tasks?: RosterAssignmentTaskCreateNestedManyWithoutRosterAssignmentInput
   }
 
   export type RosterAssignmentUncheckedCreateWithoutShiftTypeInput = {
@@ -30763,6 +35490,7 @@ export namespace Prisma {
     assignedBy: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    tasks?: RosterAssignmentTaskUncheckedCreateNestedManyWithoutRosterAssignmentInput
   }
 
   export type RosterAssignmentCreateOrConnectWithoutShiftTypeInput = {
@@ -30789,6 +35517,288 @@ export namespace Prisma {
   export type RosterAssignmentUpdateManyWithWhereWithoutShiftTypeInput = {
     where: RosterAssignmentScalarWhereInput
     data: XOR<RosterAssignmentUpdateManyMutationInput, RosterAssignmentUncheckedUpdateManyWithoutShiftTypeInput>
+  }
+
+  export type StaffCreateWithoutShiftsInput = {
+    id?: string
+    firstName: string
+    lastName: string
+    phone: string
+    email: string
+    payRate: number
+    accessLevel: string
+    isDriver?: boolean
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lastLogin?: Date | string | null
+    password?: string | null
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    rosterAssignments?: RosterAssignmentCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffUncheckedCreateWithoutShiftsInput = {
+    id?: string
+    firstName: string
+    lastName: string
+    phone: string
+    email: string
+    payRate: number
+    accessLevel: string
+    isDriver?: boolean
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lastLogin?: Date | string | null
+    password?: string | null
+    resetToken?: string | null
+    resetTokenExpiry?: Date | string | null
+    rosterAssignments?: RosterAssignmentUncheckedCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffCreateOrConnectWithoutShiftsInput = {
+    where: StaffWhereUniqueInput
+    create: XOR<StaffCreateWithoutShiftsInput, StaffUncheckedCreateWithoutShiftsInput>
+  }
+
+  export type ReimbursementCreateWithoutShiftInput = {
+    id?: string
+    amount: number
+    description: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReimbursementUncheckedCreateWithoutShiftInput = {
+    id?: string
+    amount: number
+    description: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReimbursementCreateOrConnectWithoutShiftInput = {
+    where: ReimbursementWhereUniqueInput
+    create: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput>
+  }
+
+  export type ReimbursementCreateManyShiftInputEnvelope = {
+    data: ReimbursementCreateManyShiftInput | ReimbursementCreateManyShiftInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ShiftTaskCreateWithoutShiftInput = {
+    id?: string
+    title: string
+    description?: string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftTaskUncheckedCreateWithoutShiftInput = {
+    id?: string
+    title: string
+    description?: string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftTaskCreateOrConnectWithoutShiftInput = {
+    where: ShiftTaskWhereUniqueInput
+    create: XOR<ShiftTaskCreateWithoutShiftInput, ShiftTaskUncheckedCreateWithoutShiftInput>
+  }
+
+  export type ShiftTaskCreateManyShiftInputEnvelope = {
+    data: ShiftTaskCreateManyShiftInput | ShiftTaskCreateManyShiftInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type StaffUpsertWithoutShiftsInput = {
+    update: XOR<StaffUpdateWithoutShiftsInput, StaffUncheckedUpdateWithoutShiftsInput>
+    create: XOR<StaffCreateWithoutShiftsInput, StaffUncheckedCreateWithoutShiftsInput>
+    where?: StaffWhereInput
+  }
+
+  export type StaffUpdateToOneWithWhereWithoutShiftsInput = {
+    where?: StaffWhereInput
+    data: XOR<StaffUpdateWithoutShiftsInput, StaffUncheckedUpdateWithoutShiftsInput>
+  }
+
+  export type StaffUpdateWithoutShiftsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    payRate?: FloatFieldUpdateOperationsInput | number
+    accessLevel?: StringFieldUpdateOperationsInput | string
+    isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rosterAssignments?: RosterAssignmentUpdateManyWithoutStaffNestedInput
+  }
+
+  export type StaffUncheckedUpdateWithoutShiftsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    payRate?: FloatFieldUpdateOperationsInput | number
+    accessLevel?: StringFieldUpdateOperationsInput | string
+    isDriver?: BoolFieldUpdateOperationsInput | boolean
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
+    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rosterAssignments?: RosterAssignmentUncheckedUpdateManyWithoutStaffNestedInput
+  }
+
+  export type ReimbursementUpsertWithWhereUniqueWithoutShiftInput = {
+    where: ReimbursementWhereUniqueInput
+    update: XOR<ReimbursementUpdateWithoutShiftInput, ReimbursementUncheckedUpdateWithoutShiftInput>
+    create: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput>
+  }
+
+  export type ReimbursementUpdateWithWhereUniqueWithoutShiftInput = {
+    where: ReimbursementWhereUniqueInput
+    data: XOR<ReimbursementUpdateWithoutShiftInput, ReimbursementUncheckedUpdateWithoutShiftInput>
+  }
+
+  export type ReimbursementUpdateManyWithWhereWithoutShiftInput = {
+    where: ReimbursementScalarWhereInput
+    data: XOR<ReimbursementUpdateManyMutationInput, ReimbursementUncheckedUpdateManyWithoutShiftInput>
+  }
+
+  export type ReimbursementScalarWhereInput = {
+    AND?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
+    OR?: ReimbursementScalarWhereInput[]
+    NOT?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
+    id?: StringFilter<"Reimbursement"> | string
+    shiftId?: StringFilter<"Reimbursement"> | string
+    amount?: FloatFilter<"Reimbursement"> | number
+    description?: StringFilter<"Reimbursement"> | string
+    createdAt?: DateTimeFilter<"Reimbursement"> | Date | string
+    updatedAt?: DateTimeFilter<"Reimbursement"> | Date | string
+  }
+
+  export type ShiftTaskUpsertWithWhereUniqueWithoutShiftInput = {
+    where: ShiftTaskWhereUniqueInput
+    update: XOR<ShiftTaskUpdateWithoutShiftInput, ShiftTaskUncheckedUpdateWithoutShiftInput>
+    create: XOR<ShiftTaskCreateWithoutShiftInput, ShiftTaskUncheckedCreateWithoutShiftInput>
+  }
+
+  export type ShiftTaskUpdateWithWhereUniqueWithoutShiftInput = {
+    where: ShiftTaskWhereUniqueInput
+    data: XOR<ShiftTaskUpdateWithoutShiftInput, ShiftTaskUncheckedUpdateWithoutShiftInput>
+  }
+
+  export type ShiftTaskUpdateManyWithWhereWithoutShiftInput = {
+    where: ShiftTaskScalarWhereInput
+    data: XOR<ShiftTaskUpdateManyMutationInput, ShiftTaskUncheckedUpdateManyWithoutShiftInput>
+  }
+
+  export type ShiftTaskScalarWhereInput = {
+    AND?: ShiftTaskScalarWhereInput | ShiftTaskScalarWhereInput[]
+    OR?: ShiftTaskScalarWhereInput[]
+    NOT?: ShiftTaskScalarWhereInput | ShiftTaskScalarWhereInput[]
+    id?: StringFilter<"ShiftTask"> | string
+    shiftId?: StringFilter<"ShiftTask"> | string
+    title?: StringFilter<"ShiftTask"> | string
+    description?: StringNullableFilter<"ShiftTask"> | string | null
+    isCompleted?: BoolFilter<"ShiftTask"> | boolean
+    completedAt?: DateTimeNullableFilter<"ShiftTask"> | Date | string | null
+    createdAt?: DateTimeFilter<"ShiftTask"> | Date | string
+    updatedAt?: DateTimeFilter<"ShiftTask"> | Date | string
+  }
+
+  export type ShiftCreateWithoutTasksInput = {
+    id?: string
+    clockIn: Date | string
+    clockOut?: Date | string | null
+    totalHours?: number | null
+    date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    staff: StaffCreateNestedOneWithoutShiftsInput
+    reimbursements?: ReimbursementCreateNestedManyWithoutShiftInput
+  }
+
+  export type ShiftUncheckedCreateWithoutTasksInput = {
+    id?: string
+    staffId: string
+    clockIn: Date | string
+    clockOut?: Date | string | null
+    totalHours?: number | null
+    date: Date | string
+    mileage?: number | null
+    notes?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reimbursements?: ReimbursementUncheckedCreateNestedManyWithoutShiftInput
+  }
+
+  export type ShiftCreateOrConnectWithoutTasksInput = {
+    where: ShiftWhereUniqueInput
+    create: XOR<ShiftCreateWithoutTasksInput, ShiftUncheckedCreateWithoutTasksInput>
+  }
+
+  export type ShiftUpsertWithoutTasksInput = {
+    update: XOR<ShiftUpdateWithoutTasksInput, ShiftUncheckedUpdateWithoutTasksInput>
+    create: XOR<ShiftCreateWithoutTasksInput, ShiftUncheckedCreateWithoutTasksInput>
+    where?: ShiftWhereInput
+  }
+
+  export type ShiftUpdateToOneWithWhereWithoutTasksInput = {
+    where?: ShiftWhereInput
+    data: XOR<ShiftUpdateWithoutTasksInput, ShiftUncheckedUpdateWithoutTasksInput>
+  }
+
+  export type ShiftUpdateWithoutTasksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clockIn?: DateTimeFieldUpdateOperationsInput | Date | string
+    clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    staff?: StaffUpdateOneRequiredWithoutShiftsNestedInput
+    reimbursements?: ReimbursementUpdateManyWithoutShiftNestedInput
+  }
+
+  export type ShiftUncheckedUpdateWithoutTasksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: StringFieldUpdateOperationsInput | string
+    clockIn?: DateTimeFieldUpdateOperationsInput | Date | string
+    clockOut?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalHours?: NullableFloatFieldUpdateOperationsInput | number | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    mileage?: NullableFloatFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reimbursements?: ReimbursementUncheckedUpdateManyWithoutShiftNestedInput
   }
 
   export type StaffCreateWithoutRosterAssignmentsInput = {
@@ -30859,6 +35869,32 @@ export namespace Prisma {
   export type ShiftTypeCreateOrConnectWithoutRosterAssignmentsInput = {
     where: ShiftTypeWhereUniqueInput
     create: XOR<ShiftTypeCreateWithoutRosterAssignmentsInput, ShiftTypeUncheckedCreateWithoutRosterAssignmentsInput>
+  }
+
+  export type RosterAssignmentTaskCreateWithoutRosterAssignmentInput = {
+    id?: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput = {
+    id?: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentTaskCreateOrConnectWithoutRosterAssignmentInput = {
+    where: RosterAssignmentTaskWhereUniqueInput
+    create: XOR<RosterAssignmentTaskCreateWithoutRosterAssignmentInput, RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput>
+  }
+
+  export type RosterAssignmentTaskCreateManyRosterAssignmentInputEnvelope = {
+    data: RosterAssignmentTaskCreateManyRosterAssignmentInput | RosterAssignmentTaskCreateManyRosterAssignmentInput[]
+    skipDuplicates?: boolean
   }
 
   export type StaffUpsertWithoutRosterAssignmentsInput = {
@@ -30943,150 +35979,100 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type StaffCreateWithoutShiftsInput = {
+  export type RosterAssignmentTaskUpsertWithWhereUniqueWithoutRosterAssignmentInput = {
+    where: RosterAssignmentTaskWhereUniqueInput
+    update: XOR<RosterAssignmentTaskUpdateWithoutRosterAssignmentInput, RosterAssignmentTaskUncheckedUpdateWithoutRosterAssignmentInput>
+    create: XOR<RosterAssignmentTaskCreateWithoutRosterAssignmentInput, RosterAssignmentTaskUncheckedCreateWithoutRosterAssignmentInput>
+  }
+
+  export type RosterAssignmentTaskUpdateWithWhereUniqueWithoutRosterAssignmentInput = {
+    where: RosterAssignmentTaskWhereUniqueInput
+    data: XOR<RosterAssignmentTaskUpdateWithoutRosterAssignmentInput, RosterAssignmentTaskUncheckedUpdateWithoutRosterAssignmentInput>
+  }
+
+  export type RosterAssignmentTaskUpdateManyWithWhereWithoutRosterAssignmentInput = {
+    where: RosterAssignmentTaskScalarWhereInput
+    data: XOR<RosterAssignmentTaskUpdateManyMutationInput, RosterAssignmentTaskUncheckedUpdateManyWithoutRosterAssignmentInput>
+  }
+
+  export type RosterAssignmentTaskScalarWhereInput = {
+    AND?: RosterAssignmentTaskScalarWhereInput | RosterAssignmentTaskScalarWhereInput[]
+    OR?: RosterAssignmentTaskScalarWhereInput[]
+    NOT?: RosterAssignmentTaskScalarWhereInput | RosterAssignmentTaskScalarWhereInput[]
+    id?: StringFilter<"RosterAssignmentTask"> | string
+    rosterAssignmentId?: StringFilter<"RosterAssignmentTask"> | string
+    title?: StringFilter<"RosterAssignmentTask"> | string
+    description?: StringNullableFilter<"RosterAssignmentTask"> | string | null
+    createdAt?: DateTimeFilter<"RosterAssignmentTask"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAssignmentTask"> | Date | string
+  }
+
+  export type RosterAssignmentCreateWithoutTasksInput = {
     id?: string
-    firstName: string
-    lastName: string
-    phone: string
-    email: string
-    payRate: number
-    accessLevel: string
-    isDriver?: boolean
-    isActive?: boolean
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    lastLogin?: Date | string | null
-    password?: string | null
-    resetToken?: string | null
-    resetTokenExpiry?: Date | string | null
-    rosterAssignments?: RosterAssignmentCreateNestedManyWithoutStaffInput
+    staff: StaffCreateNestedOneWithoutRosterAssignmentsInput
+    shiftType?: ShiftTypeCreateNestedOneWithoutRosterAssignmentsInput
   }
 
-  export type StaffUncheckedCreateWithoutShiftsInput = {
+  export type RosterAssignmentUncheckedCreateWithoutTasksInput = {
     id?: string
-    firstName: string
-    lastName: string
-    phone: string
-    email: string
-    payRate: number
-    accessLevel: string
-    isDriver?: boolean
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    lastLogin?: Date | string | null
-    password?: string | null
-    resetToken?: string | null
-    resetTokenExpiry?: Date | string | null
-    rosterAssignments?: RosterAssignmentUncheckedCreateNestedManyWithoutStaffInput
-  }
-
-  export type StaffCreateOrConnectWithoutShiftsInput = {
-    where: StaffWhereUniqueInput
-    create: XOR<StaffCreateWithoutShiftsInput, StaffUncheckedCreateWithoutShiftsInput>
-  }
-
-  export type ReimbursementCreateWithoutShiftInput = {
-    id?: string
-    amount: number
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ReimbursementUncheckedCreateWithoutShiftInput = {
-    id?: string
-    amount: number
-    description: string
+    staffId: string
+    shiftTypeId?: string | null
+    startTime?: string | null
+    endTime?: string | null
+    date: Date | string
+    notes?: string | null
+    assignedBy: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type ReimbursementCreateOrConnectWithoutShiftInput = {
-    where: ReimbursementWhereUniqueInput
-    create: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput>
+  export type RosterAssignmentCreateOrConnectWithoutTasksInput = {
+    where: RosterAssignmentWhereUniqueInput
+    create: XOR<RosterAssignmentCreateWithoutTasksInput, RosterAssignmentUncheckedCreateWithoutTasksInput>
   }
 
-  export type ReimbursementCreateManyShiftInputEnvelope = {
-    data: ReimbursementCreateManyShiftInput | ReimbursementCreateManyShiftInput[]
-    skipDuplicates?: boolean
+  export type RosterAssignmentUpsertWithoutTasksInput = {
+    update: XOR<RosterAssignmentUpdateWithoutTasksInput, RosterAssignmentUncheckedUpdateWithoutTasksInput>
+    create: XOR<RosterAssignmentCreateWithoutTasksInput, RosterAssignmentUncheckedCreateWithoutTasksInput>
+    where?: RosterAssignmentWhereInput
   }
 
-  export type StaffUpsertWithoutShiftsInput = {
-    update: XOR<StaffUpdateWithoutShiftsInput, StaffUncheckedUpdateWithoutShiftsInput>
-    create: XOR<StaffCreateWithoutShiftsInput, StaffUncheckedCreateWithoutShiftsInput>
-    where?: StaffWhereInput
+  export type RosterAssignmentUpdateToOneWithWhereWithoutTasksInput = {
+    where?: RosterAssignmentWhereInput
+    data: XOR<RosterAssignmentUpdateWithoutTasksInput, RosterAssignmentUncheckedUpdateWithoutTasksInput>
   }
 
-  export type StaffUpdateToOneWithWhereWithoutShiftsInput = {
-    where?: StaffWhereInput
-    data: XOR<StaffUpdateWithoutShiftsInput, StaffUncheckedUpdateWithoutShiftsInput>
-  }
-
-  export type StaffUpdateWithoutShiftsInput = {
+  export type RosterAssignmentUpdateWithoutTasksInput = {
     id?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    phone?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    payRate?: FloatFieldUpdateOperationsInput | number
-    accessLevel?: StringFieldUpdateOperationsInput | string
-    isDriver?: BoolFieldUpdateOperationsInput | boolean
-    isActive?: BoolFieldUpdateOperationsInput | boolean
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
-    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
-    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    rosterAssignments?: RosterAssignmentUpdateManyWithoutStaffNestedInput
+    staff?: StaffUpdateOneRequiredWithoutRosterAssignmentsNestedInput
+    shiftType?: ShiftTypeUpdateOneWithoutRosterAssignmentsNestedInput
   }
 
-  export type StaffUncheckedUpdateWithoutShiftsInput = {
+  export type RosterAssignmentUncheckedUpdateWithoutTasksInput = {
     id?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    phone?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    payRate?: FloatFieldUpdateOperationsInput | number
-    accessLevel?: StringFieldUpdateOperationsInput | string
-    isDriver?: BoolFieldUpdateOperationsInput | boolean
-    isActive?: BoolFieldUpdateOperationsInput | boolean
+    staffId?: StringFieldUpdateOperationsInput | string
+    shiftTypeId?: NullableStringFieldUpdateOperationsInput | string | null
+    startTime?: NullableStringFieldUpdateOperationsInput | string | null
+    endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    assignedBy?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
-    resetToken?: NullableStringFieldUpdateOperationsInput | string | null
-    resetTokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    rosterAssignments?: RosterAssignmentUncheckedUpdateManyWithoutStaffNestedInput
-  }
-
-  export type ReimbursementUpsertWithWhereUniqueWithoutShiftInput = {
-    where: ReimbursementWhereUniqueInput
-    update: XOR<ReimbursementUpdateWithoutShiftInput, ReimbursementUncheckedUpdateWithoutShiftInput>
-    create: XOR<ReimbursementCreateWithoutShiftInput, ReimbursementUncheckedCreateWithoutShiftInput>
-  }
-
-  export type ReimbursementUpdateWithWhereUniqueWithoutShiftInput = {
-    where: ReimbursementWhereUniqueInput
-    data: XOR<ReimbursementUpdateWithoutShiftInput, ReimbursementUncheckedUpdateWithoutShiftInput>
-  }
-
-  export type ReimbursementUpdateManyWithWhereWithoutShiftInput = {
-    where: ReimbursementScalarWhereInput
-    data: XOR<ReimbursementUpdateManyMutationInput, ReimbursementUncheckedUpdateManyWithoutShiftInput>
-  }
-
-  export type ReimbursementScalarWhereInput = {
-    AND?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
-    OR?: ReimbursementScalarWhereInput[]
-    NOT?: ReimbursementScalarWhereInput | ReimbursementScalarWhereInput[]
-    id?: StringFilter<"Reimbursement"> | string
-    shiftId?: StringFilter<"Reimbursement"> | string
-    amount?: FloatFilter<"Reimbursement"> | number
-    description?: StringFilter<"Reimbursement"> | string
-    createdAt?: DateTimeFilter<"Reimbursement"> | Date | string
-    updatedAt?: DateTimeFilter<"Reimbursement"> | Date | string
   }
 
   export type ShiftCreateWithoutReimbursementsInput = {
@@ -31101,6 +36087,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     staff: StaffCreateNestedOneWithoutShiftsInput
+    tasks?: ShiftTaskCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftUncheckedCreateWithoutReimbursementsInput = {
@@ -31115,6 +36102,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    tasks?: ShiftTaskUncheckedCreateNestedManyWithoutShiftInput
   }
 
   export type ShiftCreateOrConnectWithoutReimbursementsInput = {
@@ -31145,6 +36133,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     staff?: StaffUpdateOneRequiredWithoutShiftsNestedInput
+    tasks?: ShiftTaskUpdateManyWithoutShiftNestedInput
   }
 
   export type ShiftUncheckedUpdateWithoutReimbursementsInput = {
@@ -31159,6 +36148,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tasks?: ShiftTaskUncheckedUpdateManyWithoutShiftNestedInput
   }
 
   export type ParsedOrderCreateWithoutShopifyOrderInput = {
@@ -31481,6 +36471,46 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ComponentImageCreateManyComponentInput = {
+    id?: string
+    publicId: string
+    url: string
+    alt?: string | null
+    position?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ComponentImageUpdateWithoutComponentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    alt?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ComponentImageUncheckedUpdateWithoutComponentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    alt?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ComponentImageUncheckedUpdateManyWithoutComponentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    publicId?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    alt?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ShiftCreateManyStaffInput = {
     id?: string
     clockIn: Date | string
@@ -31518,6 +36548,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reimbursements?: ReimbursementUpdateManyWithoutShiftNestedInput
+    tasks?: ShiftTaskUpdateManyWithoutShiftNestedInput
   }
 
   export type ShiftUncheckedUpdateWithoutStaffInput = {
@@ -31532,6 +36563,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reimbursements?: ReimbursementUncheckedUpdateManyWithoutShiftNestedInput
+    tasks?: ShiftTaskUncheckedUpdateManyWithoutShiftNestedInput
   }
 
   export type ShiftUncheckedUpdateManyWithoutStaffInput = {
@@ -31557,6 +36589,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     shiftType?: ShiftTypeUpdateOneWithoutRosterAssignmentsNestedInput
+    tasks?: RosterAssignmentTaskUpdateManyWithoutRosterAssignmentNestedInput
   }
 
   export type RosterAssignmentUncheckedUpdateWithoutStaffInput = {
@@ -31569,6 +36602,7 @@ export namespace Prisma {
     assignedBy?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tasks?: RosterAssignmentTaskUncheckedUpdateManyWithoutRosterAssignmentNestedInput
   }
 
   export type RosterAssignmentUncheckedUpdateManyWithoutStaffInput = {
@@ -31605,6 +36639,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     staff?: StaffUpdateOneRequiredWithoutRosterAssignmentsNestedInput
+    tasks?: RosterAssignmentTaskUpdateManyWithoutRosterAssignmentNestedInput
   }
 
   export type RosterAssignmentUncheckedUpdateWithoutShiftTypeInput = {
@@ -31617,6 +36652,7 @@ export namespace Prisma {
     assignedBy?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tasks?: RosterAssignmentTaskUncheckedUpdateManyWithoutRosterAssignmentNestedInput
   }
 
   export type RosterAssignmentUncheckedUpdateManyWithoutShiftTypeInput = {
@@ -31635,6 +36671,16 @@ export namespace Prisma {
     id?: string
     amount: number
     description: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftTaskCreateManyShiftInput = {
+    id?: string
+    title: string
+    description?: string | null
+    isCompleted?: boolean
+    completedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -31659,6 +36705,68 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftTaskUpdateWithoutShiftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftTaskUncheckedUpdateWithoutShiftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftTaskUncheckedUpdateManyWithoutShiftInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isCompleted?: BoolFieldUpdateOperationsInput | boolean
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentTaskCreateManyRosterAssignmentInput = {
+    id?: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAssignmentTaskUpdateWithoutRosterAssignmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentTaskUncheckedUpdateWithoutRosterAssignmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAssignmentTaskUncheckedUpdateManyWithoutRosterAssignmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

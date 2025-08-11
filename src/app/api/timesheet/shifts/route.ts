@@ -8,7 +8,8 @@ export async function GET() {
     const shifts = await prisma.shift.findMany({
       include: {
         staff: true,
-        reimbursements: true
+        reimbursements: true,
+        tasks: true
       },
       orderBy: {
         date: 'desc'

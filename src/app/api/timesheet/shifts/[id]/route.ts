@@ -14,7 +14,8 @@ export async function GET(
       where: { id },
       include: {
         staff: true,
-        reimbursements: true
+        reimbursements: true,
+        tasks: true
       }
     })
     

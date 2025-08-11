@@ -35,7 +35,11 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Pencil, Plus, Trash2 } from "lucide-react"
-import { Dispatch, SetStateAction } from 'react'
+import { ComponentCard } from './ComponentCard'
+import { Dispatch, SetStateAction, useRef, useLayoutEffect } from 'react'
+import jsPDF from 'jspdf'
+// html-to-image lacks types; import via require at runtime to satisfy TS
+const htmlToImage = require('html-to-image') as { toPng: (node: HTMLElement, opts?: any) => Promise<string> }
 import { IngredientSelector } from './IngredientSelector'
 import { Resolver } from "react-hook-form"
 
@@ -65,6 +69,7 @@ export interface Component {
   isComponentListItem: boolean
   createdAt: string
   updatedAt: string
+  images?: { id: string; publicId: string; url: string; alt?: string | null; position: number }[]
 }
 
 interface ComponentsTabProps {
@@ -134,6 +139,33 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingComponent, setEditingComponent] = useState<Component | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [localImages, setLocalImages] = useState<{ publicId?: string; url: string; alt?: string; position?: number }[]>([])
+  const [isViewOpen, setIsViewOpen] = useState(false)
+  const [viewComponent, setViewComponent] = useState<Component | null>(null)
+  const [downloadTarget, setDownloadTarget] = useState<Component | null>(null)
+  const hiddenCardRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const doExport = async () => {
+      if (!downloadTarget || !hiddenCardRef.current) return
+      try {
+        const node = hiddenCardRef.current as HTMLElement
+        const rect = node.getBoundingClientRect()
+        const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 2 })
+        const orientation = rect.width >= rect.height ? 'landscape' : 'portrait'
+        const pdf = new jsPDF({ orientation, unit: 'px', format: [rect.width, rect.height] })
+        // Fill the entire page with the card image (no white margins)
+        pdf.addImage(dataUrl, 'PNG', 0, 0, rect.width, rect.height)
+        pdf.save(`${downloadTarget.name.replace(/\s+/g, '_')}_card.pdf`)
+      } catch (e) {
+        console.error('Failed to export PDF:', e)
+        alert('Failed to export PDF. Please try again.')
+      } finally {
+        setDownloadTarget(null)
+      }
+    }
+    void doExport()
+  }, [downloadTarget])
 
   // Update error state when prop changes
   useEffect(() => {
@@ -244,7 +276,13 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
         ...values,
         ingredients: validatedIngredients,
         totalCost,
-        id: editingComponent?.id // Include id if editing
+        id: editingComponent?.id, // Include id if editing
+        images: localImages.map((img, idx) => ({
+          publicId: img.publicId,
+          url: img.url,
+          alt: img.alt,
+          position: img.position ?? idx,
+        }))
       }
 
       console.log('Submitting component payload:', JSON.stringify(payload, null, 2))
@@ -299,6 +337,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
         isComponentListItem: true,
         totalCost: 0
       });
+      setLocalImages([])
     } catch (error) {
       console.error('Error saving component:', error);
       setError(error instanceof Error ? error.message : 'Failed to save component');
@@ -309,6 +348,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
 
   const handleEdit = (component: Component) => {
     setEditingComponent(component)
+    setLocalImages((component.images || []).map(img => ({ publicId: img.publicId, url: img.url, alt: img.alt || undefined, position: img.position })))
     form.reset({
       name: component.name,
       description: component.description,
@@ -334,6 +374,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
 
   const handleAdd = () => {
     setEditingComponent(null)
+    setLocalImages([])
     form.reset({
       name: "",
       description: "",
@@ -352,6 +393,44 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
       totalCost: 0
     })
     setIsDialogOpen(true)
+  }
+
+  // Cloudinary unsigned upload helper
+  const uploadToCloudinary = async (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '')
+    const folder = process.env.NEXT_PUBLIC_CLOUDINARY_BASE_FOLDER || 'caterstation/components'
+    form.append('folder', folder)
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+    if (!cloudName) throw new Error('Cloudinary cloud name not configured')
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: form })
+    if (!res.ok) throw new Error('Upload failed')
+    const data = await res.json()
+    return { publicId: data.public_id as string, url: data.secure_url as string }
+  }
+
+  const onFilesSelected = async (files: FileList | null) => {
+    if (!files) return
+    const toUpload = Array.from(files).slice(0, Math.max(0, 5 - localImages.length))
+    const uploaded: { publicId: string; url: string }[] = []
+    for (const file of toUpload) {
+      const u = await uploadToCloudinary(file)
+      uploaded.push(u)
+    }
+    const merged = [...localImages, ...uploaded.map((u, idx) => ({ ...u, position: (localImages.length + idx) }))]
+    setLocalImages(merged)
+  }
+
+  const removeImage = (idx: number) => {
+    const next = [...localImages]
+    next.splice(idx, 1)
+    setLocalImages(next.map((img, i) => ({ ...img, position: i })))
+  }
+
+  const openView = (component: Component) => {
+    setViewComponent(component)
+    setIsViewOpen(true)
   }
 
   return (
@@ -404,6 +483,30 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                     </FormItem>
                   )}
                 />
+
+                {/* Images uploader (max 5) */}
+                <div className="space-y-2">
+                  <FormLabel>Images</FormLabel>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    multiple
+                    onChange={(e) => onFilesSelected(e.target.files)}
+                  />
+                  {localImages.length > 0 && (
+                    <div className="grid grid-cols-5 gap-2">
+                      {localImages.map((img, idx) => (
+                        <div key={idx} className="relative rounded overflow-hidden border">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={img.url} alt={img.alt || ''} className="h-24 w-full object-cover" />
+                          <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 bg-white/80 text-xs px-1 rounded">✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">Up to 5 images. Camera capture supported on iPad/iPhone.</p>
+                </div>
 
                 <FormField
                   control={form.control}
@@ -606,6 +709,36 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
             </Form>
           </DialogContent>
         </Dialog>
+        {/* View dialog for card preview */}
+        <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+          <DialogContent className="max-w-fit">
+            <DialogHeader>
+              <DialogTitle>Component Card</DialogTitle>
+            </DialogHeader>
+            {viewComponent && (
+              <ComponentCard
+                name={viewComponent.name}
+                description={viewComponent.description}
+                images={(viewComponent.images || []).slice(0,2).map(i => ({ url: i.url, alt: i.alt }))}
+                ingredients={(viewComponent.ingredients || []).map((i:any)=>({ name: i.name, quantity: i.quantity, unit: i.unit }))}
+                allergens={[
+                  viewComponent.hasGluten && 'Gluten',
+                  viewComponent.hasDairy && 'Dairy',
+                  viewComponent.hasSoy && 'Soy',
+                  viewComponent.hasOnionGarlic && 'Onion/Garlic',
+                  viewComponent.hasSesame && 'Sesame',
+                  viewComponent.hasNuts && 'Nuts',
+                  viewComponent.hasEgg && 'Egg',
+                ].filter(Boolean) as string[]}
+                dietary={[
+                  viewComponent.isVegetarian && 'Vegetarian',
+                  viewComponent.isVegan && 'Vegan',
+                  viewComponent.isHalal && 'Halal',
+                ].filter(Boolean) as string[]}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
 
       {error && (
@@ -626,7 +759,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
+                <TableHead className="max-w-[360px]">Description</TableHead>
                 <TableHead>Total Cost</TableHead>
                 <TableHead>Allergens</TableHead>
                 <TableHead>Dietary</TableHead>
@@ -637,7 +770,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
               {(components || []).map((component) => (
                 <TableRow key={component.id}>
                   <TableCell className="font-medium">{component.name}</TableCell>
-                  <TableCell>{component.description}</TableCell>
+                  <TableCell className="max-w-[360px] whitespace-nowrap overflow-hidden text-ellipsis">{component.description}</TableCell>
                   <TableCell>${component.totalCost.toFixed(2)}</TableCell>
                   <TableCell>
                     {[
@@ -662,13 +795,12 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                       .join(", ")}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(component)}
-                    >
-                      Edit
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => openView(component)}>View</Button>
+                      <Button variant="outline" size="sm" onClick={() => setDownloadTarget(component)}>Download</Button>
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(component)}>Edit</Button>
+                      {/* Download button will export the card as PDF in a follow-up step */}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -676,6 +808,38 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
           </Table>
         </div>
       )}
+      {/* Hidden render target for PDF export */}
+      <div style={{ position: 'absolute', left: -10000, top: 0 }}>
+        {downloadTarget && (
+          <div ref={hiddenCardRef} style={{
+            // Match the card's intrinsic width/height for crisp export
+            width: 496,
+            minHeight: 700,
+            background: 'transparent'
+          }}>
+            <ComponentCard
+              name={downloadTarget.name}
+              description={downloadTarget.description}
+              images={(downloadTarget.images || []).slice(0,2).map(i => ({ url: i.url, alt: i.alt }))}
+              ingredients={(downloadTarget.ingredients || []).map((i:any)=>({ name: i.name, quantity: i.quantity, unit: i.unit }))}
+              allergens={[
+                downloadTarget.hasGluten && 'Gluten',
+                downloadTarget.hasDairy && 'Dairy',
+                downloadTarget.hasSoy && 'Soy',
+                downloadTarget.hasOnionGarlic && 'Onion/Garlic',
+                downloadTarget.hasSesame && 'Sesame',
+                downloadTarget.hasNuts && 'Nuts',
+                downloadTarget.hasEgg && 'Egg',
+              ].filter(Boolean) as string[]}
+              dietary={[
+                downloadTarget.isVegetarian && 'Vegetarian',
+                downloadTarget.isVegan && 'Vegan',
+                downloadTarget.isHalal && 'Halal',
+              ].filter(Boolean) as string[]}
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 } 

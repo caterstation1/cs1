@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Calendar, Users, Clock, Copy, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 
 interface Staff {
   id: string
@@ -28,6 +29,12 @@ interface ShiftType {
   color: string
 }
 
+interface RosterAssignmentTask {
+  id?: string
+  title: string
+  description?: string
+}
+
 interface RosterAssignment {
   id: string
   staffId: string
@@ -38,6 +45,7 @@ interface RosterAssignment {
   notes?: string
   staff: Staff
   shiftType?: ShiftType
+  tasks?: RosterAssignmentTask[]
 }
 
 export default function RosterPage() {
@@ -48,7 +56,13 @@ export default function RosterPage() {
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedCell, setSelectedCell] = useState<{ staffId: string; date: string } | null>(null)
-  const [newAssignment, setNewAssignment] = useState({ shiftTypeId: '', startTime: '', endTime: '', notes: '' })
+  const [newAssignment, setNewAssignment] = useState({ 
+    shiftTypeId: '', 
+    startTime: '', 
+    endTime: '', 
+    notes: '',
+    tasks: [] as RosterAssignmentTask[]
+  })
   const { toast } = useToast()
   
   // Get week dates (Monday to Sunday)
@@ -68,6 +82,26 @@ export default function RosterPage() {
   }
 
   const weekDates = getWeekDates(currentWeek)
+  const today = new Date().toISOString().split('T')[0]
+
+  // Calculate shift duration
+  const calculateShiftDuration = (startTime: string, endTime: string) => {
+    if (!startTime || !endTime) return null
+    
+    const start = new Date(`2000-01-01T${startTime}`)
+    const end = new Date(`2000-01-01T${endTime}`)
+    
+    // Handle overnight shifts
+    if (end < start) {
+      end.setDate(end.getDate() + 1)
+    }
+    
+    const diffMs = end.getTime() - start.getTime()
+    const hours = Math.floor(diffMs / (1000 * 60 * 60))
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+    
+    return `${hours}h${minutes > 0 ? ` ${minutes}m` : ''}`
+  }
 
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -161,11 +195,12 @@ export default function RosterPage() {
         shiftTypeId: existingAssignment.shiftTypeId || '',
         startTime: existingAssignment.startTime || '',
         endTime: existingAssignment.endTime || '',
-        notes: existingAssignment.notes || ''
+        notes: existingAssignment.notes || '',
+        tasks: existingAssignment.tasks || []
       })
     } else {
       // Clear form for new assignment
-      setNewAssignment({ shiftTypeId: '', startTime: '', endTime: '', notes: '' })
+      setNewAssignment({ shiftTypeId: '', startTime: '', endTime: '', notes: '', tasks: [] })
     }
     
     setDialogOpen(true)
@@ -189,7 +224,8 @@ export default function RosterPage() {
         startTime: newAssignment.startTime || null,
         endTime: newAssignment.endTime || null,
         date: selectedCell.date,
-        notes: newAssignment.notes
+        notes: newAssignment.notes,
+        tasks: newAssignment.tasks
       })
 
       const response = await fetch('/api/roster/assignments', {
@@ -203,7 +239,8 @@ export default function RosterPage() {
           startTime: newAssignment.startTime || null,
           endTime: newAssignment.endTime || null,
           date: selectedCell.date,
-          notes: newAssignment.notes
+          notes: newAssignment.notes,
+          tasks: newAssignment.tasks
         })
       })
 
@@ -254,6 +291,41 @@ export default function RosterPage() {
       })
     }
   }
+
+  // Copy assignment to other days
+  const handleCopyAssignment = async (assignment: RosterAssignment, targetDate: string) => {
+    try {
+      const response = await fetch('/api/roster/assignments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          staffId: assignment.staffId,
+          shiftTypeId: assignment.shiftTypeId || null,
+          startTime: assignment.startTime || null,
+          endTime: assignment.endTime || null,
+          date: targetDate,
+          notes: assignment.notes,
+          tasks: assignment.tasks
+        })
+      })
+
+      if (!response.ok) throw new Error('Failed to copy assignment')
+
+      await fetchData()
+      toast({
+        title: "Success",
+        description: "Shift copied successfully",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to copy shift",
+        variant: "destructive",
+      })
+    }
+  }
   
   console.log('🔍 Loading state:', loading, 'Staff count:', staff.length)
   
@@ -285,95 +357,236 @@ export default function RosterPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Roster Management</h1>
-        <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={previousWeek}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <div className="text-lg font-semibold">
-            {weekDates[0].toLocaleDateString('en-NZ', { month: 'long', day: 'numeric' })} - {weekDates[6].toLocaleDateString('en-NZ', { month: 'long', day: 'numeric', year: 'numeric' })}
+    <div className="container mx-auto py-8">
+      {/* Enhanced Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Calendar className="h-8 w-8 text-blue-600" />
+            Roster Management
+          </h1>
+          <p className="text-muted-foreground mt-1">Schedule and manage staff shifts</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-white border rounded-lg px-4 py-2 shadow-sm">
+            <Button variant="ghost" size="sm" onClick={previousWeek} className="h-8 w-8 p-0">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-sm font-medium min-w-[200px] text-center">
+              {weekDates[0].toLocaleDateString('en-NZ', { month: 'long', day: 'numeric' })} - {weekDates[6].toLocaleDateString('en-NZ', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </div>
+            <Button variant="ghost" size="sm" onClick={nextWeek} className="h-8 w-8 p-0">
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
-          <Button variant="outline" onClick={nextWeek}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
         </div>
       </div>
 
-      {/* Roster Grid */}
-      <Card>
+      {/* Stats Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-blue-600" />
+              <div>
+                <p className="text-sm text-muted-foreground">Active Staff</p>
+                <p className="text-2xl font-bold">{staff.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-green-600" />
+              <div>
+                <p className="text-sm text-muted-foreground">Shifts This Week</p>
+                <p className="text-2xl font-bold">{assignments.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-purple-600" />
+              <div>
+                <p className="text-sm text-muted-foreground">Shift Types</p>
+                <p className="text-2xl font-bold">{shiftTypes.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <div className="h-5 w-5 rounded-full bg-orange-100 flex items-center justify-center">
+                <div className="h-2 w-2 rounded-full bg-orange-600"></div>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Today</p>
+                <p className="text-2xl font-bold">{new Date().toLocaleDateString('en-NZ', { day: 'numeric', month: 'short' })}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Enhanced Roster Grid */}
+      <Card className="shadow-lg">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
-                  <th className="p-4 text-left font-semibold min-w-[200px]">Staff</th>
-                  {weekDates.map((date, index) => (
-                    <th key={index} className="p-4 text-center font-semibold min-w-[150px]">
-                      <div className="flex flex-col">
-                        <div className="text-sm text-gray-600">
-                          {date.toLocaleDateString('en-NZ', { weekday: 'short' })}
+                <tr className="border-b bg-gray-50">
+                  <th className="p-6 text-left font-semibold min-w-[220px] bg-white">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-gray-600" />
+                      Staff
+                    </div>
+                  </th>
+                  {weekDates.map((date, index) => {
+                    const dateStr = date.toISOString().split('T')[0]
+                    const isToday = dateStr === today
+                    const dayAssignments = assignments.filter(a => 
+                      new Date(a.date).toISOString().split('T')[0] === dateStr
+                    )
+                    
+                    return (
+                      <th key={index} className={`p-4 text-center font-semibold min-w-[160px] ${isToday ? 'bg-blue-50 border-l-2 border-r-2 border-blue-200' : ''}`}>
+                        <div className="flex flex-col items-center">
+                          <div className={`text-sm font-medium ${isToday ? 'text-blue-700' : 'text-gray-600'}`}>
+                            {date.toLocaleDateString('en-NZ', { weekday: 'short' })}
+                          </div>
+                          <div className={`text-xl font-bold ${isToday ? 'text-blue-700' : 'text-gray-900'}`}>
+                            {date.getDate()}
+                          </div>
+                          {isToday && (
+                            <div className="text-xs text-blue-600 font-medium">TODAY</div>
+                          )}
+                          <div className="text-xs text-gray-500 mt-1">
+                            {dayAssignments.length} shifts
+                          </div>
                         </div>
-                        <div className="text-lg">
-                          {date.getDate()}
-                        </div>
-                      </div>
-                    </th>
-                  ))}
+                      </th>
+                    )
+                  })}
                 </tr>
               </thead>
               <tbody>
-                {staff.map((member) => (
-                  <tr key={member.id} className="border-b hover:bg-gray-50">
-                    <td className="p-4 font-medium">
-                      {member.firstName} {member.lastName}
+                {staff.map((member, memberIndex) => (
+                  <tr key={member.id} className={`border-b hover:bg-gray-50 transition-colors ${memberIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                    <td className="p-6 font-medium bg-white border-r">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                          {member.firstName.charAt(0)}{member.lastName.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="font-semibold">{member.firstName} {member.lastName}</div>
+                          <div className="text-xs text-gray-500">{member.email}</div>
+                        </div>
+                      </div>
                     </td>
                     {weekDates.map((date, index) => {
                       const dateStr = date.toISOString().split('T')[0]
                       const assignment = getAssignment(member.id, dateStr)
+                      const isToday = dateStr === today
                       
                       return (
-                        <td key={index} className="p-2">
+                        <td key={index} className={`p-2 ${isToday ? 'bg-blue-50' : ''}`}>
                           <div 
-                            className="h-20 border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors"
+                            className={`h-24 border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 ${
+                              assignment ? 'border-solid border-0 shadow-sm' : ''
+                            }`}
                             onClick={() => handleCellClick(member.id, dateStr)}
                           >
                             {assignment ? (
-                              <div className="text-center">
-                                <Badge 
-                                  style={{ backgroundColor: assignment.shiftType?.color || '#6B7280' }}
-                                  className="text-white mb-1"
-                                >
-                                  {assignment.shiftType?.name || 'Custom Shift'}
-                                </Badge>
-                                <div className="text-xs text-gray-600">
-                                  {assignment.shiftType ? 
-                                    `${assignment.shiftType.startTime} - ${assignment.shiftType.endTime}` :
-                                    assignment.startTime && assignment.endTime ?
-                                    `${assignment.startTime} - ${assignment.endTime}` :
-                                    'No time set'
-                                  }
-                                </div>
-                                {assignment.notes && (
-                                  <div className="text-xs text-gray-500 mt-1 truncate max-w-[120px]">
-                                    {assignment.notes}
+                              <div className="w-full h-full p-2 flex flex-col justify-between">
+                                <div className="flex items-start justify-between">
+                                  <Badge 
+                                    style={{ backgroundColor: assignment.shiftType?.color || '#6B7280' }}
+                                    className="text-white text-xs font-medium"
+                                  >
+                                    {assignment.shiftType?.name || 'Custom Shift'}
+                                  </Badge>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0 hover:bg-gray-200"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        // Copy to next day
+                                        const nextDay = new Date(date)
+                                        nextDay.setDate(date.getDate() + 1)
+                                        const nextDayStr = nextDay.toISOString().split('T')[0]
+                                        handleCopyAssignment(assignment, nextDayStr)
+                                      }}
+                                      title="Copy to next day"
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0 hover:bg-red-200 hover:text-red-700"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDeleteAssignment(assignment.id)
+                                      }}
+                                      title="Remove shift"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
                                   </div>
-                                )}
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="mt-1 h-6 px-2 text-xs"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleDeleteAssignment(assignment.id)
-                                  }}
-                                >
-                                  Remove
-                                </Button>
+                                </div>
+                                
+                                <div className="text-center flex-1 flex flex-col justify-center">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {assignment.shiftType ? 
+                                      `${assignment.shiftType.startTime} - ${assignment.shiftType.endTime}` :
+                                      assignment.startTime && assignment.endTime ?
+                                      `${assignment.startTime} - ${assignment.endTime}` :
+                                      'No time set'
+                                    }
+                                  </div>
+                                  
+                                  {assignment.shiftType && (
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {calculateShiftDuration(assignment.shiftType.startTime, assignment.shiftType.endTime)}
+                                    </div>
+                                  )}
+                                  
+                                  {assignment.notes && (
+                                    <div className="text-xs text-gray-600 mt-1 px-2 py-1 bg-gray-100 rounded truncate">
+                                      {assignment.notes}
+                                    </div>
+                                  )}
+                                  
+                                  {assignment.tasks && assignment.tasks.length > 0 && (
+                                    <div className="text-xs text-gray-600 mt-1">
+                                      <div className="font-medium">Tasks:</div>
+                                      <div className="space-y-1">
+                                        {assignment.tasks.slice(0, 2).map((task, index) => (
+                                          <div key={index} className="flex items-center gap-1">
+                                            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                                            <span className="truncate">{task.title}</span>
+                                          </div>
+                                        ))}
+                                        {assignment.tasks.length > 2 && (
+                                          <div className="text-gray-500">+{assignment.tasks.length - 2} more</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             ) : (
-                              <Plus className="h-6 w-6 text-gray-400" />
+                              <div className="flex flex-col items-center justify-center text-gray-400">
+                                <Plus className="h-6 w-6 mb-1" />
+                                <span className="text-xs">Add Shift</span>
+                              </div>
                             )}
                           </div>
                         </td>
@@ -387,11 +600,12 @@ export default function RosterPage() {
         </CardContent>
       </Card>
 
-      {/* Assignment Dialog */}
+      {/* Enhanced Assignment Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
               {selectedCell && getAssignment(selectedCell.staffId, selectedCell.date) 
                 ? 'Edit Shift Assignment' 
                 : 'Assign Shift'
@@ -401,11 +615,11 @@ export default function RosterPage() {
               Select a shift type or enter custom start and end times for this staff member.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <Label htmlFor="shiftType">Shift Type (Optional)</Label>
-              <div className="flex gap-2">
-                <Select value={newAssignment.shiftTypeId} onValueChange={(value) => setNewAssignment(prev => ({ ...prev, shiftTypeId: value, startTime: '', endTime: '' }))}>
+              <Label htmlFor="shiftType" className="text-sm font-medium">Shift Type (Optional)</Label>
+              <div className="flex gap-2 mt-2">
+                <Select value={newAssignment.shiftTypeId} onValueChange={(value) => setNewAssignment(prev => ({ ...prev, shiftTypeId: value, startTime: '', endTime: '', tasks: [] }))}>
                   <SelectTrigger className="flex-1">
                     <SelectValue placeholder="Select shift type (optional)" />
                   </SelectTrigger>
@@ -417,7 +631,8 @@ export default function RosterPage() {
                             className="w-3 h-3 rounded"
                             style={{ backgroundColor: shiftType.color }}
                           />
-                          {shiftType.name} ({shiftType.startTime} - {shiftType.endTime})
+                          <span className="font-medium">{shiftType.name}</span>
+                          <span className="text-gray-500">({shiftType.startTime} - {shiftType.endTime})</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -427,14 +642,14 @@ export default function RosterPage() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => setNewAssignment(prev => ({ ...prev, shiftTypeId: '', startTime: '', endTime: '' }))}
+                    onClick={() => setNewAssignment(prev => ({ ...prev, shiftTypeId: '', startTime: '', endTime: '', tasks: [] }))}
                   >
                     Clear
                   </Button>
                 )}
               </div>
               {!newAssignment.shiftTypeId && (
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-2">
                   No shift type selected. You can enter custom start and end times below.
                 </p>
               )}
@@ -442,24 +657,27 @@ export default function RosterPage() {
             
             {!newAssignment.shiftTypeId && (
               <>
+                <Separator />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="startTime">Start Time</Label>
+                    <Label htmlFor="startTime" className="text-sm font-medium">Start Time</Label>
                     <Input
                       id="startTime"
                       type="time"
                       value={newAssignment.startTime}
                       onChange={(e) => setNewAssignment(prev => ({ ...prev, startTime: e.target.value }))}
+                      className="mt-2"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="endTime">End Time</Label>
+                    <Label htmlFor="endTime" className="text-sm font-medium">End Time</Label>
                     <Input
                       id="endTime"
                       type="time"
                       value={newAssignment.endTime}
                       onChange={(e) => setNewAssignment(prev => ({ ...prev, endTime: e.target.value }))}
+                      className="mt-2"
                       required
                     />
                   </div>
@@ -468,19 +686,67 @@ export default function RosterPage() {
             )}
             
             <div>
-              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Label htmlFor="notes" className="text-sm font-medium">Notes (Optional)</Label>
               <Textarea
                 id="notes"
                 placeholder="Add any notes about this shift..."
                 value={newAssignment.notes}
                 onChange={(e) => setNewAssignment(prev => ({ ...prev, notes: e.target.value }))}
+                className="mt-2"
+                rows={3}
               />
             </div>
-            <div className="flex justify-end gap-2">
+
+            {/* Tasks Section */}
+            <div>
+              <Label htmlFor="tasks" className="text-sm font-medium">Tasks (Optional)</Label>
+              <div className="flex flex-col gap-2 mt-2">
+                {newAssignment.tasks.map((task, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      placeholder="Task title"
+                      value={task.title}
+                      onChange={(e) => setNewAssignment(prev => ({
+                        ...prev,
+                        tasks: prev.tasks.map((t, i) => (i === index ? { ...t, title: e.target.value } : t))
+                      }))}
+                      className="flex-1"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setNewAssignment(prev => ({
+                        ...prev,
+                        tasks: prev.tasks.filter((_, i) => i !== index)
+                      }))}
+                      className="h-8 w-8 p-0 hover:bg-red-100"
+                      title="Remove task"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNewAssignment(prev => ({ ...prev, tasks: [...prev.tasks, { title: '', description: '' }] }))}
+                  className="h-8 w-full"
+                >
+                  Add Task
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-3 pt-4">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateAssignment} disabled={!newAssignment.shiftTypeId && (!newAssignment.startTime || !newAssignment.endTime)}>
+              <Button 
+                onClick={handleCreateAssignment} 
+                disabled={!newAssignment.shiftTypeId && (!newAssignment.startTime || !newAssignment.endTime)}
+                className="min-w-[120px]"
+              >
                 {selectedCell && getAssignment(selectedCell.staffId, selectedCell.date) 
                   ? 'Update Assignment' 
                   : 'Assign Shift'

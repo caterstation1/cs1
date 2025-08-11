@@ -1,12 +1,14 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server'
+import { prisma, withRetry } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    console.log('🏥 Health check requested');
+    console.log('🏥 Health check requested')
     
-    // Test database connection
-    await prisma.$queryRaw`SELECT 1`;
+    // Test database connection with retry
+    await withRetry(async () => {
+      return await prisma.$queryRaw`SELECT 1`
+    })
     
     return NextResponse.json({
       status: 'healthy',
@@ -16,14 +18,14 @@ export async function GET() {
       prisma: {
         databaseUrl: process.env.DATABASE_URL ? 'configured' : 'missing'
       }
-    });
+    })
     
   } catch (error) {
-    console.error('❌ Health check failed:', error);
+    console.error('❌ Health check failed:', error)
     return NextResponse.json({
       status: 'unhealthy',
       error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
-    }, { status: 500 });
+    }, { status: 500 })
   }
 } 
