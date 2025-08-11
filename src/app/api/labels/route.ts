@@ -84,7 +84,12 @@ export async function GET(request: NextRequest) {
       const addons = items.filter((it) => typeof it.sku === 'string' && it.sku.startsWith('ADD'))
       const products = items.filter((it) => !(typeof it.sku === 'string' && it.sku.startsWith('ADD')))
 
-      const addonNames = addons.map((it) => it.variant_title || it.title).filter(Boolean)
+      const addonNames = addons.map((it) => {
+        // For addons, we need to get the displayName from the custom data
+        const addonVariantId = it.variant_id?.toString?.() || it.variantId?.toString?.() || ''
+        // We'll fetch the displayName for addons in the loop below
+        return { item: it, variantId: addonVariantId }
+      }).filter(Boolean)
 
       // Build label count by expanding quantities
       const expanded: Array<{ item: any; idx: number }> = []
@@ -114,6 +119,20 @@ export async function GET(request: NextRequest) {
           meta = await prisma.productWithCustomData.findUnique({ where: { variantId } })
         }
 
+        // Get addon display names for the first label only
+        let addonDisplayNames: string[] = []
+        if (orderLabelIndex === 1 && addonNames.length > 0) {
+          for (const addon of addonNames) {
+            if (addon.variantId) {
+              const addonMeta = await prisma.productWithCustomData.findUnique({ where: { variantId: addon.variantId } })
+              const addonDisplayName = addonMeta?.displayName || addon.item.title || ''
+              if (addonDisplayName) {
+                addonDisplayNames.push(addonDisplayName)
+              }
+            }
+          }
+        }
+
         allLabels.push({
           orderId: o.id,
           orderNumber: o.orderNumber,
@@ -125,15 +144,15 @@ export async function GET(request: NextRequest) {
           deliveryWindow,
           phonePrimary,
           phoneSecondary: '',
-          productTitle: item.variant_title || item.title || '',
+          productTitle: meta?.displayName || item.title || '', // Use displayName from custom data
           peopleText: item.peopleText || '',
-          meat1: item.variant_title || undefined,
+          meat1: item.shopifyName || undefined, // Use shopifyName for meat/variant info
           meat2: undefined, // No longer using separate meat2 field
           option1: meta?.option1 || undefined,
           option2: meta?.option2 || undefined,
           flags: [meta?.meat1 && 'GF' && undefined].filter(Boolean).join(''), // placeholder; flags can be enriched later
           serveware: !!meta?.serveware,
-          addonsForOrder: orderLabelIndex === 1 && addonNames.length ? addonNames.join(', ') : '',
+          addonsForOrder: addonDisplayNames.join(', '),
           notes: note,
         })
       }
