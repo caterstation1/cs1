@@ -996,11 +996,11 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   }
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-md overflow-hidden">
-      {/* Order Details Section - Blue Background */}
-      <div className="bg-blue-600 text-white p-2">
+    <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden">
+      {/* Order Details Section - Light Blue Background */}
+      <div className="bg-blue-100 text-black p-1">
         {/* Single row with all order details */}
-        <div className="flex items-center space-x-4 text-sm">
+        <div className="flex items-center space-x-3 text-base">
           <div className="w-20">
             <input
               type="time"
@@ -1009,7 +1009,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                 setLeaveTime(e.target.value);
                 handleUpdate({ leaveTime: e.target.value });
               }}
-              className="w-full px-1 py-0.5 rounded bg-blue-700 text-white border border-blue-500 text-xs"
+              className="w-full px-1 py-0.5 rounded bg-blue-200 text-black border border-blue-300 text-xs"
               title="Leave Time"
             />
           </div>
@@ -1038,7 +1038,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                 setDriverId(e.target.value)
                 handleUpdate({ driverId: e.target.value })
               }}
-              className="w-full px-1 py-0.5 rounded bg-blue-700 text-white border border-blue-500 text-xs"
+              className="w-full px-1 py-0.5 rounded bg-blue-200 text-black border border-blue-300 text-xs"
               title="Driver"
               disabled={isLoadingDrivers}
             >
@@ -1109,10 +1109,10 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       </div>
 
       {/* Item Details Section - White Background */}
-      <div className="p-2 bg-white">
+      <div className="p-1 bg-white">
         <div className="relative">
           {/* Addon products - horizontal list, positioned absolutely */}
-          <div className="absolute left-[42%] top-0 flex items-center space-x-2 text-[1.5rem] text-red-600 z-10">
+          <div className="absolute left-[42%] top-0 flex items-center space-x-2 text-[1.75rem] text-red-600 z-10">
             {lineItems.map((item: any, index: number) => {
               // Use variantId for product lookup instead of SKU
               const variantId = item.variant_id?.toString() || item.variantId?.toString();
@@ -1123,7 +1123,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
               return (
                 <ContextMenu key={index}>
                   <ContextMenuTrigger asChild>
-                    <div className="flex items-center cursor-context-menu hover:bg-gray-50 p-1 rounded">
+                    <div className="flex items-center cursor-context-menu hover:bg-gray-50 p-0.5 rounded">
                   {index > 0 && <span className="mx-2 text-red-600">•</span>}
                   {product?.serveware && (
                     <span className="text-xs font-black text-black mr-2 align-middle">SW</span>
@@ -1241,7 +1241,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           </div>
 
           {/* Regular products */}
-          <div className="space-y-0.5 max-w-[40%]">
+          <div className="space-y-0 max-w-[40%]">
             {lineItems.map((item: any, index: number) => {
               // Use variantId for product lookup instead of SKU
               const variantId = item.variant_id?.toString() || item.variantId?.toString();
@@ -1257,7 +1257,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                 return (
                   <ContextMenu key={`${index}-${itemIndex}`}>
                     <ContextMenuTrigger asChild>
-                      <div className="text-[1.875rem] relative cursor-context-menu hover:bg-gray-50 p-1 rounded">
+                      <div className="text-[2.25rem] relative cursor-context-menu hover:bg-gray-50 p-0.5 rounded">
                         {product?.serveware && (
                           <span className="text-xs font-black text-black mr-2 inline align-middle">SW</span>
                         )}
