@@ -79,12 +79,23 @@ export async function fetchShopifyOrders(limit: number = 250): Promise<ShopifyOr
 
 // ✅ Fetch ALL Shopify orders with pagination
 export async function fetchAllShopifyOrders(): Promise<ShopifyOrder[]> {
+  console.log('🔍 fetchAllShopifyOrders: Starting...')
+  
   const shopUrl = env.SHOPIFY_SHOP_URL
   const accessToken = env.SHOPIFY_ACCESS_TOKEN
   const apiVersion = env.SHOPIFY_API_VERSION
 
+  console.log('🔍 fetchAllShopifyOrders: Environment check...')
+  console.log('🔍 shopUrl:', shopUrl ? 'Set' : 'Missing')
+  console.log('🔍 accessToken:', accessToken ? 'Set' : 'Missing')
+  console.log('🔍 apiVersion:', apiVersion ? 'Set' : 'Missing')
+
   if (!shopUrl || !accessToken || !apiVersion) {
-    throw new Error('Shopify credentials not fully configured')
+    const missingVars = []
+    if (!shopUrl) missingVars.push('SHOPIFY_SHOP_URL')
+    if (!accessToken) missingVars.push('SHOPIFY_ACCESS_TOKEN')
+    if (!apiVersion) missingVars.push('SHOPIFY_API_VERSION')
+    throw new Error(`Shopify credentials not fully configured. Missing: ${missingVars.join(', ')}`)
   }
 
   const allOrders: ShopifyOrder[] = [];
