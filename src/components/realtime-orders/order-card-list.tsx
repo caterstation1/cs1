@@ -464,7 +464,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   }, [orders, toast, isInitialLoad])
   
   // Handle bulk travel time update
-  // Print labels function
+  // Print labels function - use the existing print page with proper LabelCard rendering
   const handlePrintLabels = async () => {
     if (!selectedDate) {
       toast({
@@ -478,91 +478,40 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     const dateStr = format(selectedDate, 'yyyy-MM-dd')
     
     try {
-      // Fetch labels data
-      const res = await fetch(`/api/labels?date=${encodeURIComponent(dateStr)}`)
-      if (!res.ok) throw new Error('Failed to load labels')
-      const json = await res.json()
+      // Use the existing print page which has proper LabelCard rendering
+      const url = `/labels/print?date=${encodeURIComponent(dateStr)}`
       
-      if (!json.labels || json.labels.length === 0) {
-        toast({
-          title: 'No labels found',
-          description: 'No labels found for this date',
-          variant: 'destructive',
-        })
-        return
-      }
+      // Create a hidden iframe to load the print page
+      const iframe = document.createElement('iframe')
+      iframe.style.width = '0'
+      iframe.style.height = '0'
+      iframe.style.border = '0'
+      iframe.style.position = 'fixed'
+      iframe.style.left = '-9999px'
+      document.body.appendChild(iframe)
       
-      // Create a simple print-friendly page directly in the current window
-      const printWindow = window.open('', '_blank', 'width=800,height=600')
-      if (!printWindow) {
-        // Fallback to the original approach
-        const url = `/labels/print?date=${encodeURIComponent(dateStr)}`
-        window.open(url, '_blank')
-        return
-      }
+      // Load the print page in the iframe
+      iframe.src = url
       
-      // Create a simple HTML page for printing
-      const html = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Labels for ${format(selectedDate, 'MMM d, yyyy')}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-              .label { 
-                width: 100mm; height: 62mm; 
-                border: 1px solid #ccc; 
-                margin: 5mm; 
-                padding: 5mm; 
-                page-break-inside: avoid;
-                display: inline-block;
-                vertical-align: top;
-              }
-              .label-content { font-size: 12px; }
-              .customer-name { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-              .address { margin-bottom: 5px; }
-              .product { font-weight: bold; margin-bottom: 3px; }
-              .details { font-size: 10px; color: #666; }
-              @media print {
-                body { margin: 0; padding: 0; }
-                .label { border: none; margin: 0; padding: 5mm; }
-              }
-            </style>
-          </head>
-          <body>
-            ${json.labels.map((label: any) => `
-              <div class="label">
-                <div class="label-content">
-                  <div class="customer-name">${label.customerName || 'Customer'}</div>
-                  <div class="address">${label.address || 'Address'}</div>
-                  <div class="product">${label.productTitle || 'Product'}</div>
-                  <div class="details">
-                    ${label.meat1 ? `Meat 1: ${label.meat1}<br>` : ''}
-                    ${label.meat2 ? `Meat 2: ${label.meat2}<br>` : ''}
-                    ${label.option1 ? `Option 1: ${label.option1}<br>` : ''}
-                    ${label.option2 ? `Option 2: ${label.option2}<br>` : ''}
-                    ${label.serveware ? 'Serveware: Yes<br>' : ''}
-                    ${label.notes ? `Notes: ${label.notes}` : ''}
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </body>
-        </html>
-      `
-      
-      printWindow.document.write(html)
-      printWindow.document.close()
-      
-      // Wait for content to load and then print
-      printWindow.onload = () => {
+      // Wait for the page to load and then trigger print
+      iframe.onload = () => {
         setTimeout(() => {
-          printWindow.print()
-          // Close the window after printing
+          try {
+            // Try to trigger print in the iframe
+            iframe.contentWindow?.print()
+          } catch (error) {
+            console.error('Failed to print in iframe:', error)
+            // Fallback: open in new tab
+            window.open(url, '_blank')
+          }
+          
+          // Clean up the iframe after a delay
           setTimeout(() => {
-            printWindow.close()
-          }, 1000)
-        }, 500)
+            if (document.body.contains(iframe)) {
+              document.body.removeChild(iframe)
+            }
+          }, 5000) // Give enough time for print dialog
+        }, 1000) // Wait for the page to fully load
       }
       
     } catch (error) {
