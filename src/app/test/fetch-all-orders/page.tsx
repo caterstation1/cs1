@@ -54,7 +54,7 @@ export default function FetchAllOrdersPage() {
             <li>• This will fetch ALL orders from Shopify (potentially 10,000+ orders)</li>
             <li>• The process may take several minutes due to API rate limits</li>
             <li>• Orders are fetched in batches of 250 per request</li>
-            <li>• A 100ms delay is added between requests to respect Shopify's API</li>
+            <li>• A 100ms delay is added between requests to respect Shopify&apos;s API</li>
             <li>• This is currently a test endpoint - orders are not saved to database</li>
           </ul>
         </div>
