@@ -44,8 +44,8 @@ export interface ShopifyProduct {
   updated_at: string
 }
 
-// ✅ Extracted function
-export async function fetchShopifyOrders(): Promise<ShopifyOrder[]> {
+// ✅ Fetch Shopify orders with pagination
+export async function fetchShopifyOrders(limit: number = 250): Promise<ShopifyOrder[]> {
   const shopUrl = env.SHOPIFY_SHOP_URL
   const accessToken = env.SHOPIFY_ACCESS_TOKEN
   const apiVersion = env.SHOPIFY_API_VERSION
@@ -54,7 +54,7 @@ export async function fetchShopifyOrders(): Promise<ShopifyOrder[]> {
     throw new Error('Shopify credentials not fully configured')
   }
 
-  const url = `https://${shopUrl}/admin/api/${apiVersion}/orders.json?status=any&limit=250`
+  const url = `https://${shopUrl}/admin/api/${apiVersion}/orders.json?status=any&limit=${limit}`
 
   const response = await fetch(url, {
     headers: {
@@ -75,6 +75,76 @@ export async function fetchShopifyOrders(): Promise<ShopifyOrder[]> {
   }
 
   return data.orders || [];
+}
+
+// ✅ Fetch ALL Shopify orders with pagination
+export async function fetchAllShopifyOrders(): Promise<ShopifyOrder[]> {
+  const shopUrl = env.SHOPIFY_SHOP_URL
+  const accessToken = env.SHOPIFY_ACCESS_TOKEN
+  const apiVersion = env.SHOPIFY_API_VERSION
+
+  if (!shopUrl || !accessToken || !apiVersion) {
+    throw new Error('Shopify credentials not fully configured')
+  }
+
+  const allOrders: ShopifyOrder[] = [];
+  let hasNextPage = true;
+  let nextPageInfo = null;
+  let pageCount = 0;
+
+  while (hasNextPage) {
+    pageCount++;
+    const url: string = nextPageInfo 
+      ? `https://${shopUrl}/admin/api/${apiVersion}/orders.json?status=any&limit=250&page_info=${nextPageInfo}`
+      : `https://${shopUrl}/admin/api/${apiVersion}/orders.json?status=any&limit=250`;
+
+    console.log(`📦 Fetching Shopify orders page ${pageCount}: ${nextPageInfo ? 'next' : 'first'}`);
+
+    const response: Response = await fetch(url, {
+      headers: {
+        'X-Shopify-Access-Token': accessToken,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Shopify API error: ${response.statusText}`)
+    }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (err) {
+      throw new Error('Failed to parse Shopify response as JSON');
+    }
+
+    // Add orders from this page
+    const orders = data.orders || [];
+    allOrders.push(...orders);
+    console.log(`📄 Page ${pageCount}: Fetched ${orders.length} orders (Total: ${allOrders.length})`);
+
+    // Check for next page
+    const linkHeader: string | null = response.headers.get('Link');
+    if (linkHeader && linkHeader.includes('rel="next"')) {
+      const nextMatch: RegExpMatchArray | null = linkHeader.match(/<[^>]*page_info=([^&>]+)[^>]*>; rel="next"/);
+      if (nextMatch) {
+        nextPageInfo = nextMatch[1];
+        console.log(`📄 Found next page, continuing...`);
+      } else {
+        hasNextPage = false;
+      }
+    } else {
+      hasNextPage = false;
+    }
+
+    // Add a small delay between requests to be respectful to Shopify's API
+    if (hasNextPage) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+
+  console.log(`✅ Fetched ${allOrders.length} total orders from Shopify across ${pageCount} pages`);
+  return allOrders;
 }
 
 // ✅ Fetch Shopify products
