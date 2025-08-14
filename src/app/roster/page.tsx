@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { TimePicker } from '@/components/ui/time-picker'
 
 interface Staff {
   id: string
@@ -660,25 +661,17 @@ export default function RosterPage() {
                 <Separator />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="startTime" className="text-sm font-medium">Start Time</Label>
-                    <Input
-                      id="startTime"
-                      type="time"
+                    <TimePicker
                       value={newAssignment.startTime}
-                      onChange={(e) => setNewAssignment(prev => ({ ...prev, startTime: e.target.value }))}
-                      className="mt-2"
-                      required
+                      onChange={(value) => setNewAssignment(prev => ({ ...prev, startTime: value }))}
+                      label="Start Time"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="endTime" className="text-sm font-medium">End Time</Label>
-                    <Input
-                      id="endTime"
-                      type="time"
+                    <TimePicker
                       value={newAssignment.endTime}
-                      onChange={(e) => setNewAssignment(prev => ({ ...prev, endTime: e.target.value }))}
-                      className="mt-2"
-                      required
+                      onChange={(value) => setNewAssignment(prev => ({ ...prev, endTime: value }))}
+                      label="End Time"
                     />
                   </div>
                 </div>

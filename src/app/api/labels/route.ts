@@ -80,9 +80,9 @@ export async function GET(request: NextRequest) {
         try { items = JSON.parse(o.lineItems as any) } catch { items = [] }
       }
 
-      // split addons by SKU prefix ADD
-      const addons = items.filter((it) => typeof it.sku === 'string' && it.sku.startsWith('ADD'))
-      const products = items.filter((it) => !(typeof it.sku === 'string' && it.sku.startsWith('ADD')))
+      // split addons by SKU prefix ADD or AA
+      const addons = items.filter((it) => typeof it.sku === 'string' && (it.sku.startsWith('ADD') || it.sku.startsWith('AA')))
+      const products = items.filter((it) => !(typeof it.sku === 'string' && (it.sku.startsWith('ADD') || it.sku.startsWith('AA'))))
 
       const addonNames = addons.map((it) => {
         // For addons, we need to get the displayName from the custom data

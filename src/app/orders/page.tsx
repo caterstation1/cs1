@@ -49,6 +49,12 @@ interface Order {
   syncedAt: string;
   dbCreatedAt: string;
   dbUpdatedAt: string;
+  // Additional fields for editing
+  deliveryDate?: string;
+  deliveryTime?: string;
+  leaveTime?: string;
+  travelTime?: string;
+  internalNote?: string;
 }
 
 export default function OrdersPage() {
@@ -59,6 +65,17 @@ export default function OrdersPage() {
   const [syncResult, setSyncResult] = useState<{ synced: number; skipped: number; errors: number } | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderData, setShowOrderData] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  // Search and pagination state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [pagination, setPagination] = useState({
+    total: 0,
+    limit: 100,
+    offset: 0,
+    hasMore: false
+  });
+  const [isSearching, setIsSearching] = useState(false);
   
   // Product editing modal state
   const [productEditModal, setProductEditModal] = useState({
@@ -68,17 +85,27 @@ export default function OrdersPage() {
     variantTitle: ''
   });
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (search?: string, offset = 0) => {
     try {
       setLoading(true);
-      const response = await fetch('/api/orders');
+      const params = new URLSearchParams({
+        limit: pagination.limit.toString(),
+        offset: offset.toString()
+      });
+      
+      if (search) {
+        params.append('search', search);
+      }
+      
+      const response = await fetch(`/api/orders?${params}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch orders');
       }
       
       const data = await response.json();
-      setOrders(data);
+      setOrders(data.orders);
+      setPagination(data.pagination);
     } catch (err) {
       console.error('Error fetching orders:', err);
       setError('Failed to load orders. Please try again later.');
@@ -155,6 +182,47 @@ export default function OrdersPage() {
     fetchOrders();
   }, []);
 
+  // Handle search
+  const handleSearch = async () => {
+    setIsSearching(true);
+    try {
+      await fetchOrders(searchTerm, 0);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Handle pagination
+  const handleLoadMore = async () => {
+    if (pagination.hasMore) {
+      await fetchOrders(searchTerm, pagination.offset + pagination.limit);
+    }
+  };
+
+  // Handle order update
+  const handleOrderUpdate = async (orderId: string, updates: Partial<Order>) => {
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update order');
+      }
+      
+      const updatedOrder = await response.json();
+      setOrders(prev => prev.map(order => order.id === orderId ? { ...order, ...updatedOrder } : order));
+      
+      // Close edit modal
+      setIsEditModalOpen(false);
+    } catch (err) {
+      console.error('Error updating order:', err);
+      setError('Failed to update order. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto py-8">
@@ -188,6 +256,48 @@ export default function OrdersPage() {
         >
           {syncing ? 'Syncing...' : 'Sync Orders'}
         </button>
+      </div>
+
+      {/* Search Interface */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="flex gap-4 items-end">
+          <div className="flex-1">
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+              Search Orders
+            </label>
+            <input
+              id="search"
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by order number, name, email, phone..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            />
+          </div>
+          <button
+            onClick={handleSearch}
+            disabled={isSearching}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            {isSearching ? 'Searching...' : 'Search'}
+          </button>
+          {searchTerm && (
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                fetchOrders();
+              }}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <div className="mt-2 text-sm text-gray-600">
+          Showing {orders.length} of {pagination.total} orders
+          {searchTerm && ` matching "${searchTerm}"`}
+        </div>
       </div>
       
       {syncResult && (
@@ -261,15 +371,26 @@ export default function OrdersPage() {
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <button
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        setShowOrderData(true);
-                      }}
-                      className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200"
-                    >
-                      ALL DATA
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setIsEditModalOpen(true);
+                        }}
+                        className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setShowOrderData(true);
+                        }}
+                        className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200"
+                      >
+                        ALL DATA
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -277,6 +398,145 @@ export default function OrdersPage() {
           </table>
         </div>
       )}
+
+      {/* Load More Button */}
+      {pagination.hasMore && (
+        <div className="mt-6 text-center">
+          <button
+            onClick={handleLoadMore}
+            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+          >
+            Load More Orders
+          </button>
+        </div>
+      )}
+
+      {/* Edit Order Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Order #{selectedOrder?.orderNumber}</DialogTitle>
+            <DialogDescription>
+              Update order details. Changes will be saved to the database.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Delivery Date
+                  </label>
+                  <input
+                    type="date"
+                    defaultValue={selectedOrder.deliveryDate || ''}
+                    onChange={(e) => {
+                      const updatedOrder = { ...selectedOrder, deliveryDate: e.target.value };
+                      setSelectedOrder(updatedOrder);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Delivery Time
+                  </label>
+                  <input
+                    type="time"
+                    defaultValue={selectedOrder.deliveryTime || ''}
+                    onChange={(e) => {
+                      const updatedOrder = { ...selectedOrder, deliveryTime: e.target.value };
+                      setSelectedOrder(updatedOrder);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Leave Time
+                  </label>
+                  <input
+                    type="time"
+                    defaultValue={selectedOrder.leaveTime || ''}
+                    onChange={(e) => {
+                      const updatedOrder = { ...selectedOrder, leaveTime: e.target.value };
+                      setSelectedOrder(updatedOrder);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Travel Time (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={selectedOrder.travelTime || ''}
+                    onChange={(e) => {
+                      const updatedOrder = { ...selectedOrder, travelTime: e.target.value };
+                      setSelectedOrder(updatedOrder);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Order Notes
+                </label>
+                <textarea
+                  defaultValue={selectedOrder.note || ''}
+                  onChange={(e) => {
+                    const updatedOrder = { ...selectedOrder, note: e.target.value };
+                    setSelectedOrder(updatedOrder);
+                  }}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Internal Note
+                </label>
+                <textarea
+                  defaultValue={selectedOrder.internalNote || ''}
+                  onChange={(e) => {
+                    const updatedOrder = { ...selectedOrder, internalNote: e.target.value };
+                    setSelectedOrder(updatedOrder);
+                  }}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="px-4 py-2 text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (selectedOrder) {
+                  handleOrderUpdate(selectedOrder.id, selectedOrder);
+                }
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Save Changes
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showOrderData} onOpenChange={setShowOrderData}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">

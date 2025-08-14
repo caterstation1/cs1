@@ -114,6 +114,22 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   // Use a ref to track if this is the first render
   const isFirstRender = useRef(true)
   
+  // Track order updates for visual feedback
+  const [showUpdateGlow, setShowUpdateGlow] = useState(false)
+  const lastOrderData = useRef(JSON.stringify(order))
+  
+  // Check if order data has changed and show subtle update indicator
+  useEffect(() => {
+    const currentOrderData = JSON.stringify(order)
+    if (!isFirstRender.current && currentOrderData !== lastOrderData.current) {
+      setShowUpdateGlow(true)
+      setTimeout(() => setShowUpdateGlow(false), 1500)
+      console.log('🔄 Order card updated:', order.id)
+    }
+    lastOrderData.current = currentOrderData
+    isFirstRender.current = false
+  }, [order])
+  
   // Format the order date
   const orderDate = formatDate(order.createdAt)
   
@@ -996,7 +1012,9 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   }
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden">
+    <div className={`w-full bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 ${
+      showUpdateGlow ? 'ring-2 ring-blue-400 ring-opacity-50 shadow-lg' : ''
+    }`}>
       {/* Order Details Section - Light Blue Background */}
       <div className="bg-blue-100 text-black p-1">
         {/* Single row with all order details */}
@@ -1112,18 +1130,18 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       <div className="p-1 bg-white">
         <div className="relative">
           {/* Addon products - horizontal list, positioned absolutely */}
-          <div className="absolute left-[42%] top-0 flex items-center space-x-2 text-[1.75rem] text-red-600 z-10">
+          <div className="absolute left-[42%] top-0 flex items-center space-x-2 text-[1.75rem] text-red-600 z-10 leading-tight">
             {lineItems.map((item: any, index: number) => {
               // Use variantId for product lookup instead of SKU
               const variantId = item.variant_id?.toString() || item.variantId?.toString();
               const product = variantId ? products[variantId] : null;
               
-              // Only show addon products (SKUs starting with ADD)
-              if (!item.sku?.startsWith('ADD')) return null
+              // Only show addon products (SKUs starting with ADD or AA)
+              if (!item.sku?.startsWith('ADD') && !item.sku?.startsWith('AA')) return null
               return (
                 <ContextMenu key={index}>
                   <ContextMenuTrigger asChild>
-                    <div className="flex items-center cursor-context-menu hover:bg-gray-50 p-0.5 rounded">
+                    <div className="flex items-center cursor-context-menu hover:bg-gray-50 p-0.5 rounded leading-tight">
                   {index > 0 && <span className="mx-2 text-red-600">•</span>}
                   {product?.serveware && (
                     <span className="text-xs font-black text-black mr-2 align-middle">SW</span>
@@ -1247,8 +1265,8 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
               const variantId = item.variant_id?.toString() || item.variantId?.toString();
               const product = variantId ? products[variantId] : null;
               
-              // Skip addon products (SKUs starting with ADD)
-              if (item.sku?.startsWith('ADD')) return null
+              // Skip addon products (SKUs starting with ADD or AA)
+              if (item.sku?.startsWith('ADD') || item.sku?.startsWith('AA')) return null
               // Create an array of items based on quantity
               return Array(item.quantity).fill(null).map((_, itemIndex) => {
                 // Only calculate timer times if we have a valid product with timers
@@ -1257,13 +1275,15 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                 return (
                   <ContextMenu key={`${index}-${itemIndex}`}>
                     <ContextMenuTrigger asChild>
-                      <div className="text-[2.25rem] relative cursor-context-menu hover:bg-gray-50 p-0.5 rounded">
-                        {product?.serveware && (
-                          <span className="text-xs font-black text-black mr-2 inline align-middle">SW</span>
-                        )}
-                        <span>{product ? (product.displayName?.trim() ? product.displayName : (product.shopifyName || product.name)) : item.title}</span>
+                      <div className="text-[2.25rem] relative cursor-context-menu hover:bg-gray-50 p-0.5 rounded leading-tight">
+                        <div className="flex items-center relative">
+                          <span className="flex-shrink-0 w-8 text-xs font-black text-black">
+                            {product?.serveware ? 'SW' : ''}
+                          </span>
+                          <span className="flex-1">{product ? (product.displayName?.trim() ? product.displayName : (product.shopifyName || product.name)) : item.title}</span>
+                        </div>
                     {(product?.meat1 || product?.meat2) && (
-                          <span className="absolute left-[45%] text-black align-middle">
+                          <span className="absolute left-[45%] top-0 text-black align-middle">
                         {product.meat1 && (
                           <span className={timerTimes[0] && isTimerPassed(variantId, 0, timerTimes[0]) ? 'text-red-600 font-bold' : ''}>
                             {product.meat1}

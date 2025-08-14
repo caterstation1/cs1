@@ -8,15 +8,15 @@ export function Nav() {
   const pathname = usePathname()
 
   const links = [
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/orders', label: 'All Orders' },
+    { href: '/realtime-orders', label: 'Realtime Orders' },
+    { href: '/products', label: 'Products' },
+    { href: '/customers', label: 'Customers' },
+    { href: '/calendar', label: 'Calendar' },
     { href: '/staff', label: 'Staff' },
     { href: '/roster', label: 'Roster' },
     { href: '/timesheet', label: 'Timesheet' },
-    { href: '/products', label: 'Products' },
-    { href: '/components', label: 'Components' },
-    { href: '/ingredients', label: 'Ingredients' },
-    { href: '/calendar', label: 'Calendar' },
-    { href: '/orders', label: 'All Orders' },
-    { href: '/realtime-orders', label: 'Realtime Orders' },
   ]
 
   return (

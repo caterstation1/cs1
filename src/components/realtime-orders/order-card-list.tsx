@@ -122,14 +122,14 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   const [currentTime, setCurrentTime] = useState(new Date());
   const currentTimeRef = useRef(new Date());
 
-  // Update current time every 10 seconds for more responsive updates
+  // Update current time every 5 seconds to match the new refresh cycle
   useEffect(() => {
     const interval = setInterval(() => {
       const newTime = new Date();
       setCurrentTime(newTime);
       currentTimeRef.current = newTime;
       console.log('🕐 Oven count update at:', newTime.toLocaleTimeString());
-    }, 10000); // Update every 10 seconds for better responsiveness
+    }, 5000); // Update every 5 seconds to match order refresh
 
     return () => clearInterval(interval);
   }, []);
@@ -305,6 +305,12 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
 
   // Memoize the filtered and sorted orders to prevent unnecessary re-renders
   const { filteredOrders, sortedOrders } = useMemo(() => {
+    // Ensure orders is an array before filtering
+    if (!Array.isArray(orders)) {
+      console.warn('Orders is not an array:', orders);
+      return { filteredOrders: [], sortedOrders: [] };
+    }
+    
     // Filter orders based on fulfillment status and dispatch status
     const filtered = orders.filter(order => {
       if (filter === 'all') return true;

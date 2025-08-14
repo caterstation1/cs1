@@ -96,8 +96,12 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
           throw new Error('Failed to fetch suppliers')
         }
         const data = await response.json()
-        setSuppliers(data)
-        console.log('✅ Fetched suppliers:', data)
+        // Ensure data is an array and filter out any invalid entries
+        const validSuppliers = Array.isArray(data) ? data.filter(supplier => 
+          supplier && typeof supplier === 'object' && supplier.id && supplier.name
+        ) : []
+        setSuppliers(validSuppliers)
+        console.log('✅ Fetched suppliers:', validSuppliers)
       } catch (error) {
         console.error('❌ Error fetching suppliers:', error)
         setError('Failed to load suppliers')
@@ -299,7 +303,7 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
                               No suppliers available
                             </SelectItem>
                           ) : (
-                            suppliers.filter(supplier => supplier && supplier.name).map((supplier) => (
+                            suppliers.filter(supplier => supplier && supplier.name && supplier.id).map((supplier) => (
                               <SelectItem key={supplier.id} value={supplier.name}>
                                 {supplier.name}
                               </SelectItem>
@@ -395,12 +399,12 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
                 </TableCell>
               </TableRow>
             ) : (
-              (products || []).map((product) => (
+              (products || []).filter(product => product && product.id && product.name).map((product) => (
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>{product.supplier}</TableCell>
-                  <TableCell>{product.description}</TableCell>
-                  <TableCell className="text-right">${product.cost.toFixed(2)}</TableCell>
+                  <TableCell>{product.supplier || ''}</TableCell>
+                  <TableCell>{product.description || ''}</TableCell>
+                  <TableCell className="text-right">${(product.cost || 0).toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
                       <Button 

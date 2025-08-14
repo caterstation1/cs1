@@ -1,10 +1,86 @@
 import { NextResponse } from 'next/server';
-// TODO: Implement Firestore adapter for Shopify custom data
-export async function POST() {
-  return NextResponse.json({
-    message: 'Shopify custom data API not yet migrated to Firestore. TODO: Implement Firestore adapter.',
-    result: null
-  });
+import { prisma } from '@/lib/prisma';
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { variantId, ...customData } = body;
+
+    console.log('💾 Saving custom data for variant:', variantId, 'Data:', customData);
+
+    if (!variantId) {
+      return NextResponse.json(
+        { error: 'variantId is required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if product exists
+    const existingProduct = await prisma.productWithCustomData.findUnique({
+      where: { variantId }
+    });
+
+    if (existingProduct) {
+      // Update existing product
+      const updatedProduct = await prisma.productWithCustomData.update({
+        where: { variantId },
+        data: {
+          displayName: customData.displayName,
+          meat1: customData.meat1,
+          meat2: customData.meat2,
+          timer1: customData.timer1,
+          timer2: customData.timer2,
+          option1: customData.option1,
+          option2: customData.option2,
+          serveware: customData.serveware,
+          ingredients: customData.ingredients,
+          totalCost: customData.totalCost || 0,
+          updatedAt: new Date()
+        }
+      });
+
+      console.log('✅ Updated product custom data:', updatedProduct.shopifyName);
+      return NextResponse.json(updatedProduct);
+    } else {
+      // Create new product (this shouldn't happen often as products are synced from Shopify)
+      console.warn('⚠️ Product not found, creating new record for variant:', variantId);
+      
+      // We need to get the Shopify data first - this is a fallback
+      const newProduct = await prisma.productWithCustomData.create({
+        data: {
+          variantId,
+          shopifyProductId: 'unknown', // This would need to be fetched from Shopify
+          shopifySku: 'unknown',
+          shopifyName: 'Unknown Product',
+          shopifyTitle: 'Unknown Product',
+          shopifyPrice: '0',
+          shopifyInventory: 0,
+          displayName: customData.displayName,
+          meat1: customData.meat1,
+          meat2: customData.meat2,
+          timer1: customData.timer1,
+          timer2: customData.timer2,
+          option1: customData.option1,
+          option2: customData.option2,
+          serveware: customData.serveware,
+          ingredients: customData.ingredients,
+          totalCost: customData.totalCost || 0
+        }
+      });
+
+      console.log('✅ Created new product custom data:', newProduct.shopifyName);
+      return NextResponse.json(newProduct);
+    }
+  } catch (error) {
+    console.error('❌ Error saving custom data:', error);
+    return NextResponse.json(
+      { 
+        error: 'Failed to save custom data', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(request: Request) {

@@ -317,6 +317,24 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
         setComponents([...components, responseData]);
       }
       
+      // Trigger cost recalculation for all products that use this component
+      console.log('🔄 Triggering cost recalculation for products using this component...');
+      try {
+        const recalcResponse = await fetch('/api/products/recalculate-costs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (recalcResponse.ok) {
+          const recalcResult = await recalcResponse.json();
+          console.log('✅ Product costs updated:', recalcResult);
+        } else {
+          console.warn('⚠️ Failed to recalculate product costs');
+        }
+      } catch (recalcError) {
+        console.warn('⚠️ Error during cost recalculation:', recalcError);
+      }
+      
       // Reset form and close dialog
       setIsDialogOpen(false);
       setEditingComponent(null);

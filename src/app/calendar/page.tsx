@@ -38,7 +38,8 @@ export default function CalendarPage() {
   const fetchOrders = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/orders')
+      // Fetch all orders with a high limit to ensure we get all orders
+      const response = await fetch('/api/orders?limit=10000')
       if (!response.ok) throw new Error('Failed to fetch orders')
       const data = await response.json()
       
@@ -53,18 +54,7 @@ export default function CalendarPage() {
         ordersArray = []
       }
       
-      console.log('📋 Calendar fetched orders:', {
-        count: ordersArray.length,
-        sampleOrder: ordersArray[0] ? {
-          id: ordersArray[0].id,
-          hasDeliveryDate: !!ordersArray[0].deliveryDate,
-          deliveryDate: ordersArray[0].deliveryDate,
-          hasCustomerFirstName: !!ordersArray[0].customerFirstName,
-          hasCustomerLastName: !!ordersArray[0].customerLastName,
-          hasCustomerPhone: !!ordersArray[0].customerPhone,
-          hasLineItems: !!ordersArray[0].lineItems
-        } : null
-      })
+
       setOrders(ordersArray)
     } catch (err) {
       console.error('Error fetching orders:', err)

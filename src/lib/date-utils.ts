@@ -64,10 +64,25 @@ export function isSameLocalDay(date1: Date, date2: Date): boolean {
 }
 
 /**
- * Gets today's date in local time
- * @returns Date object set to today's local midnight
+ * Gets today's date in Auckland timezone (UTC+12)
+ * @returns Date object set to today's Auckland midnight
  */
 export function getTodayLocal(): Date {
+  // Get current time and convert to Auckland timezone
   const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  
+  // Create a date string in Auckland timezone
+  // Use toLocaleString with Auckland timezone to get the correct date
+  const aucklandDateString = now.toLocaleString('en-NZ', { 
+    timeZone: 'Pacific/Auckland',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  
+  // Parse the Auckland date string (format: DD/MM/YYYY)
+  const [day, month, year] = aucklandDateString.split('/').map(Number);
+  
+  // Create a new date object set to Auckland midnight
+  return new Date(year, month - 1, day, 0, 0, 0, 0);
 } 

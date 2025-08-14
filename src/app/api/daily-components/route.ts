@@ -75,24 +75,78 @@ export async function GET(request: NextRequest) {
 
     console.log(`🧀 Found ${productsWithIngredients.length} products with ingredients`);
 
-    // Aggregate ingredients from all products
-    const ingredientCounts = new Map<string, { quantity: number, cost: number, unit: string }>();
-
-    productsWithIngredients.forEach(product => {
-      if (product.ingredients && Array.isArray(product.ingredients)) {
-        product.ingredients.forEach((ingredient: any) => {
-          if (ingredient && ingredient.name) {
+    // Recursive function to expand components and get all component list items
+    const expandComponents = async (ingredients: any[], multiplier: number = 1): Promise<Map<string, { quantity: number, cost: number, unit: string }>> => {
+      const expandedIngredients = new Map<string, { quantity: number, cost: number, unit: string }>();
+      
+      for (const ingredient of ingredients) {
+        if (!ingredient || !ingredient.name) continue;
+        
+        const ingredientQuantity = (ingredient.quantity || 1) * multiplier;
+        
+        if (ingredient.source === 'Components') {
+          // This is a component, let's expand it
+          try {
+            const component = await prisma.component.findUnique({
+              where: { id: ingredient.id }
+            });
+            
+            if (component && component.ingredients && Array.isArray(component.ingredients)) {
+              // Recursively expand this component's ingredients
+              const subIngredients = await expandComponents(component.ingredients, ingredientQuantity);
+              
+              // Merge the expanded ingredients
+              subIngredients.forEach((value, key) => {
+                const current = expandedIngredients.get(key) || { quantity: 0, cost: 0, unit: value.unit };
+                current.quantity += value.quantity;
+                current.cost += value.cost;
+                expandedIngredients.set(key, current);
+              });
+            }
+            
+            // Only add the component itself if it's marked as a component list item
+            if (component && component.isComponentListItem) {
+              const key = ingredient.name.toLowerCase().trim();
+              const current = expandedIngredients.get(key) || { quantity: 0, cost: 0, unit: ingredient.unit || 'units' };
+              current.quantity += ingredientQuantity;
+              current.cost += (ingredient.cost || 0) * multiplier;
+              expandedIngredients.set(key, current);
+            }
+          } catch (error) {
+            console.warn(`Failed to expand component ${ingredient.name}:`, error);
+            // If we can't expand, just add the component itself (assuming it's a list item)
             const key = ingredient.name.toLowerCase().trim();
-            const current = ingredientCounts.get(key) || { quantity: 0, cost: 0, unit: ingredient.unit || 'units' };
-            
-            current.quantity += ingredient.quantity || 1;
-            current.cost += ingredient.cost || 0;
-            
-            ingredientCounts.set(key, current);
+            const current = expandedIngredients.get(key) || { quantity: 0, cost: 0, unit: ingredient.unit || 'units' };
+            current.quantity += ingredientQuantity;
+            current.cost += (ingredient.cost || 0) * multiplier;
+            expandedIngredients.set(key, current);
           }
+        } else {
+          // Skip non-component ingredients (Bidfood, Gilmours, Other, Products)
+          // We only want components marked as component list items
+          continue;
+        }
+      }
+      
+      return expandedIngredients;
+    };
+
+    // Aggregate ingredients from all products with component expansion
+    const ingredientCounts = new Map<string, { quantity: number, cost: number, unit: string }>();
+    
+    for (const product of productsWithIngredients) {
+      if (product.ingredients && Array.isArray(product.ingredients)) {
+        const expandedIngredients = await expandComponents(product.ingredients);
+        
+        // Merge into main ingredient counts
+        expandedIngredients.forEach((value, key) => {
+          const current = ingredientCounts.get(key) || { quantity: 0, cost: 0, unit: value.unit };
+          current.quantity += value.quantity;
+          current.cost += value.cost;
+          ingredientCounts.set(key, current);
         });
       }
-    });
+    }
 
     console.log(`📊 Aggregated ${ingredientCounts.size} unique ingredients`);
 
@@ -138,4 +192,4 @@ export async function GET(request: NextRequest) {
       }
     }, { status: 200 }); // Return 200 with empty data instead of 500
   }
-} 
+}

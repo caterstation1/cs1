@@ -67,11 +67,35 @@ const customDataSchema = z.object({
 
 type CustomDataFormData = z.infer<typeof customDataSchema>;
 
+// Pricing calculation functions
+const calculateRetailGstEx = (retailPrice: string | number): string => {
+  const price = typeof retailPrice === 'string' ? parseFloat(retailPrice) : retailPrice;
+  const gstExPrice = price / 1.15; // Remove 15% GST
+  return gstExPrice.toFixed(2);
+};
+
+const calculateCostGstEx = (totalCost: number): string => {
+  // Costs are already GST-exclusive, so no need to divide
+  return totalCost.toFixed(2);
+};
+
+const calculateMargin = (retailPrice: string | number, totalCost: number): string => {
+  const price = typeof retailPrice === 'string' ? parseFloat(retailPrice) : retailPrice;
+  const gstExPrice = price / 1.15; // Remove GST from retail price
+  const gstExCost = totalCost; // Costs are already GST-exclusive
+  
+  if (gstExCost === 0) return '0.00';
+  
+  const margin = ((gstExPrice - gstExCost) / gstExPrice) * 100;
+  return margin.toFixed(1);
+};
+
 export function ProductsTab() {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isApplyingRules, setIsApplyingRules] = useState(false);
+  const [isRecalculatingCosts, setIsRecalculatingCosts] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof ShopifyProduct>('shopifyTitle');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -204,6 +228,32 @@ export function ProductsTab() {
     }
   }, [fetchProducts]);
 
+  const recalculateCosts = useCallback(async () => {
+    setIsRecalculatingCosts(true);
+    try {
+      console.log('💰 Recalculating all product costs...');
+      const response = await fetch('/api/products/recalculate-costs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Costs recalculated successfully:', result);
+        await fetchProducts(); // Refresh the products list
+        alert(`Costs recalculated successfully! ${result.updated} products updated, ${result.errors} errors.`);
+      } else {
+        console.error('❌ Failed to recalculate costs');
+        alert('Failed to recalculate costs. Check console for details.');
+      }
+    } catch (error) {
+      console.error('❌ Error recalculating costs:', error);
+      alert('Error recalculating costs. Check console for details.');
+    } finally {
+      setIsRecalculatingCosts(false);
+    }
+  }, [fetchProducts]);
+
   // Fetch products on component mount
   useEffect(() => {
     fetchProducts();
@@ -326,7 +376,20 @@ export function ProductsTab() {
           >
             <Settings className="h-4 w-4" />
             Manage Rules
-            </Button>
+          </Button>
+          <Button 
+            onClick={recalculateCosts}
+            disabled={isRecalculatingCosts}
+            variant="outline"
+            className="flex items-center gap-1"
+          >
+            {isRecalculatingCosts ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            {isRecalculatingCosts ? 'Recalculating...' : 'Recalculate Costs'}
+          </Button>
         </div>
       </div>
 
@@ -346,9 +409,9 @@ export function ProductsTab() {
             </TableHead>
               <TableHead>Variant</TableHead>
               <TableHead>SKU</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Inventory</TableHead>
-              <TableHead>Custom Data</TableHead>
+              <TableHead>Retail GST ex</TableHead>
+              <TableHead>COST GST ex</TableHead>
+              <TableHead>Margin</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -371,13 +434,9 @@ export function ProductsTab() {
                     </TableCell>
                     <TableCell>{product.shopifyName}</TableCell>
                     <TableCell>{product.shopifySku}</TableCell>
-                    <TableCell>${product.shopifyPrice}</TableCell>
-                    <TableCell>{product.shopifyInventory}</TableCell>
-                    <TableCell>
-                      {product.displayName && (
-                        <Badge variant="secondary">Has Custom Data</Badge>
-                      )}
-                    </TableCell>
+                    <TableCell>${calculateRetailGstEx(product.shopifyPrice)}</TableCell>
+                    <TableCell>${calculateCostGstEx(product.totalCost || 0)}</TableCell>
+                    <TableCell>{calculateMargin(product.shopifyPrice, product.totalCost || 0)}%</TableCell>
                   <TableCell>
                       <Button
                         variant="ghost"

@@ -62,7 +62,7 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
 
       console.log('📡 Loading Google Maps script...')
       const script = document.createElement('script')
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&v=beta`
       script.async = true
       script.defer = true
       script.onload = () => {
@@ -116,9 +116,15 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
       console.log('📍 Map center:', defaultCenter)
       console.log('📊 Delivery points:', deliveryPoints.length)
 
+      // Clear any existing content
+      if (mapRef.current) {
+        mapRef.current.innerHTML = ''
+      }
+
       const mapInstance = new (window as any).google.maps.Map(mapRef.current, {
         center: defaultCenter,
         zoom: 11,
+        mapTypeId: (window as any).google.maps.MapTypeId.ROADMAP,
         styles: [
           {
             featureType: 'poi',
@@ -128,27 +134,37 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
         ]
       })
       
-      // Ensure the map container is properly sized
+      // Force map resize after initialization
       setTimeout(() => {
-        if (mapInstance && mapRef.current) {
+        if (mapInstance) {
+          (window as any).google.maps.event.trigger(mapInstance, 'resize')
           mapInstance.setCenter(defaultCenter)
+          console.log('✅ Map resized and centered')
+          
+          // Additional debugging
+          console.log('🗺️ Map container dimensions:', {
+            width: mapRef.current?.offsetWidth,
+            height: mapRef.current?.offsetHeight,
+            clientWidth: mapRef.current?.clientWidth,
+            clientHeight: mapRef.current?.clientHeight
+          })
         }
-      }, 100)
+      }, 200)
 
       console.log('✅ Map initialized successfully')
       setMap(mapInstance)
-      
-      // Clear loading state
-      if (mapRef.current) {
-        mapRef.current.innerHTML = ''
-      }
     }
 
     loadGoogleMaps()
   }, [deliveryPoints])
 
   useEffect(() => {
-    if (!map || deliveryPoints.length === 0) return
+    if (!map || deliveryPoints.length === 0) {
+      console.log('⚠️ Map or delivery points not ready:', { map: !!map, points: deliveryPoints.length })
+      return
+    }
+
+    console.log('📍 Creating markers for', deliveryPoints.length, 'delivery points')
 
     // Clear existing markers
     markers.forEach(marker => marker.setMap(null))
@@ -156,19 +172,23 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
     const newMarkers: any[] = []
 
     deliveryPoints.forEach((point, index) => {
+      console.log(`📍 Creating marker ${index + 1} for order #${point.orderNumber} at`, point.coordinates)
       const marker = new (window as any).google.maps.Marker({
         position: { lat: point.coordinates[0], lng: point.coordinates[1] },
         map: map,
         title: `Order #${point.orderNumber}`,
+        label: {
+          text: `${index + 1}`,
+          color: 'white',
+          fontWeight: 'bold'
+        },
         icon: {
-          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="12" fill="#EF4444" stroke="white" stroke-width="2"/>
-              <text x="16" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="bold">${index + 1}</text>
-            </svg>
-          `)}`,
-          scaledSize: new (window as any).google.maps.Size(32, 32),
-          anchor: new (window as any).google.maps.Point(16, 16)
+          path: (window as any).google.maps.SymbolPath.CIRCLE,
+          scale: 12,
+          fillColor: '#EF4444',
+          fillOpacity: 1,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2
         }
       })
 
@@ -229,12 +249,14 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
           {/* Interactive Map */}
           <div 
             ref={mapRef} 
-            className="h-64 w-full rounded-lg border flex items-center justify-center bg-gray-50"
-            style={{ minHeight: '256px' }}
+            className="h-64 w-full rounded-lg border bg-gray-50"
+            style={{ minHeight: '256px', position: 'relative' }}
           >
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-              <p className="text-sm text-gray-600">Loading map...</p>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <p className="text-sm text-gray-600">Loading map...</p>
+              </div>
             </div>
           </div>
           
