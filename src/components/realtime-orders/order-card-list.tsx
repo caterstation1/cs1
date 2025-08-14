@@ -33,7 +33,7 @@ function safeFormatDate(dateString: string | undefined | null): string {
 }
 
 export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete, selectedDate }: OrderCardListProps) {
-  const [filter, setFilter] = useState<'all' | 'undispatched' | 'unfulfilled' | 'fulfilled'>('undispatched')
+  const [filter, setFilter] = useState<'all' | 'undispatched' | 'dispatched' | 'unfulfilled' | 'fulfilled'>('undispatched')
   const [isUpdatingTravelTimes, setIsUpdatingTravelTimes] = useState(false)
   const [products, setProducts] = useState<Record<string, any>>({})
   const [isLoadingProducts, setIsLoadingProducts] = useState(false)
@@ -280,14 +280,14 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         if (updates.isDispatched === true) {
           setRecentlyDispatchedOrders(prev => new Set([...prev, orderId]));
           
-          // Remove from recently dispatched set after 1 second
+          // Remove from recently dispatched set after 3 seconds
           setTimeout(() => {
             setRecentlyDispatchedOrders(prev => {
               const newSet = new Set(prev);
               newSet.delete(orderId);
               return newSet;
             });
-          }, 1000);
+          }, 3000);
         }
         
         return result;
@@ -315,9 +315,10 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     const filtered = orders.filter(order => {
       if (filter === 'all') return true;
       if (filter === 'undispatched') {
-        // Show undispatched orders OR recently dispatched orders (for 1 second flash)
+        // Show undispatched orders OR recently dispatched orders (for 3 seconds flash)
         return !order.isDispatched || recentlyDispatchedOrders.has(order.id);
       }
+      if (filter === 'dispatched') return order.isDispatched;
       if (filter === 'unfulfilled') return order.fulfillmentStatus !== 'fulfilled';
       if (filter === 'fulfilled') return order.fulfillmentStatus === 'fulfilled';
       return true;
@@ -574,6 +575,14 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
             Undispatched
           </button>
           <button
+            onClick={() => setFilter('dispatched')}
+            className={`px-3 py-1 rounded ${
+              filter === 'dispatched' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            }`}
+          >
+            Dispatched
+          </button>
+          <button
             onClick={() => setFilter('all')}
             className={`px-3 py-1 rounded ${
               filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200'
@@ -652,7 +661,20 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
         </div>
       ) : sortedOrders.length === 0 ? (
-        <p className="text-gray-500 text-center py-4">No orders found</p>
+        <div className="text-center py-8">
+          <p className="text-gray-500 mb-2">
+            {filter === 'undispatched' && 'No undispatched orders found'}
+            {filter === 'dispatched' && 'No dispatched orders found'}
+            {filter === 'unfulfilled' && 'No unfulfilled orders found'}
+            {filter === 'fulfilled' && 'No fulfilled orders found'}
+            {filter === 'all' && 'No orders found'}
+          </p>
+          {filter === 'undispatched' && (
+            <p className="text-sm text-gray-400">
+              Tip: Dispatched orders appear briefly in this view, then move to "Dispatched" filter
+            </p>
+          )}
+        </div>
       ) : (
         <div className="flex flex-col space-y-2 w-full">
           {sortedOrders.map((order) => (
@@ -660,7 +682,9 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
               key={order.id} 
               className={`transition-all duration-1000 ${
                 recentlyDispatchedOrders.has(order.id) 
-                  ? 'opacity-50 scale-95 bg-green-50 border-l-4 border-green-500' 
+                  ? 'opacity-75 scale-98 bg-green-50 border-l-4 border-green-500 shadow-md' 
+                  : order.isDispatched
+                  ? 'opacity-90 bg-gray-50 border-l-4 border-gray-300'
                   : ''
               }`}
             >
