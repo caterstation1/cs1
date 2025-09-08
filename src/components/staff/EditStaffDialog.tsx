@@ -36,7 +36,7 @@ const formSchema = z.object({
   phone: z.string().min(1, 'Phone number is required'),
   email: z.string().email('Invalid email address'),
   payRate: z.number().min(0, 'Pay rate must be positive'),
-  accessLevel: z.enum(['basic', 'pricing_lab', 'admin', 'owner']),
+  accessLevel: z.enum(['basic', 'pricing_lab', 'admin', 'owner', 'wlg_team', 'wlg_admin']),
   isDriver: z.boolean(),
 })
 
@@ -195,6 +195,9 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess }: EditSt
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="basic">Basic</SelectItem>
+                      <SelectItem value="pricing_lab">Pricing Lab (read-only)</SelectItem>
+                      <SelectItem value="wlg_team">WLG Team</SelectItem>
+                      <SelectItem value="wlg_admin">WLG Admin</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="owner">Owner</SelectItem>
                     </SelectContent>
