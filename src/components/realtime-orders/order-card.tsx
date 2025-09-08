@@ -96,6 +96,9 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [address, setAddress] = useState(order.shippingAddress?.address1 || '')
   const [deliveryDate, setDeliveryDate] = useState(order.deliveryDate || '')
   
+  // Determine if this component is rendered under the WLG Calendar path
+  const isWlgCalendar = typeof window !== 'undefined' && window.location.pathname.startsWith('/wlg-calendar')
+  
   // SMS functionality
   const [isSendingSms, setIsSendingSms] = useState(false)
   const [smsStatus, setSmsStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -307,7 +310,11 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           const response = await fetch('/api/staff')
           if (!response.ok) throw new Error('Failed to fetch staff')
           const data = await response.json()
-          setDrivers(data.filter((staff: Staff) => staff.isDriver))
+          const allDrivers = data.filter((staff: Staff) => staff.isDriver)
+          const filtered = isWlgCalendar
+            ? allDrivers.filter((s: Staff) => s.accessLevel === 'wlg_team' || s.accessLevel === 'wlg_admin')
+            : allDrivers
+          setDrivers(filtered)
         } catch (error) {
           console.error('Error fetching staff:', error)
         } finally {

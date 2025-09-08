@@ -72,6 +72,16 @@ export async function middleware(request: NextRequest) {
   const session = await readSession(request)
   const accessLevel = session?.accessLevel
 
+  // Redirect authenticated users away from /login
+  if (session && pathname === '/login') {
+    let dest = '/dashboard'
+    if (accessLevel === 'pricing_lab') dest = '/pricing-lab'
+    else if (accessLevel === 'basic') dest = '/realtime-orders'
+    else if (accessLevel === 'wlg_team' || accessLevel === 'wlg_admin') dest = '/wlg-calendar'
+    const url = new URL(dest, request.url)
+    return NextResponse.redirect(url)
+  }
+
   // Require login for all non-public routes
   const isPublic =
     PUBLIC_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/')) ||
