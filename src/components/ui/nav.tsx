@@ -19,15 +19,21 @@ export function Nav() {
     { href: '/customers', label: 'Customers' },
     { href: '/calendar', label: 'Calendar' },
     { href: '/wlg-calendar', label: 'WLG Calendar' },
+    { href: '/wlg-staff', label: 'WLG Staff' },
     { href: '/staff', label: 'Staff' },
     { href: '/roster', label: 'Roster' },
     { href: '/timesheet', label: 'Timesheet' },
     { href: '/pricing-lab', label: 'Pricing Lab' },
   ]
 
-  const links = access === 'pricing_lab'
-    ? baseLinks.filter(l => l.href === '/pricing-lab')
-    : baseLinks
+  let links = baseLinks
+  if (access === 'pricing_lab') {
+    links = baseLinks.filter(l => l.href === '/pricing-lab')
+  } else if (access === 'wlg_team') {
+    links = baseLinks.filter(l => l.href === '/wlg-calendar' || l.href === '/wlg-staff')
+  } else if (access === 'wlg_admin') {
+    links = baseLinks.filter(l => l.href === '/wlg-calendar' || l.href === '/wlg-staff' || l.href === '/pricing-lab')
+  }
 
   return (
     <nav className="border-b">

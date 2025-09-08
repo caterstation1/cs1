@@ -30,6 +30,19 @@ function isAllowedForPricing(path: string): boolean {
   )
 }
 
+// WLG role allow-lists
+const WLG_TEAM_PAGE_PREFIXES = ['/wlg-calendar', '/login', '/reset-password']
+const WLG_TEAM_API_PREFIXES = ['/api/orders', '/api/health']
+
+const WLG_ADMIN_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/pricing-lab', '/login', '/reset-password']
+const WLG_ADMIN_API_PREFIXES = [
+  ...PRICING_API_PREFIXES,
+  '/api/orders',
+  '/api/staff',
+  '/api/staff/',
+  '/api/health',
+]
+
 async function readSession(request: NextRequest): Promise<{ accessLevel?: string } | null> {
   // Primary: NextAuth helper
   const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET })
@@ -80,6 +93,36 @@ export async function middleware(request: NextRequest) {
         return new NextResponse(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'content-type': 'application/json' } })
       }
       const url = new URL('/pricing-lab', request.url)
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // WLG Team: only WLG Calendar and required APIs
+  if (accessLevel === 'wlg_team') {
+    const isAllowed =
+      WLG_TEAM_PAGE_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/')) ||
+      WLG_TEAM_API_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/')) ||
+      PUBLIC_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))
+    if (!isAllowed) {
+      if (pathname.startsWith('/api/')) {
+        return new NextResponse(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'content-type': 'application/json' } })
+      }
+      const url = new URL('/wlg-calendar', request.url)
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // WLG Admin: WLG Calendar, WLG Staff, Pricing Lab, and required APIs
+  if (accessLevel === 'wlg_admin') {
+    const isAllowed =
+      WLG_ADMIN_PAGE_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/')) ||
+      WLG_ADMIN_API_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/')) ||
+      PUBLIC_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))
+    if (!isAllowed) {
+      if (pathname.startsWith('/api/')) {
+        return new NextResponse(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'content-type': 'application/json' } })
+      }
+      const url = new URL('/wlg-calendar', request.url)
       return NextResponse.redirect(url)
     }
   }
