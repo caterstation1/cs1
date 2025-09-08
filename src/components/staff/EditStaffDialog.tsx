@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -51,11 +52,16 @@ interface EditStaffDialogProps {
   onOpenChange: (open: boolean) => void
   staff: Staff
   onSuccess: () => void
+  allowedRoleOptions?: string[]
 }
 
-export function EditStaffDialog({ open, onOpenChange, staff, onSuccess }: EditStaffDialogProps) {
+export function EditStaffDialog({ open, onOpenChange, staff, onSuccess, allowedRoleOptions }: EditStaffDialogProps) {
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const roleOptions = (allowedRoleOptions && allowedRoleOptions.length > 0)
+    ? allowedRoleOptions
+    : ['basic', 'pricing_lab', 'wlg_team', 'wlg_admin', 'admin', 'owner']
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -65,7 +71,7 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess }: EditSt
       phone: staff.phone,
       email: staff.email,
       payRate: staff.payRate,
-      accessLevel: staff.accessLevel,
+      accessLevel: staff.accessLevel as any,
       isDriver: staff.isDriver,
     },
   })
@@ -79,20 +85,16 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess }: EditSt
         body: JSON.stringify(values),
       })
 
-      if (!response.ok) throw new Error('Failed to update staff member')
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({} as any))
+        throw new Error(data.error || 'Failed to update staff member')
+      }
 
-      toast({
-        title: "Success",
-        description: "Staff member updated successfully",
-      })
+      toast({ title: 'Success', description: 'Staff member updated successfully' })
       onSuccess()
       onOpenChange(false)
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update staff member",
-        variant: "destructive",
-      })
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to update staff member', variant: 'destructive' })
     } finally {
       setIsSubmitting(false)
     }
@@ -100,9 +102,12 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess }: EditSt
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" aria-describedby="edit-staff-desc">
         <DialogHeader>
           <DialogTitle>Edit Staff Member</DialogTitle>
+          <DialogDescription id="edit-staff-desc">
+            Update staff details. Changes will be saved immediately.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -194,12 +199,9 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess }: EditSt
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="basic">Basic</SelectItem>
-                      <SelectItem value="pricing_lab">Pricing Lab (read-only)</SelectItem>
-                      <SelectItem value="wlg_team">WLG Team</SelectItem>
-                      <SelectItem value="wlg_admin">WLG Admin</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="owner">Owner</SelectItem>
+                      {roleOptions.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt.replace('_', ' ')}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

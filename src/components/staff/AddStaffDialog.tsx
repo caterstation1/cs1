@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -30,6 +31,8 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/components/ui/use-toast'
 
+const ALL_ROLES = ['basic', 'pricing_lab', 'wlg_team', 'wlg_admin', 'admin', 'owner'] as const
+
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -46,11 +49,16 @@ interface AddStaffDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
+  allowedRoleOptions?: string[]
 }
 
-export function AddStaffDialog({ open, onOpenChange, onSuccess }: AddStaffDialogProps) {
+export function AddStaffDialog({ open, onOpenChange, onSuccess, allowedRoleOptions }: AddStaffDialogProps) {
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const roleOptions = (allowedRoleOptions && allowedRoleOptions.length > 0)
+    ? allowedRoleOptions
+    : (ALL_ROLES as unknown as string[])
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -60,7 +68,7 @@ export function AddStaffDialog({ open, onOpenChange, onSuccess }: AddStaffDialog
       phone: '',
       email: '',
       payRate: 0,
-      accessLevel: 'basic',
+      accessLevel: roleOptions[0] as any,
       isDriver: false,
     },
   })
@@ -99,9 +107,12 @@ export function AddStaffDialog({ open, onOpenChange, onSuccess }: AddStaffDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" aria-describedby="add-staff-desc">
         <DialogHeader>
           <DialogTitle>Add Staff Member</DialogTitle>
+          <DialogDescription id="add-staff-desc">
+            Create a new staff member. Required fields are marked.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -193,12 +204,9 @@ export function AddStaffDialog({ open, onOpenChange, onSuccess }: AddStaffDialog
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="basic">Basic</SelectItem>
-                      <SelectItem value="pricing_lab">Pricing Lab (read-only)</SelectItem>
-                      <SelectItem value="wlg_team">WLG Team</SelectItem>
-                      <SelectItem value="wlg_admin">WLG Admin</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="owner">Owner</SelectItem>
+                      {roleOptions.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt.replace('_', ' ')}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
