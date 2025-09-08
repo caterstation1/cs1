@@ -23,11 +23,15 @@ export async function GET() {
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     console.log('🔄 Syncing Shopify products to PostgreSQL...');
     const shopifyProducts = await fetchShopifyProducts();
     console.log(`📦 Fetched ${shopifyProducts.length} products from Shopify`);
+    const url = new URL(request.url);
+    const mode = url.searchParams.get('mode') || 'default'; // default: create + update
+    const doCreate = mode !== 'update-only';
+    const doUpdate = mode !== 'create-only';
 
     // Get existing product IDs to avoid unnecessary database calls
     const existingProductIds = await prisma.productWithCustomData.findMany({
@@ -37,7 +41,8 @@ export async function POST() {
     
     console.log(`📋 Found ${existingIdsSet.size} existing products in database`);
 
-    let synced = 0;
+    let created = 0;
+    let updated = 0;
     let skipped = 0;
     let errors = 0;
 
@@ -48,17 +53,12 @@ export async function POST() {
       const batch = shopifyProducts.slice(i, i + BATCH_SIZE);
       console.log(`🔄 Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(shopifyProducts.length / BATCH_SIZE)} (${batch.length} products)`);
       
-      // Filter out products that already exist
+      // Partition by new vs existing
       const newProducts = batch.filter(product => !existingIdsSet.has(product.id.toString()));
-      
-      if (newProducts.length === 0) {
-        console.log(`⏭️ All products in batch already exist, skipping`);
-        skipped += batch.length;
-        continue;
-      }
-      
-      // Process only new products
-      const batchPromises = newProducts.map(async (shopifyProduct) => {
+      const existingProducts = batch.filter(product => existingIdsSet.has(product.id.toString()));
+
+      // Create pass (only Shopify-sourced fields + initial record)
+      const createPromises = doCreate ? newProducts.map(async (shopifyProduct) => {
         try {
           // Create new product
           await prisma.productWithCustomData.create({
@@ -70,28 +70,70 @@ export async function POST() {
               shopifyTitle: shopifyProduct.product_title, // Base product title
               shopifyPrice: parseFloat(shopifyProduct.price),
               shopifyInventory: shopifyProduct.inventory_quantity,
+              // extra fields may not exist in generated types; use type assertion in separate updates
               displayName: shopifyProduct.product_title, // Use base product title as default display name
               isDraft: false,
               totalCost: 0
             }
           });
 
+          // Update optional fields separately to avoid TS type mismatch
+          const vendor = (shopifyProduct as any).product_vendor || null
+          const market = (shopifyProduct as any).product_market || null
+          const hero = (shopifyProduct as any).product_image || null
+          if (vendor || market || hero) {
+            await (prisma as any).productWithCustomData.update({
+              where: { variantId: shopifyProduct.id.toString() },
+              data: {
+                shopifyVendor: vendor as any,
+                shopifyMarket: market as any,
+                heroImageUrl: hero as any,
+              }
+            })
+          }
+
           console.log(`✅ Synced product: ${shopifyProduct.title}`);
-          return { success: true, productId: shopifyProduct.id };
+          return { success: true, productId: shopifyProduct.id, kind: 'create' };
         } catch (error) {
           console.error(`❌ Error syncing product ${shopifyProduct.id}:`, error);
           return { success: false, productId: shopifyProduct.id, error };
         }
-      });
+      }) : [];
+
+      // Update pass for existing rows (preserve custom fields)
+      const updatePromises = doUpdate ? existingProducts.map(async (shopifyProduct) => {
+        try {
+          const vendor = (shopifyProduct as any).product_vendor ?? null;
+          const market = (shopifyProduct as any).product_market ?? null;
+          const hero = (shopifyProduct as any).product_image ?? null;
+          if (vendor != null || market != null || hero != null) {
+            await (prisma as any).productWithCustomData.update({
+              where: { variantId: shopifyProduct.id.toString() },
+              data: {
+                shopifyVendor: vendor as any,
+                shopifyMarket: market as any,
+                heroImageUrl: hero as any,
+              }
+            });
+          }
+          return { success: true, productId: shopifyProduct.id, kind: 'update' };
+        } catch (error) {
+          console.error(`❌ Error updating product ${shopifyProduct.id}:`, error);
+          return { success: false, productId: shopifyProduct.id, error };
+        }
+      }) : [];
       
       // Wait for batch to complete
-      const batchResults = await Promise.allSettled(batchPromises);
+      const batchResults = await Promise.allSettled([...
+        createPromises,
+        ...updatePromises
+      ]);
       
       // Count results
       batchResults.forEach((result) => {
         if (result.status === 'fulfilled') {
           if (result.value.success) {
-            synced++;
+            if ((result.value as any).kind === 'update') updated++; else created++;
           } else {
             errors++;
           }
@@ -100,8 +142,14 @@ export async function POST() {
         }
       });
       
-      // Add skipped count for existing products
-      skipped += (batch.length - newProducts.length);
+      // Count skipped depending on mode
+      if (!doCreate && doUpdate) {
+        // new ones are skipped
+        skipped += newProducts.length;
+      } else if (doCreate && !doUpdate) {
+        // existing ones are skipped
+        skipped += existingProducts.length;
+      }
       
       // Small delay between batches
       if (i + BATCH_SIZE < shopifyProducts.length) {
@@ -109,12 +157,14 @@ export async function POST() {
       }
     }
 
-    console.log(`🎉 Sync completed: ${synced} synced, ${skipped} skipped, ${errors} errors`);
+    console.log(`🎉 Sync completed: ${created} created, ${updated} updated, ${skipped} skipped, ${errors} errors`);
 
     return NextResponse.json({
       success: true,
       message: 'Shopify products synced to PostgreSQL',
-      synced,
+      synced: created, // backward-compat field name
+      created,
+      updated,
       skipped,
       errors,
       total: shopifyProducts.length

@@ -56,6 +56,14 @@ export interface Component {
     unit: string
   }[]
   totalCost: number
+  producedQuantity?: number
+  producedUnit?: string
+  rawWeight?: number | null
+  cookedWeight?: number | null
+  trimWasteWeight?: number | null
+  weightUnit?: string | null
+  costPerOutputUnit?: number
+  normalizedOutputUnit?: string
   hasGluten: boolean
   hasDairy: boolean
   hasSoy: boolean
@@ -94,6 +102,12 @@ const formSchema = z.object({
     cost: z.number().min(0),
     unit: z.string()
   })),
+  producedQuantity: z.coerce.number().min(0.000001, 'Produced quantity must be > 0').default(1),
+  producedUnit: z.string().default('unit'),
+  rawWeight: z.preprocess((v) => (v === '' || v == null ? undefined : v), z.coerce.number().optional()),
+  cookedWeight: z.preprocess((v) => (v === '' || v == null ? undefined : v), z.coerce.number().optional()),
+  trimWasteWeight: z.preprocess((v) => (v === '' || v == null ? undefined : v), z.coerce.number().optional()),
+  weightUnit: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
   hasGluten: z.boolean(),
   hasDairy: z.boolean(),
   hasSoy: z.boolean(),
@@ -120,6 +134,12 @@ type FormValues = {
     cost: number;
     unit: string;
   }[];
+  producedQuantity: number;
+  producedUnit: string;
+  rawWeight?: number | null;
+  cookedWeight?: number | null;
+  trimWasteWeight?: number | null;
+  weightUnit?: string | null;
   hasGluten: boolean;
   hasDairy: boolean;
   hasSoy: boolean;
@@ -144,6 +164,27 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
   const [viewComponent, setViewComponent] = useState<Component | null>(null)
   const [downloadTarget, setDownloadTarget] = useState<Component | null>(null)
   const hiddenCardRef = useRef<HTMLDivElement>(null)
+  const [isDescPreview, setIsDescPreview] = useState(false)
+
+  const simpleMarkdownToHtml = (text: string): string => {
+    const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    let html = escapeHtml(text || '')
+    // Bold and italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Simple headings: lines starting with # or ##
+    html = html.replace(/^##\s*(.+)$/gm, '<h3>$1</h3>')
+    html = html.replace(/^#\s*(.+)$/gm, '<h2>$1</h2>')
+    // Bullet lists: lines starting with - or *
+    html = html.replace(/^(?:- |\* )(.*)(?:\n(?!\n)(?:- |\* ).*)*/gm, (block) => {
+      const items = block.split(/\n/).map(l => l.replace(/^(?:- |\* )/, '')).map(i => `<li>${i}</li>`).join('')
+      return `<ul>${items}</ul>`
+    })
+    // Paragraphs and breaks
+    html = html.replace(/\n\n+/g, '</p><p>')
+    html = html.replace(/\n/g, '<br/>')
+    return `<p>${html}</p>`
+  }
 
   useLayoutEffect(() => {
     const doExport = async () => {
@@ -181,6 +222,12 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
       name: "",
       description: "",
       ingredients: [],
+      producedQuantity: 1,
+      producedUnit: 'unit',
+      rawWeight: null,
+      cookedWeight: null,
+      trimWasteWeight: null,
+      weightUnit: null,
       hasGluten: false,
       hasDairy: false,
       hasSoy: false,
@@ -342,6 +389,12 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
         name: "",
         description: "",
         ingredients: [],
+        producedQuantity: 1,
+        producedUnit: 'unit',
+        rawWeight: null,
+        cookedWeight: null,
+        trimWasteWeight: null,
+        weightUnit: null,
         hasGluten: false,
         hasDairy: false,
         hasSoy: false,
@@ -374,6 +427,12 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
         ...ingredient,
         source: ingredient.source as IngredientSource
       })),
+      producedQuantity: component.producedQuantity ?? 1,
+      producedUnit: component.producedUnit ?? 'unit',
+      rawWeight: component.rawWeight ?? null,
+      cookedWeight: component.cookedWeight ?? null,
+      trimWasteWeight: component.trimWasteWeight ?? null,
+      weightUnit: component.weightUnit ?? null,
       hasGluten: component.hasGluten,
       hasDairy: component.hasDairy,
       hasSoy: component.hasSoy,
@@ -451,6 +510,36 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
     setIsViewOpen(true)
   }
 
+  const enrichIngredients = async (items: any[]) => {
+    const base = items || []
+    const enriched = await Promise.all(base.map(async (i: any) => {
+      try {
+        if (i.source === 'Bidfood' && i.id) {
+          const res = await fetch(`/api/bidfood/${i.id}`)
+          if (res.ok) {
+            const p = await res.json()
+            return { ...i, productCode: p.productCode || i.productCode, brand: p.brand || i.brand }
+          }
+        }
+        if (i.source === 'Gilmours' && i.id) {
+          const res = await fetch(`/api/gilmours/${i.id}`)
+          if (res.ok) {
+            const p = await res.json()
+            return { ...i, sku: p.sku || i.sku, brand: p.brand || i.brand }
+          }
+        }
+      } catch {}
+      return i
+    }))
+    return enriched
+  }
+
+  const exportCardPdf = async (component: Component) => {
+    // Enrich ingredients with brand and code/sku so the download snapshot includes them
+    const enriched = await enrichIngredients(component.ingredients || [])
+    setDownloadTarget({ ...component, ingredients: enriched } as any)
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -459,7 +548,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
           <DialogTrigger asChild>
             <Button onClick={handleAdd}>Add New Component</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingComponent ? "Edit Component" : "Add New Component"}
@@ -491,12 +580,31 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Component description"
-                          {...field}
-                        />
-                      </FormControl>
+                      {!isDescPreview ? (
+                        <>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Component description"
+                              {...field}
+                            />
+                          </FormControl>
+                          <div className="text-right">
+                            <Button type="button" variant="outline" size="sm" onClick={() => setIsDescPreview(true)}>
+                              Preview
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="rounded border p-3 bg-muted/20">
+                          {/* eslint-disable-next-line react/no-danger */}
+                          <div dangerouslySetInnerHTML={{ __html: simpleMarkdownToHtml(field.value || '') }} />
+                          <div className="text-right mt-2">
+                            <Button type="button" variant="outline" size="sm" onClick={() => setIsDescPreview(false)}>
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -542,6 +650,120 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                     </FormItem>
                   )}
                 />
+                {/* Yield section */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="producedQuantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Produced Quantity (final usable)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="any" min="0" placeholder="e.g., 2.5" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="producedUnit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Produced Unit</FormLabel>
+                        <FormControl>
+                          <Input placeholder="kg | g | l | ml | unit" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Cooking loss (optional) */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="rawWeight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Raw Weight (optional)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="any" min="0" placeholder="e.g., 15" value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="cookedWeight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cooked Weight (optional)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="any" min="0" placeholder="e.g., 9.4" value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="trimWasteWeight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Trim/Waste Weight (optional)</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="any" min="0" placeholder="e.g., 0.8" value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="weightUnit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Weight Unit</FormLabel>
+                        <FormControl>
+                          <Input placeholder="kg | g" value={field.value ?? ''} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Derived display */}
+                {(() => {
+                  const producedQuantity = form.watch('producedQuantity') || 0;
+                  const producedUnit = (form.watch('producedUnit') || 'unit').toLowerCase();
+                  const totalCost = form.watch('totalCost') || 0;
+                  const toBase = (qty: number, unit: string) => {
+                    if (unit === 'g') return { value: qty / 1000, unit: 'kg' };
+                    if (unit === 'ml') return { value: qty / 1000, unit: 'l' };
+                    if (unit === 'kg' || unit === 'l') return { value: qty, unit };
+                    return { value: qty, unit: 'unit' };
+                  };
+                  const base = toBase(producedQuantity, producedUnit);
+                  const costPer = base.value > 0 ? totalCost / base.value : 0;
+                  const raw = form.watch('rawWeight');
+                  const cooked = form.watch('cookedWeight');
+                  const trim = form.watch('trimWasteWeight') || 0;
+                  const netInput = raw != null ? (raw - (trim || 0)) : null;
+                  const yieldFactor = (netInput && cooked != null && netInput > 0) ? (cooked / netInput) : null;
+                  return (
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <div>Normalized output unit: <strong>{base.unit}</strong></div>
+                      <div>Cost per {base.unit}: <strong>${costPer.toFixed(2)}</strong></div>
+                      {yieldFactor != null && !Number.isNaN(yieldFactor) && (
+                        <div>Yield factor: <strong>{(yieldFactor * 100).toFixed(1)}%</strong></div>
+                      )}
+                    </div>
+                  );
+                })()}
                 
                 {/* Allergen Checkboxes */}
                 <div className="grid grid-cols-2 gap-4">
@@ -728,6 +950,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
           </DialogContent>
         </Dialog>
         {/* View dialog for card preview */}
+        </div>
         <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
           <DialogContent className="max-w-fit">
             <DialogHeader>
@@ -738,7 +961,16 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                 name={viewComponent.name}
                 description={viewComponent.description}
                 images={(viewComponent.images || []).slice(0,2).map(i => ({ url: i.url, alt: i.alt }))}
-                ingredients={(viewComponent.ingredients || []).map((i:any)=>({ name: i.name, quantity: i.quantity, unit: i.unit }))}
+                ingredients={(viewComponent.ingredients || []).map((i:any)=>({
+                  name: i.name,
+                  quantity: i.quantity,
+                  unit: i.unit,
+                  source: i.source,
+                  id: i.id,
+                  code: (i.source === 'Bidfood') ? (i.productCode || '') : (i.source === 'Gilmours') ? (i.sku || '') : '',
+                  supplier: i.source,
+                  brand: i.brand,
+                }))}
                 allergens={[
                   viewComponent.hasGluten && 'Gluten',
                   viewComponent.hasDairy && 'Dairy',
@@ -753,17 +985,18 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                   viewComponent.isVegan && 'Vegan',
                   viewComponent.isHalal && 'Halal',
                 ].filter(Boolean) as string[]}
+                producedQuantity={viewComponent.producedQuantity}
+                producedUnit={viewComponent.producedUnit || viewComponent.normalizedOutputUnit}
               />
             )}
           </DialogContent>
         </Dialog>
-      </div>
 
-      {error && (
+      {error ? (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {error}
         </div>
-      )}
+      ) : null}
 
       {isLoading && (!components || components.length === 0) ? (
         <div className="text-center py-8">Loading components...</div>
@@ -779,6 +1012,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                 <TableHead>Name</TableHead>
                 <TableHead className="max-w-[360px]">Description</TableHead>
                 <TableHead>Total Cost</TableHead>
+                <TableHead>Per-Unit</TableHead>
                 <TableHead>Allergens</TableHead>
                 <TableHead>Dietary</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -790,6 +1024,22 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                   <TableCell className="font-medium">{component.name}</TableCell>
                   <TableCell className="max-w-[360px] whitespace-nowrap overflow-hidden text-ellipsis">{component.description}</TableCell>
                   <TableCell>${component.totalCost.toFixed(2)}</TableCell>
+                  <TableCell>
+                    {(() => {
+                      const unit = component.normalizedOutputUnit || component.producedUnit || 'unit'
+                      const pq = component.producedQuantity && component.producedQuantity > 0 ? component.producedQuantity : 1
+                      const baseUnit = (unit || 'unit').toLowerCase()
+                      const toBase = (qty: number, u: string) => {
+                        if (u === 'g') return { v: qty / 1000, u: 'kg' }
+                        if (u === 'ml') return { v: qty / 1000, u: 'l' }
+                        if (u === 'kg' || u === 'l') return { v: qty, u }
+                        return { v: qty, u: 'unit' }
+                      }
+                      const base = toBase(pq, baseUnit)
+                      const per = base.v > 0 ? component.totalCost / base.v : 0
+                      return `$${per.toFixed(2)} / ${base.u}`
+                    })()}
+                  </TableCell>
                   <TableCell>
                     {[
                       component.hasGluten && "Gluten",
@@ -814,8 +1064,49 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            const c = component
+                            const enriched = await enrichIngredients(c.ingredients || [])
+                            const rows: string[] = []
+                            // Header row like your sheet
+                            rows.push(['Brand','Source','Code/sku','Weight','Unit','Product'].join(','))
+                            enriched.forEach((i: any) => {
+                              const brand = i.brand || ''
+                              const source = i.source || ''
+                              const code = source === 'Bidfood' ? (i.productCode || i.id || '') : source === 'Gilmours' ? (i.sku || i.id || '') : '-'
+                              const weight = i.quantity ?? ''
+                              const unit = i.unit ?? ''
+                              rows.push([brand,source,code,String(weight),unit,(i.name || '').replace(/,/g,';')].join(','))
+                            })
+                            // Yield row
+                            rows.push(['Yeild','', '', String(c.producedQuantity ?? ''), (c.producedUnit || c.normalizedOutputUnit || '').toUpperCase(), ''].join(','))
+                            // Blank spacer
+                            rows.push(['','','','','',''].join(','))
+                            // Description section
+                            rows.push(['', '', '', '', '', 'Description'].join(','))
+                            const desc = (c.description || '').replace(/\n/g,' ')
+                            rows.push(['', '', '', '', '', desc.replace(/,/g,';')].join(','))
+                            const csv = rows.join('\n')
+                            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+                            const url = URL.createObjectURL(blob)
+                            const a = document.createElement('a')
+                            a.href = url
+                            a.download = `${c.name.replace(/\s+/g,'_')}.csv`
+                            document.body.appendChild(a)
+                            a.click()
+                            document.body.removeChild(a)
+                            URL.revokeObjectURL(url)
+                          } catch (e) {
+                            alert('Failed to export CSV')
+                          }
+                        }}
+                      >Download CSV</Button>
                       <Button variant="outline" size="sm" onClick={() => openView(component)}>View</Button>
-                      <Button variant="outline" size="sm" onClick={() => setDownloadTarget(component)}>Download</Button>
+                      <Button variant="outline" size="sm" onClick={() => exportCardPdf(component)}>Download</Button>
                       <Button variant="outline" size="sm" onClick={() => handleEdit(component)}>Edit</Button>
                       {/* Download button will export the card as PDF in a follow-up step */}
                     </div>
@@ -836,24 +1127,36 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
             background: 'transparent'
           }}>
             <ComponentCard
-              name={downloadTarget.name}
-              description={downloadTarget.description}
-              images={(downloadTarget.images || []).slice(0,2).map(i => ({ url: i.url, alt: i.alt }))}
-              ingredients={(downloadTarget.ingredients || []).map((i:any)=>({ name: i.name, quantity: i.quantity, unit: i.unit }))}
+              name={downloadTarget!.name}
+              description={downloadTarget!.description}
+              images={(downloadTarget!.images || []).slice(0,2).map(i => ({ url: i.url, alt: i.alt }))}
+              ingredients={(downloadTarget!.ingredients || []).map((i:any)=>({
+                name: i.name,
+                quantity: i.quantity,
+                unit: i.unit,
+                source: i.source,
+                id: i.id,
+                code: (i.source === 'Bidfood') ? (i.productCode || '') : (i.source === 'Gilmours') ? (i.sku || '') : '',
+                supplier: i.source,
+                brand: i.brand,
+              }))}
               allergens={[
-                downloadTarget.hasGluten && 'Gluten',
-                downloadTarget.hasDairy && 'Dairy',
-                downloadTarget.hasSoy && 'Soy',
-                downloadTarget.hasOnionGarlic && 'Onion/Garlic',
-                downloadTarget.hasSesame && 'Sesame',
-                downloadTarget.hasNuts && 'Nuts',
-                downloadTarget.hasEgg && 'Egg',
+                downloadTarget!.hasGluten && 'Gluten',
+                downloadTarget!.hasDairy && 'Dairy',
+                downloadTarget!.hasSoy && 'Soy',
+                downloadTarget!.hasOnionGarlic && 'Onion/Garlic',
+                downloadTarget!.hasSesame && 'Sesame',
+                downloadTarget!.hasNuts && 'Nuts',
+                downloadTarget!.hasEgg && 'Egg',
               ].filter(Boolean) as string[]}
               dietary={[
-                downloadTarget.isVegetarian && 'Vegetarian',
-                downloadTarget.isVegan && 'Vegan',
-                downloadTarget.isHalal && 'Halal',
+                downloadTarget!.isVegetarian && 'Vegetarian',
+                downloadTarget!.isVegan && 'Vegan',
+                downloadTarget!.isHalal && 'Halal',
               ].filter(Boolean) as string[]}
+              producedQuantity={downloadTarget!.producedQuantity}
+              producedUnit={downloadTarget!.producedUnit || downloadTarget!.normalizedOutputUnit}
+              expandAll
             />
           </div>
         )}

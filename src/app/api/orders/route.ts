@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
 import { prisma, withRetry } from '@/lib/prisma'
+import { parseLocalDate } from '@/lib/date-utils'
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const date = searchParams.get('date')
+    const deliveryDateResolved = searchParams.get('deliveryDateResolved') // YYYY-MM-DD
     const search = searchParams.get('search')
     const limit = parseInt(searchParams.get('limit') || '100')
     const offset = parseInt(searchParams.get('offset') || '0')
@@ -19,6 +21,17 @@ export async function GET(request: Request) {
         gte: new Date(date),
         lt: new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000)
       }
+    }
+
+    // Prefer server-side filtering by resolved delivery day when provided
+    if (deliveryDateResolved) {
+      // Use a local-day range (>= midnight, < next midnight) to avoid UTC shifts
+      const base = parseLocalDate(deliveryDateResolved) || new Date(deliveryDateResolved)
+      const next = new Date(base.getFullYear(), base.getMonth(), base.getDate() + 1)
+      whereClause.deliveryDateResolved = {
+        gte: base,
+        lt: next,
+      } as any
     }
     
     // Add search functionality

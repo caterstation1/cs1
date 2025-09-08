@@ -200,10 +200,13 @@ export async function fetchShopifyProducts(): Promise<ShopifyProduct[]> {
     // Extract variants from products
     for (const product of data.products || []) {
       for (const variant of product.variants || []) {
-        variants.push({
+        const base: any = {
           id: variant.id,
           product_id: product.id,
           product_title: product.title, // Add the base product title
+          product_vendor: product.vendor,
+          product_market: product.tags, // store tags string; used as markets
+          product_image: product?.image?.src || (product?.images?.[0]?.src),
           sku: variant.sku,
           title: variant.title,
           price: variant.price,
@@ -213,7 +216,8 @@ export async function fetchShopifyProducts(): Promise<ShopifyProduct[]> {
           option3: variant.option3,
           created_at: variant.created_at,
           updated_at: variant.updated_at
-        });
+        }
+        variants.push(base as any)
       }
     }
 

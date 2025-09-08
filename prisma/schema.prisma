@@ -63,6 +63,16 @@ model Component {
   description        String
   ingredients        Json
   totalCost          Float
+  // Yield and cooking loss fields
+  producedQuantity   Float    @default(1)
+  producedUnit       String   @default("unit") // e.g., kg | g | l | ml | unit
+  rawWeight          Float?
+  cookedWeight       Float?
+  trimWasteWeight    Float?
+  weightUnit         String?  // e.g., kg | g
+  // Derived for performance
+  costPerOutputUnit      Float   @default(0)
+  normalizedOutputUnit   String  @default("unit") // normalized form: kg | l | unit
   hasGluten          Boolean  @default(false)
   hasDairy           Boolean  @default(false)
   hasSoy             Boolean  @default(false)
@@ -151,6 +161,9 @@ model ProductWithCustomData {
   shopifyTitle     String
   shopifyPrice     Decimal
   shopifyInventory Int
+  shopifyVendor    String?
+  shopifyMarket    String?
+  heroImageUrl     String?
 
   // Custom operational data (editable)
   displayName String?
@@ -362,9 +375,15 @@ model Order {
   smsHistory           Json?
   internalNote         String?
 
+  // Resolved delivery day in Auckland-local calendar (DATE in DB)
+  deliveryDateResolved DateTime? @db.Date
+  deliveryDateResolvedSource DeliveryDateResolvedSource?
+  deliveryDateResolvedAt DateTime?
+
   @@index([orderNumber])
   @@index([createdAt])
   @@index([customerEmail])
+  @@index([deliveryDateResolved])
 }
 
 model ShopifyOrder {
@@ -375,6 +394,14 @@ model ShopifyOrder {
   parsedOrderId   String?       @unique
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+}
+
+/// Source for how deliveryDateResolved was computed
+enum DeliveryDateResolvedSource {
+  FIELD
+  NOTE
+  TAG
+  CREATED_AT
 }
 
 model ParsedOrder {

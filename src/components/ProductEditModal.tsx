@@ -255,6 +255,17 @@ export function ProductEditModal({
               </span>
             )}
           </DialogDescription>
+          {/* Shopify variant snapshot */}
+          {(product || sku || productId) && (
+            <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200 text-xs text-blue-900">
+              <div><b>Variant ID:</b> {productId || '-'}</div>
+              <div><b>SKU:</b> {product?.variantSku || sku || '-'}</div>
+              <div><b>Title:</b> {product?.variant_title || variantTitle || '-'}</div>
+              <div><b>Shopify Product ID:</b> {product?.id || '-'}</div>
+              <div><b>Shopify Price:</b> {product?.sellingPrice ?? '-'}</div>
+              <div><b>Inventory:</b> {'-'}</div>
+            </div>
+          )}
           {/* Product summary block */}
           {(product || form.watch('name')) && (
             <div className="mt-2 p-2 bg-gray-50 rounded border text-sm text-gray-700">

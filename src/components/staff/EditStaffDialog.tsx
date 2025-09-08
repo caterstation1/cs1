@@ -36,7 +36,7 @@ const formSchema = z.object({
   phone: z.string().min(1, 'Phone number is required'),
   email: z.string().email('Invalid email address'),
   payRate: z.number().min(0, 'Pay rate must be positive'),
-  accessLevel: z.enum(['basic', 'admin', 'owner']),
+  accessLevel: z.enum(['basic', 'pricing_lab', 'admin', 'owner']),
   isDriver: z.boolean(),
 })
 

@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { deriveUnitPricing } from '@/lib/packsize'
 
 interface Ingredient {
   source: 'Gilmours' | 'Bidfood' | 'Other' | 'Components' | 'Products'
@@ -114,10 +115,18 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
                 return nameMatch || descriptionMatch || skuMatch || productCodeMatch || brandMatch || packSizeMatch || uomMatch
               })
               
-              return filteredData.map((item: any) => ({
-                ...item,
-                source: source as Ingredient['source']
-              }))
+              return filteredData.map((item: any) => {
+                const packSize = item.packSize || item.pack_size || item.PackSize
+                const uom = item.uom || item.UoM || item.uom_text
+                const ctnQty = item.ctnQty || item.ctnqty || item.CTNQty
+                const price = item.price ?? item.lastPricePaid ?? item.totalExGST ?? item.cost
+                const derived = deriveUnitPricing({ packSize, uom, ctnQty, price: typeof price === 'string' ? parseFloat(price) : price })
+                return {
+                  ...item,
+                  source: source as Ingredient['source'],
+                  _derivedUnitPricing: derived || undefined,
+                }
+              })
             } catch (err) {
               console.warn(`Error fetching ${source} items:`, err)
               return []
@@ -152,13 +161,13 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
       id: item.id,
       name: item.name || item.description || 'Unknown Item',
       quantity: 1,
-      cost: item.source === 'Products' 
-        ? (item.cost !== undefined ? item.cost : 0)  // Use cost field for products, default to 0 if not set
-        : (item.price ?? 
-           item.cost ?? 
-           item.lastPricePaid ?? 
-           (item.source === 'Components' ? item.totalCost : 0)),
-      unit: item.uom || 'unit',
+      // Prefer component per-unit cost when available; otherwise use derived pricing
+      cost: item.source === 'Components'
+        ? (item.costPerOutputUnit ?? item.totalCost ?? 0)
+        : (item.source === 'Products'
+            ? (item.cost !== undefined ? item.cost : 0)
+            : (item._derivedUnitPricing?.derivedCostPerUnit ?? item.price ?? item.cost ?? item.lastPricePaid ?? 0)),
+      unit: item.normalizedOutputUnit || item._derivedUnitPricing?.derivedUnit || item.uom || 'unit',
     }
 
     console.log('Created ingredient:', newIngredient)
@@ -240,7 +249,7 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
                 <TableHead className="w-[100px]">Code/SKU</TableHead>
                 <TableHead className="w-[200px]">Name</TableHead>
                 <TableHead className="w-[100px]">Source</TableHead>
-                <TableHead className="w-[100px]">Price</TableHead>
+                <TableHead className="w-[160px]">Price</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -253,16 +262,33 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
                     </div>
                   </TableCell>
                   <TableCell className="max-w-[200px]">
-                    <div className="truncate" title={result.name || result.description || result.brand}>
+                    <button
+                      type="button"
+                      className="truncate text-left hover:underline"
+                      title="Click to view raw data"
+                      onClick={() => {
+                        try {
+                          alert(JSON.stringify(result, null, 2))
+                        } catch {
+                          alert('Unable to display raw data')
+                        }
+                      }}
+                    >
                       {result.name || result.description || result.brand}
-                    </div>
+                    </button>
                   </TableCell>
                   <TableCell>{result.source}</TableCell>
                   <TableCell>
-                    ${(result.source === 'Products' 
-                      ? (result.cost !== undefined ? result.cost : 0)
-                      : (result.price || result.cost || result.lastPricePaid || result.totalCost || 0)
-                    ).toFixed(2)}
+                    {(() => {
+                      const base = (result.source === 'Products' 
+                        ? (result.cost !== undefined ? result.cost : 0)
+                        : (result.price || result.cost || result.lastPricePaid || result.totalCost || 0))
+                      const d = result._derivedUnitPricing
+                      if (d && d.derivedCostPerUnit > 0 && (d.derivedUnit === 'kg' || d.derivedUnit === 'l')) {
+                        return `$${d.derivedCostPerUnit.toFixed(2)} / ${d.derivedUnit}`
+                      }
+                      return `$${Number(base || 0).toFixed(2)}`
+                    })()}
                   </TableCell>
                   <TableCell>
                     <Button
@@ -316,7 +342,7 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
                     <Input
                       type="number"
                       min="0"
-                      step="0.01"
+                      step="0.0001"
                       value={ingredient.cost}
                       onChange={(e) => updateIngredientCost(index, e.target.value)}
                       className="w-24"

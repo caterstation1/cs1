@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         email: body.email,
         phone: body.phone,
         payRate: body.payRate || 0,
-        accessLevel: body.accessLevel || 'staff',
+        accessLevel: body.accessLevel || 'basic',
         isDriver: body.isDriver || false,
         isActive: body.isActive !== false, // Default to true
         password: body.password // Note: Should be hashed in production

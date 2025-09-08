@@ -36,4 +36,6 @@ export interface Order {
   hasLocalEdits?: boolean
   isDispatched?: boolean
   internalNote?: string
+  // New server-computed delivery day (Auckland-local day stored as DATE in DB)
+  deliveryDateResolved?: string
 } 

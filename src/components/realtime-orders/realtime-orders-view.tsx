@@ -7,9 +7,6 @@ import { Order } from '@/types/order'
 import { parseLocalDate, getTodayLocal, formatLocalDate } from '@/lib/date-utils'
 import { StockPanel } from '@/components/StockPanel'
 import { deduplicateOrderUpdate, requestDeduplicator } from '@/lib/request-deduplication'
-import { Badge } from '@/components/ui/badge'
-import { RefreshCw, Wifi, WifiOff, Zap } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 const MAX_CONCURRENT_UPDATES = 1000 // Increased from 5 to 1000 for testing
 let currentUpdates = 0
@@ -41,16 +38,20 @@ export default function RealtimeOrdersView() {
   const [error, setError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [lastFetchTime, setLastFetchTime] = useState<number>(0)
-  const [lastUpdateTime, setLastUpdateTime] = useState<number>(0)
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('connected')
-  const [updateCount, setUpdateCount] = useState(0)
-  const [showUpdateIndicator, setShowUpdateIndicator] = useState(false)
+  const [lastSyncMs, setLastSyncMs] = useState<number | null>(null)
+  const isPollingRef = useRef(false)
+  const lastLocalUpdateMsRef = useRef<number>(0)
 
   // Create a stable reference to today's date to prevent infinite re-renders
   const today = useMemo(() => getTodayLocal(), [])
 
-  // Helper: extract delivery date from order (prefer deliveryDate field)
+  // Helper: extract delivery date from order (prefer deliveryDateResolved if present)
   function getOrderDeliveryDate(order: Order): Date | null {
+    // 0. Prefer resolved day from server if available
+    if ((order as any).deliveryDateResolved) {
+      const d = parseLocalDate((order as any).deliveryDateResolved as unknown as string)
+      if (d) return d
+    }
     // 1. Use deliveryDate field if present
     if (order.deliveryDate) {
       const localDate = parseLocalDate(order.deliveryDate);
@@ -80,24 +81,22 @@ export default function RealtimeOrdersView() {
     return null;
   }
 
-  // Filter orders for today using the same logic as calendar
+  // Strict filter: require orders to have deliveryDateResolved equal to today (local day)
   const todayKey = format(today, 'yyyy-MM-dd')
   const todaysOrders = useMemo(() => {
-    if (!Array.isArray(orders)) {
-      console.warn('Orders is not an array in realtime view:', orders);
-      return [];
-    }
+    if (!Array.isArray(orders)) return []
     return orders.filter(order => {
-      const date = getOrderDeliveryDate(order)
-      if (!date) return false
-      return format(date, 'yyyy-MM-dd') === todayKey
+      const resolved = (order as any).deliveryDateResolved as string | undefined
+      if (!resolved) return false
+      const d = parseLocalDate(resolved)
+      return !!d && format(d, 'yyyy-MM-dd') === todayKey
     })
   }, [orders, todayKey])
 
   const fetchOrders = async (isRefresh = false) => {
-    // Prevent fetching too frequently (minimum 2 seconds between fetches)
+    // Prevent fetching too frequently (minimum 5 seconds between fetches)
     const now = Date.now()
-    if (!isRefresh && now - lastFetchTime < 2000) {
+    if (!isRefresh && now - lastFetchTime < 5000) {
       return
     }
     setLastFetchTime(now)
@@ -109,14 +108,16 @@ export default function RealtimeOrdersView() {
     }
 
     try {
-      setConnectionStatus('connected')
-      
-      // Fetch all orders since we need to check multiple date fields (deliveryDate, tags, note_attributes, createdAt)
-      // Use a high limit to get all orders
-      const response = await fetch('/api/orders?limit=10000')
+      // Prefer server-side filtering by resolved delivery day to avoid huge payloads
+      const dateStr = format(today, 'yyyy-MM-dd')
+      let response = await fetch(`/api/orders?deliveryDateResolved=${encodeURIComponent(dateStr)}&limit=2000`)
+      if (!response.ok) {
+        // Fallback to legacy wide fetch
+        response = await fetch('/api/orders?limit=10000')
+      }
       if (!response.ok) throw new Error('Failed to fetch orders')
       const data = await response.json()
-      
+
       // Extract orders from the response (API returns { orders: [], pagination: {} })
       const fetchedOrders = data.orders || data
       
@@ -126,22 +127,31 @@ export default function RealtimeOrdersView() {
       
       if (currentOrdersJson !== newOrdersJson) {
         setOrders(fetchedOrders)
-        setLastUpdateTime(now)
-        setUpdateCount(prev => prev + 1)
-        
-        // Show subtle update indicator
-        setShowUpdateIndicator(true)
-        setTimeout(() => setShowUpdateIndicator(false), 2000)
-        
-        console.log('🔄 Orders updated at:', new Date().toLocaleTimeString(), 'Changes detected')
-      } else {
-        console.log('✅ Orders checked at:', new Date().toLocaleTimeString(), 'No changes')
+      }
+
+      // Establish baseline sync timestamp from max dbUpdatedAt (falls back to now)
+      try {
+        const maxUpdatedAt = Array.isArray(fetchedOrders) && fetchedOrders.length > 0
+          ? Math.max(
+              ...fetchedOrders
+                .map((o: any) => {
+                  const v = (o && (o.dbUpdatedAt || o.updatedAt)) as string | Date | undefined
+                  const t = v ? new Date(v as any).getTime() : NaN
+                  return Number.isFinite(t) ? t : 0
+                })
+            )
+          : Date.now()
+        if (Number.isFinite(maxUpdatedAt)) {
+          setLastSyncMs(maxUpdatedAt)
+        } else {
+          setLastSyncMs(Date.now())
+        }
+      } catch {
+        setLastSyncMs(Date.now())
       }
       setError(null)
     } catch (err) {
-      setConnectionStatus('error')
       setError(err instanceof Error ? err.message : 'An error occurred')
-      console.error('❌ Error fetching orders:', err)
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -152,17 +162,75 @@ export default function RealtimeOrdersView() {
     // Initial fetch
     fetchOrders()
 
-    // Set up interval for refreshing orders - REDUCED TO 5 SECONDS
-    const ordersInterval = setInterval(() => fetchOrders(true), 5000) // 5 seconds
+    // Incremental polling: fetch only changes since last sync
+    const changesInterval = setInterval(async () => {
+      if (isPollingRef.current) return
+      if (!lastSyncMs) return
+      isPollingRef.current = true
+      try {
+        let since = lastSyncMs
+        let safetyCounter = 0
+        while (safetyCounter < 5) {
+          const resp = await fetch(`/api/orders/changes?since=${encodeURIComponent(String(since))}&limit=1000`)
+          if (!resp.ok) break
+          const payload = await resp.json()
+          const changed = Array.isArray(payload.orders) ? payload.orders : []
+
+          if (changed.length > 0) {
+            setOrders(prev => {
+              if (!Array.isArray(prev) || prev.length === 0) return changed
+              const byId = new Map(prev.map(o => [o.id, o]))
+              for (const upd of changed) {
+                const existing = byId.get(upd.id)
+                if (existing) {
+                  // Merge only if server data is newer than our last local update
+                  const serverUpdatedMs = new Date((upd as any).dbUpdatedAt || (upd as any).updatedAt || Date.now()).getTime()
+                  const localUpdatedMs = new Date((existing as any).dbUpdatedAt || (existing as any).updatedAt || 0).getTime()
+                  // Also guard against clobbering very recent local updates
+                  const lastLocal = lastLocalUpdateMsRef.current
+                  const isServerNewer = serverUpdatedMs >= Math.max(localUpdatedMs, lastLocal)
+                  byId.set(upd.id, isServerNewer ? { ...existing, ...upd } : existing)
+                } else {
+                  byId.set(upd.id, upd)
+                }
+              }
+              return Array.from(byId.values())
+            })
+          }
+
+          const newMax = typeof payload.maxUpdatedAt === 'number' ? payload.maxUpdatedAt : (payload.maxUpdatedAt ? new Date(payload.maxUpdatedAt).getTime() : null)
+          if (newMax && Number.isFinite(newMax)) {
+            since = Math.max(since, newMax)
+            setLastSyncMs(since)
+          }
+
+          if (!payload.hasMore) break
+          safetyCounter++
+        }
+      } catch {
+        // Silent: kitchen screens should not show errors for background polling
+      } finally {
+        isPollingRef.current = false
+      }
+    }, 5000) // 5 seconds
 
     // Cleanup interval and update queue on unmount
     return () => {
-      clearInterval(ordersInterval)
+      clearInterval(changesInterval)
       // Clear the update queue
       updateQueue.length = 0
       currentUpdates = 0
     }
   }, [])
+
+  // Wrap update handler to record local update time, preventing flicker from stale polling
+  const handleUpdateOrderWithLocalStamp = async (orderId: string, updates: Partial<Order>): Promise<Order> => {
+    lastLocalUpdateMsRef.current = Date.now()
+    const updated = await handleUpdateOrder(orderId, updates)
+    // Advance sync cursor to now to avoid immediate reapplication of stale changes
+    setLastSyncMs(prev => Math.max(prev ?? 0, Date.now()))
+    return updated
+  }
 
   // Add monitoring for request deduplication
   useEffect(() => {
@@ -267,91 +335,16 @@ export default function RealtimeOrdersView() {
   // Memoize the orders list to prevent unnecessary re-renders
   const memoizedOrders = useMemo(() => orders, [orders])
 
-  // Format last update time for display
-  const formatLastUpdate = () => {
-    if (!lastUpdateTime) return 'Never'
-    const now = Date.now()
-    const diff = now - lastUpdateTime
-    if (diff < 60000) return 'Just now'
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
-    return new Date(lastUpdateTime).toLocaleTimeString()
-  }
-
-  // Test function to simulate real-time updates
-  const testRealtimeUpdate = async () => {
-    try {
-      const response = await fetch('/api/test-realtime?action=update-test-order')
-      const data = await response.json()
-      
-      if (data.success) {
-        console.log('🧪 Test update triggered:', data.message)
-        // Force a refresh to show the update
-        setTimeout(() => fetchOrders(true), 1000)
-      } else {
-        console.log('❌ Test update failed:', data.message)
-      }
-    } catch (error) {
-      console.error('❌ Error testing realtime update:', error)
-    }
-  }
-
   if (loading) return <div className="p-4">Loading orders...</div>
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>
 
   return (
     <div className="w-full mx-0 px-0">
-      {/* Real-time status bar */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center justify-between text-sm">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            {connectionStatus === 'connected' ? (
-              <Wifi className="h-4 w-4 text-green-500" />
-            ) : (
-              <WifiOff className="h-4 w-4 text-red-500" />
-            )}
-            <span className={connectionStatus === 'connected' ? 'text-green-600' : 'text-red-600'}>
-              {connectionStatus === 'connected' ? 'Live' : 'Disconnected'}
-            </span>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin text-blue-500' : 'text-gray-400'}`} />
-            <span className="text-gray-600">
-              {refreshing ? 'Updating...' : 'Auto-refresh every 5s'}
-            </span>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          {showUpdateIndicator && (
-            <Badge variant="secondary" className="animate-pulse">
-              Updated
-            </Badge>
-          )}
-          <span className="text-gray-500">
-            Last update: {formatLastUpdate()}
-          </span>
-          <span className="text-gray-400">
-            Updates: {updateCount}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={testRealtimeUpdate}
-            className="flex items-center gap-1 text-xs"
-            title="Test real-time updates"
-          >
-            <Zap className="h-3 w-3" />
-            Test
-          </Button>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-[85%_15%] gap-4">
         <div>
           <OrderCardList 
             orders={todaysOrders} 
-            onUpdateOrder={handleUpdateOrder}
+            onUpdateOrder={handleUpdateOrderWithLocalStamp}
             onBulkUpdateComplete={() => fetchOrders(true)} // Refresh after bulk update
           />
         </div>

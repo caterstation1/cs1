@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get('date');
+    const city = (searchParams.get('city') || '').toUpperCase();
     
     if (!dateParam) {
       return NextResponse.json({
@@ -40,10 +41,10 @@ export async function GET(request: NextRequest) {
 
     console.log('📅 Date range:', startOfDay.toISOString(), 'to', endOfDay.toISOString());
 
-    // Fetch orders for the specific date
+    // Fetch orders for the specific date (optionally filter by city)
     const orders = await prisma.order.findMany({
       where: {
-        deliveryDate: dateParam // deliveryDate is a string in YYYY-MM-DD format
+        deliveryDate: dateParam,
       }
     });
 
@@ -51,7 +52,27 @@ export async function GET(request: NextRequest) {
 
     // Extract all product IDs from orders
     const productIds = new Set<string>();
-    orders.forEach(order => {
+    const isOrderCityMatch = (o: any): boolean => {
+      if (!city) return true;
+      // Check note_attributes City
+      const noteProps = Array.isArray((o as any).noteAttributes) ? (o as any).noteAttributes : (Array.isArray((o as any).note_attributes) ? (o as any).note_attributes : [])
+      const cityAttr = noteProps.find((p: any) => (p?.name || '').toLowerCase() === 'city')
+      if (cityAttr && String(cityAttr.value || '').toUpperCase() === city) return true
+      // Fallback: lineItems properties
+      let items: any[] = []
+      if (Array.isArray((o as any).lineItems)) items = (o as any).lineItems
+      else if (typeof (o as any).lineItems === 'string' && (o as any).lineItems) {
+        try { items = JSON.parse((o as any).lineItems as any) } catch { items = [] }
+      }
+      if (items.some(it => Array.isArray(it?.properties) && it.properties.some((p: any) => (p?.name || '').toLowerCase() === 'city' && String(p?.value).toUpperCase() === city))) return true
+      // Fallback: shipping address
+      const ship = (o as any).shippingAddress || (o as any).shipping_address || {}
+      if (String(ship?.city || '').toLowerCase() === 'wellington' && city === 'WLG') return true
+      if (String(ship?.province_code || '').toUpperCase() === 'WGN' && city === 'WLG') return true
+      return false
+    }
+
+    orders.filter(isOrderCityMatch).forEach(order => {
       if (order.lineItems && Array.isArray(order.lineItems)) {
         order.lineItems.forEach((item: any) => {
           if (item && item.sku) {

@@ -175,6 +175,14 @@ exports.Prisma.ComponentScalarFieldEnum = {
   description: 'description',
   ingredients: 'ingredients',
   totalCost: 'totalCost',
+  producedQuantity: 'producedQuantity',
+  producedUnit: 'producedUnit',
+  rawWeight: 'rawWeight',
+  cookedWeight: 'cookedWeight',
+  trimWasteWeight: 'trimWasteWeight',
+  weightUnit: 'weightUnit',
+  costPerOutputUnit: 'costPerOutputUnit',
+  normalizedOutputUnit: 'normalizedOutputUnit',
   hasGluten: 'hasGluten',
   hasDairy: 'hasDairy',
   hasSoy: 'hasSoy',
@@ -252,6 +260,9 @@ exports.Prisma.ProductWithCustomDataScalarFieldEnum = {
   shopifyTitle: 'shopifyTitle',
   shopifyPrice: 'shopifyPrice',
   shopifyInventory: 'shopifyInventory',
+  shopifyVendor: 'shopifyVendor',
+  shopifyMarket: 'shopifyMarket',
+  heroImageUrl: 'heroImageUrl',
   displayName: 'displayName',
   meat1: 'meat1',
   meat2: 'meat2',
@@ -413,7 +424,10 @@ exports.Prisma.OrderScalarFieldEnum = {
   isDispatched: 'isDispatched',
   lastSmsSent: 'lastSmsSent',
   smsHistory: 'smsHistory',
-  internalNote: 'internalNote'
+  internalNote: 'internalNote',
+  deliveryDateResolved: 'deliveryDateResolved',
+  deliveryDateResolvedSource: 'deliveryDateResolvedSource',
+  deliveryDateResolvedAt: 'deliveryDateResolvedAt'
 };
 
 exports.Prisma.ShopifyOrderScalarFieldEnum = {
@@ -492,7 +506,12 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-
+exports.DeliveryDateResolvedSource = exports.$Enums.DeliveryDateResolvedSource = {
+  FIELD: 'FIELD',
+  NOTE: 'NOTE',
+  TAG: 'TAG',
+  CREATED_AT: 'CREATED_AT'
+};
 
 exports.Prisma.ModelName = {
   GilmoursProduct: 'GilmoursProduct',

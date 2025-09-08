@@ -1,7 +1,6 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { withRetry } from '@/lib/prisma'
 
 interface ShopifySyncContextType {
   lastSyncTime: Date | null
@@ -29,6 +28,31 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
   const [errorDetails, setErrorDetails] = useState<string | null>(null)
   const [syncStatus, setSyncStatus] = useState<string>('Ready')
 
+  // Client-safe retry wrapper (do not import server Prisma utilities in client components)
+  async function withRetryClient<T>(
+    operation: () => Promise<T>,
+    maxRetries: number = 3,
+    delayMs: number = 1000
+  ): Promise<T> {
+    let lastError: Error | null = null
+    let attempt = 0
+    while (attempt < maxRetries) {
+      try {
+        return await operation()
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error('Unknown error')
+        // Only retry transient/network-like errors
+        const msg = lastError.message.toLowerCase()
+        const isTransient = msg.includes('network') || msg.includes('timeout') || msg.includes('failed to fetch')
+        attempt++
+        if (!isTransient || attempt >= maxRetries) break
+        await new Promise(resolve => setTimeout(resolve, delayMs))
+        delayMs = Math.min(delayMs * 2, 10000)
+      }
+    }
+    throw lastError ?? new Error('Unknown error')
+  }
+
   const syncOrders = async () => {
     if (isSyncing) return
 
@@ -38,8 +62,8 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
       setErrorDetails(null)
       setSyncStatus('Syncing...')
 
-      // Use the retry wrapper for database operations
-      const result = await withRetry(async () => {
+      // Use a client-safe retry wrapper
+      const result = await withRetryClient(async () => {
         const response = await fetch('/api/shopify/sync-orders', {
           method: 'POST',
           headers: {

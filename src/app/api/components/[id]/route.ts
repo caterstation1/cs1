@@ -1,23 +1,78 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAccessLevel } from '@/lib/authz';
 import { cloudinary } from '@/lib/cloudinary';
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const role = await getAccessLevel()
+    if (!role) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { id } = await params;
+    const component = await (prisma as any).component.findUnique({
+      where: { id },
+      include: { images: { orderBy: { position: 'asc' } } }
+    })
+    if (!component) {
+      return NextResponse.json({ error: 'Component not found' }, { status: 404 })
+    }
+    return NextResponse.json(component)
+  } catch (error) {
+    console.error('❌ Error fetching component:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch component' },
+      { status: 500 }
+    );
+  }
+}
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const role = await getAccessLevel()
+    if (!role || (role !== 'admin' && role !== 'owner' && role !== 'basic')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     const { id } = await params;
     const body = await request.json();
+    // Normalize yield fields and compute derived
+    const producedQuantity = Number(body.producedQuantity ?? 1);
+    const producedUnit = String(body.producedUnit ?? 'unit');
+    const rawWeight = body.rawWeight !== undefined ? Number(body.rawWeight) : null;
+    const cookedWeight = body.cookedWeight !== undefined ? Number(body.cookedWeight) : null;
+    const trimWasteWeight = body.trimWasteWeight !== undefined ? Number(body.trimWasteWeight) : null;
+    const weightUnit = body.weightUnit ?? null;
+    const toBase = (qty: number, unit: string): { value: number; normalizedUnit: string } => {
+      const u = (unit || '').toLowerCase();
+      if (u === 'g') return { value: qty / 1000, normalizedUnit: 'kg' };
+      if (u === 'ml') return { value: qty / 1000, normalizedUnit: 'l' };
+      if (u === 'kg' || u === 'l') return { value: qty, normalizedUnit: u };
+      return { value: qty, normalizedUnit: 'unit' };
+    };
+    const totalCost = Number(body.totalCost || 0);
+    const base = toBase(producedQuantity, producedUnit);
+    const costPerOutputUnit = base.value > 0 ? totalCost / base.value : 0;
     
     // Update core fields
-    const component = await prisma.component.update({
+    const component = await (prisma as any).component.update({
       where: { id },
       data: {
         name: body.name,
         description: body.description,
         ingredients: body.ingredients,
-        totalCost: body.totalCost || 0,
+        totalCost,
+        producedQuantity,
+        producedUnit,
+        rawWeight: rawWeight as any,
+        cookedWeight: cookedWeight as any,
+        trimWasteWeight: trimWasteWeight as any,
+        weightUnit: weightUnit as any,
+        costPerOutputUnit,
+        normalizedOutputUnit: base.normalizedUnit,
         hasGluten: body.hasGluten || false,
         hasDairy: body.hasDairy || false,
         hasSoy: body.hasSoy || false,
@@ -43,7 +98,7 @@ export async function PUT(
       }))
 
       // Delete images not present in payload
-      const toDelete = component.images.filter((img) => !incoming.some((inc: { publicId: string }) => inc.publicId === img.publicId))
+      const toDelete = component.images.filter((img: { id: string; publicId: string }) => !incoming.some((inc: { publicId: string }) => inc.publicId === img.publicId))
       if (toDelete.length) {
         await prisma.componentImage.deleteMany({
           where: { id: { in: toDelete.map((i: any) => i.id) } }
@@ -81,6 +136,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const role = await getAccessLevel()
+    if (!role || (role !== 'admin' && role !== 'owner')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     const { id } = await params;
     
     // Cascade delete images first (DB). Also attempt Cloudinary deletion when configured

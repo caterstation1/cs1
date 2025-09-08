@@ -157,8 +157,13 @@ export async function sendLoginInvitation(staffId: string): Promise<{ success: b
       return { success: false, error: 'Failed to update staff record' }
     }
 
-    // Generate the reset link
-    const resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`
+    // Generate the reset link using the best available public URL
+    const publicBaseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXTAUTH_URL ||
+      process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}` ||
+      'http://localhost:3000'
+    const resetLink = `${publicBaseUrl}/reset-password?token=${resetToken}`
     console.log('Reset link:', resetLink)
     
     // Send the email using Nodemailer

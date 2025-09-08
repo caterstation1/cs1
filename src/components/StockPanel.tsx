@@ -3,7 +3,9 @@
 import { useState, useEffect, useMemo } from 'react'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
-import { Loader2, RefreshCw, Calendar } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Loader2, RefreshCw, Calendar, IdCard } from 'lucide-react'
+import { ComponentCard } from './ComponentCard'
 
 interface ComponentRequirement {
   id: string
@@ -31,6 +33,7 @@ interface StockPanelProps {
   autoRefresh?: boolean
   refreshInterval?: number // in milliseconds
   targetDate?: Date // Date to show components for (defaults to today)
+  cityFilter?: string // Optional city filter (e.g., 'WLG')
 }
 
 export function StockPanel({ 
@@ -38,7 +41,8 @@ export function StockPanel({
   showRefreshButton = true, 
   autoRefresh = false, 
   refreshInterval = 30000,
-  targetDate
+  targetDate,
+  cityFilter
 }: StockPanelProps) {
   // Use a stable default date to prevent infinite re-renders
   const defaultDate = useMemo(() => new Date(), [])
@@ -49,6 +53,9 @@ export function StockPanel({
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set())
+  const [componentsCatalog, setComponentsCatalog] = useState<any[]>([])
+  const [previewComponent, setPreviewComponent] = useState<any | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   
   const fetchDailyComponents = async (isRefreshing = false) => {
     if (isRefreshing) {
@@ -67,7 +74,9 @@ export function StockPanel({
       
       console.log('📅 Fetching components for date:', dateString, '(selected date:', effectiveTargetDate.toDateString(), ')')
       
-      const response = await fetch(`/api/daily-components?date=${dateString}`)
+      const query = new URLSearchParams({ date: dateString })
+      if (cityFilter) query.set('city', cityFilter)
+      const response = await fetch(`/api/daily-components?${query.toString()}`)
       const contentType = response.headers.get('content-type');
       if (response.ok && contentType && contentType.includes('application/json')) {
         const data = await response.json();
@@ -93,7 +102,22 @@ export function StockPanel({
     fetchDailyComponents()
     // Reset completed items when date changes
     setCompletedItems(new Set())
-  }, [effectiveTargetDate])
+  }, [effectiveTargetDate, cityFilter])
+
+  // Fetch full components catalog once for recipe card previews
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/components')
+        if (!res.ok) return
+        const data = await res.json()
+        setComponentsCatalog(Array.isArray(data) ? data : (data.components || []))
+      } catch (e) {
+        // silent fail
+      }
+    }
+    load()
+  }, [])
 
   // Auto-refresh setup
   useEffect(() => {
@@ -104,7 +128,7 @@ export function StockPanel({
     }, refreshInterval)
 
     return () => clearInterval(interval)
-  }, [autoRefresh, refreshInterval, effectiveTargetDate])
+  }, [autoRefresh, refreshInterval, effectiveTargetDate, cityFilter])
 
   const handleRefresh = () => {
     fetchDailyComponents(true)
@@ -132,6 +156,15 @@ export function StockPanel({
     })
   }
 
+  const openRecipeCard = (name: string) => {
+    const key = (name || '').toLowerCase().trim()
+    const found = componentsCatalog.find((c: any) => (c?.name || '').toLowerCase().trim() === key)
+    if (found) {
+      setPreviewComponent(found)
+      setIsPreviewOpen(true)
+    }
+  }
+
   // Sort components: incomplete first, then completed
   const sortedComponents = [...componentRequirements].sort((a, b) => {
     const aCompleted = completedItems.has(a.id)
@@ -143,6 +176,7 @@ export function StockPanel({
   })
 
   return (
+    <>
     <div className={`border rounded-lg bg-white ${className}`}>
       <div className="p-4 border-b">
         <div className="flex justify-between items-center">
@@ -221,17 +255,14 @@ export function StockPanel({
                     onClick={() => handleItemClick(component.id)}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
-                        isCompleted 
-                          ? 'bg-gray-400 border-gray-400' 
-                          : 'border-gray-300'
-                      }`}>
-                        {isCompleted && (
-                          <div className="w-full h-full bg-gray-400 rounded-full flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                          </div>
-                        )}
-                      </div>
+                      <button
+                        type="button"
+                        aria-label="View recipe card"
+                        className="flex-shrink-0 p-1 rounded border hover:bg-gray-50"
+                        onClick={(e) => { e.stopPropagation(); openRecipeCard(component.name); }}
+                      >
+                        <IdCard className="h-4 w-4" />
+                      </button>
                       <div className="flex-1 min-w-0">
                         <p className={`font-medium truncate ${isCompleted ? 'line-through' : ''}`}>
                           {component.name}
@@ -274,5 +305,37 @@ export function StockPanel({
         </div>
       )}
     </div>
+
+    {/* Recipe Card Preview */}
+    <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+      <DialogContent className="max-w-fit">
+        <DialogHeader>
+          <DialogTitle>Component Card</DialogTitle>
+        </DialogHeader>
+        {previewComponent && (
+          <ComponentCard
+            name={previewComponent.name}
+            description={previewComponent.description}
+            images={(previewComponent.images || []).slice(0,2).map((i: any) => ({ url: i.url, alt: i.alt }))}
+            ingredients={(previewComponent.ingredients || []).map((i: any) => ({ name: i.name, quantity: i.quantity, unit: i.unit, source: i.source, id: i.id }))}
+            allergens={[
+              previewComponent.hasGluten && 'Gluten',
+              previewComponent.hasDairy && 'Dairy',
+              previewComponent.hasSoy && 'Soy',
+              previewComponent.hasOnionGarlic && 'Onion/Garlic',
+              previewComponent.hasSesame && 'Sesame',
+              previewComponent.hasNuts && 'Nuts',
+              previewComponent.hasEgg && 'Egg',
+            ].filter(Boolean) as string[]}
+            dietary={[
+              previewComponent.isVegetarian && 'Vegetarian',
+              previewComponent.isVegan && 'Vegan',
+              previewComponent.isHalal && 'Halal',
+            ].filter(Boolean) as string[]}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+    </>
   )
 } 

@@ -21,7 +21,7 @@ async function testGoogleMapsAPI() {
   
   console.log('Using API key:', apiKey.substring(0, 10) + '...');
   
-  const origin = '562 Richmond Road, Grey Lynn, Auckland';
+  const origin = '562 Richmond Road, Grey Lynn, Auckland 1021';
   const destination = 'Vector, level 6/110 Carlton Gore Road, Auckland, Auckland 1023';
   
   const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&mode=driving&key=${apiKey}`;

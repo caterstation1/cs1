@@ -21,7 +21,7 @@ interface Staff {
   phone: string
   email: string
   payRate: number
-  accessLevel: 'basic' | 'admin' | 'owner'
+  accessLevel: 'basic' | 'pricing_lab' | 'admin' | 'owner'
   isDriver: boolean
   password?: string
 }

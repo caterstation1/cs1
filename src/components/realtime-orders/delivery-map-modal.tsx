@@ -7,12 +7,12 @@ import { Loader2 } from 'lucide-react'
 // Create a shared geocoding cache at the module level
 const geocodingCache: Record<string, {lat: number, lng: number, formattedAddress: string}> = {};
 
-// Static origin address and coordinates
-const ORIGIN_ADDRESS = '562 Richmond Road, Grey Lynn, Auckland';
+// Default origin address
+const DEFAULT_ORIGIN_ADDRESS = '562 Richmond Road, Grey Lynn, Auckland 1021';
 const ORIGIN_COORDINATES = {
   lat: -36.8675,
   lng: 174.7375,
-  formattedAddress: ORIGIN_ADDRESS
+  formattedAddress: DEFAULT_ORIGIN_ADDRESS
 };
 
 interface DeliveryMapModalProps {
@@ -22,6 +22,7 @@ interface DeliveryMapModalProps {
   orderId: string
   onUpdateTravelTime: (orderId: string, travelTime: number) => void
   hasManualTravelTime: boolean
+  originAddressOverride?: string
 }
 
 export default function DeliveryMapModal({
@@ -30,7 +31,8 @@ export default function DeliveryMapModal({
   deliveryAddress,
   orderId,
   onUpdateTravelTime,
-  hasManualTravelTime
+  hasManualTravelTime,
+  originAddressOverride
 }: DeliveryMapModalProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [travelTime, setTravelTime] = useState<number | null>(null)
@@ -41,6 +43,9 @@ export default function DeliveryMapModal({
   
   // Calculate heading when both coordinates are available
   const [heading, setHeading] = useState<number>(210); // Default heading
+
+  // Compute the effective origin once per render
+  const origin = originAddressOverride || DEFAULT_ORIGIN_ADDRESS;
   
   // Function to geocode an address to get coordinates
   const geocodeAddress = async (address: string) => {
@@ -133,7 +138,7 @@ export default function DeliveryMapModal({
     return () => {
       isMounted = false;
     };
-  }, [isOpen, deliveryAddress]);
+  }, [isOpen, deliveryAddress, originAddressOverride]);
 
   // Fetch travel time from Google Maps API
   const fetchTravelTime = async () => {
@@ -141,9 +146,9 @@ export default function DeliveryMapModal({
     setError(null);
     
     try {
-      console.log('🛣️ Fetching travel time from', ORIGIN_ADDRESS, 'to', deliveryAddress);
+      console.log('🛣️ Fetching travel time from', origin, 'to', deliveryAddress);
       
-      const response = await fetch(`/api/maps/travel-time?origin=${encodeURIComponent(ORIGIN_ADDRESS)}&destination=${encodeURIComponent(deliveryAddress)}`);
+      const response = await fetch(`/api/maps/travel-time?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(deliveryAddress)}`);
       const data = await response.json();
       
       if (!response.ok) {
@@ -219,7 +224,7 @@ export default function DeliveryMapModal({
                 </div>
               ) : (
                 <iframe
-                  src={`https://www.google.com/maps/embed/v1/directions?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&origin=${encodeURIComponent(ORIGIN_ADDRESS)}&destination=${encodeURIComponent(deliveryAddress)}&mode=driving`}
+                  src={`https://www.google.com/maps/embed/v1/directions?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(deliveryAddress)}&mode=driving`}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -298,7 +303,7 @@ export default function DeliveryMapModal({
               )}
             </div>
             <div className="mt-4 text-sm text-gray-500">
-              <p>From: {ORIGIN_ADDRESS}</p>
+              <p>From: {origin}</p>
               <p>To: {deliveryAddress}</p>
             </div>
           </div>

@@ -120,6 +120,25 @@ export type ParsedOrder = $Result.DefaultSelection<Prisma.$ParsedOrderPayload>
 export type ParsedLineItem = $Result.DefaultSelection<Prisma.$ParsedLineItemPayload>
 
 /**
+ * Enums
+ */
+export namespace $Enums {
+  export const DeliveryDateResolvedSource: {
+  FIELD: 'FIELD',
+  NOTE: 'NOTE',
+  TAG: 'TAG',
+  CREATED_AT: 'CREATED_AT'
+};
+
+export type DeliveryDateResolvedSource = (typeof DeliveryDateResolvedSource)[keyof typeof DeliveryDateResolvedSource]
+
+}
+
+export type DeliveryDateResolvedSource = $Enums.DeliveryDateResolvedSource
+
+export const DeliveryDateResolvedSource: typeof $Enums.DeliveryDateResolvedSource
+
+/**
  * ##  Prisma Client ʲˢ
  *
  * Type-safe database client for TypeScript & Node.js
@@ -7221,10 +7240,20 @@ export namespace Prisma {
 
   export type ComponentAvgAggregateOutputType = {
     totalCost: number | null
+    producedQuantity: number | null
+    rawWeight: number | null
+    cookedWeight: number | null
+    trimWasteWeight: number | null
+    costPerOutputUnit: number | null
   }
 
   export type ComponentSumAggregateOutputType = {
     totalCost: number | null
+    producedQuantity: number | null
+    rawWeight: number | null
+    cookedWeight: number | null
+    trimWasteWeight: number | null
+    costPerOutputUnit: number | null
   }
 
   export type ComponentMinAggregateOutputType = {
@@ -7232,6 +7261,14 @@ export namespace Prisma {
     name: string | null
     description: string | null
     totalCost: number | null
+    producedQuantity: number | null
+    producedUnit: string | null
+    rawWeight: number | null
+    cookedWeight: number | null
+    trimWasteWeight: number | null
+    weightUnit: string | null
+    costPerOutputUnit: number | null
+    normalizedOutputUnit: string | null
     hasGluten: boolean | null
     hasDairy: boolean | null
     hasSoy: boolean | null
@@ -7252,6 +7289,14 @@ export namespace Prisma {
     name: string | null
     description: string | null
     totalCost: number | null
+    producedQuantity: number | null
+    producedUnit: string | null
+    rawWeight: number | null
+    cookedWeight: number | null
+    trimWasteWeight: number | null
+    weightUnit: string | null
+    costPerOutputUnit: number | null
+    normalizedOutputUnit: string | null
     hasGluten: boolean | null
     hasDairy: boolean | null
     hasSoy: boolean | null
@@ -7273,6 +7318,14 @@ export namespace Prisma {
     description: number
     ingredients: number
     totalCost: number
+    producedQuantity: number
+    producedUnit: number
+    rawWeight: number
+    cookedWeight: number
+    trimWasteWeight: number
+    weightUnit: number
+    costPerOutputUnit: number
+    normalizedOutputUnit: number
     hasGluten: number
     hasDairy: number
     hasSoy: number
@@ -7292,10 +7345,20 @@ export namespace Prisma {
 
   export type ComponentAvgAggregateInputType = {
     totalCost?: true
+    producedQuantity?: true
+    rawWeight?: true
+    cookedWeight?: true
+    trimWasteWeight?: true
+    costPerOutputUnit?: true
   }
 
   export type ComponentSumAggregateInputType = {
     totalCost?: true
+    producedQuantity?: true
+    rawWeight?: true
+    cookedWeight?: true
+    trimWasteWeight?: true
+    costPerOutputUnit?: true
   }
 
   export type ComponentMinAggregateInputType = {
@@ -7303,6 +7366,14 @@ export namespace Prisma {
     name?: true
     description?: true
     totalCost?: true
+    producedQuantity?: true
+    producedUnit?: true
+    rawWeight?: true
+    cookedWeight?: true
+    trimWasteWeight?: true
+    weightUnit?: true
+    costPerOutputUnit?: true
+    normalizedOutputUnit?: true
     hasGluten?: true
     hasDairy?: true
     hasSoy?: true
@@ -7323,6 +7394,14 @@ export namespace Prisma {
     name?: true
     description?: true
     totalCost?: true
+    producedQuantity?: true
+    producedUnit?: true
+    rawWeight?: true
+    cookedWeight?: true
+    trimWasteWeight?: true
+    weightUnit?: true
+    costPerOutputUnit?: true
+    normalizedOutputUnit?: true
     hasGluten?: true
     hasDairy?: true
     hasSoy?: true
@@ -7344,6 +7423,14 @@ export namespace Prisma {
     description?: true
     ingredients?: true
     totalCost?: true
+    producedQuantity?: true
+    producedUnit?: true
+    rawWeight?: true
+    cookedWeight?: true
+    trimWasteWeight?: true
+    weightUnit?: true
+    costPerOutputUnit?: true
+    normalizedOutputUnit?: true
     hasGluten?: true
     hasDairy?: true
     hasSoy?: true
@@ -7452,6 +7539,14 @@ export namespace Prisma {
     description: string
     ingredients: JsonValue
     totalCost: number
+    producedQuantity: number
+    producedUnit: string
+    rawWeight: number | null
+    cookedWeight: number | null
+    trimWasteWeight: number | null
+    weightUnit: string | null
+    costPerOutputUnit: number
+    normalizedOutputUnit: string
     hasGluten: boolean
     hasDairy: boolean
     hasSoy: boolean
@@ -7492,6 +7587,14 @@ export namespace Prisma {
     description?: boolean
     ingredients?: boolean
     totalCost?: boolean
+    producedQuantity?: boolean
+    producedUnit?: boolean
+    rawWeight?: boolean
+    cookedWeight?: boolean
+    trimWasteWeight?: boolean
+    weightUnit?: boolean
+    costPerOutputUnit?: boolean
+    normalizedOutputUnit?: boolean
     hasGluten?: boolean
     hasDairy?: boolean
     hasSoy?: boolean
@@ -7515,6 +7618,14 @@ export namespace Prisma {
     description?: boolean
     ingredients?: boolean
     totalCost?: boolean
+    producedQuantity?: boolean
+    producedUnit?: boolean
+    rawWeight?: boolean
+    cookedWeight?: boolean
+    trimWasteWeight?: boolean
+    weightUnit?: boolean
+    costPerOutputUnit?: boolean
+    normalizedOutputUnit?: boolean
     hasGluten?: boolean
     hasDairy?: boolean
     hasSoy?: boolean
@@ -7536,6 +7647,14 @@ export namespace Prisma {
     description?: boolean
     ingredients?: boolean
     totalCost?: boolean
+    producedQuantity?: boolean
+    producedUnit?: boolean
+    rawWeight?: boolean
+    cookedWeight?: boolean
+    trimWasteWeight?: boolean
+    weightUnit?: boolean
+    costPerOutputUnit?: boolean
+    normalizedOutputUnit?: boolean
     hasGluten?: boolean
     hasDairy?: boolean
     hasSoy?: boolean
@@ -7557,6 +7676,14 @@ export namespace Prisma {
     description?: boolean
     ingredients?: boolean
     totalCost?: boolean
+    producedQuantity?: boolean
+    producedUnit?: boolean
+    rawWeight?: boolean
+    cookedWeight?: boolean
+    trimWasteWeight?: boolean
+    weightUnit?: boolean
+    costPerOutputUnit?: boolean
+    normalizedOutputUnit?: boolean
     hasGluten?: boolean
     hasDairy?: boolean
     hasSoy?: boolean
@@ -7572,7 +7699,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "ingredients" | "totalCost" | "hasGluten" | "hasDairy" | "hasSoy" | "hasOnionGarlic" | "hasSesame" | "hasNuts" | "hasEgg" | "isVegetarian" | "isVegan" | "isHalal" | "isComponentListItem" | "createdAt" | "updatedAt", ExtArgs["result"]["component"]>
+  export type ComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "ingredients" | "totalCost" | "producedQuantity" | "producedUnit" | "rawWeight" | "cookedWeight" | "trimWasteWeight" | "weightUnit" | "costPerOutputUnit" | "normalizedOutputUnit" | "hasGluten" | "hasDairy" | "hasSoy" | "hasOnionGarlic" | "hasSesame" | "hasNuts" | "hasEgg" | "isVegetarian" | "isVegan" | "isHalal" | "isComponentListItem" | "createdAt" | "updatedAt", ExtArgs["result"]["component"]>
   export type ComponentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     images?: boolean | Component$imagesArgs<ExtArgs>
     _count?: boolean | ComponentCountOutputTypeDefaultArgs<ExtArgs>
@@ -7591,6 +7718,14 @@ export namespace Prisma {
       description: string
       ingredients: Prisma.JsonValue
       totalCost: number
+      producedQuantity: number
+      producedUnit: string
+      rawWeight: number | null
+      cookedWeight: number | null
+      trimWasteWeight: number | null
+      weightUnit: string | null
+      costPerOutputUnit: number
+      normalizedOutputUnit: string
       hasGluten: boolean
       hasDairy: boolean
       hasSoy: boolean
@@ -8033,6 +8168,14 @@ export namespace Prisma {
     readonly description: FieldRef<"Component", 'String'>
     readonly ingredients: FieldRef<"Component", 'Json'>
     readonly totalCost: FieldRef<"Component", 'Float'>
+    readonly producedQuantity: FieldRef<"Component", 'Float'>
+    readonly producedUnit: FieldRef<"Component", 'String'>
+    readonly rawWeight: FieldRef<"Component", 'Float'>
+    readonly cookedWeight: FieldRef<"Component", 'Float'>
+    readonly trimWasteWeight: FieldRef<"Component", 'Float'>
+    readonly weightUnit: FieldRef<"Component", 'String'>
+    readonly costPerOutputUnit: FieldRef<"Component", 'Float'>
+    readonly normalizedOutputUnit: FieldRef<"Component", 'String'>
     readonly hasGluten: FieldRef<"Component", 'Boolean'>
     readonly hasDairy: FieldRef<"Component", 'Boolean'>
     readonly hasSoy: FieldRef<"Component", 'Boolean'>
@@ -12032,6 +12175,9 @@ export namespace Prisma {
     shopifyTitle: string | null
     shopifyPrice: Decimal | null
     shopifyInventory: number | null
+    shopifyVendor: string | null
+    shopifyMarket: string | null
+    heroImageUrl: string | null
     displayName: string | null
     meat1: string | null
     meat2: string | null
@@ -12055,6 +12201,9 @@ export namespace Prisma {
     shopifyTitle: string | null
     shopifyPrice: Decimal | null
     shopifyInventory: number | null
+    shopifyVendor: string | null
+    shopifyMarket: string | null
+    heroImageUrl: string | null
     displayName: string | null
     meat1: string | null
     meat2: string | null
@@ -12078,6 +12227,9 @@ export namespace Prisma {
     shopifyTitle: number
     shopifyPrice: number
     shopifyInventory: number
+    shopifyVendor: number
+    shopifyMarket: number
+    heroImageUrl: number
     displayName: number
     meat1: number
     meat2: number
@@ -12120,6 +12272,9 @@ export namespace Prisma {
     shopifyTitle?: true
     shopifyPrice?: true
     shopifyInventory?: true
+    shopifyVendor?: true
+    shopifyMarket?: true
+    heroImageUrl?: true
     displayName?: true
     meat1?: true
     meat2?: true
@@ -12143,6 +12298,9 @@ export namespace Prisma {
     shopifyTitle?: true
     shopifyPrice?: true
     shopifyInventory?: true
+    shopifyVendor?: true
+    shopifyMarket?: true
+    heroImageUrl?: true
     displayName?: true
     meat1?: true
     meat2?: true
@@ -12166,6 +12324,9 @@ export namespace Prisma {
     shopifyTitle?: true
     shopifyPrice?: true
     shopifyInventory?: true
+    shopifyVendor?: true
+    shopifyMarket?: true
+    heroImageUrl?: true
     displayName?: true
     meat1?: true
     meat2?: true
@@ -12277,6 +12438,9 @@ export namespace Prisma {
     shopifyTitle: string
     shopifyPrice: Decimal
     shopifyInventory: number
+    shopifyVendor: string | null
+    shopifyMarket: string | null
+    heroImageUrl: string | null
     displayName: string | null
     meat1: string | null
     meat2: string | null
@@ -12320,6 +12484,9 @@ export namespace Prisma {
     shopifyTitle?: boolean
     shopifyPrice?: boolean
     shopifyInventory?: boolean
+    shopifyVendor?: boolean
+    shopifyMarket?: boolean
+    heroImageUrl?: boolean
     displayName?: boolean
     meat1?: boolean
     meat2?: boolean
@@ -12344,6 +12511,9 @@ export namespace Prisma {
     shopifyTitle?: boolean
     shopifyPrice?: boolean
     shopifyInventory?: boolean
+    shopifyVendor?: boolean
+    shopifyMarket?: boolean
+    heroImageUrl?: boolean
     displayName?: boolean
     meat1?: boolean
     meat2?: boolean
@@ -12368,6 +12538,9 @@ export namespace Prisma {
     shopifyTitle?: boolean
     shopifyPrice?: boolean
     shopifyInventory?: boolean
+    shopifyVendor?: boolean
+    shopifyMarket?: boolean
+    heroImageUrl?: boolean
     displayName?: boolean
     meat1?: boolean
     meat2?: boolean
@@ -12392,6 +12565,9 @@ export namespace Prisma {
     shopifyTitle?: boolean
     shopifyPrice?: boolean
     shopifyInventory?: boolean
+    shopifyVendor?: boolean
+    shopifyMarket?: boolean
+    heroImageUrl?: boolean
     displayName?: boolean
     meat1?: boolean
     meat2?: boolean
@@ -12405,7 +12581,7 @@ export namespace Prisma {
     totalCost?: boolean
   }
 
-  export type ProductWithCustomDataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "variantId" | "createdAt" | "updatedAt" | "shopifyProductId" | "shopifySku" | "shopifyName" | "shopifyTitle" | "shopifyPrice" | "shopifyInventory" | "displayName" | "meat1" | "meat2" | "timer1" | "timer2" | "option1" | "option2" | "serveware" | "isDraft" | "ingredients" | "totalCost", ExtArgs["result"]["productWithCustomData"]>
+  export type ProductWithCustomDataOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "variantId" | "createdAt" | "updatedAt" | "shopifyProductId" | "shopifySku" | "shopifyName" | "shopifyTitle" | "shopifyPrice" | "shopifyInventory" | "shopifyVendor" | "shopifyMarket" | "heroImageUrl" | "displayName" | "meat1" | "meat2" | "timer1" | "timer2" | "option1" | "option2" | "serveware" | "isDraft" | "ingredients" | "totalCost", ExtArgs["result"]["productWithCustomData"]>
 
   export type $ProductWithCustomDataPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ProductWithCustomData"
@@ -12421,6 +12597,9 @@ export namespace Prisma {
       shopifyTitle: string
       shopifyPrice: Prisma.Decimal
       shopifyInventory: number
+      shopifyVendor: string | null
+      shopifyMarket: string | null
+      heroImageUrl: string | null
       displayName: string | null
       meat1: string | null
       meat2: string | null
@@ -12865,6 +13044,9 @@ export namespace Prisma {
     readonly shopifyTitle: FieldRef<"ProductWithCustomData", 'String'>
     readonly shopifyPrice: FieldRef<"ProductWithCustomData", 'Decimal'>
     readonly shopifyInventory: FieldRef<"ProductWithCustomData", 'Int'>
+    readonly shopifyVendor: FieldRef<"ProductWithCustomData", 'String'>
+    readonly shopifyMarket: FieldRef<"ProductWithCustomData", 'String'>
+    readonly heroImageUrl: FieldRef<"ProductWithCustomData", 'String'>
     readonly displayName: FieldRef<"ProductWithCustomData", 'String'>
     readonly meat1: FieldRef<"ProductWithCustomData", 'String'>
     readonly meat2: FieldRef<"ProductWithCustomData", 'String'>
@@ -22580,6 +22762,9 @@ export namespace Prisma {
     isDispatched: boolean | null
     lastSmsSent: Date | null
     internalNote: string | null
+    deliveryDateResolved: Date | null
+    deliveryDateResolvedSource: $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt: Date | null
   }
 
   export type OrderMaxAggregateOutputType = {
@@ -22619,6 +22804,9 @@ export namespace Prisma {
     isDispatched: boolean | null
     lastSmsSent: Date | null
     internalNote: string | null
+    deliveryDateResolved: Date | null
+    deliveryDateResolvedSource: $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt: Date | null
   }
 
   export type OrderCountAggregateOutputType = {
@@ -22663,6 +22851,9 @@ export namespace Prisma {
     lastSmsSent: number
     smsHistory: number
     internalNote: number
+    deliveryDateResolved: number
+    deliveryDateResolvedSource: number
+    deliveryDateResolvedAt: number
     _all: number
   }
 
@@ -22718,6 +22909,9 @@ export namespace Prisma {
     isDispatched?: true
     lastSmsSent?: true
     internalNote?: true
+    deliveryDateResolved?: true
+    deliveryDateResolvedSource?: true
+    deliveryDateResolvedAt?: true
   }
 
   export type OrderMaxAggregateInputType = {
@@ -22757,6 +22951,9 @@ export namespace Prisma {
     isDispatched?: true
     lastSmsSent?: true
     internalNote?: true
+    deliveryDateResolved?: true
+    deliveryDateResolvedSource?: true
+    deliveryDateResolvedAt?: true
   }
 
   export type OrderCountAggregateInputType = {
@@ -22801,6 +22998,9 @@ export namespace Prisma {
     lastSmsSent?: true
     smsHistory?: true
     internalNote?: true
+    deliveryDateResolved?: true
+    deliveryDateResolvedSource?: true
+    deliveryDateResolvedAt?: true
     _all?: true
   }
 
@@ -22932,6 +23132,9 @@ export namespace Prisma {
     lastSmsSent: Date | null
     smsHistory: JsonValue | null
     internalNote: string | null
+    deliveryDateResolved: Date | null
+    deliveryDateResolvedSource: $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt: Date | null
     _count: OrderCountAggregateOutputType | null
     _avg: OrderAvgAggregateOutputType | null
     _sum: OrderSumAggregateOutputType | null
@@ -22995,6 +23198,9 @@ export namespace Prisma {
     lastSmsSent?: boolean
     smsHistory?: boolean
     internalNote?: boolean
+    deliveryDateResolved?: boolean
+    deliveryDateResolvedSource?: boolean
+    deliveryDateResolvedAt?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -23039,6 +23245,9 @@ export namespace Prisma {
     lastSmsSent?: boolean
     smsHistory?: boolean
     internalNote?: boolean
+    deliveryDateResolved?: boolean
+    deliveryDateResolvedSource?: boolean
+    deliveryDateResolvedAt?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -23083,6 +23292,9 @@ export namespace Prisma {
     lastSmsSent?: boolean
     smsHistory?: boolean
     internalNote?: boolean
+    deliveryDateResolved?: boolean
+    deliveryDateResolvedSource?: boolean
+    deliveryDateResolvedAt?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectScalar = {
@@ -23127,9 +23339,12 @@ export namespace Prisma {
     lastSmsSent?: boolean
     smsHistory?: boolean
     internalNote?: boolean
+    deliveryDateResolved?: boolean
+    deliveryDateResolvedSource?: boolean
+    deliveryDateResolvedAt?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "orderNumber" | "createdAt" | "updatedAt" | "processedAt" | "cancelledAt" | "closedAt" | "totalPrice" | "subtotalPrice" | "totalTax" | "currency" | "financialStatus" | "fulfillmentStatus" | "tags" | "note" | "customerEmail" | "customerFirstName" | "customerLastName" | "customerPhone" | "shippingAddress" | "billingAddress" | "lineItems" | "source" | "hasLocalEdits" | "syncedAt" | "dbCreatedAt" | "dbUpdatedAt" | "noteAttributes" | "deliveryDate" | "deliveryTime" | "pickupDate" | "pickupTime" | "deliveryInstructions" | "travelTime" | "leaveTime" | "driverId" | "isDispatched" | "lastSmsSent" | "smsHistory" | "internalNote", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "orderNumber" | "createdAt" | "updatedAt" | "processedAt" | "cancelledAt" | "closedAt" | "totalPrice" | "subtotalPrice" | "totalTax" | "currency" | "financialStatus" | "fulfillmentStatus" | "tags" | "note" | "customerEmail" | "customerFirstName" | "customerLastName" | "customerPhone" | "shippingAddress" | "billingAddress" | "lineItems" | "source" | "hasLocalEdits" | "syncedAt" | "dbCreatedAt" | "dbUpdatedAt" | "noteAttributes" | "deliveryDate" | "deliveryTime" | "pickupDate" | "pickupTime" | "deliveryInstructions" | "travelTime" | "leaveTime" | "driverId" | "isDispatched" | "lastSmsSent" | "smsHistory" | "internalNote" | "deliveryDateResolved" | "deliveryDateResolvedSource" | "deliveryDateResolvedAt", ExtArgs["result"]["order"]>
 
   export type $OrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Order"
@@ -23176,6 +23391,9 @@ export namespace Prisma {
       lastSmsSent: Date | null
       smsHistory: Prisma.JsonValue | null
       internalNote: string | null
+      deliveryDateResolved: Date | null
+      deliveryDateResolvedSource: $Enums.DeliveryDateResolvedSource | null
+      deliveryDateResolvedAt: Date | null
     }, ExtArgs["result"]["order"]>
     composites: {}
   }
@@ -23640,6 +23858,9 @@ export namespace Prisma {
     readonly lastSmsSent: FieldRef<"Order", 'DateTime'>
     readonly smsHistory: FieldRef<"Order", 'Json'>
     readonly internalNote: FieldRef<"Order", 'String'>
+    readonly deliveryDateResolved: FieldRef<"Order", 'DateTime'>
+    readonly deliveryDateResolvedSource: FieldRef<"Order", 'DeliveryDateResolvedSource'>
+    readonly deliveryDateResolvedAt: FieldRef<"Order", 'DateTime'>
   }
     
 
@@ -27663,6 +27884,14 @@ export namespace Prisma {
     description: 'description',
     ingredients: 'ingredients',
     totalCost: 'totalCost',
+    producedQuantity: 'producedQuantity',
+    producedUnit: 'producedUnit',
+    rawWeight: 'rawWeight',
+    cookedWeight: 'cookedWeight',
+    trimWasteWeight: 'trimWasteWeight',
+    weightUnit: 'weightUnit',
+    costPerOutputUnit: 'costPerOutputUnit',
+    normalizedOutputUnit: 'normalizedOutputUnit',
     hasGluten: 'hasGluten',
     hasDairy: 'hasDairy',
     hasSoy: 'hasSoy',
@@ -27752,6 +27981,9 @@ export namespace Prisma {
     shopifyTitle: 'shopifyTitle',
     shopifyPrice: 'shopifyPrice',
     shopifyInventory: 'shopifyInventory',
+    shopifyVendor: 'shopifyVendor',
+    shopifyMarket: 'shopifyMarket',
+    heroImageUrl: 'heroImageUrl',
     displayName: 'displayName',
     meat1: 'meat1',
     meat2: 'meat2',
@@ -27940,7 +28172,10 @@ export namespace Prisma {
     isDispatched: 'isDispatched',
     lastSmsSent: 'lastSmsSent',
     smsHistory: 'smsHistory',
-    internalNote: 'internalNote'
+    internalNote: 'internalNote',
+    deliveryDateResolved: 'deliveryDateResolved',
+    deliveryDateResolvedSource: 'deliveryDateResolvedSource',
+    deliveryDateResolvedAt: 'deliveryDateResolvedAt'
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
@@ -28143,6 +28378,20 @@ export namespace Prisma {
    * Reference to a field of type 'Decimal[]'
    */
   export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DeliveryDateResolvedSource'
+   */
+  export type EnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeliveryDateResolvedSource'>
+    
+
+
+  /**
+   * Reference to a field of type 'DeliveryDateResolvedSource[]'
+   */
+  export type ListEnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeliveryDateResolvedSource[]'>
     
   /**
    * Deep Input Types
@@ -28457,6 +28706,14 @@ export namespace Prisma {
     description?: StringFilter<"Component"> | string
     ingredients?: JsonFilter<"Component">
     totalCost?: FloatFilter<"Component"> | number
+    producedQuantity?: FloatFilter<"Component"> | number
+    producedUnit?: StringFilter<"Component"> | string
+    rawWeight?: FloatNullableFilter<"Component"> | number | null
+    cookedWeight?: FloatNullableFilter<"Component"> | number | null
+    trimWasteWeight?: FloatNullableFilter<"Component"> | number | null
+    weightUnit?: StringNullableFilter<"Component"> | string | null
+    costPerOutputUnit?: FloatFilter<"Component"> | number
+    normalizedOutputUnit?: StringFilter<"Component"> | string
     hasGluten?: BoolFilter<"Component"> | boolean
     hasDairy?: BoolFilter<"Component"> | boolean
     hasSoy?: BoolFilter<"Component"> | boolean
@@ -28479,6 +28736,14 @@ export namespace Prisma {
     description?: SortOrder
     ingredients?: SortOrder
     totalCost?: SortOrder
+    producedQuantity?: SortOrder
+    producedUnit?: SortOrder
+    rawWeight?: SortOrderInput | SortOrder
+    cookedWeight?: SortOrderInput | SortOrder
+    trimWasteWeight?: SortOrderInput | SortOrder
+    weightUnit?: SortOrderInput | SortOrder
+    costPerOutputUnit?: SortOrder
+    normalizedOutputUnit?: SortOrder
     hasGluten?: SortOrder
     hasDairy?: SortOrder
     hasSoy?: SortOrder
@@ -28504,6 +28769,14 @@ export namespace Prisma {
     description?: StringFilter<"Component"> | string
     ingredients?: JsonFilter<"Component">
     totalCost?: FloatFilter<"Component"> | number
+    producedQuantity?: FloatFilter<"Component"> | number
+    producedUnit?: StringFilter<"Component"> | string
+    rawWeight?: FloatNullableFilter<"Component"> | number | null
+    cookedWeight?: FloatNullableFilter<"Component"> | number | null
+    trimWasteWeight?: FloatNullableFilter<"Component"> | number | null
+    weightUnit?: StringNullableFilter<"Component"> | string | null
+    costPerOutputUnit?: FloatFilter<"Component"> | number
+    normalizedOutputUnit?: StringFilter<"Component"> | string
     hasGluten?: BoolFilter<"Component"> | boolean
     hasDairy?: BoolFilter<"Component"> | boolean
     hasSoy?: BoolFilter<"Component"> | boolean
@@ -28526,6 +28799,14 @@ export namespace Prisma {
     description?: SortOrder
     ingredients?: SortOrder
     totalCost?: SortOrder
+    producedQuantity?: SortOrder
+    producedUnit?: SortOrder
+    rawWeight?: SortOrderInput | SortOrder
+    cookedWeight?: SortOrderInput | SortOrder
+    trimWasteWeight?: SortOrderInput | SortOrder
+    weightUnit?: SortOrderInput | SortOrder
+    costPerOutputUnit?: SortOrder
+    normalizedOutputUnit?: SortOrder
     hasGluten?: SortOrder
     hasDairy?: SortOrder
     hasSoy?: SortOrder
@@ -28555,6 +28836,14 @@ export namespace Prisma {
     description?: StringWithAggregatesFilter<"Component"> | string
     ingredients?: JsonWithAggregatesFilter<"Component">
     totalCost?: FloatWithAggregatesFilter<"Component"> | number
+    producedQuantity?: FloatWithAggregatesFilter<"Component"> | number
+    producedUnit?: StringWithAggregatesFilter<"Component"> | string
+    rawWeight?: FloatNullableWithAggregatesFilter<"Component"> | number | null
+    cookedWeight?: FloatNullableWithAggregatesFilter<"Component"> | number | null
+    trimWasteWeight?: FloatNullableWithAggregatesFilter<"Component"> | number | null
+    weightUnit?: StringNullableWithAggregatesFilter<"Component"> | string | null
+    costPerOutputUnit?: FloatWithAggregatesFilter<"Component"> | number
+    normalizedOutputUnit?: StringWithAggregatesFilter<"Component"> | string
     hasGluten?: BoolWithAggregatesFilter<"Component"> | boolean
     hasDairy?: BoolWithAggregatesFilter<"Component"> | boolean
     hasSoy?: BoolWithAggregatesFilter<"Component"> | boolean
@@ -28884,6 +29173,9 @@ export namespace Prisma {
     shopifyTitle?: StringFilter<"ProductWithCustomData"> | string
     shopifyPrice?: DecimalFilter<"ProductWithCustomData"> | Decimal | DecimalJsLike | number | string
     shopifyInventory?: IntFilter<"ProductWithCustomData"> | number
+    shopifyVendor?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    shopifyMarket?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    heroImageUrl?: StringNullableFilter<"ProductWithCustomData"> | string | null
     displayName?: StringNullableFilter<"ProductWithCustomData"> | string | null
     meat1?: StringNullableFilter<"ProductWithCustomData"> | string | null
     meat2?: StringNullableFilter<"ProductWithCustomData"> | string | null
@@ -28908,6 +29200,9 @@ export namespace Prisma {
     shopifyTitle?: SortOrder
     shopifyPrice?: SortOrder
     shopifyInventory?: SortOrder
+    shopifyVendor?: SortOrderInput | SortOrder
+    shopifyMarket?: SortOrderInput | SortOrder
+    heroImageUrl?: SortOrderInput | SortOrder
     displayName?: SortOrderInput | SortOrder
     meat1?: SortOrderInput | SortOrder
     meat2?: SortOrderInput | SortOrder
@@ -28935,6 +29230,9 @@ export namespace Prisma {
     shopifyTitle?: StringFilter<"ProductWithCustomData"> | string
     shopifyPrice?: DecimalFilter<"ProductWithCustomData"> | Decimal | DecimalJsLike | number | string
     shopifyInventory?: IntFilter<"ProductWithCustomData"> | number
+    shopifyVendor?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    shopifyMarket?: StringNullableFilter<"ProductWithCustomData"> | string | null
+    heroImageUrl?: StringNullableFilter<"ProductWithCustomData"> | string | null
     displayName?: StringNullableFilter<"ProductWithCustomData"> | string | null
     meat1?: StringNullableFilter<"ProductWithCustomData"> | string | null
     meat2?: StringNullableFilter<"ProductWithCustomData"> | string | null
@@ -28959,6 +29257,9 @@ export namespace Prisma {
     shopifyTitle?: SortOrder
     shopifyPrice?: SortOrder
     shopifyInventory?: SortOrder
+    shopifyVendor?: SortOrderInput | SortOrder
+    shopifyMarket?: SortOrderInput | SortOrder
+    heroImageUrl?: SortOrderInput | SortOrder
     displayName?: SortOrderInput | SortOrder
     meat1?: SortOrderInput | SortOrder
     meat2?: SortOrderInput | SortOrder
@@ -28991,6 +29292,9 @@ export namespace Prisma {
     shopifyTitle?: StringWithAggregatesFilter<"ProductWithCustomData"> | string
     shopifyPrice?: DecimalWithAggregatesFilter<"ProductWithCustomData"> | Decimal | DecimalJsLike | number | string
     shopifyInventory?: IntWithAggregatesFilter<"ProductWithCustomData"> | number
+    shopifyVendor?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
+    shopifyMarket?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
+    heroImageUrl?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
     displayName?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
     meat1?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
     meat2?: StringNullableWithAggregatesFilter<"ProductWithCustomData"> | string | null
@@ -29724,6 +30028,9 @@ export namespace Prisma {
     lastSmsSent?: DateTimeNullableFilter<"Order"> | Date | string | null
     smsHistory?: JsonNullableFilter<"Order">
     internalNote?: StringNullableFilter<"Order"> | string | null
+    deliveryDateResolved?: DateTimeNullableFilter<"Order"> | Date | string | null
+    deliveryDateResolvedSource?: EnumDeliveryDateResolvedSourceNullableFilter<"Order"> | $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
   }
 
   export type OrderOrderByWithRelationInput = {
@@ -29768,6 +30075,9 @@ export namespace Prisma {
     lastSmsSent?: SortOrderInput | SortOrder
     smsHistory?: SortOrderInput | SortOrder
     internalNote?: SortOrderInput | SortOrder
+    deliveryDateResolved?: SortOrderInput | SortOrder
+    deliveryDateResolvedSource?: SortOrderInput | SortOrder
+    deliveryDateResolvedAt?: SortOrderInput | SortOrder
   }
 
   export type OrderWhereUniqueInput = Prisma.AtLeast<{
@@ -29815,6 +30125,9 @@ export namespace Prisma {
     lastSmsSent?: DateTimeNullableFilter<"Order"> | Date | string | null
     smsHistory?: JsonNullableFilter<"Order">
     internalNote?: StringNullableFilter<"Order"> | string | null
+    deliveryDateResolved?: DateTimeNullableFilter<"Order"> | Date | string | null
+    deliveryDateResolvedSource?: EnumDeliveryDateResolvedSourceNullableFilter<"Order"> | $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
   }, "id" | "shopifyId">
 
   export type OrderOrderByWithAggregationInput = {
@@ -29859,6 +30172,9 @@ export namespace Prisma {
     lastSmsSent?: SortOrderInput | SortOrder
     smsHistory?: SortOrderInput | SortOrder
     internalNote?: SortOrderInput | SortOrder
+    deliveryDateResolved?: SortOrderInput | SortOrder
+    deliveryDateResolvedSource?: SortOrderInput | SortOrder
+    deliveryDateResolvedAt?: SortOrderInput | SortOrder
     _count?: OrderCountOrderByAggregateInput
     _avg?: OrderAvgOrderByAggregateInput
     _max?: OrderMaxOrderByAggregateInput
@@ -29911,6 +30227,9 @@ export namespace Prisma {
     lastSmsSent?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     smsHistory?: JsonNullableWithAggregatesFilter<"Order">
     internalNote?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    deliveryDateResolved?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    deliveryDateResolvedSource?: EnumDeliveryDateResolvedSourceNullableWithAggregatesFilter<"Order"> | $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
   }
 
   export type ShopifyOrderWhereInput = {
@@ -30549,6 +30868,14 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    producedQuantity?: number
+    producedUnit?: string
+    rawWeight?: number | null
+    cookedWeight?: number | null
+    trimWasteWeight?: number | null
+    weightUnit?: string | null
+    costPerOutputUnit?: number
+    normalizedOutputUnit?: string
     hasGluten?: boolean
     hasDairy?: boolean
     hasSoy?: boolean
@@ -30571,6 +30898,14 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    producedQuantity?: number
+    producedUnit?: string
+    rawWeight?: number | null
+    cookedWeight?: number | null
+    trimWasteWeight?: number | null
+    weightUnit?: string | null
+    costPerOutputUnit?: number
+    normalizedOutputUnit?: string
     hasGluten?: boolean
     hasDairy?: boolean
     hasSoy?: boolean
@@ -30593,6 +30928,14 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    producedQuantity?: FloatFieldUpdateOperationsInput | number
+    producedUnit?: StringFieldUpdateOperationsInput | string
+    rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    cookedWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    trimWasteWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    weightUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    costPerOutputUnit?: FloatFieldUpdateOperationsInput | number
+    normalizedOutputUnit?: StringFieldUpdateOperationsInput | string
     hasGluten?: BoolFieldUpdateOperationsInput | boolean
     hasDairy?: BoolFieldUpdateOperationsInput | boolean
     hasSoy?: BoolFieldUpdateOperationsInput | boolean
@@ -30615,6 +30958,14 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    producedQuantity?: FloatFieldUpdateOperationsInput | number
+    producedUnit?: StringFieldUpdateOperationsInput | string
+    rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    cookedWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    trimWasteWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    weightUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    costPerOutputUnit?: FloatFieldUpdateOperationsInput | number
+    normalizedOutputUnit?: StringFieldUpdateOperationsInput | string
     hasGluten?: BoolFieldUpdateOperationsInput | boolean
     hasDairy?: BoolFieldUpdateOperationsInput | boolean
     hasSoy?: BoolFieldUpdateOperationsInput | boolean
@@ -30637,6 +30988,14 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    producedQuantity?: number
+    producedUnit?: string
+    rawWeight?: number | null
+    cookedWeight?: number | null
+    trimWasteWeight?: number | null
+    weightUnit?: string | null
+    costPerOutputUnit?: number
+    normalizedOutputUnit?: string
     hasGluten?: boolean
     hasDairy?: boolean
     hasSoy?: boolean
@@ -30658,6 +31017,14 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    producedQuantity?: FloatFieldUpdateOperationsInput | number
+    producedUnit?: StringFieldUpdateOperationsInput | string
+    rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    cookedWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    trimWasteWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    weightUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    costPerOutputUnit?: FloatFieldUpdateOperationsInput | number
+    normalizedOutputUnit?: StringFieldUpdateOperationsInput | string
     hasGluten?: BoolFieldUpdateOperationsInput | boolean
     hasDairy?: BoolFieldUpdateOperationsInput | boolean
     hasSoy?: BoolFieldUpdateOperationsInput | boolean
@@ -30679,6 +31046,14 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    producedQuantity?: FloatFieldUpdateOperationsInput | number
+    producedUnit?: StringFieldUpdateOperationsInput | string
+    rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    cookedWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    trimWasteWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    weightUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    costPerOutputUnit?: FloatFieldUpdateOperationsInput | number
+    normalizedOutputUnit?: StringFieldUpdateOperationsInput | string
     hasGluten?: BoolFieldUpdateOperationsInput | boolean
     hasDairy?: BoolFieldUpdateOperationsInput | boolean
     hasSoy?: BoolFieldUpdateOperationsInput | boolean
@@ -31061,6 +31436,9 @@ export namespace Prisma {
     shopifyTitle: string
     shopifyPrice: Decimal | DecimalJsLike | number | string
     shopifyInventory: number
+    shopifyVendor?: string | null
+    shopifyMarket?: string | null
+    heroImageUrl?: string | null
     displayName?: string | null
     meat1?: string | null
     meat2?: string | null
@@ -31085,6 +31463,9 @@ export namespace Prisma {
     shopifyTitle: string
     shopifyPrice: Decimal | DecimalJsLike | number | string
     shopifyInventory: number
+    shopifyVendor?: string | null
+    shopifyMarket?: string | null
+    heroImageUrl?: string | null
     displayName?: string | null
     meat1?: string | null
     meat2?: string | null
@@ -31109,6 +31490,9 @@ export namespace Prisma {
     shopifyTitle?: StringFieldUpdateOperationsInput | string
     shopifyPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     shopifyInventory?: IntFieldUpdateOperationsInput | number
+    shopifyVendor?: NullableStringFieldUpdateOperationsInput | string | null
+    shopifyMarket?: NullableStringFieldUpdateOperationsInput | string | null
+    heroImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     meat1?: NullableStringFieldUpdateOperationsInput | string | null
     meat2?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31133,6 +31517,9 @@ export namespace Prisma {
     shopifyTitle?: StringFieldUpdateOperationsInput | string
     shopifyPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     shopifyInventory?: IntFieldUpdateOperationsInput | number
+    shopifyVendor?: NullableStringFieldUpdateOperationsInput | string | null
+    shopifyMarket?: NullableStringFieldUpdateOperationsInput | string | null
+    heroImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     meat1?: NullableStringFieldUpdateOperationsInput | string | null
     meat2?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31157,6 +31544,9 @@ export namespace Prisma {
     shopifyTitle: string
     shopifyPrice: Decimal | DecimalJsLike | number | string
     shopifyInventory: number
+    shopifyVendor?: string | null
+    shopifyMarket?: string | null
+    heroImageUrl?: string | null
     displayName?: string | null
     meat1?: string | null
     meat2?: string | null
@@ -31181,6 +31571,9 @@ export namespace Prisma {
     shopifyTitle?: StringFieldUpdateOperationsInput | string
     shopifyPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     shopifyInventory?: IntFieldUpdateOperationsInput | number
+    shopifyVendor?: NullableStringFieldUpdateOperationsInput | string | null
+    shopifyMarket?: NullableStringFieldUpdateOperationsInput | string | null
+    heroImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     meat1?: NullableStringFieldUpdateOperationsInput | string | null
     meat2?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31205,6 +31598,9 @@ export namespace Prisma {
     shopifyTitle?: StringFieldUpdateOperationsInput | string
     shopifyPrice?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     shopifyInventory?: IntFieldUpdateOperationsInput | number
+    shopifyVendor?: NullableStringFieldUpdateOperationsInput | string | null
+    shopifyMarket?: NullableStringFieldUpdateOperationsInput | string | null
+    heroImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     displayName?: NullableStringFieldUpdateOperationsInput | string | null
     meat1?: NullableStringFieldUpdateOperationsInput | string | null
     meat2?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32027,6 +32423,9 @@ export namespace Prisma {
     lastSmsSent?: Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
     internalNote?: string | null
+    deliveryDateResolved?: Date | string | null
+    deliveryDateResolvedSource?: $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: Date | string | null
   }
 
   export type OrderUncheckedCreateInput = {
@@ -32071,6 +32470,9 @@ export namespace Prisma {
     lastSmsSent?: Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
     internalNote?: string | null
+    deliveryDateResolved?: Date | string | null
+    deliveryDateResolvedSource?: $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: Date | string | null
   }
 
   export type OrderUpdateInput = {
@@ -32115,6 +32517,9 @@ export namespace Prisma {
     lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
     internalNote?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDateResolved?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateResolvedSource?: NullableEnumDeliveryDateResolvedSourceFieldUpdateOperationsInput | $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderUncheckedUpdateInput = {
@@ -32159,6 +32564,9 @@ export namespace Prisma {
     lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
     internalNote?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDateResolved?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateResolvedSource?: NullableEnumDeliveryDateResolvedSourceFieldUpdateOperationsInput | $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderCreateManyInput = {
@@ -32203,6 +32611,9 @@ export namespace Prisma {
     lastSmsSent?: Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
     internalNote?: string | null
+    deliveryDateResolved?: Date | string | null
+    deliveryDateResolvedSource?: $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: Date | string | null
   }
 
   export type OrderUpdateManyMutationInput = {
@@ -32247,6 +32658,9 @@ export namespace Prisma {
     lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
     internalNote?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDateResolved?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateResolvedSource?: NullableEnumDeliveryDateResolvedSourceFieldUpdateOperationsInput | $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrderUncheckedUpdateManyInput = {
@@ -32291,6 +32705,9 @@ export namespace Prisma {
     lastSmsSent?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     smsHistory?: NullableJsonNullValueInput | InputJsonValue
     internalNote?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDateResolved?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateResolvedSource?: NullableEnumDeliveryDateResolvedSourceFieldUpdateOperationsInput | $Enums.DeliveryDateResolvedSource | null
+    deliveryDateResolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ShopifyOrderCreateInput = {
@@ -32978,6 +33395,17 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -32999,6 +33427,14 @@ export namespace Prisma {
     description?: SortOrder
     ingredients?: SortOrder
     totalCost?: SortOrder
+    producedQuantity?: SortOrder
+    producedUnit?: SortOrder
+    rawWeight?: SortOrder
+    cookedWeight?: SortOrder
+    trimWasteWeight?: SortOrder
+    weightUnit?: SortOrder
+    costPerOutputUnit?: SortOrder
+    normalizedOutputUnit?: SortOrder
     hasGluten?: SortOrder
     hasDairy?: SortOrder
     hasSoy?: SortOrder
@@ -33016,6 +33452,11 @@ export namespace Prisma {
 
   export type ComponentAvgOrderByAggregateInput = {
     totalCost?: SortOrder
+    producedQuantity?: SortOrder
+    rawWeight?: SortOrder
+    cookedWeight?: SortOrder
+    trimWasteWeight?: SortOrder
+    costPerOutputUnit?: SortOrder
   }
 
   export type ComponentMaxOrderByAggregateInput = {
@@ -33023,6 +33464,14 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     totalCost?: SortOrder
+    producedQuantity?: SortOrder
+    producedUnit?: SortOrder
+    rawWeight?: SortOrder
+    cookedWeight?: SortOrder
+    trimWasteWeight?: SortOrder
+    weightUnit?: SortOrder
+    costPerOutputUnit?: SortOrder
+    normalizedOutputUnit?: SortOrder
     hasGluten?: SortOrder
     hasDairy?: SortOrder
     hasSoy?: SortOrder
@@ -33043,6 +33492,14 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     totalCost?: SortOrder
+    producedQuantity?: SortOrder
+    producedUnit?: SortOrder
+    rawWeight?: SortOrder
+    cookedWeight?: SortOrder
+    trimWasteWeight?: SortOrder
+    weightUnit?: SortOrder
+    costPerOutputUnit?: SortOrder
+    normalizedOutputUnit?: SortOrder
     hasGluten?: SortOrder
     hasDairy?: SortOrder
     hasSoy?: SortOrder
@@ -33060,6 +33517,11 @@ export namespace Prisma {
 
   export type ComponentSumOrderByAggregateInput = {
     totalCost?: SortOrder
+    producedQuantity?: SortOrder
+    rawWeight?: SortOrder
+    cookedWeight?: SortOrder
+    trimWasteWeight?: SortOrder
+    costPerOutputUnit?: SortOrder
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -33086,6 +33548,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedJsonFilter<$PrismaModel>
     _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -33174,17 +33652,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type FloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type ProductCountOrderByAggregateInput = {
@@ -33315,22 +33782,6 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
-  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-
   export type ProductCustomDataCountOrderByAggregateInput = {
     id?: SortOrder
     variantId?: SortOrder
@@ -33411,6 +33862,9 @@ export namespace Prisma {
     shopifyTitle?: SortOrder
     shopifyPrice?: SortOrder
     shopifyInventory?: SortOrder
+    shopifyVendor?: SortOrder
+    shopifyMarket?: SortOrder
+    heroImageUrl?: SortOrder
     displayName?: SortOrder
     meat1?: SortOrder
     meat2?: SortOrder
@@ -33443,6 +33897,9 @@ export namespace Prisma {
     shopifyTitle?: SortOrder
     shopifyPrice?: SortOrder
     shopifyInventory?: SortOrder
+    shopifyVendor?: SortOrder
+    shopifyMarket?: SortOrder
+    heroImageUrl?: SortOrder
     displayName?: SortOrder
     meat1?: SortOrder
     meat2?: SortOrder
@@ -33466,6 +33923,9 @@ export namespace Prisma {
     shopifyTitle?: SortOrder
     shopifyPrice?: SortOrder
     shopifyInventory?: SortOrder
+    shopifyVendor?: SortOrder
+    shopifyMarket?: SortOrder
+    heroImageUrl?: SortOrder
     displayName?: SortOrder
     meat1?: SortOrder
     meat2?: SortOrder
@@ -33969,6 +34429,13 @@ export namespace Prisma {
     amount?: SortOrder
   }
 
+  export type EnumDeliveryDateResolvedSourceNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeliveryDateResolvedSource | EnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    in?: $Enums.DeliveryDateResolvedSource[] | ListEnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.DeliveryDateResolvedSource[] | ListEnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumDeliveryDateResolvedSourceNullableFilter<$PrismaModel> | $Enums.DeliveryDateResolvedSource | null
+  }
+
   export type OrderCountOrderByAggregateInput = {
     id?: SortOrder
     shopifyId?: SortOrder
@@ -34011,6 +34478,9 @@ export namespace Prisma {
     lastSmsSent?: SortOrder
     smsHistory?: SortOrder
     internalNote?: SortOrder
+    deliveryDateResolved?: SortOrder
+    deliveryDateResolvedSource?: SortOrder
+    deliveryDateResolvedAt?: SortOrder
   }
 
   export type OrderAvgOrderByAggregateInput = {
@@ -34057,6 +34527,9 @@ export namespace Prisma {
     isDispatched?: SortOrder
     lastSmsSent?: SortOrder
     internalNote?: SortOrder
+    deliveryDateResolved?: SortOrder
+    deliveryDateResolvedSource?: SortOrder
+    deliveryDateResolvedAt?: SortOrder
   }
 
   export type OrderMinOrderByAggregateInput = {
@@ -34096,6 +34569,9 @@ export namespace Prisma {
     isDispatched?: SortOrder
     lastSmsSent?: SortOrder
     internalNote?: SortOrder
+    deliveryDateResolved?: SortOrder
+    deliveryDateResolvedSource?: SortOrder
+    deliveryDateResolvedAt?: SortOrder
   }
 
   export type OrderSumOrderByAggregateInput = {
@@ -34103,6 +34579,16 @@ export namespace Prisma {
     totalPrice?: SortOrder
     subtotalPrice?: SortOrder
     totalTax?: SortOrder
+  }
+
+  export type EnumDeliveryDateResolvedSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeliveryDateResolvedSource | EnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    in?: $Enums.DeliveryDateResolvedSource[] | ListEnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.DeliveryDateResolvedSource[] | ListEnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumDeliveryDateResolvedSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.DeliveryDateResolvedSource | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumDeliveryDateResolvedSourceNullableFilter<$PrismaModel>
+    _max?: NestedEnumDeliveryDateResolvedSourceNullableFilter<$PrismaModel>
   }
 
   export type ParsedOrderNullableScalarRelationFilter = {
@@ -34329,6 +34815,14 @@ export namespace Prisma {
     connect?: ComponentImageWhereUniqueInput | ComponentImageWhereUniqueInput[]
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
   }
@@ -34376,14 +34870,6 @@ export namespace Prisma {
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
-  export type NullableFloatFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
     decrement?: number
@@ -34745,6 +35231,10 @@ export namespace Prisma {
     update?: XOR<XOR<ShiftUpdateToOneWithWhereWithoutReimbursementsInput, ShiftUpdateWithoutReimbursementsInput>, ShiftUncheckedUpdateWithoutReimbursementsInput>
   }
 
+  export type NullableEnumDeliveryDateResolvedSourceFieldUpdateOperationsInput = {
+    set?: $Enums.DeliveryDateResolvedSource | null
+  }
+
   export type ParsedOrderCreateNestedOneWithoutShopifyOrderInput = {
     create?: XOR<ParsedOrderCreateWithoutShopifyOrderInput, ParsedOrderUncheckedCreateWithoutShopifyOrderInput>
     connectOrCreate?: ParsedOrderCreateOrConnectWithoutShopifyOrderInput
@@ -34999,6 +35489,17 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -35027,15 +35528,7 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
     notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
@@ -35043,7 +35536,20 @@ export namespace Prisma {
     lte?: number | FloatFieldRefInput<$PrismaModel>
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -35083,22 +35589,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type NestedDecimalFilter<$PrismaModel = never> = {
@@ -35164,6 +35654,23 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumDeliveryDateResolvedSourceNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeliveryDateResolvedSource | EnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    in?: $Enums.DeliveryDateResolvedSource[] | ListEnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.DeliveryDateResolvedSource[] | ListEnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumDeliveryDateResolvedSourceNullableFilter<$PrismaModel> | $Enums.DeliveryDateResolvedSource | null
+  }
+
+  export type NestedEnumDeliveryDateResolvedSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeliveryDateResolvedSource | EnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    in?: $Enums.DeliveryDateResolvedSource[] | ListEnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.DeliveryDateResolvedSource[] | ListEnumDeliveryDateResolvedSourceFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumDeliveryDateResolvedSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.DeliveryDateResolvedSource | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumDeliveryDateResolvedSourceNullableFilter<$PrismaModel>
+    _max?: NestedEnumDeliveryDateResolvedSourceNullableFilter<$PrismaModel>
   }
 
   export type ComponentImageCreateWithoutComponentInput = {
@@ -35232,6 +35739,14 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    producedQuantity?: number
+    producedUnit?: string
+    rawWeight?: number | null
+    cookedWeight?: number | null
+    trimWasteWeight?: number | null
+    weightUnit?: string | null
+    costPerOutputUnit?: number
+    normalizedOutputUnit?: string
     hasGluten?: boolean
     hasDairy?: boolean
     hasSoy?: boolean
@@ -35253,6 +35768,14 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    producedQuantity?: number
+    producedUnit?: string
+    rawWeight?: number | null
+    cookedWeight?: number | null
+    trimWasteWeight?: number | null
+    weightUnit?: string | null
+    costPerOutputUnit?: number
+    normalizedOutputUnit?: string
     hasGluten?: boolean
     hasDairy?: boolean
     hasSoy?: boolean
@@ -35290,6 +35813,14 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    producedQuantity?: FloatFieldUpdateOperationsInput | number
+    producedUnit?: StringFieldUpdateOperationsInput | string
+    rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    cookedWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    trimWasteWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    weightUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    costPerOutputUnit?: FloatFieldUpdateOperationsInput | number
+    normalizedOutputUnit?: StringFieldUpdateOperationsInput | string
     hasGluten?: BoolFieldUpdateOperationsInput | boolean
     hasDairy?: BoolFieldUpdateOperationsInput | boolean
     hasSoy?: BoolFieldUpdateOperationsInput | boolean
@@ -35311,6 +35842,14 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    producedQuantity?: FloatFieldUpdateOperationsInput | number
+    producedUnit?: StringFieldUpdateOperationsInput | string
+    rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    cookedWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    trimWasteWeight?: NullableFloatFieldUpdateOperationsInput | number | null
+    weightUnit?: NullableStringFieldUpdateOperationsInput | string | null
+    costPerOutputUnit?: FloatFieldUpdateOperationsInput | number
+    normalizedOutputUnit?: StringFieldUpdateOperationsInput | string
     hasGluten?: BoolFieldUpdateOperationsInput | boolean
     hasDairy?: BoolFieldUpdateOperationsInput | boolean
     hasSoy?: BoolFieldUpdateOperationsInput | boolean

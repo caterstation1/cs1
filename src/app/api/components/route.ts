@@ -24,13 +24,40 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    // Normalize yield fields
+    const producedQuantity = Number(body.producedQuantity ?? 1);
+    const producedUnit = String(body.producedUnit ?? 'unit');
+    const rawWeight = body.rawWeight !== undefined ? Number(body.rawWeight) : null;
+    const cookedWeight = body.cookedWeight !== undefined ? Number(body.cookedWeight) : null;
+    const trimWasteWeight = body.trimWasteWeight !== undefined ? Number(body.trimWasteWeight) : null;
+    const weightUnit = body.weightUnit ?? null;
+
+    // Compute normalized unit and cost per output unit
+    const toBase = (qty: number, unit: string): { value: number; normalizedUnit: string } => {
+      const u = (unit || '').toLowerCase();
+      if (u === 'g') return { value: qty / 1000, normalizedUnit: 'kg' };
+      if (u === 'ml') return { value: qty / 1000, normalizedUnit: 'l' };
+      if (u === 'kg' || u === 'l') return { value: qty, normalizedUnit: u };
+      return { value: qty, normalizedUnit: 'unit' };
+    };
+    const base = toBase(producedQuantity, producedUnit);
+    const totalCost = Number(body.totalCost || 0);
+    const costPerOutputUnit = base.value > 0 ? totalCost / base.value : 0;
     
-    const component = await prisma.component.create({
+    const component = await (prisma as any).component.create({
       data: {
         name: body.name,
         description: body.description,
         ingredients: body.ingredients,
-        totalCost: body.totalCost || 0,
+        totalCost,
+        producedQuantity,
+        producedUnit,
+        rawWeight: rawWeight as any,
+        cookedWeight: cookedWeight as any,
+        trimWasteWeight: trimWasteWeight as any,
+        weightUnit: weightUnit as any,
+        costPerOutputUnit,
+        normalizedOutputUnit: base.normalizedUnit,
         hasGluten: body.hasGluten || false,
         hasDairy: body.hasDairy || false,
         hasSoy: body.hasSoy || false,

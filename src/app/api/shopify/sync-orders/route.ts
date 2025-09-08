@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { fetchShopifyOrders } from '../../../../lib/shopify-client';
 import { transformShopifyOrder } from '../../../../lib/data-transformer';
 import { prisma } from '../../../../lib/prisma';
+import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver';
 
 export async function GET() {
   return NextResponse.json({
@@ -54,6 +55,11 @@ export async function POST() {
           const transformedOrder = transformShopifyOrder(shopifyOrder);
           
           // Create new order without transaction for speed
+          const resolved = resolveDeliveryDateResolved({
+            deliveryDate: transformedOrder.deliveryDate,
+            tags: transformedOrder.tags,
+            createdAt: transformedOrder.createdAt,
+          })
           const newOrder = await prisma.order.create({
             data: {
               shopifyId: transformedOrder.shopifyId.toString(),
@@ -79,7 +85,10 @@ export async function POST() {
               syncedAt: new Date(transformedOrder.syncedAt),
               deliveryDate: transformedOrder.deliveryDate,
               deliveryTime: transformedOrder.deliveryTime,
-              isDispatched: transformedOrder.isDispatched
+              isDispatched: transformedOrder.isDispatched,
+              deliveryDateResolved: resolved.date as unknown as Date,
+              deliveryDateResolvedSource: resolved.source as any,
+              deliveryDateResolvedAt: new Date(),
             }
           });
           

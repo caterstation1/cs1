@@ -70,12 +70,11 @@ interface OrderCardProps {
   onBulkUpdateComplete?: () => Promise<void>
   updateProductInState?: (variantId: string, updatedProduct: any) => void
   isAudioEnabled?: boolean
+  originAddressOverride?: string
 }
 
-export default function OrderCard({ order, onUpdate, products, refreshProducts, onBulkUpdateComplete, updateProductInState, isAudioEnabled = true }: OrderCardProps) {
-  console.log('OrderCard render for order:', order.id);
-  console.log('🔍 Internal note debug - order.internalNote:', order.internalNote);
-  console.log('🔍 Internal note debug - order object keys:', Object.keys(order));
+export default function OrderCard({ order, onUpdate, products, refreshProducts, onBulkUpdateComplete, updateProductInState, isAudioEnabled = true, originAddressOverride }: OrderCardProps) {
+  // Debug logging disabled in production for performance and clarity
   const [isExpanded, setIsExpanded] = useState(false)
   const [deliveryTime, setDeliveryTime] = useState(order.deliveryTime || '')
   const [leaveTime, setLeaveTime] = useState(order.leaveTime || '')
@@ -113,22 +112,6 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   
   // Use a ref to track if this is the first render
   const isFirstRender = useRef(true)
-  
-  // Track order updates for visual feedback
-  const [showUpdateGlow, setShowUpdateGlow] = useState(false)
-  const lastOrderData = useRef(JSON.stringify(order))
-  
-  // Check if order data has changed and show subtle update indicator
-  useEffect(() => {
-    const currentOrderData = JSON.stringify(order)
-    if (!isFirstRender.current && currentOrderData !== lastOrderData.current) {
-      setShowUpdateGlow(true)
-      setTimeout(() => setShowUpdateGlow(false), 1500)
-      console.log('🔄 Order card updated:', order.id)
-    }
-    lastOrderData.current = currentOrderData
-    isFirstRender.current = false
-  }, [order])
   
   // Format the order date
   const orderDate = formatDate(order.createdAt)
@@ -277,29 +260,35 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     }
   }, [order.travelTime, order.leaveTime, order.driverId])
   
-  // Update leave time when delivery time or travel time changes
+  // Update leave time when delivery inputs change
   useEffect(() => {
-    if (extractedDeliveryTime && travelTime > 0) {
-      const [hours, minutes] = extractedDeliveryTime.split(':').map(Number);
+    // Determine an effective delivery time in HH:mm from tags → state → order field
+    const fromTags = extractDeliveryTime(order.tags);
+    const eff = fromTags
+      ? extractFirstTimeTo24Hour(fromTags)
+      : (deliveryTime
+          ? sanitizeTimeInput(deliveryTime)
+          : (order.deliveryTime ? sanitizeTimeInput(order.deliveryTime as any) : ''));
+
+    if (eff && travelTime > 0) {
+      const [hours, minutes] = eff.split(':').map(Number);
       const deliveryDate = new Date();
       deliveryDate.setHours(hours, minutes, 0, 0);
-      
+
       // Subtract travel time from delivery time
       const leaveDate = new Date(deliveryDate.getTime() - (travelTime * 60 * 1000));
       const leaveHours = leaveDate.getHours().toString().padStart(2, '0');
       const leaveMinutes = leaveDate.getMinutes().toString().padStart(2, '0');
       const newLeaveTime = `${leaveHours}:${leaveMinutes}`;
-      
-      // Only update if the leave time has actually changed
+
       if (newLeaveTime !== leaveTime) {
         setLeaveTime(newLeaveTime);
         handleUpdate({ leaveTime: newLeaveTime });
       }
-    } else if (extractedDeliveryTime) {
-      // If we have a delivery time but no travel time, just set the leave time to the delivery time
-      if (extractedDeliveryTime !== leaveTime) {
-        setLeaveTime(extractedDeliveryTime);
-        handleUpdate({ leaveTime: extractedDeliveryTime });
+    } else if (eff) {
+      if (eff !== leaveTime) {
+        setLeaveTime(eff);
+        handleUpdate({ leaveTime: eff });
       }
     } else {
       if (leaveTime !== '') {
@@ -307,7 +296,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
         handleUpdate({ leaveTime: '' });
       }
     }
-  }, [extractedDeliveryTime, travelTime]);
+  }, [order.tags, order.deliveryTime, deliveryTime, travelTime]);
   
   // Fetch staff for driver dropdown
   useEffect(() => {
@@ -575,7 +564,12 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       const response = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error('Failed to search products');
       const data = await response.json();
-      setSearchResults(data);
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.products)
+          ? data.products
+          : [];
+      setSearchResults(list as Product[]);
     } catch (error) {
       console.error('Error searching products:', error);
     }
@@ -587,6 +581,8 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       id: Date.now().toString(), // Temporary ID for new items
       sku: product.shopifySku || product.variantSku,
       title: product.shopifyName || product.name,
+      variant_id: product.variantId, // ensure product lookup works
+      variantId: product.variantId,
       quantity: 1,
       price: "0.00", // You might want to fetch the actual price from your backend
       variant_title: null,
@@ -1012,9 +1008,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   }
 
   return (
-    <div className={`w-full bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 ${
-      showUpdateGlow ? 'ring-2 ring-blue-400 ring-opacity-50 shadow-lg' : ''
-    }`}>
+    <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden">
       {/* Order Details Section - Light Blue Background */}
       <div className="bg-blue-100 text-black p-1">
         {/* Single row with all order details */}
@@ -1075,13 +1069,13 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           >
             {deliveryAddress || 'No address'}
           </div>
-          <div className="w-24 text-center">
-            {deliveryPhone || 'No phone'}
-          </div>
           <div className="w-24 ml-2">
             {deliveryTime || 'Not set'}
           </div>
-          <div className="flex-1 truncate relative">
+          <div className="w-24 text-center">
+            {deliveryPhone || 'No phone'}
+          </div>
+          <div className="flex-1 truncate relative ml-3">
             <div
               className="cursor-pointer hover:underline"
               onClick={(e) => {
@@ -1146,7 +1140,11 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                   {product?.serveware && (
                     <span className="text-xs font-black text-black mr-2 align-middle">SW</span>
                   )}
-                  <span>{product ? (product.displayName?.trim() ? product.displayName : (product.shopifyName || product.name)) : item.title}</span>
+                  <span>{(() => {
+                    const name = product ? (product.displayName?.trim() ? product.displayName : (product.shopifyName || product.name)) : item.title
+                    const qty = Number(item.quantity || 0)
+                    return qty > 1 ? `${qty}x ${name}` : name
+                  })()}</span>
                 </div>
                   </ContextMenuTrigger>
                   <ContextMenuContent>
@@ -1298,7 +1296,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                       </span>
                     )}
                     {timerTimes.length > 0 && (
-                          <span className="absolute left-[60%] text-blue-500 text-[1.4rem] font-medium align-middle">
+                           <span className="absolute left-[60%] top-0 text-blue-500 text-[1.4rem] font-medium align-middle whitespace-nowrap">
                         {timerTimes.map((time, i) => (
                           <span key={i} className={isTimerPassed(variantId, i, time) ? 'text-red-600 font-bold' : ''}>
                             {i > 0 && <span className="mx-1">•</span>}
@@ -1309,7 +1307,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                     )}
                     {/* Options inline with product */}
                     {(product?.option1 || product?.option2) && (
-                      <span className="absolute left-[75%] text-blue-500 text-[1.4rem] align-middle">
+                      <span className="absolute left-[75%] top-0 text-blue-500 text-[1.4rem] align-middle whitespace-nowrap">
                         {product.option1 && (
                           <span>{product.option1}</span>
                         )}
@@ -1585,7 +1583,12 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                     className="flex items-center justify-between p-3 hover:bg-gray-50"
                   >
                     <div>
-                      <div className="font-medium">{product.displayName?.trim() ? product.displayName : (product.shopifyName || product.name)}</div>
+                      <div className="font-medium">{(() => {
+                        if (product.displayName?.trim()) return product.displayName
+                        const name = product.shopifyName
+                        if (name && name !== 'Default Title') return name
+                        return product.shopifyTitle || product.name
+                      })()}</div>
                       <div className="text-sm text-gray-500">
                         SKU: {product.shopifySku || product.variantSku}
                       </div>
@@ -1595,7 +1598,9 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                       onClick={() => {
                         const newItem = {
                           sku: product.shopifySku || product.variantSku,
-                          title: product.shopifyName || product.name,
+                          title: (product.shopifyName && product.shopifyName !== 'Default Title') ? product.shopifyName : (product.shopifyTitle || product.name),
+                          variant_id: product.variantId,
+                          variantId: product.variantId,
                           quantity: 1,
                           price: "0.00",
                           variant_title: null,
@@ -1604,7 +1609,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                           taxable: true,
                           requires_shipping: true,
                           fulfillment_status: null
-                        };
+                        } as any;
                         const updatedLineItems = [...editedLineItems, newItem];
                         handleUpdate({ lineItems: updatedLineItems });
                         setIsSearching(false);
@@ -1630,6 +1635,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
         orderId={order.id}
         onUpdateTravelTime={handleTravelTimeUpdate}
         hasManualTravelTime={hasManualTravelTime}
+        originAddressOverride={originAddressOverride}
       />
 
       {/* Product Edit Modal */}

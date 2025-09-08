@@ -38,6 +38,10 @@ const getCurrentIngredientCost = async (source: string, id: string): Promise<num
         const component = await prisma.component.findUnique({
           where: { id }
         });
+        // Use per-output-unit cost when available for unit-based usage
+        if (component && typeof (component as any).costPerOutputUnit === 'number' && (component as any).costPerOutputUnit > 0) {
+          return (component as any).costPerOutputUnit as number;
+        }
         return component?.totalCost || 0;
         
       case 'Products':

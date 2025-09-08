@@ -20,10 +20,12 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      const callbackUrl = (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')) || undefined
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
+        callbackUrl,
       })
 
       if (result?.error) {
@@ -35,8 +37,24 @@ export default function LoginPage() {
         description: 'You have been logged in successfully',
       })
       
-      // Redirect to the dashboard
-      router.push('/')
+      // Prefer callbackUrl if provided (and not '/')
+      if (callbackUrl && callbackUrl !== '/') {
+        router.replace(callbackUrl)
+        return
+      }
+      // Otherwise fetch session and route by role
+      try {
+        // Ensure the session cookie is available
+        await new Promise(r => setTimeout(r, 50))
+        const res = await fetch('/api/auth/session')
+        const data = await res.json().catch(() => ({}))
+        const accessLevel = data?.user?.accessLevel || data?.accessLevel
+        if (accessLevel === 'pricing_lab') router.replace('/pricing-lab')
+        else if (accessLevel === 'basic') router.replace('/realtime-orders')
+        else router.replace('/dashboard')
+      } catch {
+        router.replace('/dashboard')
+      }
     } catch (error) {
       toast({
         title: 'Error',

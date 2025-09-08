@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver';
 
 export async function GET(
   request: Request,
@@ -42,9 +43,24 @@ export async function PUT(
     
     console.log(`🔄 Updating order ${id} in PostgreSQL...`);
     
+    // Compute resolved delivery day from updated fields
+    const existing = await prisma.order.findUnique({ where: { id } })
+    const candidate = {
+      deliveryDate: body.deliveryDate ?? existing?.deliveryDate,
+      noteAttributes: body.noteAttributes ?? existing?.noteAttributes,
+      tags: body.tags ?? existing?.tags,
+      createdAt: existing?.createdAt,
+    }
+    const resolved = resolveDeliveryDateResolved(candidate)
+
     const order = await prisma.order.update({
       where: { id },
-      data: body
+      data: {
+        ...body,
+        deliveryDateResolved: resolved.date,
+        deliveryDateResolvedSource: resolved.source,
+        deliveryDateResolvedAt: new Date(),
+      }
     });
     
     console.log(`✅ Updated order: ${order.orderNumber}`);
@@ -68,9 +84,23 @@ export async function PATCH(
     
     console.log(`🔄 Patching order ${id} in PostgreSQL...`);
     
+    const existing = await prisma.order.findUnique({ where: { id } })
+    const candidate = {
+      deliveryDate: body.deliveryDate ?? existing?.deliveryDate,
+      noteAttributes: body.noteAttributes ?? existing?.noteAttributes,
+      tags: body.tags ?? existing?.tags,
+      createdAt: existing?.createdAt,
+    }
+    const resolved = resolveDeliveryDateResolved(candidate)
+
     const order = await prisma.order.update({
       where: { id },
-      data: body
+      data: {
+        ...body,
+        deliveryDateResolved: resolved.date,
+        deliveryDateResolvedSource: resolved.source,
+        deliveryDateResolvedAt: new Date(),
+      }
     });
     
     console.log(`✅ Patched order: ${order.orderNumber}`);

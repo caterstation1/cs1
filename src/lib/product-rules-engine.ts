@@ -50,6 +50,13 @@ export async function applyProductRules(productTitle: string, variantTitle?: str
 
     const result: ProductCustomData = {}
 
+    const ingredientKey = (ing: any): string => {
+      const src = ing?.source ?? ''
+      const id = ing?.id ?? ''
+      const name = ing?.name ?? ''
+      return `${src}|${id}|${name}`
+    }
+
     // Apply each rule that matches either product title or variant title
     for (const rule of rules) {
       console.log(`\n🔎 Checking rule: "${rule.name}" (pattern: "${rule.matchPattern}", type: ${rule.matchType})`);
@@ -98,11 +105,18 @@ export async function applyProductRules(productTitle: string, variantTitle?: str
           result.serveware = rule.setServeware
           console.log(`   🍽️ Set serveware: ${rule.setServeware}`);
         }
-        if (rule.setIngredients && result.ingredients === undefined) {
-          result.ingredients = Array.isArray(rule.setIngredients) ? rule.setIngredients : []
-          console.log(`   🧀 Set ingredients:`, rule.setIngredients);
-          console.log(`   🧀 Ingredients type:`, typeof rule.setIngredients);
-          console.log(`   🧀 Ingredients is array:`, Array.isArray(rule.setIngredients));
+        if (rule.setIngredients) {
+          const incoming = Array.isArray(rule.setIngredients) ? rule.setIngredients : []
+          const existing = Array.isArray(result.ingredients) ? result.ingredients : []
+          const dedupMap = new Map<string, any>()
+          for (const ing of [...existing, ...incoming]) {
+            try {
+              const key = ingredientKey(ing)
+              if (!dedupMap.has(key)) dedupMap.set(key, ing)
+            } catch {}
+          }
+          result.ingredients = Array.from(dedupMap.values())
+          console.log(`   🧀 Merged ingredients (deduped):`, result.ingredients)
         }
         if (rule.setTotalCost !== null && rule.setTotalCost !== undefined && result.totalCost === undefined) {
           result.totalCost = rule.setTotalCost
@@ -258,9 +272,36 @@ export async function applyRulesToMatchingProducts(matchPattern?: string): Promi
 
             // Handle ingredients separately to avoid type issues
             if (suggestedData.ingredients !== undefined) {
-              updateData.ingredients = suggestedData.ingredients
+              // Append + dedupe ingredients using (source,id,name) key for idempotency
+              const keyOf = (ing: any) => `${ing?.source ?? ''}|${ing?.id ?? ''}|${ing?.name ?? ''}`
+              const existingList = Array.isArray(product.ingredients) ? product.ingredients : []
+              const incomingList = Array.isArray(suggestedData.ingredients) ? suggestedData.ingredients : []
+              const merged = new Map<string, any>()
+              for (const ing of [...existingList, ...incomingList]) {
+                try {
+                  merged.set(keyOf(ing), ing)
+                } catch {
+                  // ignore bad entries
+                }
+              }
+              updateData.ingredients = Array.from(merged.values())
               console.log(`   🧀 Updating ingredients in database:`, suggestedData.ingredients);
               console.log(`   🧀 Ingredients type for DB:`, typeof suggestedData.ingredients);
+
+              // Derive total cost from the new ingredient list if explicit total not provided
+              try {
+                if (suggestedData.totalCost === undefined) {
+                  const derivedTotal: number = updateData.ingredients.reduce((sum: number, ing: any) => {
+                    const qty = Number(ing?.quantity ?? 0)
+                    const cost = Number(ing?.cost ?? 0)
+                    return sum + (isFinite(qty) && isFinite(cost) ? qty * cost : 0)
+                  }, 0)
+                  updateData.totalCost = parseFloat(derivedTotal.toFixed(2))
+                  console.log(`   💰 Derived totalCost from ingredients: ${updateData.totalCost}`)
+                }
+              } catch (e) {
+                console.warn('   ⚠️ Failed to derive totalCost from ingredients:', e)
+              }
             } else {
               updateData.ingredients = product.ingredients
             }

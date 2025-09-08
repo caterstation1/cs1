@@ -155,31 +155,74 @@ export async function GET() {
       }
     });
     
-    // Calculate metrics (no cost data available)
-    const calculatePeriodData = (orders: any[]) => {
+    // Calculate metrics using product totalCost as COGS proxy
+    const calculatePeriodData = async (orders: any[]) => {
       const salesValue = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
       const orderCount = orders.length;
-      
+
+      // Build SKU list from line items
+      const skus = Array.from(new Set(
+        orders.flatMap((o:any) => Array.isArray(o.lineItems) ? o.lineItems.map((li:any) => li.sku).filter(Boolean) : [])
+      ));
+
+      // Map SKU -> product totalCost
+      let skuToCost: Record<string, number> = {};
+      if (skus.length) {
+        const products = await prisma.productWithCustomData.findMany({
+          where: { shopifySku: { in: skus } },
+          select: { shopifySku: true, totalCost: true }
+        });
+        skuToCost = Object.fromEntries(products.map(p => [p.shopifySku as string, Number(p.totalCost || 0)]));
+      }
+
+      // Sum COGS = Σ over all orders Σ (qty × product totalCost)
+      const costOfSales = orders.reduce((sum, order) => {
+        const items = Array.isArray(order.lineItems) ? order.lineItems : [];
+        const orderCost = items.reduce((acc:number, li:any) => {
+          const sku = li.sku as string;
+          const qty = Number(li.quantity || 0);
+          const unitCost = Number(skuToCost[sku] || 0);
+          return acc + (isFinite(qty) && isFinite(unitCost) ? qty * unitCost : 0);
+        }, 0);
+        return sum + orderCost;
+      }, 0);
+
+      const totalGP = salesValue - costOfSales;
+      const gpPercentage = salesValue > 0 ? (totalGP / salesValue) * 100 : 0;
+      const staffCosts = 0;
+      const totalGPWithStaffing = totalGP - staffCosts;
+      const totalGPWithStaffingPercentage = salesValue > 0 ? (totalGPWithStaffing / salesValue) * 100 : 0;
+
       return {
         salesValue,
-        costOfSales: 0, // No cost data available
-        totalGP: salesValue, // No costs, so GP = sales
-        gpPercentage: 100, // No costs, so 100%
-        staffCosts: 0, // No staff cost data available
-        totalGPWithStaffing: salesValue, // No staff costs
-        totalGPWithStaffingPercentage: 100, // No staff costs
+        costOfSales: Number(costOfSales.toFixed(2)),
+        totalGP: Number(totalGP.toFixed(2)),
+        gpPercentage: Number(gpPercentage.toFixed(1)),
+        staffCosts,
+        totalGPWithStaffing: Number(totalGPWithStaffing.toFixed(2)),
+        totalGPWithStaffingPercentage: Number(totalGPWithStaffingPercentage.toFixed(1)),
         orderCount
       };
     };
     
     // Calculate all period data
-    const todayData = calculatePeriodData(salesTodayOrders);
-    const yesterdayData = calculatePeriodData(yesterdayOrders);
-    const weekToDate = calculatePeriodData(weekToDateOrders);
-    const monthToDate = calculatePeriodData(monthToDateOrders);
-    const yearToDate = calculatePeriodData(yearToDateOrders);
-    const historicPeriod1 = calculatePeriodData(historicPeriod1Orders);
-    const historicPeriod2 = calculatePeriodData(historicPeriod2Orders);
+    const [
+      todayData,
+      yesterdayData,
+      weekToDate,
+      monthToDate,
+      yearToDate,
+      historicPeriod1,
+      historicPeriod2
+    ] = await Promise.all([
+      calculatePeriodData(salesTodayOrders),
+      calculatePeriodData(yesterdayOrders),
+      calculatePeriodData(weekToDateOrders),
+      calculatePeriodData(monthToDateOrders),
+      calculatePeriodData(yearToDateOrders),
+      calculatePeriodData(historicPeriod1Orders),
+      calculatePeriodData(historicPeriod2Orders)
+    ]);
     
     console.log('📊 Query results:');
     console.log('  Sales Today:', salesTodayOrders.length, 'orders, $', todayData.salesValue);
@@ -187,48 +230,75 @@ export async function GET() {
     console.log('  Week to Date:', weekToDateOrders.length, 'orders, $', weekToDate.salesValue);
     console.log('  Month to Date:', monthToDateOrders.length, 'orders, $', monthToDate.salesValue);
     console.log('  Year to Date:', yearToDateOrders.length, 'orders, $', yearToDate.salesValue);
-    console.log('  Out the Door Today:', outTheDoorTodayOrders.length, 'orders, $', calculatePeriodData(outTheDoorTodayOrders).salesValue);
+    const outTheDoorTodayPreview = await calculatePeriodData(outTheDoorTodayOrders);
+    console.log('  Out the Door Today:', outTheDoorTodayOrders.length, 'orders, $', outTheDoorTodayPreview.salesValue);
     
     // Out the door data
+    const outTheDoorTodayCalc = await calculatePeriodData(outTheDoorTodayOrders);
     const outTheDoorToday = {
-      salesValue: calculatePeriodData(outTheDoorTodayOrders).salesValue,
+      salesValue: outTheDoorTodayCalc.salesValue,
       orderCount: outTheDoorTodayOrders.length,
-      orders: outTheDoorTodayOrders.slice(0, 5) // First 5 orders for today
+      orders: outTheDoorTodayOrders.slice(0, 5)
     };
     
+    const outTheDoorTomorrowCalc = await calculatePeriodData(tomorrowOrders);
     const outTheDoorTomorrow = {
-      salesValue: calculatePeriodData(tomorrowOrders).salesValue,
+      salesValue: outTheDoorTomorrowCalc.salesValue,
       orderCount: tomorrowOrders.length,
-      orders: tomorrowOrders.slice(0, 5) // First 5 orders for tomorrow
+      orders: tomorrowOrders.slice(0, 5)
     };
     
     // Staff data - empty array since no staff data available
     const staffClockedIn: any[] = [];
     
-    // Delivery map data - use out the door orders for today
-    const deliveryMap = outTheDoorTodayOrders.slice(0, 10).map((order, index) => {
-      const shippingAddress = order.shippingAddress as any;
-      const address = shippingAddress?.address1 || 'Unknown Address';
-      
-      // Default to Auckland coordinates if no proper address
-      let coordinates: [number, number] = [-36.8485, 174.7633]; // Auckland, NZ
-      
-      // If we have a proper address, we could geocode it here
-      // For now, use Auckland as default and add some offset for multiple orders
-      if (outTheDoorTodayOrders.length > 1) {
-        // Add small offset to spread markers around Auckland
-        const offset = (index * 0.01) - (outTheDoorTodayOrders.length * 0.005);
-        coordinates = [-36.8485 + offset, 174.7633 + offset];
+    // Delivery map data - geocode shipping address for accurate pins
+    const geocodeCache = new Map<string, { lat: number; lng: number }>()
+    const defaultNZ = { lat: -36.8485, lng: 174.7633 }
+
+    const buildAddress = (sa: any): string => {
+      if (!sa) return ''
+      const parts = [sa.address1, sa.address2, sa.city, sa.province, sa.zip, sa.country].filter(Boolean)
+      return parts.join(', ')
+    }
+
+    async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
+      const key = address.trim()
+      if (!key) return null
+      if (geocodeCache.has(key)) return geocodeCache.get(key)! 
+      try {
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY
+        if (!apiKey) return null
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(key)}&key=${apiKey}`
+        const resp = await fetch(url)
+        if (!resp.ok) return null
+        const data = await resp.json()
+        if (data.status !== 'OK' || !data.results?.length) return null
+        const loc = data.results[0].geometry.location
+        const coords = { lat: Number(loc.lat), lng: Number(loc.lng) }
+        geocodeCache.set(key, coords)
+        return coords
+      } catch {
+        return null
       }
-      
-      return {
-        orderNumber: order.orderNumber?.toString() || `Order ${index + 1}`,
-        deliveryTime: order.deliveryTime || '12:00',
-        address: address,
-        coordinates: coordinates,
-        salesValue: order.totalPrice || 0
-      };
-    });
+    }
+
+    const mapOrders = outTheDoorTodayOrders.slice(0, 10)
+    const deliveryMap = await Promise.all(
+      mapOrders.map(async (order, index) => {
+        const shippingAddress = order.shippingAddress as any
+        const address = buildAddress(shippingAddress) || 'Unknown Address'
+        const resolved = await geocode(address)
+        const coords = resolved ?? defaultNZ
+        const coordinates: [number, number] = [coords.lat, coords.lng]
+        return {
+          orderNumber: order.orderNumber?.toString() || `Order ${index + 1}`,
+          deliveryTime: order.deliveryTime || '12:00',
+          address,
+          coordinates,
+          salesValue: order.totalPrice || 0,
+        }
+      })
+    )
     
     const dashboardData = {
       today: todayData,

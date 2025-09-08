@@ -54,13 +54,123 @@ interface DeliveryPoint {
   salesValue: number
 }
 
+// Lightweight sparkline component (no external deps)
+function Sparkline({ data }: { data: { date: string; sales28: number }[] }) {
+  const width = 800
+  const height = 200
+  const pad = 2
+  if (!data || data.length === 0) return <div className="text-sm text-gray-500">No data</div>
+
+  // Extract values
+  const values = data.map(d => Number(d.sales28 || 0))
+  const seriesMax = Math.max(...values)
+  const seriesMin = Math.min(...values)
+
+  // Horizontal reference markers (in thousands) and target
+  const MARKERS_K = [100, 150, 200]
+  const TARGET_K = 160
+  const markerValues = MARKERS_K.map(k => k * 1000)
+  const targetValue = TARGET_K * 1000
+
+  // Expand domain to include marker and target lines so they always render
+  const domainMin = Math.min(seriesMin, ...markerValues, targetValue)
+  const domainMax = Math.max(seriesMax, ...markerValues, targetValue)
+  const domainRange = domainMax - domainMin === 0 ? 1 : domainMax - domainMin
+
+  // Map y with expanded domain
+  const step = (width - pad * 2) / Math.max(1, data.length - 1)
+  const toY = (value: number) => pad + (height - pad * 2) * (1 - (value - domainMin) / domainRange)
+
+  const pts = data.map((d, i) => {
+    const x = pad + i * step
+    const y = toY(Number(d.sales28 || 0))
+    return { x, y }
+  })
+  const points = pts.map(p => `${p.x},${p.y}`).join(' ')
+
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null)
+  const currency = (n: number) => new Intl.NumberFormat('en-NZ', { style: 'currency', currency: 'NZD' }).format(n)
+
+  // Fix hover mapping by accounting for SVG scale relative to viewBox
+  const handleMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect()
+    const relX = e.clientX - rect.left
+    const scaleX = rect.width / width
+    const leftPadPx = pad * scaleX
+    const stepPx = step * scaleX
+    const i = Math.round((relX - leftPadPx) / stepPx)
+    const clamped = Math.max(0, Math.min(data.length - 1, i))
+    setHoverIndex(clamped)
+  }
+
+  const handleLeave = () => setHoverIndex(null)
+
+  const marker = hoverIndex != null ? pts[hoverIndex] : null
+  const markerLeftPct = marker ? (marker.x / width) * 100 : 0
+
+  return (
+    <div className="relative w-full h-[200px]">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="w-full h-[200px]"
+        onMouseMove={handleMove}
+        onMouseLeave={handleLeave}
+        preserveAspectRatio="none"
+      >
+        {/* Grid markers */}
+        {markerValues.map((mv) => {
+          const y = toY(mv)
+          return (
+            <g key={`marker-${mv}`}>
+              <line x1={pad} y1={y} x2={width - pad} y2={y} stroke="#e5e7eb" strokeDasharray="2 4" />
+              <text x={pad + 6} y={y - 4} fontSize="10" fill="#6b7280">{`${Math.round(mv / 1000)}k`}</text>
+            </g>
+          )
+        })}
+
+        {/* Target line */}
+        {(() => {
+          const y = toY(targetValue)
+          return (
+            <g>
+              <line x1={pad} y1={y} x2={width - pad} y2={y} stroke="#a855f7" strokeDasharray="6 4" />
+            </g>
+          )
+        })()}
+
+        {/* Data line */}
+        <polyline fill="none" stroke="#10b981" strokeWidth="2" points={points} />
+
+        {/* Hover marker */}
+        {marker && (
+          <>
+            <line x1={marker.x} y1={pad} x2={marker.x} y2={height - pad} stroke="#94a3b8" strokeDasharray="4 4" />
+            <circle cx={marker.x} cy={marker.y} r="3.5" fill="#10b981" stroke="#ffffff" strokeWidth="1" />
+          </>
+        )}
+      </svg>
+      {hoverIndex != null && marker && (
+        <div
+          className="absolute top-2 text-xs bg-white border border-gray-200 shadow-sm rounded px-2 py-1 pointer-events-none"
+          style={{ left: `calc(${markerLeftPct}% - 60px)` }}
+        >
+          <div className="font-medium">{data[hoverIndex].date}</div>
+          <div className="text-green-700">{currency(Number(data[hoverIndex].sales28 || 0))}</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [rollingSeries, setRollingSeries] = useState<{ date: string; sales28: number }[]>([])
 
   useEffect(() => {
     fetchDashboardData()
+    fetchRollingSeries()
   }, [])
 
   const fetchDashboardData = async () => {
@@ -75,6 +185,15 @@ export default function DashboardPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const fetchRollingSeries = async () => {
+    try {
+      const res = await fetch('/api/dashboard/rolling-sales?days=365&window=28')
+      if (!res.ok) return
+      const data = await res.json()
+      setRollingSeries(Array.isArray(data.series) ? data.series : [])
+    } catch {}
   }
 
   const formatCurrency = (amount: number) => {
@@ -175,6 +294,11 @@ export default function DashboardPage() {
             <p className="text-xs opacity-75 mt-1">{dashboardData.yearToDate.orderCount} orders</p>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Rolling 28-day Sales Trend - minimalist (no card/header) */}
+      <div>
+        <Sparkline data={rollingSeries} />
       </div>
 
       {/* Main Content Tabs */}

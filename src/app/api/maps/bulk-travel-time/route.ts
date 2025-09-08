@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Origin address (fixed)
-    const originAddress = '562 Richmond Road, Grey Lynn, Auckland'
+    const originAddress = '562 Richmond Road, Grey Lynn, Auckland 1021'
     
     // Process orders in batches to avoid rate limiting
     const batchSize = 10

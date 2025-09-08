@@ -14,6 +14,7 @@ interface OrderCardListProps {
   onUpdateOrder: (orderId: string, updates: Partial<Order>) => Promise<Order>
   onBulkUpdateComplete?: () => void // Optional callback for parent to re-fetch orders
   selectedDate?: Date // Date for printing labels
+  originAddressOverride?: string
 }
 
 // Global audio state - shared across all order cards
@@ -32,8 +33,8 @@ function safeFormatDate(dateString: string | undefined | null): string {
   return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString();
 }
 
-export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete, selectedDate }: OrderCardListProps) {
-  const [filter, setFilter] = useState<'all' | 'undispatched' | 'dispatched' | 'unfulfilled' | 'fulfilled'>('undispatched')
+export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete, selectedDate, originAddressOverride }: OrderCardListProps) {
+  const [filter, setFilter] = useState<'all' | 'undispatched' | 'unfulfilled' | 'fulfilled'>('undispatched')
   const [isUpdatingTravelTimes, setIsUpdatingTravelTimes] = useState(false)
   const [products, setProducts] = useState<Record<string, any>>({})
   const [isLoadingProducts, setIsLoadingProducts] = useState(false)
@@ -122,14 +123,13 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   const [currentTime, setCurrentTime] = useState(new Date());
   const currentTimeRef = useRef(new Date());
 
-  // Update current time every 5 seconds to match the new refresh cycle
+  // Update current time every 10 seconds for more responsive updates
   useEffect(() => {
     const interval = setInterval(() => {
       const newTime = new Date();
       setCurrentTime(newTime);
       currentTimeRef.current = newTime;
-      console.log('🕐 Oven count update at:', newTime.toLocaleTimeString());
-    }, 5000); // Update every 5 seconds to match order refresh
+    }, 10000); // Update every 10 seconds for better responsiveness
 
     return () => clearInterval(interval);
   }, []);
@@ -261,7 +261,6 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   // Recalculate oven count when current time changes
   const realTimeOvenCount = useMemo(() => {
     const count = calculateOvenCount();
-    console.log('🔥 Oven count recalculated:', count);
     return count;
   }, [orders, products, currentTime]);
 
@@ -280,14 +279,14 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         if (updates.isDispatched === true) {
           setRecentlyDispatchedOrders(prev => new Set([...prev, orderId]));
           
-          // Remove from recently dispatched set after 3 seconds
+          // Remove from recently dispatched set after 1 second
           setTimeout(() => {
             setRecentlyDispatchedOrders(prev => {
               const newSet = new Set(prev);
               newSet.delete(orderId);
               return newSet;
             });
-          }, 3000);
+          }, 1000);
         }
         
         return result;
@@ -315,10 +314,9 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     const filtered = orders.filter(order => {
       if (filter === 'all') return true;
       if (filter === 'undispatched') {
-        // Show undispatched orders OR recently dispatched orders (for 3 seconds flash)
+        // Show undispatched orders OR recently dispatched orders (for 1 second flash)
         return !order.isDispatched || recentlyDispatchedOrders.has(order.id);
       }
-      if (filter === 'dispatched') return order.isDispatched;
       if (filter === 'unfulfilled') return order.fulfillmentStatus !== 'fulfilled';
       if (filter === 'fulfilled') return order.fulfillmentStatus === 'fulfilled';
       return true;
@@ -418,41 +416,24 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
             }
           }
           lineItems.forEach((item: any) => {
-            console.log('Debug line item:', {
-              item,
-              variant_id: item.variant_id,
-              variantId: item.variantId,
-              sku: item.sku,
-              title: item.title
-            });
-            
             // Try multiple possible field names for variant ID
             const variantId = item.variant_id || item.variantId || item.variantid;
             if (variantId) {
               // Shopify API may use variant_id (number), so convert to string
               const variantIdString = variantId.toString();
               uniqueVariantIds.add(variantIdString);
-              console.log('Added variant ID:', variantIdString);
             } else {
-              console.warn('No variant ID found for item:', item);
+              // silent
             }
           })
         })
         
-        console.log('Debug OrderCardList:', {
-          totalOrders: orders.length,
-          uniqueVariantIds: Array.from(uniqueVariantIds).slice(0, 10), // Show first 10
-          uniqueVariantIdsCount: uniqueVariantIds.size
-        })
+        
         
         if (uniqueVariantIds.size > 0) {
           const variantIdsArray = Array.from(uniqueVariantIds)
           const fetchedProducts = await fetchProducts(variantIdsArray)
-          console.log('Debug fetched products:', {
-            requestedCount: variantIdsArray.length,
-            fetchedCount: Object.keys(fetchedProducts).length,
-            fetchedKeys: Object.keys(fetchedProducts).slice(0, 5) // Show first 5
-          })
+          
           setProducts(fetchedProducts)
         }
       } catch (error) {
@@ -575,14 +556,6 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
             Undispatched
           </button>
           <button
-            onClick={() => setFilter('dispatched')}
-            className={`px-3 py-1 rounded ${
-              filter === 'dispatched' ? 'bg-blue-600 text-white' : 'bg-gray-200'
-            }`}
-          >
-            Dispatched
-          </button>
-          <button
             onClick={() => setFilter('all')}
             className={`px-3 py-1 rounded ${
               filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200'
@@ -661,20 +634,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
         </div>
       ) : sortedOrders.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500 mb-2">
-            {filter === 'undispatched' && 'No undispatched orders found'}
-            {filter === 'dispatched' && 'No dispatched orders found'}
-            {filter === 'unfulfilled' && 'No unfulfilled orders found'}
-            {filter === 'fulfilled' && 'No fulfilled orders found'}
-            {filter === 'all' && 'No orders found'}
-          </p>
-          {filter === 'undispatched' && (
-            <p className="text-sm text-gray-400">
-              Tip: Dispatched orders appear briefly in this view, then move to "Dispatched" filter
-            </p>
-          )}
-        </div>
+        <p className="text-gray-500 text-center py-4">No orders found</p>
       ) : (
         <div className="flex flex-col space-y-2 w-full">
           {sortedOrders.map((order) => (
@@ -682,9 +642,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
               key={order.id} 
               className={`transition-all duration-1000 ${
                 recentlyDispatchedOrders.has(order.id) 
-                  ? 'opacity-75 scale-98 bg-green-50 border-l-4 border-green-500 shadow-md' 
-                  : order.isDispatched
-                  ? 'opacity-90 bg-gray-50 border-l-4 border-gray-300'
+                  ? 'opacity-50 scale-95 bg-green-50 border-l-4 border-green-500' 
                   : ''
               }`}
             >
@@ -696,6 +654,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
                 onBulkUpdateComplete={refreshAllData}
                 updateProductInState={updateProductInState}
                 isAudioEnabled={isAudioEnabled}
+                originAddressOverride={originAddressOverride}
               />
             </div>
           ))}
