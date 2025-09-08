@@ -74,7 +74,10 @@ export function AddStaffDialog({ open, onOpenChange, onSuccess }: AddStaffDialog
         body: JSON.stringify(values),
       })
 
-      if (!response.ok) throw new Error('Failed to create staff member')
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({} as any))
+        throw new Error(data.error || 'Failed to create staff member')
+      }
 
       toast({
         title: "Success",
@@ -86,7 +89,7 @@ export function AddStaffDialog({ open, onOpenChange, onSuccess }: AddStaffDialog
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to create staff member",
+        description: error instanceof Error ? error.message : "Failed to create staff member",
         variant: "destructive",
       })
     } finally {

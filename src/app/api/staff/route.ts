@@ -25,7 +25,27 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+
+    // Basic validation
+    const required = ['firstName', 'lastName', 'email', 'phone', 'payRate', 'accessLevel']
+    for (const field of required) {
+      if (body[field] === undefined || body[field] === null || body[field] === '') {
+        return NextResponse.json({ error: `Missing field: ${field}` }, { status: 400 })
+      }
+    }
+
+    // Enforce allowed access levels
+    const allowedAccess = ['basic', 'pricing_lab', 'admin', 'owner', 'wlg_team', 'wlg_admin']
+    if (!allowedAccess.includes(body.accessLevel)) {
+      return NextResponse.json({ error: 'Invalid access level' }, { status: 400 })
+    }
     
+    // Optional: prevent plaintext password storage if provided
+    if (body.password && typeof body.password !== 'string') {
+      return NextResponse.json({ error: 'Invalid password' }, { status: 400 })
+    }
+
+    // Create staff
     const staff = await prisma.staff.create({
       data: {
         firstName: body.firstName,
@@ -34,18 +54,22 @@ export async function POST(request: Request) {
         phone: body.phone,
         payRate: body.payRate || 0,
         accessLevel: body.accessLevel || 'basic',
-        isDriver: body.isDriver || false,
+        isDriver: !!body.isDriver,
         isActive: body.isActive !== false, // Default to true
-        password: body.password // Note: Should be hashed in production
+        password: body.password || null
       }
     });
     
     console.log(`✅ Created staff member: ${staff.firstName} ${staff.lastName}`);
     return NextResponse.json(staff, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Error creating staff:', error);
+    // Prisma unique constraint violation code
+    if (error?.code === 'P2002' && error?.meta?.target?.includes('email')) {
+      return NextResponse.json({ error: 'Email already exists' }, { status: 409 })
+    }
     return NextResponse.json(
-      { error: 'Failed to create staff member' },
+      { error: error?.message || 'Failed to create staff member' },
       { status: 500 }
     );
   }
