@@ -39,7 +39,7 @@ const WLG_ADMIN_API_PREFIXES = [
   ...PRICING_API_PREFIXES,
   '/api/orders',
   '/api/staff',
-  '/api/staff/',
+  '/api/products',
   '/api/health',
 ]
 
