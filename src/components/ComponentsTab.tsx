@@ -42,6 +42,7 @@ import jsPDF from 'jspdf'
 const htmlToImage = require('html-to-image') as { toPng: (node: HTMLElement, opts?: any) => Promise<string> }
 import { IngredientSelector } from './IngredientSelector'
 import { Resolver } from "react-hook-form"
+import { useToast } from '@/components/ui/use-toast'
 
 export interface Component {
   id: string
@@ -165,6 +166,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
   const [downloadTarget, setDownloadTarget] = useState<Component | null>(null)
   const hiddenCardRef = useRef<HTMLDivElement>(null)
   const [isDescPreview, setIsDescPreview] = useState(false)
+  const { toast } = useToast()
 
   const simpleMarkdownToHtml = (text: string): string => {
     const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -364,25 +366,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
         setComponents([...components, responseData]);
       }
       
-      // Trigger cost recalculation for all products that use this component
-      console.log('🔄 Triggering cost recalculation for products using this component...');
-      try {
-        const recalcResponse = await fetch('/api/products/recalculate-costs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (recalcResponse.ok) {
-          const recalcResult = await recalcResponse.json();
-          console.log('✅ Product costs updated:', recalcResult);
-        } else {
-          console.warn('⚠️ Failed to recalculate product costs');
-        }
-      } catch (recalcError) {
-        console.warn('⚠️ Error during cost recalculation:', recalcError);
-      }
-      
-      // Reset form and close dialog
+      // Close dialog and reset UI immediately for snappier UX
       setIsDialogOpen(false);
       setEditingComponent(null);
       form.reset({
@@ -409,6 +393,24 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
         totalCost: 0
       });
       setLocalImages([])
+
+      // Trigger cost recalculation in the background (non-blocking)
+      try {
+        void fetch('/api/products/recalculate-costs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+          .then(async (res) => {
+            if (res.ok) {
+              const data = await res.json().catch(() => null)
+              console.log('✅ Product costs updated:', data)
+            } else {
+              console.warn('⚠️ Failed to recalculate product costs')
+            }
+          })
+          .catch((err) => console.warn('⚠️ Error during cost recalculation:', err))
+        toast({ title: 'Saving...', description: 'Recalculating product costs in background' })
+      } catch {}
     } catch (error) {
       console.error('Error saving component:', error);
       setError(error instanceof Error ? error.message : 'Failed to save component');
