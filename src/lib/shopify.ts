@@ -213,6 +213,7 @@ export async function syncShopifyOrders() {
               phone: order.shipping_address.phone || ''
             } : undefined,
             noteAttributes: order.note_attributes || [],  // Store the full note_attributes array
+            deliveryInstructions: order.shipping_address?.delivery_instructions || null,  // Capture delivery instructions
             deliveryDate,
             deliveryTime,
             leaveTime: null,
