@@ -55,6 +55,18 @@ interface Order {
   leaveTime?: string;
   travelTime?: string;
   internalNote?: string;
+  // Additional database fields
+  noteAttributes?: any | null;
+  pickupDate?: string | null;
+  pickupTime?: string | null;
+  deliveryInstructions?: string | null;
+  lastSmsSent?: string | null;
+  smsHistory?: any | null;
+  deliveryDateResolved?: string | null;
+  deliveryDateResolvedSource?: string | null;
+  deliveryDateResolvedAt?: string | null;
+  driverId?: string | null;
+  isDispatched?: boolean;
 }
 
 export default function OrdersPage() {
