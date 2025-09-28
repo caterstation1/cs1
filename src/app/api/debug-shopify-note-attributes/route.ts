@@ -1,31 +1,44 @@
 import { NextResponse } from 'next/server';
-import { shopifyRestRequest } from '@/lib/shopify-client';
+import { env } from '@/env.mjs';
 
 export async function GET() {
   try {
     console.log('🔍 Debugging note attributes from Shopify API...');
     
     // Fetch recent orders from Shopify to check note_attributes
-    const response = await shopifyRestRequest<{ orders: any[] }>({
-      method: 'GET',
-      path: 'orders.json',
-      query: {
-        status: 'any',
-        limit: '10',
-        order: 'created_at desc'
-      }
+    const shopUrl = env.SHOPIFY_SHOP_URL;
+    const accessToken = env.SHOPIFY_ACCESS_TOKEN;
+    const apiVersion = env.SHOPIFY_API_VERSION;
+
+    if (!shopUrl || !accessToken || !apiVersion) {
+      throw new Error('Shopify credentials not configured');
+    }
+
+    const url = `https://${shopUrl}/admin/api/${apiVersion}/orders.json?status=any&limit=10&order=created_at desc`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'X-Shopify-Access-Token': accessToken,
+        'Content-Type': 'application/json',
+      },
     });
+
+    if (!response.ok) {
+      throw new Error(`Shopify API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
     
-    console.log(`📋 Found ${response.orders.length} orders from Shopify`);
+    console.log(`📋 Found ${data.orders.length} orders from Shopify`);
     
-    if (response.orders.length === 0) {
+    if (data.orders.length === 0) {
       return NextResponse.json({
         message: 'No orders found from Shopify',
         orders: []
       });
     }
     
-    const shopifyNoteAttributesAnalysis = response.orders.map(order => {
+    const shopifyNoteAttributesAnalysis = data.orders.map((order: any) => {
       const noteAttributes = order.note_attributes;
       let parsedNoteAttributes = null;
       
@@ -67,14 +80,14 @@ export async function GET() {
     
     // Summary statistics
     const summary = {
-      totalOrders: response.orders.length,
-      ordersWithNoteAttributes: shopifyNoteAttributesAnalysis.filter(o => o.noteAttributes.hasData).length,
-      ordersWithCity: shopifyNoteAttributesAnalysis.filter(o => o.extractedCity).length,
-      ordersWithDeliveryDate: shopifyNoteAttributesAnalysis.filter(o => o.extractedDeliveryDate).length,
-      ordersWithDeliveryTime: shopifyNoteAttributesAnalysis.filter(o => o.extractedDeliveryTime).length,
+      totalOrders: data.orders.length,
+      ordersWithNoteAttributes: shopifyNoteAttributesAnalysis.filter((o: any) => o.noteAttributes.hasData).length,
+      ordersWithCity: shopifyNoteAttributesAnalysis.filter((o: any) => o.extractedCity).length,
+      ordersWithDeliveryDate: shopifyNoteAttributesAnalysis.filter((o: any) => o.extractedDeliveryDate).length,
+      ordersWithDeliveryTime: shopifyNoteAttributesAnalysis.filter((o: any) => o.extractedDeliveryTime).length,
       noteAttributesTypes: {
-        array: shopifyNoteAttributesAnalysis.filter(o => o.noteAttributes.isArray).length,
-        null: shopifyNoteAttributesAnalysis.filter(o => !o.noteAttributes.hasData).length
+        array: shopifyNoteAttributesAnalysis.filter((o: any) => o.noteAttributes.isArray).length,
+        null: shopifyNoteAttributesAnalysis.filter((o: any) => !o.noteAttributes.hasData).length
       }
     };
     
@@ -82,7 +95,7 @@ export async function GET() {
       message: 'Shopify note attributes debug information',
       summary,
       orders: shopifyNoteAttributesAnalysis,
-      totalOrders: response.orders.length
+      totalOrders: data.orders.length
     });
     
   } catch (error) {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { shopifyRestRequest } from '@/lib/shopify-client';
+import { env } from '@/env.mjs';
 
 export async function GET(
   request: Request,
@@ -32,11 +32,29 @@ export async function GET(
     let shopifyError = null;
     
     try {
-      const shopifyResponse = await shopifyRestRequest<{ order: any }>({
-        method: 'GET',
-        path: `orders/${order.shopifyId}.json`
+      const shopUrl = env.SHOPIFY_SHOP_URL;
+      const accessToken = env.SHOPIFY_ACCESS_TOKEN;
+      const apiVersion = env.SHOPIFY_API_VERSION;
+
+      if (!shopUrl || !accessToken || !apiVersion) {
+        throw new Error('Shopify credentials not configured');
+      }
+
+      const url = `https://${shopUrl}/admin/api/${apiVersion}/orders/${order.shopifyId}.json`;
+      
+      const shopifyResponse = await fetch(url, {
+        headers: {
+          'X-Shopify-Access-Token': accessToken,
+          'Content-Type': 'application/json',
+        },
       });
-      shopifyData = shopifyResponse.order;
+
+      if (!shopifyResponse.ok) {
+        throw new Error(`Shopify API error: ${shopifyResponse.statusText}`);
+      }
+
+      const shopifyResponseData = await shopifyResponse.json();
+      shopifyData = shopifyResponseData.order;
       console.log('✅ Fetched Shopify data for order:', order.shopifyId);
     } catch (error) {
       console.error('❌ Error fetching Shopify data:', error);
@@ -70,7 +88,7 @@ export async function GET(
       pickupDate: null,
       pickupTime: null,
       specialInstructions: null,
-      allAttributes: []
+      allAttributes: [] as any[]
     };
     
     if (parsedNoteAttributes && Array.isArray(parsedNoteAttributes)) {
