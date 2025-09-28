@@ -237,17 +237,17 @@ export default function DashboardPage() {
   if (!dashboardData) return null
 
   return (
-    <div className="min-h-screen bg-[#FFF8E2]">
+    <div className="min-h-screen bg-slate-900 text-slate-100">
       <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-[#4A0000]">CaterStation Dashboard</h1>
-            <p className="text-[#6B0000] mt-1">Real-time business insights and analytics</p>
+            <h1 className="text-3xl font-bold">CaterStation Dashboard</h1>
+            <p className="text-slate-400 mt-1">Real-time business insights and analytics</p>
           </div>
           <div className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-[#FF701F]" />
-            <span className="text-sm text-[#4A0000]">
+            <Clock className="h-5 w-5 text-cyan-400" />
+            <span className="text-sm text-slate-300">
               {format(new Date(), 'EEEE, MMMM do, yyyy')}
             </span>
           </div>
@@ -255,43 +255,43 @@ export default function DashboardPage() {
 
       {/* Key Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-r from-[#4A0000] to-[#6B0000] text-white">
+        <Card className="bg-slate-800 text-slate-100 border border-slate-700">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-90">Sales Today</CardTitle>
+            <CardTitle className="text-sm font-medium opacity-80">Sales Today</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(dashboardData.today.salesValue)}</div>
-            <p className="text-xs opacity-75 mt-1">{dashboardData.today.orderCount} orders</p>
+            <div className="text-3xl font-bold">{formatCurrency(dashboardData.today.salesValue)}</div>
+            <p className="text-xs opacity-70 mt-1">{dashboardData.today.orderCount} orders</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-[#FFB600] to-[#FFA000] text-[#4A0000]">
+        <Card className="bg-slate-800 text-slate-100 border border-slate-700">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-90">Week to Date</CardTitle>
+            <CardTitle className="text-sm font-medium opacity-80">Week to Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(dashboardData.weekToDate.salesValue)}</div>
-            <p className="text-xs opacity-75 mt-1">{dashboardData.weekToDate.orderCount} orders</p>
+            <div className="text-3xl font-bold">{formatCurrency(dashboardData.weekToDate.salesValue)}</div>
+            <p className="text-xs opacity-70 mt-1">{dashboardData.weekToDate.orderCount} orders</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-[#FF701F] to-[#FF5A00] text-white">
+        <Card className="bg-slate-800 text-slate-100 border border-slate-700">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-90">Month to Date</CardTitle>
+            <CardTitle className="text-sm font-medium opacity-80">Month to Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(dashboardData.monthToDate.salesValue)}</div>
-            <p className="text-xs opacity-75 mt-1">{dashboardData.monthToDate.orderCount} orders</p>
+            <div className="text-3xl font-bold">{formatCurrency(dashboardData.monthToDate.salesValue)}</div>
+            <p className="text-xs opacity-70 mt-1">{dashboardData.monthToDate.orderCount} orders</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-[#00C2FF] to-[#0099CC] text-white">
+        <Card className="bg-slate-800 text-slate-100 border border-slate-700">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-90">Year to Date</CardTitle>
+            <CardTitle className="text-sm font-medium opacity-80">Year to Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(dashboardData.yearToDate.salesValue)}</div>
-            <p className="text-xs opacity-75 mt-1">{dashboardData.yearToDate.orderCount} orders</p>
+            <div className="text-3xl font-bold">{formatCurrency(dashboardData.yearToDate.salesValue)}</div>
+            <p className="text-xs opacity-70 mt-1">{dashboardData.yearToDate.orderCount} orders</p>
           </CardContent>
         </Card>
       </div>
@@ -303,13 +303,13 @@ export default function DashboardPage() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="today" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-[#FFF8E2] border-[#FFB600]">
-          <TabsTrigger value="today" className="data-[state=active]:bg-[#4A0000] data-[state=active]:text-white">Today</TabsTrigger>
-          <TabsTrigger value="yesterday" className="data-[state=active]:bg-[#4A0000] data-[state=active]:text-white">Yesterday</TabsTrigger>
-          <TabsTrigger value="week" className="data-[state=active]:bg-[#4A0000] data-[state=active]:text-white">Week to Date</TabsTrigger>
-          <TabsTrigger value="month" className="data-[state=active]:bg-[#4A0000] data-[state=active]:text-white">Month to Date</TabsTrigger>
-          <TabsTrigger value="year" className="data-[state=active]:bg-[#4A0000] data-[state=active]:text-white">Year to Date</TabsTrigger>
-          <TabsTrigger value="historic" className="data-[state=active]:bg-[#4A0000] data-[state=active]:text-white">Historic</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6 bg-slate-900">
+          <TabsTrigger value="today" className="data-[state=active]:bg-slate-700 data-[state=active]:text-white">Today</TabsTrigger>
+          <TabsTrigger value="yesterday" className="data-[state=active]:bg-slate-700 data-[state=active]:text-white">Yesterday</TabsTrigger>
+          <TabsTrigger value="week" className="data-[state=active]:bg-slate-700 data-[state=active]:text-white">Week to Date</TabsTrigger>
+          <TabsTrigger value="month" className="data-[state=active]:bg-slate-700 data-[state=active]:text-white">Month to Date</TabsTrigger>
+          <TabsTrigger value="year" className="data-[state=active]:bg-slate-700 data-[state=active]:text-white">Year to Date</TabsTrigger>
+          <TabsTrigger value="historic" className="data-[state=active]:bg-slate-700 data-[state=active]:text-white">Historic</TabsTrigger>
         </TabsList>
 
         {/* Today Tab */}

@@ -31,29 +31,32 @@ function isAllowedForPricing(path: string): boolean {
 }
 
 // WLG role allow-lists
-const WLG_TEAM_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/login', '/reset-password']
-const WLG_TEAM_API_PREFIXES = ['/api/orders', '/api/staff', '/api/products', '/api/health']
+const WLG_TEAM_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/labels/print', '/login', '/reset-password']
+const WLG_TEAM_API_PREFIXES = ['/api/orders', '/api/staff', '/api/products', '/api/labels', '/api/maps', '/api/health']
 
-const WLG_ADMIN_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/pricing-lab', '/login', '/reset-password']
+const WLG_ADMIN_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/pricing-lab', '/labels/print', '/login', '/reset-password']
 const WLG_ADMIN_API_PREFIXES = [
   ...PRICING_API_PREFIXES,
-  '/api/orders',
+  '/api/orders', '/api/labels', '/api/maps',
   '/api/staff',
   '/api/products',
   '/api/health',
 ]
 
 async function readSession(request: NextRequest): Promise<{ accessLevel?: string } | null> {
+  // Use a single, consistent secret fallback identical to NextAuth server config
+  const AUTH_SECRET = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-secret-key'
+
   // Primary: NextAuth helper
-  const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET })
+  const token = await getToken({ req: request as any, secret: AUTH_SECRET })
   if (token) return { accessLevel: (token as any).accessLevel as string | undefined }
 
-  // Fallback: decode JWT from cookie if helper fails (e.g., secret mismatch)
+  // Fallback: decode JWT from cookie if helper fails (older tokens, edge quirks)
   const raw = request.cookies.get('next-auth.session-token')?.value
     || request.cookies.get('__Secure-next-auth.session-token')?.value
   if (!raw) return null
   try {
-    const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-secret-key')
+    const secret = new TextEncoder().encode(AUTH_SECRET)
     const { payload } = await jwtVerify(raw, secret)
     return { accessLevel: (payload as any).accessLevel }
   } catch {
@@ -150,8 +153,8 @@ export async function middleware(request: NextRequest) {
 
   // Basic: allow realtime-orders and calendar only
   if (accessLevel === 'basic') {
-    const allowedPages = ['/realtime-orders', '/calendar', '/login', '/reset-password']
-    const allowedApis = ['/api/orders', '/api/calendar']
+    const allowedPages = ['/realtime-orders', '/calendar', '/labels/print', '/login', '/reset-password']
+    const allowedApis = ['/api/orders', '/api/calendar', '/api/labels', '/api/maps']
     const isAllowed =
       allowedPages.some(p => pathname === p || pathname.startsWith(p + '/')) ||
       allowedApis.some(p => pathname === p || pathname.startsWith(p + '/')) ||

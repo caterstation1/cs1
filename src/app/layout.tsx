@@ -29,7 +29,8 @@ export default function RootLayout({
               {children}
             </main>
             <Toaster />
-            <SyncMonitor />
+            {/* Hide SyncMonitor for WLG roles to avoid authority noise; keep for others */}
+            {typeof window !== 'undefined' && (document.cookie.includes('next-auth.session-token') || document.cookie.includes('__Secure-next-auth.session-token')) ? <SyncMonitor /> : null}
           </Providers>
         </ShopifySyncProvider>
       </body>

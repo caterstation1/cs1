@@ -539,40 +539,296 @@ export default function OrdersPage() {
       </Dialog>
 
       <Dialog open={showOrderData} onOpenChange={setShowOrderData}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
           <DialogHeader>
-            <DialogTitle>Order #{selectedOrder?.orderNumber} - Raw Data</DialogTitle>
+            <DialogTitle>Order #{selectedOrder?.orderNumber} - Complete Data</DialogTitle>
             <DialogDescription>
-              All available data for this order, including tags, attributes, and delivery instructions
+              All available data for this order, including all database fields, attributes, and metadata
             </DialogDescription>
           </DialogHeader>
           
           {selectedOrder && (
-            <div className="mt-4 space-y-4">
-              <div className="border-b pb-2">
-                <h3 className="font-medium text-sm text-gray-700">Phone Number Sources</h3>
-                <pre className="mt-1 text-sm whitespace-pre-wrap break-words bg-gray-50 p-2 rounded">
-                  Customer Phone: {selectedOrder.customerPhone || 'Not provided'}
-                  {selectedOrder.tags && `\nTags: ${selectedOrder.tags}`}
-                  {selectedOrder.shippingAddress?.delivery_instructions && 
-                    `\nDelivery Instructions: ${selectedOrder.shippingAddress.delivery_instructions}`}
-                </pre>
+            <div className="mt-4 space-y-6">
+              {/* Quick Reference Section */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 className="font-semibold text-blue-800 mb-2">📋 Quick Reference</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium">Customer:</span> {selectedOrder.customerFirstName} {selectedOrder.customerLastName}
+                  </div>
+                  <div>
+                    <span className="font-medium">Phone:</span> {selectedOrder.customerPhone || 'Not provided'}
+                  </div>
+                  <div>
+                    <span className="font-medium">Delivery Date:</span> {selectedOrder.deliveryDate || 'Not set'}
+                  </div>
+                  <div>
+                    <span className="font-medium">Delivery Time:</span> {selectedOrder.deliveryTime || 'Not set'}
+                  </div>
+                  <div>
+                    <span className="font-medium">Status:</span> {selectedOrder.fulfillmentStatus || 'Unfulfilled'}
+                  </div>
+                  <div>
+                    <span className="font-medium">Total:</span> ${selectedOrder.totalPrice?.toFixed(2) || '0.00'}
+                  </div>
+                </div>
               </div>
-              
-              {Object.entries(selectedOrder).map(([key, value]) => (
-                <div key={key} className="border-b pb-2">
-                  <h3 className="font-medium text-sm text-gray-700">{key}</h3>
-                  <pre className="mt-1 text-sm whitespace-pre-wrap break-words bg-gray-50 p-2 rounded">
-                    {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
+
+              {/* Core Order Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🏷️ Core Order Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { key: 'id', label: 'Database ID', description: 'Unique database identifier' },
+                    { key: 'shopifyId', label: 'Shopify ID', description: 'Shopify order identifier' },
+                    { key: 'orderNumber', label: 'Order Number', description: 'Human-readable order number' },
+                    { key: 'source', label: 'Source', description: 'Order source (e.g., shopify)' },
+                    { key: 'currency', label: 'Currency', description: 'Order currency' },
+                    { key: 'financialStatus', label: 'Financial Status', description: 'Payment status' },
+                    { key: 'fulfillmentStatus', label: 'Fulfillment Status', description: 'Shipping/fulfillment status' },
+                    { key: 'hasLocalEdits', label: 'Has Local Edits', description: 'Whether order has been modified locally' },
+                    { key: 'isDispatched', label: 'Is Dispatched', description: 'Whether order has been dispatched' }
+                  ].map(({ key, label, description }) => (
+                    <div key={key} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium text-sm text-gray-700">{label}</h4>
+                        <span className="text-xs text-gray-500">{key}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">{description}</p>
+                      <div className="text-sm font-mono bg-gray-50 p-2 rounded">
+                        {selectedOrder[key as keyof typeof selectedOrder]?.toString() || 'null'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pricing Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">💰 Pricing Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { key: 'totalPrice', label: 'Total Price', description: 'Final order total' },
+                    { key: 'subtotalPrice', label: 'Subtotal Price', description: 'Price before tax' },
+                    { key: 'totalTax', label: 'Total Tax', description: 'Tax amount' }
+                  ].map(({ key, label, description }) => (
+                    <div key={key} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium text-sm text-gray-700">{label}</h4>
+                        <span className="text-xs text-gray-500">{key}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">{description}</p>
+                      <div className="text-sm font-mono bg-gray-50 p-2 rounded">
+                        ${selectedOrder[key as keyof typeof selectedOrder]?.toString() || '0.00'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Customer Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">👤 Customer Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { key: 'customerEmail', label: 'Email', description: 'Customer email address' },
+                    { key: 'customerFirstName', label: 'First Name', description: 'Customer first name' },
+                    { key: 'customerLastName', label: 'Last Name', description: 'Customer last name' },
+                    { key: 'customerPhone', label: 'Phone', description: 'Customer phone number' }
+                  ].map(({ key, label, description }) => (
+                    <div key={key} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium text-sm text-gray-700">{label}</h4>
+                        <span className="text-xs text-gray-500">{key}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">{description}</p>
+                      <div className="text-sm font-mono bg-gray-50 p-2 rounded">
+                        {selectedOrder[key as keyof typeof selectedOrder]?.toString() || 'null'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Delivery Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🚚 Delivery Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { key: 'deliveryDate', label: 'Delivery Date', description: 'Scheduled delivery date' },
+                    { key: 'deliveryTime', label: 'Delivery Time', description: 'Scheduled delivery time' },
+                    { key: 'deliveryDateResolved', label: 'Resolved Delivery Date', description: 'Server-computed delivery date' },
+                    { key: 'deliveryDateResolvedSource', label: 'Resolved Source', description: 'How delivery date was determined' },
+                    { key: 'deliveryDateResolvedAt', label: 'Resolved At', description: 'When delivery date was computed' },
+                    { key: 'deliveryInstructions', label: 'Delivery Instructions', description: 'Special delivery instructions' },
+                    { key: 'pickupDate', label: 'Pickup Date', description: 'Scheduled pickup date' },
+                    { key: 'pickupTime', label: 'Pickup Time', description: 'Scheduled pickup time' },
+                    { key: 'leaveTime', label: 'Leave Time', description: 'When to leave for delivery' },
+                    { key: 'travelTime', label: 'Travel Time', description: 'Estimated travel time in minutes' },
+                    { key: 'driverId', label: 'Driver ID', description: 'Assigned driver identifier' }
+                  ].map(({ key, label, description }) => (
+                    <div key={key} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium text-sm text-gray-700">{label}</h4>
+                        <span className="text-xs text-gray-500">{key}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">{description}</p>
+                      <div className="text-sm font-mono bg-gray-50 p-2 rounded">
+                        {selectedOrder[key as keyof typeof selectedOrder]?.toString() || 'null'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Address Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">📍 Address Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="border rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-sm text-gray-700">Shipping Address</h4>
+                      <span className="text-xs text-gray-500">shippingAddress</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-2">Customer shipping address</p>
+                    <pre className="text-sm font-mono bg-gray-50 p-2 rounded overflow-auto max-h-32">
+                      {selectedOrder.shippingAddress ? JSON.stringify(selectedOrder.shippingAddress, null, 2) : 'null'}
+                    </pre>
+                  </div>
+                  <div className="border rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-sm text-gray-700">Billing Address</h4>
+                      <span className="text-xs text-gray-500">billingAddress</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-2">Customer billing address</p>
+                    <pre className="text-sm font-mono bg-gray-50 p-2 rounded overflow-auto max-h-32">
+                      {selectedOrder.billingAddress ? JSON.stringify(selectedOrder.billingAddress, null, 2) : 'null'}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">📦 Order Items</h3>
+                <div className="border rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="font-medium text-sm text-gray-700">Line Items</h4>
+                    <span className="text-xs text-gray-500">lineItems</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">Order line items and products</p>
+                  <pre className="text-sm font-mono bg-gray-50 p-2 rounded overflow-auto max-h-48">
+                    {selectedOrder.lineItems ? JSON.stringify(selectedOrder.lineItems, null, 2) : 'null'}
                   </pre>
                 </div>
-              ))}
+              </div>
+
+              {/* Notes and Attributes */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">📝 Notes and Attributes</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { key: 'note', label: 'Order Note', description: 'Customer order notes' },
+                    { key: 'internalNote', label: 'Internal Note', description: 'Internal staff notes' },
+                    { key: 'tags', label: 'Tags', description: 'Order tags and labels' }
+                  ].map(({ key, label, description }) => (
+                    <div key={key} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium text-sm text-gray-700">{label}</h4>
+                        <span className="text-xs text-gray-500">{key}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">{description}</p>
+                      <div className="text-sm font-mono bg-gray-50 p-2 rounded min-h-[2rem]">
+                        {selectedOrder[key as keyof typeof selectedOrder]?.toString() || 'null'}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="border rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-sm text-gray-700">Note Attributes</h4>
+                      <span className="text-xs text-gray-500">noteAttributes</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-2">Shopify note attributes (city, delivery date, etc.)</p>
+                    <pre className="text-sm font-mono bg-gray-50 p-2 rounded overflow-auto max-h-32">
+                      {selectedOrder.noteAttributes ? JSON.stringify(selectedOrder.noteAttributes, null, 2) : 'null'}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+
+              {/* SMS Communication */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">📱 SMS Communication</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="border rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-sm text-gray-700">Last SMS Sent</h4>
+                      <span className="text-xs text-gray-500">lastSmsSent</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-2">When the last SMS was sent to customer</p>
+                    <div className="text-sm font-mono bg-gray-50 p-2 rounded">
+                      {selectedOrder.lastSmsSent ? new Date(selectedOrder.lastSmsSent).toLocaleString() : 'null'}
+                    </div>
+                  </div>
+                  <div className="border rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-sm text-gray-700">SMS History</h4>
+                      <span className="text-xs text-gray-500">smsHistory</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-2">Complete SMS communication history</p>
+                    <pre className="text-sm font-mono bg-gray-50 p-2 rounded overflow-auto max-h-32">
+                      {selectedOrder.smsHistory ? JSON.stringify(selectedOrder.smsHistory, null, 2) : 'null'}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timestamps */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">⏰ Timestamps</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { key: 'createdAt', label: 'Created At', description: 'When order was created' },
+                    { key: 'updatedAt', label: 'Updated At', description: 'When order was last updated' },
+                    { key: 'processedAt', label: 'Processed At', description: 'When order was processed' },
+                    { key: 'cancelledAt', label: 'Cancelled At', description: 'When order was cancelled' },
+                    { key: 'closedAt', label: 'Closed At', description: 'When order was closed' },
+                    { key: 'syncedAt', label: 'Synced At', description: 'When order was last synced from Shopify' },
+                    { key: 'dbCreatedAt', label: 'DB Created At', description: 'When record was created in database' },
+                    { key: 'dbUpdatedAt', label: 'DB Updated At', description: 'When record was last updated in database' }
+                  ].map(({ key, label, description }) => (
+                    <div key={key} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-medium text-sm text-gray-700">{label}</h4>
+                        <span className="text-xs text-gray-500">{key}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">{description}</p>
+                      <div className="text-sm font-mono bg-gray-50 p-2 rounded">
+                        {selectedOrder[key as keyof typeof selectedOrder] ? 
+                          new Date(selectedOrder[key as keyof typeof selectedOrder] as string).toLocaleString() : 
+                          'null'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Raw Data Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🔍 Raw Data (All Fields)</h3>
+                <div className="border rounded-lg p-3">
+                  <p className="text-xs text-gray-500 mb-2">Complete raw order data as stored in database</p>
+                  <pre className="text-xs font-mono bg-gray-50 p-2 rounded overflow-auto max-h-64">
+                    {JSON.stringify(selectedOrder, null, 2)}
+                  </pre>
+                </div>
+              </div>
             </div>
           )}
           
           <DialogFooter>
             <DialogClose asChild>
-              <button className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300">
+              <button className="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300">
                 Close
               </button>
             </DialogClose>

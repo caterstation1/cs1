@@ -464,7 +464,9 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     }
 
     const dateStr = format(selectedDate, 'yyyy-MM-dd')
-    const url = `/labels/print?date=${encodeURIComponent(dateStr)}`
+    // Restrict printing to exactly the orders currently displayed
+    const currentOrderIds = sortedOrders.map(o => o.id).join(',')
+    const url = `/labels/print?date=${encodeURIComponent(dateStr)}&orderIds=${encodeURIComponent(currentOrderIds)}`
     
     // Simple approach: open the print page in a new window
     // This is the original working solution that properly renders labels

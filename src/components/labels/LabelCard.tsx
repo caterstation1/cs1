@@ -31,14 +31,14 @@ export const LabelCard: React.FC<{ data: LabelData; landscape?: boolean }> = ({ 
     <div className="relative" style={{ width: W, height: H, background: '#ffffff', color: '#000', padding: 28, boxSizing: 'border-box', borderRadius: 18, border: '2px solid #00000020' }}>
       {/* Top row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ fontSize: 44, fontWeight: 600 }}>
+        <div style={{ fontSize: 46, fontWeight: 600 }}>
           {data.orderNumber} {data.customerName} ({data.labelIndex} / {data.labelCount})
         </div>
-        <div style={{ fontSize: 28, fontWeight: 600 }}>{data.deliveryWindow}</div>
+        <div style={{ fontSize: 30, fontWeight: 600 }}>{data.deliveryWindow}</div>
       </div>
 
       {/* Address */}
-      <div style={{ marginTop: 24, fontSize: 30, lineHeight: 1.3 }}>
+      <div style={{ marginTop: 24, fontSize: 32, lineHeight: 1.3 }}>
         {data.company && (<div>{data.company}</div>)}
         <div>{data.address}</div>
       </div>
@@ -49,7 +49,7 @@ export const LabelCard: React.FC<{ data: LabelData; landscape?: boolean }> = ({ 
       </div>
 
       {/* Options block */}
-      <div style={{ marginTop: 16, textAlign: 'center', fontSize: 32 }}>
+      <div style={{ marginTop: 16, textAlign: 'center', fontSize: 34 }}>
         {data.peopleText && <div style={{ marginBottom: 6 }}>{data.peopleText}</div>}
         {data.meat1 && (
           <div>{data.meat1}</div>
@@ -58,26 +58,26 @@ export const LabelCard: React.FC<{ data: LabelData; landscape?: boolean }> = ({ 
           <div>{[data.option1, data.option2].filter(Boolean).join('..')}</div>
         )}
         {data.serveware && (
-          <div style={{ position: 'absolute', right: 28, top: 200, fontSize: 48, fontWeight: 700 }}>SW</div>
+          <div style={{ position: 'absolute', right: 28, top: 200, fontSize: 50, fontWeight: 700 }}>SW</div>
         )}
       </div>
 
       {/* Addons (first label only) */}
       {data.addonsForOrder && (
-        <div style={{ marginTop: 12, textAlign: 'center', fontSize: 28 }}>
+        <div style={{ marginTop: 12, textAlign: 'center', fontSize: 30 }}>
           Add-ons: {data.addonsForOrder}
         </div>
       )}
 
       {/* Notes */}
       {data.notes && (
-        <div style={{ position: 'absolute', left: 28, right: 28, bottom: 88, fontSize: 24, lineHeight: 1.25 }}>
+        <div style={{ position: 'absolute', left: 28, right: 28, bottom: 88, fontSize: 26, lineHeight: 1.25 }}>
           {data.notes}
         </div>
       )}
 
       {/* Phones bottom right */}
-      <div style={{ position: 'absolute', right: 28, bottom: 28, fontSize: 26 }}>
+      <div style={{ position: 'absolute', right: 28, bottom: 28, fontSize: 28 }}>
         {data.phonePrimary || 'Not provided'}
         {data.phoneSecondary ? `  ${data.phoneSecondary}` : ''}
       </div>

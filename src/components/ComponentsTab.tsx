@@ -191,6 +191,10 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
   useLayoutEffect(() => {
     const doExport = async () => {
       if (!downloadTarget || !hiddenCardRef.current) return
+      
+      // Wait for component to fully render with all nested content and padding
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
       try {
         const node = hiddenCardRef.current as HTMLElement
         const rect = node.getBoundingClientRect()
@@ -537,9 +541,62 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
   }
 
   const exportCardPdf = async (component: Component) => {
+    console.log('Starting exportCardPdf for component:', component.name)
+    
     // Enrich ingredients with brand and code/sku so the download snapshot includes them
     const enriched = await enrichIngredients(component.ingredients || [])
-    setDownloadTarget({ ...component, ingredients: enriched } as any)
+    console.log('Enriched ingredients:', enriched)
+    
+    // Also preload component breakdowns for components that are ingredients
+    const enrichedWithBreakdowns = await Promise.all(enriched.map(async (ing: any) => {
+      console.log('Processing ingredient:', ing.name, 'source:', ing.source)
+      
+      if ((ing.source || '').toLowerCase() === 'components') {
+        console.log('Fetching component breakdown for:', ing.name, 'source:', ing.source)
+        try {
+          let componentData = null
+          
+          // Prefer by id when available
+          if (ing.id) {
+            console.log('Fetching by ID:', ing.id)
+            const res = await fetch(`/api/components/${ing.id}`)
+            if (res.ok) {
+              componentData = await res.json()
+              console.log('Fetched component by ID:', componentData.name, 'ingredients:', componentData.ingredients)
+            }
+          }
+          
+          // Fallback: fetch catalog and match by name
+          if (!componentData) {
+            console.log('Fetching by name:', ing.name)
+            const res = await fetch('/api/components')
+            if (res.ok) {
+              const list = await res.json()
+              const arr = Array.isArray(list) ? list : (list.components || [])
+              const key = (ing.name || '').toLowerCase().trim()
+              componentData = arr.find((c: any) => (c?.name || '').toLowerCase().trim() === key)
+              console.log('Found component by name:', componentData?.name, 'ingredients:', componentData?.ingredients)
+            }
+          }
+          
+          if (componentData && componentData.ingredients && componentData.ingredients.length > 0) {
+            console.log('Preloading breakdown for:', ing.name, 'ingredients:', componentData.ingredients)
+            // Enrich the breakdown ingredients with brand/code data
+            const enrichedBreakdown = await enrichIngredients(componentData.ingredients)
+            console.log('Enriched breakdown for:', ing.name, 'enriched:', enrichedBreakdown)
+            return { ...ing, _componentBreakdown: enrichedBreakdown }
+          } else {
+            console.log('No ingredients found for component:', ing.name)
+          }
+        } catch (error) {
+          console.error('Failed to fetch component breakdown for download:', error)
+        }
+      }
+      return ing
+    }))
+    
+    console.log('Final enriched ingredients with breakdowns:', enrichedWithBreakdowns)
+    setDownloadTarget({ ...component, ingredients: enrichedWithBreakdowns } as any)
   }
 
   return (
@@ -1123,9 +1180,8 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
       <div style={{ position: 'absolute', left: -10000, top: 0 }}>
         {downloadTarget && (
           <div ref={hiddenCardRef} style={{
-            // Match the card's intrinsic width/height for crisp export
+            // Match the card's intrinsic width for crisp export, height auto-adjusts
             width: 496,
-            minHeight: 700,
             background: 'transparent'
           }}>
             <ComponentCard
@@ -1141,6 +1197,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                 code: (i.source === 'Bidfood') ? (i.productCode || '') : (i.source === 'Gilmours') ? (i.sku || '') : '',
                 supplier: i.source,
                 brand: i.brand,
+                _componentBreakdown: i._componentBreakdown, // Pass the preloaded breakdown data
               }))}
               allergens={[
                 downloadTarget!.hasGluten && 'Gluten',
@@ -1158,7 +1215,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
               ].filter(Boolean) as string[]}
               producedQuantity={downloadTarget!.producedQuantity}
               producedUnit={downloadTarget!.producedUnit || downloadTarget!.normalizedOutputUnit}
-              expandAll
+              expandAll={true}
             />
           </div>
         )}

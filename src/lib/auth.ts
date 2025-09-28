@@ -15,8 +15,8 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-// JWT secret - in production, use an environment variable
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+// Auth secret - use NEXTAUTH_SECRET consistently (fallback to JWT_SECRET for backward compat)
+const AUTH_SECRET = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-secret-key'
 
 // NextAuth configuration
 export const authOptions: NextAuthOptions = {
@@ -61,7 +61,7 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
-  secret: JWT_SECRET,
+  secret: AUTH_SECRET,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -106,7 +106,7 @@ export async function comparePasswords(password: string, hash: string): Promise<
 export function generateToken(userId: string, email: string, accessLevel: string): string {
   return sign(
     { userId, email, accessLevel },
-    JWT_SECRET,
+    AUTH_SECRET,
     { expiresIn: '7d' }
   )
 }
@@ -114,7 +114,7 @@ export function generateToken(userId: string, email: string, accessLevel: string
 // Verify a JWT token
 export function verifyToken(token: string): any {
   try {
-    return verify(token, JWT_SECRET)
+    return verify(token, AUTH_SECRET)
   } catch (error) {
     return null
   }

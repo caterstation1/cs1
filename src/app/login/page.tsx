@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -14,18 +14,48 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+  const { status, data } = useSession()
+
+  // If we already have a session (e.g., after redirect loop), push user off /login immediately
+  useEffect(() => {
+    if (status === 'authenticated') {
+      const rawParam = (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')) || undefined
+      const callbackUrl = rawParam ? (() => {
+        try {
+          const decoded = decodeURIComponent(rawParam)
+          return decoded.startsWith('/') ? decoded : undefined
+        } catch { return undefined }
+      })() : undefined
+      const accessLevel = (data as any)?.user?.accessLevel
+      const fallback = accessLevel === 'pricing_lab' ? '/pricing-lab' : accessLevel === 'basic' ? '/realtime-orders' : (accessLevel === 'wlg_team' || accessLevel === 'wlg_admin') ? '/wlg-calendar' : '/dashboard'
+      // Hard redirect to ensure middleware gets a fresh request with cookies
+      if (typeof window !== 'undefined') {
+        window.location.replace(callbackUrl && callbackUrl !== '/' ? callbackUrl : fallback)
+      }
+    }
+  }, [status, data])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      const callbackUrl = (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')) || undefined
+      const rawParam = (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')) || undefined
+      // Decode and validate callbackUrl: must be a relative path starting with '/'
+      const callbackUrl = rawParam ? (() => {
+        try {
+          const decoded = decodeURIComponent(rawParam)
+          return decoded.startsWith('/') ? decoded : undefined
+        } catch {
+          return undefined
+        }
+      })() : undefined
+
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
-        callbackUrl,
+        callbackUrl, // passed for consistency; we handle client redirect after session is ready
       })
 
       if (result?.error) {
@@ -37,23 +67,38 @@ export default function LoginPage() {
         description: 'You have been logged in successfully',
       })
       
-      // Prefer callbackUrl if provided (and not '/')
-      if (callbackUrl && callbackUrl !== '/') {
-        router.replace(callbackUrl)
-        return
-      }
-      // Otherwise fetch session and route by role
+      // Wait until session cookie is readable before redirecting (prevents bounce back to /login)
       try {
-        // Ensure the session cookie is available
-        await new Promise(r => setTimeout(r, 50))
-        const res = await fetch('/api/auth/session')
-        const data = await res.json().catch(() => ({}))
-        const accessLevel = data?.user?.accessLevel || data?.accessLevel
-        if (accessLevel === 'pricing_lab') router.replace('/pricing-lab')
-        else if (accessLevel === 'basic') router.replace('/realtime-orders')
-        else router.replace('/dashboard')
+        const start = Date.now()
+        let sessionOk = false
+        while (Date.now() - start < 1500 && !sessionOk) {
+          // short delay between checks
+          await new Promise(r => setTimeout(r, 100))
+          const res = await fetch('/api/auth/session', { cache: 'no-store' })
+          if (res.ok) {
+            const data = await res.json().catch(() => ({}))
+            if (data?.user) {
+              sessionOk = true
+              // Prefer callbackUrl if provided (and not '/')
+              const redirectTo = callbackUrl && callbackUrl !== '/' ? callbackUrl : undefined
+              const accessLevel = data?.user?.accessLevel || data?.accessLevel
+              const fallback = accessLevel === 'pricing_lab' ? '/pricing-lab' : accessLevel === 'basic' ? '/realtime-orders' : (accessLevel === 'wlg_team' || accessLevel === 'wlg_admin') ? '/wlg-calendar' : '/dashboard'
+              // Use hard redirect to guarantee middleware sees session cookie
+              if (typeof window !== 'undefined') {
+                window.location.replace(redirectTo || fallback)
+              }
+              return
+            }
+          }
+        }
+        // Fallback if session not readable in time
+        if (typeof window !== 'undefined') {
+          window.location.replace(callbackUrl && callbackUrl !== '/' ? callbackUrl : '/dashboard')
+        }
       } catch {
-        router.replace('/dashboard')
+        if (typeof window !== 'undefined') {
+          window.location.replace(callbackUrl && callbackUrl !== '/' ? callbackUrl : '/dashboard')
+        }
       }
     } catch (error) {
       toast({
