@@ -59,8 +59,8 @@ export async function POST(
     const phoneFromShipping = shopifyOrder.shipping_lines?.[0]?.phone || null;
     
     // Prepare update data
-    const updateData = {};
-    const changes = [];
+    const updateData: any = {};
+    const changes: string[] = [];
     
     // Fix note attributes
     if (noteAttributes.length > 0 && (!order.noteAttributes || order.noteAttributes === '[]' || order.noteAttributes === 'null')) {
