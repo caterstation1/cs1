@@ -41,8 +41,11 @@ export default function WlgCalendarPage() {
         // 3) Fallback: shipping address
         const ship = (o as any).shippingAddress || (o as any).shipping_address || {}
         const shipCity = String(ship?.city || '').toLowerCase()
+        const shipProvince = String(ship?.province || '').toLowerCase()
         const provinceCode = String(ship?.province_code || '').toUpperCase()
-        if (shipCity === 'wellington' || provinceCode === 'WGN') return true
+        
+        // Check if city contains "wellington" or province is "Wellington" or province code is "WGN"
+        if (shipCity.includes('wellington') || shipProvince === 'wellington' || provinceCode === 'WGN') return true
 
         return false
       })
