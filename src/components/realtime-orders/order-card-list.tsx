@@ -4,10 +4,11 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { Order } from '@/types/order'
 import OrderCard from './order-card'
 import { Button } from '@/components/ui/button'
-import { Loader2, Volume2, VolumeX, Printer } from 'lucide-react'
+import { Loader2, Volume2, VolumeX, Printer, ListChecks } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
 import { fetchProducts, clearProductCache } from '@/lib/product-service'
 import { format } from 'date-fns'
+import { RunsheetModal } from '@/components/RunsheetModal'
 
 interface OrderCardListProps {
   orders: Order[]
@@ -44,6 +45,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   
   // Audio state
   const { isAudioEnabled, setIsAudioEnabled } = useAudioState()
+  const [isRunsheetOpen, setIsRunsheetOpen] = useState(false)
 
   // Function to refresh products data
   const refreshProducts = async () => {
@@ -628,6 +630,18 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
               'Update Travel Times'
             )}
           </Button>
+
+          {/* Runsheet Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsRunsheetOpen(true)}
+            className="flex items-center gap-2"
+            title="Open Runsheet"
+          >
+            <ListChecks className="h-4 w-4" />
+            Runsheet
+          </Button>
         </div>
       </div>
 
@@ -662,6 +676,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
           ))}
         </div>
       )}
+      <RunsheetModal isOpen={isRunsheetOpen} onClose={() => setIsRunsheetOpen(false)} date={selectedDate || new Date()} orders={sortedOrders} productsMap={products} />
     </div>
   )
 } 

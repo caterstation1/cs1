@@ -24,6 +24,7 @@ export function Nav() {
     { href: '/roster', label: 'Roster' },
     { href: '/timesheet', label: 'Timesheet' },
     { href: '/pricing-lab', label: 'Pricing Lab' },
+    { href: '/settings', label: 'Settings' },
   ]
 
   let links = baseLinks

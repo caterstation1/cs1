@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpDown, Edit, ExternalLink, Settings, RefreshCw, Loader2 } from 'lucide-react';
+import { ArrowUpDown, Edit, ExternalLink, Settings, RefreshCw, Loader2, Download } from 'lucide-react';
 import { IngredientSelector } from './IngredientSelector';
 import { SetRuleModal } from './SetRuleModal';
 import { ManageRulesModal } from './ManageRulesModal';
@@ -204,6 +204,113 @@ export function ProductsTab() {
     }
   }, [fetchProducts]);
 
+  // CSV Export function
+  const exportToCSV = useCallback(() => {
+    try {
+      // Get all products (not just filtered ones)
+      const productsToExport = Array.isArray(products) ? products : [];
+      
+      if (productsToExport.length === 0) {
+        alert('No products to export');
+        return;
+      }
+
+      // Define CSV headers
+      const headers = [
+        'ID',
+        'Variant ID',
+        'Created At',
+        'Updated At',
+        'Shopify Product ID',
+        'Shopify SKU',
+        'Shopify Name',
+        'Shopify Title',
+        'Shopify Price',
+        'Shopify Inventory',
+        'Display Name',
+        'Meat 1',
+        'Meat 2',
+        'Timer 1',
+        'Timer 2',
+        'Option 1',
+        'Option 2',
+        'Serveware',
+        'Is Draft',
+        'Legacy Name',
+        'Description',
+        'Variant SKU',
+        'Timer A',
+        'Timer B',
+        'Ingredients (JSON)',
+        'Total Cost'
+      ];
+
+      // Convert products to CSV rows
+      const csvRows = productsToExport.map(product => {
+        return [
+          product.id || '',
+          product.variantId || '',
+          product.createdAt || '',
+          product.updatedAt || '',
+          product.shopifyProductId || '',
+          product.shopifySku || '',
+          product.shopifyName || '',
+          product.shopifyTitle || '',
+          product.shopifyPrice || '',
+          product.shopifyInventory || '',
+          product.displayName || '',
+          product.meat1 || '',
+          product.meat2 || '',
+          product.timer1 || '',
+          product.timer2 || '',
+          product.option1 || '',
+          product.option2 || '',
+          product.serveware ? 'Yes' : 'No',
+          product.isDraft ? 'Yes' : 'No',
+          product.name || '',
+          product.description || '',
+          product.variantSku || '',
+          product.timerA || '',
+          product.timerB || '',
+          product.ingredients ? JSON.stringify(product.ingredients) : '',
+          product.totalCost || ''
+        ];
+      });
+
+      // Escape CSV values (handle commas, quotes, newlines)
+      const escapeCSVValue = (value: string | number) => {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      };
+
+      // Create CSV content
+      const csvContent = [
+        headers.map(escapeCSVValue).join(','),
+        ...csvRows.map(row => row.map(escapeCSVValue).join(','))
+      ].join('\n');
+
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `products-export-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      console.log(`✅ Exported ${productsToExport.length} products to CSV`);
+    } catch (error) {
+      console.error('❌ Error exporting to CSV:', error);
+      alert('Failed to export products to CSV. Check console for details.');
+    }
+  }, [products]);
+
   // Fetch products on component mount
   useEffect(() => {
     fetchProducts();
@@ -326,7 +433,15 @@ export function ProductsTab() {
           >
             <Settings className="h-4 w-4" />
             Manage Rules
-            </Button>
+          </Button>
+          <Button 
+            onClick={exportToCSV}
+            variant="outline"
+            className="flex items-center gap-1"
+          >
+            <Download className="h-4 w-4" />
+            Download CSV
+          </Button>
         </div>
       </div>
 

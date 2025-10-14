@@ -31,6 +31,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -95,6 +96,7 @@ type IngredientSource = "Bidfood" | "Gilmours" | "Other" | "Components" | "Produ
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
+  prepCategory: z.string().optional(),
   ingredients: z.array(z.object({
     source: z.enum(["Bidfood", "Gilmours", "Other", "Components", "Products"]) as z.ZodType<IngredientSource>,
     id: z.string(),
@@ -127,6 +129,7 @@ const formSchema = z.object({
 type FormValues = {
   name: string;
   description?: string;
+  prepCategory?: string;
   ingredients: {
     source: IngredientSource;
     id: string;
@@ -227,6 +230,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
     defaultValues: {
       name: "",
       description: "",
+      prepCategory: "",
       ingredients: [],
       producedQuantity: 1,
       producedUnit: 'unit',
@@ -429,6 +433,7 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
     form.reset({
       name: component.name,
       description: component.description,
+      prepCategory: (component as any).prepCategory || '',
       ingredients: component.ingredients.map(ingredient => ({
         ...ingredient,
         source: ingredient.source as IngredientSource
@@ -455,12 +460,18 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
     setIsDialogOpen(true)
   }
 
+  // Prep category presets and adder
+  const presetCategories = ["Bakery","Butchery","Hot kitchen","Cold kitchen","Desserts","Pre day prep"]
+  const [customCategories, setCustomCategories] = useState<string[]>([])
+  const allCategories = Array.from(new Set([...(presetCategories as string[]), ...customCategories]))
+
   const handleAdd = () => {
     setEditingComponent(null)
     setLocalImages([])
     form.reset({
       name: "",
       description: "",
+      prepCategory: "",
       ingredients: [],
       hasGluten: false,
       hasDairy: false,
@@ -633,6 +644,41 @@ export function ComponentsTab({ components, setComponents, isLoading, error: pro
                     </FormItem>
                   )}
                 />
+                {/* Prep Category selector with add button */}
+                <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
+                  <FormField
+                    control={form.control}
+                    name="prepCategory"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Prep category</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {allCategories.map((c) => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const v = prompt('Add new category')?.trim()
+                      if (v) setCustomCategories(prev => Array.from(new Set([...prev, v])))
+                    }}
+                  >
+                    +
+                  </Button>
+                </div>
                 <FormField
                   control={form.control}
                   name="description"

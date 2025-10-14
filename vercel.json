@@ -22,5 +22,11 @@
         }
       ]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/wlg-outlook",
+      "schedule": "0 9 * * *"
+    }
   ]
 } 

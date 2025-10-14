@@ -1,0 +1,3 @@
+ALTER TABLE "Component" ADD COLUMN IF NOT EXISTS "prepCategory" TEXT;
+ALTER TABLE "OtherProduct" ADD COLUMN IF NOT EXISTS "prepCategory" TEXT;
+

@@ -50,6 +50,7 @@ export async function POST(request: Request) {
         description: body.description,
         ingredients: body.ingredients,
         totalCost,
+        prepCategory: body.prepCategory ?? null,
         producedQuantity,
         producedUnit,
         rawWeight: rawWeight as any,

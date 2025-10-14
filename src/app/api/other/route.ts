@@ -34,7 +34,8 @@ export async function POST(request: Request) {
         name: body.name,
         supplier: body.supplier,
         description: body.description,
-        cost: parseFloat(body.cost) || 0
+        cost: parseFloat(body.cost) || 0,
+        prepCategory: body.prepCategory ?? null
       }
     })
     

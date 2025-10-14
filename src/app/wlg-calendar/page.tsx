@@ -27,7 +27,10 @@ export default function WlgCalendarPage() {
         const noteProps = Array.isArray(o.noteAttributes) ? o.noteAttributes : (Array.isArray(o.note_attributes) ? o.note_attributes : [])
         const cityAttr = noteProps.find((p: any) => ((p?.name || '') as string).toLowerCase() === 'city')
         if (cityAttr) {
-          return String(cityAttr.value || '').toUpperCase() === 'WLG'
+          const cityValue = String(cityAttr.value || '').toUpperCase()
+          if (cityValue === 'WLG') return true
+          // If city is explicitly set to something else (like AKL), continue to shipping address check
+          // This handles cases where customer selected wrong city but has Wellington shipping address
         }
 
         // 2) Fallback: line items properties (legacy)

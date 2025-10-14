@@ -41,6 +41,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Pencil, Plus, Trash2 } from "lucide-react"
 import { Dispatch, SetStateAction } from 'react'
+// duplicate Select import removed
 
 export interface OtherProduct {
   id: string
@@ -48,6 +49,7 @@ export interface OtherProduct {
   supplier: string
   description: string
   cost: number
+  prepCategory?: string
   createdAt: string
   updatedAt: string
 }
@@ -65,6 +67,7 @@ const formSchema = z.object({
   supplier: z.string().min(1, "Supplier is required"),
   description: z.string().min(1, "Description is required"),
   cost: z.coerce.number().min(0, "Cost must be a positive number"),
+  prepCategory: z.string().optional(),
 })
 
 // Supplier interface
@@ -128,6 +131,7 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
       supplier: "",
       description: "",
       cost: 0,
+      prepCategory: "",
     },
   })
 
@@ -175,19 +179,15 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
         throw new Error(errorData.error || 'Failed to save product')
       }
 
-      const savedProducts = await response.json()
+      const saved = await response.json()
       
       // Update the products list
       if (editingProduct) {
         // Update existing product
-        setProducts(prevProducts => 
-          prevProducts.map(p => 
-            p.id === editingProduct.id ? savedProducts[0] : p
-          )
-        )
+        setProducts(prevProducts => prevProducts.map(p => p.id === editingProduct.id ? saved : p))
       } else {
         // Add new product
-        setProducts(prevProducts => [...prevProducts, savedProducts[0]])
+        setProducts(prevProducts => [...prevProducts, saved])
       }
 
       // Close dialog
@@ -274,6 +274,29 @@ export function OtherTab({ products, setProducts, isLoading, error: propError }:
                       <FormControl>
                         <Input placeholder="Product name" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Prep Category selector with add button */}
+                <FormField
+                  control={form.control}
+                  name="prepCategory"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prep category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {['Bakery','Butchery','Hot kitchen','Cold kitchen','Desserts','Pre day prep'].map(c => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

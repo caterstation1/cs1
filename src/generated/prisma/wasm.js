@@ -155,6 +155,7 @@ exports.Prisma.OtherProductScalarFieldEnum = {
   supplier: 'supplier',
   description: 'description',
   cost: 'cost',
+  prepCategory: 'prepCategory',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -175,6 +176,7 @@ exports.Prisma.ComponentScalarFieldEnum = {
   description: 'description',
   ingredients: 'ingredients',
   totalCost: 'totalCost',
+  prepCategory: 'prepCategory',
   producedQuantity: 'producedQuantity',
   producedUnit: 'producedUnit',
   rawWeight: 'rawWeight',
@@ -477,6 +479,17 @@ exports.Prisma.ParsedLineItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.EmailSettingScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  title: 'title',
+  description: 'description',
+  recipientEmail: 'recipientEmail',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -534,7 +547,8 @@ exports.Prisma.ModelName = {
   Order: 'Order',
   ShopifyOrder: 'ShopifyOrder',
   ParsedOrder: 'ParsedOrder',
-  ParsedLineItem: 'ParsedLineItem'
+  ParsedLineItem: 'ParsedLineItem',
+  EmailSetting: 'EmailSetting'
 };
 
 /**

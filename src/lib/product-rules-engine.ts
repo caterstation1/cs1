@@ -454,3 +454,4 @@ export async function seedInitialRules(): Promise<void> {
 
   console.log('Initial product rules seeded successfully')
 } 
+

@@ -38,13 +38,15 @@ model BidfoodProduct {
 }
 
 model OtherProduct {
-  id          String   @id @default(uuid())
-  name        String
-  supplier    String
-  description String
-  cost        Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String
+  supplier     String
+  description  String
+  cost         Float
+  // Operational grouping for prep/runsheet
+  prepCategory String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Supplier {
@@ -63,6 +65,8 @@ model Component {
   description          String
   ingredients          Json
   totalCost            Float
+  // Operational grouping for prep/runsheet
+  prepCategory         String?
   // Yield and cooking loss fields
   producedQuantity     Float            @default(1)
   producedUnit         String           @default("unit") // e.g., kg | g | l | ml | unit
@@ -447,4 +451,16 @@ model ParsedLineItem {
 
   @@index([parsedOrderId])
   @@index([sku])
+}
+
+// Email automation settings
+model EmailSetting {
+  id             String   @id @default(uuid())
+  name           String   @unique // e.g., "WLG_3DAY_OUTLOOK"
+  title          String // e.g., "Email WLG 3 Day Orders"
+  description    String? // Optional description
+  recipientEmail String // Email address to send to
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

@@ -118,6 +118,11 @@ export type ParsedOrder = $Result.DefaultSelection<Prisma.$ParsedOrderPayload>
  * 
  */
 export type ParsedLineItem = $Result.DefaultSelection<Prisma.$ParsedLineItemPayload>
+/**
+ * Model EmailSetting
+ * 
+ */
+export type EmailSetting = $Result.DefaultSelection<Prisma.$EmailSettingPayload>
 
 /**
  * Enums
@@ -472,6 +477,16 @@ export class PrismaClient<
     * ```
     */
   get parsedLineItem(): Prisma.ParsedLineItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.emailSetting`: Exposes CRUD operations for the **EmailSetting** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmailSettings
+    * const emailSettings = await prisma.emailSetting.findMany()
+    * ```
+    */
+  get emailSetting(): Prisma.EmailSettingDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -932,7 +947,8 @@ export namespace Prisma {
     Order: 'Order',
     ShopifyOrder: 'ShopifyOrder',
     ParsedOrder: 'ParsedOrder',
-    ParsedLineItem: 'ParsedLineItem'
+    ParsedLineItem: 'ParsedLineItem',
+    EmailSetting: 'EmailSetting'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -951,7 +967,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "supplier" | "component" | "componentImage" | "product" | "productCustomData" | "productWithCustomData" | "productRule" | "staff" | "shiftType" | "shift" | "shiftTask" | "rosterAssignment" | "rosterAssignmentTask" | "reimbursement" | "order" | "shopifyOrder" | "parsedOrder" | "parsedLineItem"
+      modelProps: "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "supplier" | "component" | "componentImage" | "product" | "productCustomData" | "productWithCustomData" | "productRule" | "staff" | "shiftType" | "shift" | "shiftTask" | "rosterAssignment" | "rosterAssignmentTask" | "reimbursement" | "order" | "shopifyOrder" | "parsedOrder" | "parsedLineItem" | "emailSetting"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2509,6 +2525,80 @@ export namespace Prisma {
           }
         }
       }
+      EmailSetting: {
+        payload: Prisma.$EmailSettingPayload<ExtArgs>
+        fields: Prisma.EmailSettingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmailSettingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmailSettingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload>
+          }
+          findFirst: {
+            args: Prisma.EmailSettingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmailSettingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload>
+          }
+          findMany: {
+            args: Prisma.EmailSettingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload>[]
+          }
+          create: {
+            args: Prisma.EmailSettingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload>
+          }
+          createMany: {
+            args: Prisma.EmailSettingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmailSettingCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload>[]
+          }
+          delete: {
+            args: Prisma.EmailSettingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload>
+          }
+          update: {
+            args: Prisma.EmailSettingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmailSettingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmailSettingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmailSettingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload>[]
+          }
+          upsert: {
+            args: Prisma.EmailSettingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmailSettingPayload>
+          }
+          aggregate: {
+            args: Prisma.EmailSettingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmailSetting>
+          }
+          groupBy: {
+            args: Prisma.EmailSettingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmailSettingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmailSettingCountArgs<ExtArgs>
+            result: $Utils.Optional<EmailSettingCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2614,6 +2704,7 @@ export namespace Prisma {
     shopifyOrder?: ShopifyOrderOmit
     parsedOrder?: ParsedOrderOmit
     parsedLineItem?: ParsedLineItemOmit
+    emailSetting?: EmailSettingOmit
   }
 
   /* Types for Logging */
@@ -5176,6 +5267,7 @@ export namespace Prisma {
     supplier: string | null
     description: string | null
     cost: number | null
+    prepCategory: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5186,6 +5278,7 @@ export namespace Prisma {
     supplier: string | null
     description: string | null
     cost: number | null
+    prepCategory: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5196,6 +5289,7 @@ export namespace Prisma {
     supplier: number
     description: number
     cost: number
+    prepCategory: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5216,6 +5310,7 @@ export namespace Prisma {
     supplier?: true
     description?: true
     cost?: true
+    prepCategory?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5226,6 +5321,7 @@ export namespace Prisma {
     supplier?: true
     description?: true
     cost?: true
+    prepCategory?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5236,6 +5332,7 @@ export namespace Prisma {
     supplier?: true
     description?: true
     cost?: true
+    prepCategory?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5333,6 +5430,7 @@ export namespace Prisma {
     supplier: string
     description: string
     cost: number
+    prepCategory: string | null
     createdAt: Date
     updatedAt: Date
     _count: OtherProductCountAggregateOutputType | null
@@ -5362,6 +5460,7 @@ export namespace Prisma {
     supplier?: boolean
     description?: boolean
     cost?: boolean
+    prepCategory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["otherProduct"]>
@@ -5372,6 +5471,7 @@ export namespace Prisma {
     supplier?: boolean
     description?: boolean
     cost?: boolean
+    prepCategory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["otherProduct"]>
@@ -5382,6 +5482,7 @@ export namespace Prisma {
     supplier?: boolean
     description?: boolean
     cost?: boolean
+    prepCategory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["otherProduct"]>
@@ -5392,11 +5493,12 @@ export namespace Prisma {
     supplier?: boolean
     description?: boolean
     cost?: boolean
+    prepCategory?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OtherProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "supplier" | "description" | "cost" | "createdAt" | "updatedAt", ExtArgs["result"]["otherProduct"]>
+  export type OtherProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "supplier" | "description" | "cost" | "prepCategory" | "createdAt" | "updatedAt", ExtArgs["result"]["otherProduct"]>
 
   export type $OtherProductPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OtherProduct"
@@ -5407,6 +5509,7 @@ export namespace Prisma {
       supplier: string
       description: string
       cost: number
+      prepCategory: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["otherProduct"]>
@@ -5837,6 +5940,7 @@ export namespace Prisma {
     readonly supplier: FieldRef<"OtherProduct", 'String'>
     readonly description: FieldRef<"OtherProduct", 'String'>
     readonly cost: FieldRef<"OtherProduct", 'Float'>
+    readonly prepCategory: FieldRef<"OtherProduct", 'String'>
     readonly createdAt: FieldRef<"OtherProduct", 'DateTime'>
     readonly updatedAt: FieldRef<"OtherProduct", 'DateTime'>
   }
@@ -7261,6 +7365,7 @@ export namespace Prisma {
     name: string | null
     description: string | null
     totalCost: number | null
+    prepCategory: string | null
     producedQuantity: number | null
     producedUnit: string | null
     rawWeight: number | null
@@ -7289,6 +7394,7 @@ export namespace Prisma {
     name: string | null
     description: string | null
     totalCost: number | null
+    prepCategory: string | null
     producedQuantity: number | null
     producedUnit: string | null
     rawWeight: number | null
@@ -7318,6 +7424,7 @@ export namespace Prisma {
     description: number
     ingredients: number
     totalCost: number
+    prepCategory: number
     producedQuantity: number
     producedUnit: number
     rawWeight: number
@@ -7366,6 +7473,7 @@ export namespace Prisma {
     name?: true
     description?: true
     totalCost?: true
+    prepCategory?: true
     producedQuantity?: true
     producedUnit?: true
     rawWeight?: true
@@ -7394,6 +7502,7 @@ export namespace Prisma {
     name?: true
     description?: true
     totalCost?: true
+    prepCategory?: true
     producedQuantity?: true
     producedUnit?: true
     rawWeight?: true
@@ -7423,6 +7532,7 @@ export namespace Prisma {
     description?: true
     ingredients?: true
     totalCost?: true
+    prepCategory?: true
     producedQuantity?: true
     producedUnit?: true
     rawWeight?: true
@@ -7539,6 +7649,7 @@ export namespace Prisma {
     description: string
     ingredients: JsonValue
     totalCost: number
+    prepCategory: string | null
     producedQuantity: number
     producedUnit: string
     rawWeight: number | null
@@ -7587,6 +7698,7 @@ export namespace Prisma {
     description?: boolean
     ingredients?: boolean
     totalCost?: boolean
+    prepCategory?: boolean
     producedQuantity?: boolean
     producedUnit?: boolean
     rawWeight?: boolean
@@ -7618,6 +7730,7 @@ export namespace Prisma {
     description?: boolean
     ingredients?: boolean
     totalCost?: boolean
+    prepCategory?: boolean
     producedQuantity?: boolean
     producedUnit?: boolean
     rawWeight?: boolean
@@ -7647,6 +7760,7 @@ export namespace Prisma {
     description?: boolean
     ingredients?: boolean
     totalCost?: boolean
+    prepCategory?: boolean
     producedQuantity?: boolean
     producedUnit?: boolean
     rawWeight?: boolean
@@ -7676,6 +7790,7 @@ export namespace Prisma {
     description?: boolean
     ingredients?: boolean
     totalCost?: boolean
+    prepCategory?: boolean
     producedQuantity?: boolean
     producedUnit?: boolean
     rawWeight?: boolean
@@ -7699,7 +7814,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "ingredients" | "totalCost" | "producedQuantity" | "producedUnit" | "rawWeight" | "cookedWeight" | "trimWasteWeight" | "weightUnit" | "costPerOutputUnit" | "normalizedOutputUnit" | "hasGluten" | "hasDairy" | "hasSoy" | "hasOnionGarlic" | "hasSesame" | "hasNuts" | "hasEgg" | "isVegetarian" | "isVegan" | "isHalal" | "isComponentListItem" | "createdAt" | "updatedAt", ExtArgs["result"]["component"]>
+  export type ComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "ingredients" | "totalCost" | "prepCategory" | "producedQuantity" | "producedUnit" | "rawWeight" | "cookedWeight" | "trimWasteWeight" | "weightUnit" | "costPerOutputUnit" | "normalizedOutputUnit" | "hasGluten" | "hasDairy" | "hasSoy" | "hasOnionGarlic" | "hasSesame" | "hasNuts" | "hasEgg" | "isVegetarian" | "isVegan" | "isHalal" | "isComponentListItem" | "createdAt" | "updatedAt", ExtArgs["result"]["component"]>
   export type ComponentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     images?: boolean | Component$imagesArgs<ExtArgs>
     _count?: boolean | ComponentCountOutputTypeDefaultArgs<ExtArgs>
@@ -7718,6 +7833,7 @@ export namespace Prisma {
       description: string
       ingredients: Prisma.JsonValue
       totalCost: number
+      prepCategory: string | null
       producedQuantity: number
       producedUnit: string
       rawWeight: number | null
@@ -8168,6 +8284,7 @@ export namespace Prisma {
     readonly description: FieldRef<"Component", 'String'>
     readonly ingredients: FieldRef<"Component", 'Json'>
     readonly totalCost: FieldRef<"Component", 'Float'>
+    readonly prepCategory: FieldRef<"Component", 'String'>
     readonly producedQuantity: FieldRef<"Component", 'Float'>
     readonly producedUnit: FieldRef<"Component", 'String'>
     readonly rawWeight: FieldRef<"Component", 'Float'>
@@ -27804,6 +27921,1040 @@ export namespace Prisma {
 
 
   /**
+   * Model EmailSetting
+   */
+
+  export type AggregateEmailSetting = {
+    _count: EmailSettingCountAggregateOutputType | null
+    _min: EmailSettingMinAggregateOutputType | null
+    _max: EmailSettingMaxAggregateOutputType | null
+  }
+
+  export type EmailSettingMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    title: string | null
+    description: string | null
+    recipientEmail: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailSettingMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    title: string | null
+    description: string | null
+    recipientEmail: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmailSettingCountAggregateOutputType = {
+    id: number
+    name: number
+    title: number
+    description: number
+    recipientEmail: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmailSettingMinAggregateInputType = {
+    id?: true
+    name?: true
+    title?: true
+    description?: true
+    recipientEmail?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailSettingMaxAggregateInputType = {
+    id?: true
+    name?: true
+    title?: true
+    description?: true
+    recipientEmail?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmailSettingCountAggregateInputType = {
+    id?: true
+    name?: true
+    title?: true
+    description?: true
+    recipientEmail?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmailSettingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailSetting to aggregate.
+     */
+    where?: EmailSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailSettings to fetch.
+     */
+    orderBy?: EmailSettingOrderByWithRelationInput | EmailSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmailSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmailSettings
+    **/
+    _count?: true | EmailSettingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmailSettingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmailSettingMaxAggregateInputType
+  }
+
+  export type GetEmailSettingAggregateType<T extends EmailSettingAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmailSetting]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmailSetting[P]>
+      : GetScalarType<T[P], AggregateEmailSetting[P]>
+  }
+
+
+
+
+  export type EmailSettingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmailSettingWhereInput
+    orderBy?: EmailSettingOrderByWithAggregationInput | EmailSettingOrderByWithAggregationInput[]
+    by: EmailSettingScalarFieldEnum[] | EmailSettingScalarFieldEnum
+    having?: EmailSettingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmailSettingCountAggregateInputType | true
+    _min?: EmailSettingMinAggregateInputType
+    _max?: EmailSettingMaxAggregateInputType
+  }
+
+  export type EmailSettingGroupByOutputType = {
+    id: string
+    name: string
+    title: string
+    description: string | null
+    recipientEmail: string
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: EmailSettingCountAggregateOutputType | null
+    _min: EmailSettingMinAggregateOutputType | null
+    _max: EmailSettingMaxAggregateOutputType | null
+  }
+
+  type GetEmailSettingGroupByPayload<T extends EmailSettingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmailSettingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmailSettingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmailSettingGroupByOutputType[P]>
+            : GetScalarType<T[P], EmailSettingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmailSettingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    title?: boolean
+    description?: boolean
+    recipientEmail?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["emailSetting"]>
+
+  export type EmailSettingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    title?: boolean
+    description?: boolean
+    recipientEmail?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["emailSetting"]>
+
+  export type EmailSettingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    title?: boolean
+    description?: boolean
+    recipientEmail?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["emailSetting"]>
+
+  export type EmailSettingSelectScalar = {
+    id?: boolean
+    name?: boolean
+    title?: boolean
+    description?: boolean
+    recipientEmail?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmailSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "title" | "description" | "recipientEmail" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["emailSetting"]>
+
+  export type $EmailSettingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmailSetting"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      title: string
+      description: string | null
+      recipientEmail: string
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["emailSetting"]>
+    composites: {}
+  }
+
+  type EmailSettingGetPayload<S extends boolean | null | undefined | EmailSettingDefaultArgs> = $Result.GetResult<Prisma.$EmailSettingPayload, S>
+
+  type EmailSettingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmailSettingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmailSettingCountAggregateInputType | true
+    }
+
+  export interface EmailSettingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmailSetting'], meta: { name: 'EmailSetting' } }
+    /**
+     * Find zero or one EmailSetting that matches the filter.
+     * @param {EmailSettingFindUniqueArgs} args - Arguments to find a EmailSetting
+     * @example
+     * // Get one EmailSetting
+     * const emailSetting = await prisma.emailSetting.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmailSettingFindUniqueArgs>(args: SelectSubset<T, EmailSettingFindUniqueArgs<ExtArgs>>): Prisma__EmailSettingClient<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmailSetting that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmailSettingFindUniqueOrThrowArgs} args - Arguments to find a EmailSetting
+     * @example
+     * // Get one EmailSetting
+     * const emailSetting = await prisma.emailSetting.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmailSettingFindUniqueOrThrowArgs>(args: SelectSubset<T, EmailSettingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmailSettingClient<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailSetting that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSettingFindFirstArgs} args - Arguments to find a EmailSetting
+     * @example
+     * // Get one EmailSetting
+     * const emailSetting = await prisma.emailSetting.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmailSettingFindFirstArgs>(args?: SelectSubset<T, EmailSettingFindFirstArgs<ExtArgs>>): Prisma__EmailSettingClient<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmailSetting that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSettingFindFirstOrThrowArgs} args - Arguments to find a EmailSetting
+     * @example
+     * // Get one EmailSetting
+     * const emailSetting = await prisma.emailSetting.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmailSettingFindFirstOrThrowArgs>(args?: SelectSubset<T, EmailSettingFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmailSettingClient<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmailSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSettingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmailSettings
+     * const emailSettings = await prisma.emailSetting.findMany()
+     * 
+     * // Get first 10 EmailSettings
+     * const emailSettings = await prisma.emailSetting.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const emailSettingWithIdOnly = await prisma.emailSetting.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmailSettingFindManyArgs>(args?: SelectSubset<T, EmailSettingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmailSetting.
+     * @param {EmailSettingCreateArgs} args - Arguments to create a EmailSetting.
+     * @example
+     * // Create one EmailSetting
+     * const EmailSetting = await prisma.emailSetting.create({
+     *   data: {
+     *     // ... data to create a EmailSetting
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmailSettingCreateArgs>(args: SelectSubset<T, EmailSettingCreateArgs<ExtArgs>>): Prisma__EmailSettingClient<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmailSettings.
+     * @param {EmailSettingCreateManyArgs} args - Arguments to create many EmailSettings.
+     * @example
+     * // Create many EmailSettings
+     * const emailSetting = await prisma.emailSetting.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmailSettingCreateManyArgs>(args?: SelectSubset<T, EmailSettingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmailSettings and returns the data saved in the database.
+     * @param {EmailSettingCreateManyAndReturnArgs} args - Arguments to create many EmailSettings.
+     * @example
+     * // Create many EmailSettings
+     * const emailSetting = await prisma.emailSetting.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmailSettings and only return the `id`
+     * const emailSettingWithIdOnly = await prisma.emailSetting.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmailSettingCreateManyAndReturnArgs>(args?: SelectSubset<T, EmailSettingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmailSetting.
+     * @param {EmailSettingDeleteArgs} args - Arguments to delete one EmailSetting.
+     * @example
+     * // Delete one EmailSetting
+     * const EmailSetting = await prisma.emailSetting.delete({
+     *   where: {
+     *     // ... filter to delete one EmailSetting
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmailSettingDeleteArgs>(args: SelectSubset<T, EmailSettingDeleteArgs<ExtArgs>>): Prisma__EmailSettingClient<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmailSetting.
+     * @param {EmailSettingUpdateArgs} args - Arguments to update one EmailSetting.
+     * @example
+     * // Update one EmailSetting
+     * const emailSetting = await prisma.emailSetting.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmailSettingUpdateArgs>(args: SelectSubset<T, EmailSettingUpdateArgs<ExtArgs>>): Prisma__EmailSettingClient<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmailSettings.
+     * @param {EmailSettingDeleteManyArgs} args - Arguments to filter EmailSettings to delete.
+     * @example
+     * // Delete a few EmailSettings
+     * const { count } = await prisma.emailSetting.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmailSettingDeleteManyArgs>(args?: SelectSubset<T, EmailSettingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSettingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmailSettings
+     * const emailSetting = await prisma.emailSetting.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmailSettingUpdateManyArgs>(args: SelectSubset<T, EmailSettingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmailSettings and returns the data updated in the database.
+     * @param {EmailSettingUpdateManyAndReturnArgs} args - Arguments to update many EmailSettings.
+     * @example
+     * // Update many EmailSettings
+     * const emailSetting = await prisma.emailSetting.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmailSettings and only return the `id`
+     * const emailSettingWithIdOnly = await prisma.emailSetting.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmailSettingUpdateManyAndReturnArgs>(args: SelectSubset<T, EmailSettingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmailSetting.
+     * @param {EmailSettingUpsertArgs} args - Arguments to update or create a EmailSetting.
+     * @example
+     * // Update or create a EmailSetting
+     * const emailSetting = await prisma.emailSetting.upsert({
+     *   create: {
+     *     // ... data to create a EmailSetting
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmailSetting we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmailSettingUpsertArgs>(args: SelectSubset<T, EmailSettingUpsertArgs<ExtArgs>>): Prisma__EmailSettingClient<$Result.GetResult<Prisma.$EmailSettingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmailSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSettingCountArgs} args - Arguments to filter EmailSettings to count.
+     * @example
+     * // Count the number of EmailSettings
+     * const count = await prisma.emailSetting.count({
+     *   where: {
+     *     // ... the filter for the EmailSettings we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmailSettingCountArgs>(
+      args?: Subset<T, EmailSettingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmailSettingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmailSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSettingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmailSettingAggregateArgs>(args: Subset<T, EmailSettingAggregateArgs>): Prisma.PrismaPromise<GetEmailSettingAggregateType<T>>
+
+    /**
+     * Group by EmailSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmailSettingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmailSettingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmailSettingGroupByArgs['orderBy'] }
+        : { orderBy?: EmailSettingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmailSettingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmailSettingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmailSetting model
+   */
+  readonly fields: EmailSettingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmailSetting.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmailSettingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmailSetting model
+   */
+  interface EmailSettingFieldRefs {
+    readonly id: FieldRef<"EmailSetting", 'String'>
+    readonly name: FieldRef<"EmailSetting", 'String'>
+    readonly title: FieldRef<"EmailSetting", 'String'>
+    readonly description: FieldRef<"EmailSetting", 'String'>
+    readonly recipientEmail: FieldRef<"EmailSetting", 'String'>
+    readonly isActive: FieldRef<"EmailSetting", 'Boolean'>
+    readonly createdAt: FieldRef<"EmailSetting", 'DateTime'>
+    readonly updatedAt: FieldRef<"EmailSetting", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmailSetting findUnique
+   */
+  export type EmailSettingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSetting to fetch.
+     */
+    where: EmailSettingWhereUniqueInput
+  }
+
+  /**
+   * EmailSetting findUniqueOrThrow
+   */
+  export type EmailSettingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSetting to fetch.
+     */
+    where: EmailSettingWhereUniqueInput
+  }
+
+  /**
+   * EmailSetting findFirst
+   */
+  export type EmailSettingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSetting to fetch.
+     */
+    where?: EmailSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailSettings to fetch.
+     */
+    orderBy?: EmailSettingOrderByWithRelationInput | EmailSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailSettings.
+     */
+    cursor?: EmailSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailSettings.
+     */
+    distinct?: EmailSettingScalarFieldEnum | EmailSettingScalarFieldEnum[]
+  }
+
+  /**
+   * EmailSetting findFirstOrThrow
+   */
+  export type EmailSettingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSetting to fetch.
+     */
+    where?: EmailSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailSettings to fetch.
+     */
+    orderBy?: EmailSettingOrderByWithRelationInput | EmailSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmailSettings.
+     */
+    cursor?: EmailSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmailSettings.
+     */
+    distinct?: EmailSettingScalarFieldEnum | EmailSettingScalarFieldEnum[]
+  }
+
+  /**
+   * EmailSetting findMany
+   */
+  export type EmailSettingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * Filter, which EmailSettings to fetch.
+     */
+    where?: EmailSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmailSettings to fetch.
+     */
+    orderBy?: EmailSettingOrderByWithRelationInput | EmailSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmailSettings.
+     */
+    cursor?: EmailSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmailSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmailSettings.
+     */
+    skip?: number
+    distinct?: EmailSettingScalarFieldEnum | EmailSettingScalarFieldEnum[]
+  }
+
+  /**
+   * EmailSetting create
+   */
+  export type EmailSettingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EmailSetting.
+     */
+    data: XOR<EmailSettingCreateInput, EmailSettingUncheckedCreateInput>
+  }
+
+  /**
+   * EmailSetting createMany
+   */
+  export type EmailSettingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmailSettings.
+     */
+    data: EmailSettingCreateManyInput | EmailSettingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmailSetting createManyAndReturn
+   */
+  export type EmailSettingCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmailSettings.
+     */
+    data: EmailSettingCreateManyInput | EmailSettingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmailSetting update
+   */
+  export type EmailSettingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EmailSetting.
+     */
+    data: XOR<EmailSettingUpdateInput, EmailSettingUncheckedUpdateInput>
+    /**
+     * Choose, which EmailSetting to update.
+     */
+    where: EmailSettingWhereUniqueInput
+  }
+
+  /**
+   * EmailSetting updateMany
+   */
+  export type EmailSettingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmailSettings.
+     */
+    data: XOR<EmailSettingUpdateManyMutationInput, EmailSettingUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailSettings to update
+     */
+    where?: EmailSettingWhereInput
+    /**
+     * Limit how many EmailSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailSetting updateManyAndReturn
+   */
+  export type EmailSettingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * The data used to update EmailSettings.
+     */
+    data: XOR<EmailSettingUpdateManyMutationInput, EmailSettingUncheckedUpdateManyInput>
+    /**
+     * Filter which EmailSettings to update
+     */
+    where?: EmailSettingWhereInput
+    /**
+     * Limit how many EmailSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailSetting upsert
+   */
+  export type EmailSettingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EmailSetting to update in case it exists.
+     */
+    where: EmailSettingWhereUniqueInput
+    /**
+     * In case the EmailSetting found by the `where` argument doesn't exist, create a new EmailSetting with this data.
+     */
+    create: XOR<EmailSettingCreateInput, EmailSettingUncheckedCreateInput>
+    /**
+     * In case the EmailSetting was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmailSettingUpdateInput, EmailSettingUncheckedUpdateInput>
+  }
+
+  /**
+   * EmailSetting delete
+   */
+  export type EmailSettingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+    /**
+     * Filter which EmailSetting to delete.
+     */
+    where: EmailSettingWhereUniqueInput
+  }
+
+  /**
+   * EmailSetting deleteMany
+   */
+  export type EmailSettingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmailSettings to delete
+     */
+    where?: EmailSettingWhereInput
+    /**
+     * Limit how many EmailSettings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmailSetting without action
+   */
+  export type EmailSettingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmailSetting
+     */
+    select?: EmailSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmailSetting
+     */
+    omit?: EmailSettingOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -27858,6 +29009,7 @@ export namespace Prisma {
     supplier: 'supplier',
     description: 'description',
     cost: 'cost',
+    prepCategory: 'prepCategory',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -27884,6 +29036,7 @@ export namespace Prisma {
     description: 'description',
     ingredients: 'ingredients',
     totalCost: 'totalCost',
+    prepCategory: 'prepCategory',
     producedQuantity: 'producedQuantity',
     producedUnit: 'producedUnit',
     rawWeight: 'rawWeight',
@@ -28237,6 +29390,20 @@ export namespace Prisma {
   export type ParsedLineItemScalarFieldEnum = (typeof ParsedLineItemScalarFieldEnum)[keyof typeof ParsedLineItemScalarFieldEnum]
 
 
+  export const EmailSettingScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    title: 'title',
+    description: 'description',
+    recipientEmail: 'recipientEmail',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmailSettingScalarFieldEnum = (typeof EmailSettingScalarFieldEnum)[keyof typeof EmailSettingScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -28580,6 +29747,7 @@ export namespace Prisma {
     supplier?: StringFilter<"OtherProduct"> | string
     description?: StringFilter<"OtherProduct"> | string
     cost?: FloatFilter<"OtherProduct"> | number
+    prepCategory?: StringNullableFilter<"OtherProduct"> | string | null
     createdAt?: DateTimeFilter<"OtherProduct"> | Date | string
     updatedAt?: DateTimeFilter<"OtherProduct"> | Date | string
   }
@@ -28590,6 +29758,7 @@ export namespace Prisma {
     supplier?: SortOrder
     description?: SortOrder
     cost?: SortOrder
+    prepCategory?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -28603,6 +29772,7 @@ export namespace Prisma {
     supplier?: StringFilter<"OtherProduct"> | string
     description?: StringFilter<"OtherProduct"> | string
     cost?: FloatFilter<"OtherProduct"> | number
+    prepCategory?: StringNullableFilter<"OtherProduct"> | string | null
     createdAt?: DateTimeFilter<"OtherProduct"> | Date | string
     updatedAt?: DateTimeFilter<"OtherProduct"> | Date | string
   }, "id">
@@ -28613,6 +29783,7 @@ export namespace Prisma {
     supplier?: SortOrder
     description?: SortOrder
     cost?: SortOrder
+    prepCategory?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: OtherProductCountOrderByAggregateInput
@@ -28631,6 +29802,7 @@ export namespace Prisma {
     supplier?: StringWithAggregatesFilter<"OtherProduct"> | string
     description?: StringWithAggregatesFilter<"OtherProduct"> | string
     cost?: FloatWithAggregatesFilter<"OtherProduct"> | number
+    prepCategory?: StringNullableWithAggregatesFilter<"OtherProduct"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"OtherProduct"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OtherProduct"> | Date | string
   }
@@ -28706,6 +29878,7 @@ export namespace Prisma {
     description?: StringFilter<"Component"> | string
     ingredients?: JsonFilter<"Component">
     totalCost?: FloatFilter<"Component"> | number
+    prepCategory?: StringNullableFilter<"Component"> | string | null
     producedQuantity?: FloatFilter<"Component"> | number
     producedUnit?: StringFilter<"Component"> | string
     rawWeight?: FloatNullableFilter<"Component"> | number | null
@@ -28736,6 +29909,7 @@ export namespace Prisma {
     description?: SortOrder
     ingredients?: SortOrder
     totalCost?: SortOrder
+    prepCategory?: SortOrderInput | SortOrder
     producedQuantity?: SortOrder
     producedUnit?: SortOrder
     rawWeight?: SortOrderInput | SortOrder
@@ -28769,6 +29943,7 @@ export namespace Prisma {
     description?: StringFilter<"Component"> | string
     ingredients?: JsonFilter<"Component">
     totalCost?: FloatFilter<"Component"> | number
+    prepCategory?: StringNullableFilter<"Component"> | string | null
     producedQuantity?: FloatFilter<"Component"> | number
     producedUnit?: StringFilter<"Component"> | string
     rawWeight?: FloatNullableFilter<"Component"> | number | null
@@ -28799,6 +29974,7 @@ export namespace Prisma {
     description?: SortOrder
     ingredients?: SortOrder
     totalCost?: SortOrder
+    prepCategory?: SortOrderInput | SortOrder
     producedQuantity?: SortOrder
     producedUnit?: SortOrder
     rawWeight?: SortOrderInput | SortOrder
@@ -28836,6 +30012,7 @@ export namespace Prisma {
     description?: StringWithAggregatesFilter<"Component"> | string
     ingredients?: JsonWithAggregatesFilter<"Component">
     totalCost?: FloatWithAggregatesFilter<"Component"> | number
+    prepCategory?: StringNullableWithAggregatesFilter<"Component"> | string | null
     producedQuantity?: FloatWithAggregatesFilter<"Component"> | number
     producedUnit?: StringWithAggregatesFilter<"Component"> | string
     rawWeight?: FloatNullableWithAggregatesFilter<"Component"> | number | null
@@ -30519,6 +31696,73 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"ParsedLineItem"> | Date | string
   }
 
+  export type EmailSettingWhereInput = {
+    AND?: EmailSettingWhereInput | EmailSettingWhereInput[]
+    OR?: EmailSettingWhereInput[]
+    NOT?: EmailSettingWhereInput | EmailSettingWhereInput[]
+    id?: StringFilter<"EmailSetting"> | string
+    name?: StringFilter<"EmailSetting"> | string
+    title?: StringFilter<"EmailSetting"> | string
+    description?: StringNullableFilter<"EmailSetting"> | string | null
+    recipientEmail?: StringFilter<"EmailSetting"> | string
+    isActive?: BoolFilter<"EmailSetting"> | boolean
+    createdAt?: DateTimeFilter<"EmailSetting"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailSetting"> | Date | string
+  }
+
+  export type EmailSettingOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    recipientEmail?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailSettingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    name?: string
+    AND?: EmailSettingWhereInput | EmailSettingWhereInput[]
+    OR?: EmailSettingWhereInput[]
+    NOT?: EmailSettingWhereInput | EmailSettingWhereInput[]
+    title?: StringFilter<"EmailSetting"> | string
+    description?: StringNullableFilter<"EmailSetting"> | string | null
+    recipientEmail?: StringFilter<"EmailSetting"> | string
+    isActive?: BoolFilter<"EmailSetting"> | boolean
+    createdAt?: DateTimeFilter<"EmailSetting"> | Date | string
+    updatedAt?: DateTimeFilter<"EmailSetting"> | Date | string
+  }, "id" | "name">
+
+  export type EmailSettingOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    recipientEmail?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EmailSettingCountOrderByAggregateInput
+    _max?: EmailSettingMaxOrderByAggregateInput
+    _min?: EmailSettingMinOrderByAggregateInput
+  }
+
+  export type EmailSettingScalarWhereWithAggregatesInput = {
+    AND?: EmailSettingScalarWhereWithAggregatesInput | EmailSettingScalarWhereWithAggregatesInput[]
+    OR?: EmailSettingScalarWhereWithAggregatesInput[]
+    NOT?: EmailSettingScalarWhereWithAggregatesInput | EmailSettingScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EmailSetting"> | string
+    name?: StringWithAggregatesFilter<"EmailSetting"> | string
+    title?: StringWithAggregatesFilter<"EmailSetting"> | string
+    description?: StringNullableWithAggregatesFilter<"EmailSetting"> | string | null
+    recipientEmail?: StringWithAggregatesFilter<"EmailSetting"> | string
+    isActive?: BoolWithAggregatesFilter<"EmailSetting"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"EmailSetting"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EmailSetting"> | Date | string
+  }
+
   export type GilmoursProductCreateInput = {
     id?: string
     sku: string
@@ -30728,6 +31972,7 @@ export namespace Prisma {
     supplier: string
     description: string
     cost: number
+    prepCategory?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -30738,6 +31983,7 @@ export namespace Prisma {
     supplier: string
     description: string
     cost: number
+    prepCategory?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -30748,6 +31994,7 @@ export namespace Prisma {
     supplier?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     cost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -30758,6 +32005,7 @@ export namespace Prisma {
     supplier?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     cost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -30768,6 +32016,7 @@ export namespace Prisma {
     supplier: string
     description: string
     cost: number
+    prepCategory?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -30778,6 +32027,7 @@ export namespace Prisma {
     supplier?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     cost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -30788,6 +32038,7 @@ export namespace Prisma {
     supplier?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     cost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -30868,6 +32119,7 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    prepCategory?: string | null
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -30898,6 +32150,7 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    prepCategory?: string | null
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -30928,6 +32181,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -30958,6 +32212,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -30988,6 +32243,7 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    prepCategory?: string | null
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -31017,6 +32273,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -31046,6 +32303,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -33045,6 +34303,83 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EmailSettingCreateInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    recipientEmail: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailSettingUncheckedCreateInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    recipientEmail: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailSettingUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailSettingUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailSettingCreateManyInput = {
+    id?: string
+    name: string
+    title: string
+    description?: string | null
+    recipientEmail: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmailSettingUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmailSettingUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    recipientEmail?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -33266,44 +34601,6 @@ export namespace Prisma {
     totalExGST?: SortOrder
   }
 
-  export type OtherProductCountOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    supplier?: SortOrder
-    description?: SortOrder
-    cost?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type OtherProductAvgOrderByAggregateInput = {
-    cost?: SortOrder
-  }
-
-  export type OtherProductMaxOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    supplier?: SortOrder
-    description?: SortOrder
-    cost?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type OtherProductMinOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    supplier?: SortOrder
-    description?: SortOrder
-    cost?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type OtherProductSumOrderByAggregateInput = {
-    cost?: SortOrder
-  }
-
   export type StringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -33322,6 +34619,65 @@ export namespace Prisma {
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type OtherProductCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    supplier?: SortOrder
+    description?: SortOrder
+    cost?: SortOrder
+    prepCategory?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OtherProductAvgOrderByAggregateInput = {
+    cost?: SortOrder
+  }
+
+  export type OtherProductMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    supplier?: SortOrder
+    description?: SortOrder
+    cost?: SortOrder
+    prepCategory?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OtherProductMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    supplier?: SortOrder
+    description?: SortOrder
+    cost?: SortOrder
+    prepCategory?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OtherProductSumOrderByAggregateInput = {
+    cost?: SortOrder
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type SupplierCountOrderByAggregateInput = {
@@ -33352,24 +34708,6 @@ export namespace Prisma {
     contactEmail?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -33427,6 +34765,7 @@ export namespace Prisma {
     description?: SortOrder
     ingredients?: SortOrder
     totalCost?: SortOrder
+    prepCategory?: SortOrder
     producedQuantity?: SortOrder
     producedUnit?: SortOrder
     rawWeight?: SortOrder
@@ -33464,6 +34803,7 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     totalCost?: SortOrder
+    prepCategory?: SortOrder
     producedQuantity?: SortOrder
     producedUnit?: SortOrder
     rawWeight?: SortOrder
@@ -33492,6 +34832,7 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     totalCost?: SortOrder
+    prepCategory?: SortOrder
     producedQuantity?: SortOrder
     producedUnit?: SortOrder
     rawWeight?: SortOrder
@@ -34773,6 +36114,39 @@ export namespace Prisma {
     ovenTimer2?: SortOrder
   }
 
+  export type EmailSettingCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    recipientEmail?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailSettingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    recipientEmail?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmailSettingMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    recipientEmail?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -35739,6 +37113,7 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    prepCategory?: string | null
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -35768,6 +37143,7 @@ export namespace Prisma {
     description: string
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
+    prepCategory?: string | null
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -35813,6 +37189,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -35842,6 +37219,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
+    prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
