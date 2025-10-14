@@ -56,6 +56,7 @@ export async function PUT(request: NextRequest) {
           description: description?.trim() || null,
           unit: unit?.trim() || null,
           cost: cost ? parseFloat(cost) : null,
+          totalCost: cost ? parseFloat(cost) : null,
           prepCategory: prepCategory?.trim() || null,
           allergens: allergens || [],
           dietary: dietary || [],
