@@ -51,12 +51,11 @@ export async function PUT(request: NextRequest) {
           continue
         }
 
-        const data = {
+        const data: any = {
           name: name.trim(),
           description: description?.trim() || null,
           unit: unit?.trim() || null,
           cost: cost ? parseFloat(cost) : null,
-          totalCost: cost ? parseFloat(cost) : null,
           prepCategory: prepCategory?.trim() || null,
           allergens: allergens || [],
           dietary: dietary || [],
@@ -73,6 +72,11 @@ export async function PUT(request: NextRequest) {
           isVegetarian: Boolean(isVegetarian),
           isVegan: Boolean(isVegan),
           isHalal: Boolean(isHalal),
+        }
+        
+        // Add totalCost if cost is provided
+        if (cost) {
+          data.totalCost = parseFloat(cost)
         }
 
         if (id && id !== 'new') {
