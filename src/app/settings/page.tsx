@@ -47,24 +47,9 @@ interface OtherItem {
   id: string
   name: string
   description?: string
-  unit?: string
+  supplier?: string
   cost?: number
   prepCategory?: string
-  allergens?: string[]
-  dietary?: string[]
-  images?: any[]
-  ingredients?: any[]
-  instructions?: string
-  hasGluten: boolean
-  hasDairy: boolean
-  hasSoy: boolean
-  hasOnionGarlic: boolean
-  hasSesame: boolean
-  hasNuts: boolean
-  hasEgg: boolean
-  isVegetarian: boolean
-  isVegan: boolean
-  isHalal: boolean
 }
 
 export default function SettingsPage() {
@@ -269,24 +254,9 @@ export default function SettingsPage() {
       id: 'new',
       name: '',
       description: '',
-      unit: '',
+      supplier: '',
       cost: 0,
       prepCategory: '',
-      allergens: [],
-      dietary: [],
-      images: [],
-      ingredients: [],
-      instructions: '',
-      hasGluten: false,
-      hasDairy: false,
-      hasSoy: false,
-      hasOnionGarlic: false,
-      hasSesame: false,
-      hasNuts: false,
-      hasEgg: false,
-      isVegetarian: false,
-      isVegan: false,
-      isHalal: false,
     }
     setOtherItems([...otherItems, newItem])
   }
@@ -718,11 +688,9 @@ export default function SettingsPage() {
                     <tr className="bg-gray-50">
                       <th className="border border-gray-300 p-2 text-left text-sm font-medium">Name</th>
                       <th className="border border-gray-300 p-2 text-left text-sm font-medium">Description</th>
-                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Unit</th>
+                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Supplier</th>
                       <th className="border border-gray-300 p-2 text-left text-sm font-medium">Cost</th>
                       <th className="border border-gray-300 p-2 text-left text-sm font-medium">Prep Category</th>
-                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Allergens</th>
-                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Dietary</th>
                       <th className="border border-gray-300 p-2 text-left text-sm font-medium">Actions</th>
                     </tr>
                   </thead>
@@ -745,9 +713,9 @@ export default function SettingsPage() {
                         </td>
                         <td className="border border-gray-300 p-2">
                           <Input
-                            value={item.unit || ''}
-                            onChange={(e) => updateOtherItem(index, 'unit', e.target.value)}
-                            className="min-w-[80px]"
+                            value={item.supplier || ''}
+                            onChange={(e) => updateOtherItem(index, 'supplier', e.target.value)}
+                            className="min-w-[120px]"
                           />
                         </td>
                         <td className="border border-gray-300 p-2">
@@ -763,22 +731,6 @@ export default function SettingsPage() {
                           <Input
                             value={item.prepCategory || ''}
                             onChange={(e) => updateOtherItem(index, 'prepCategory', e.target.value)}
-                            className="min-w-[120px]"
-                          />
-                        </td>
-                        <td className="border border-gray-300 p-2">
-                          <Input
-                            value={Array.isArray(item.allergens) ? item.allergens.join(', ') : ''}
-                            onChange={(e) => updateOtherItem(index, 'allergens', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-                            placeholder="Gluten, Dairy, Soy"
-                            className="min-w-[120px]"
-                          />
-                        </td>
-                        <td className="border border-gray-300 p-2">
-                          <Input
-                            value={Array.isArray(item.dietary) ? item.dietary.join(', ') : ''}
-                            onChange={(e) => updateOtherItem(index, 'dietary', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-                            placeholder="Vegetarian, Vegan"
                             className="min-w-[120px]"
                           />
                         </td>

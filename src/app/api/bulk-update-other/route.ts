@@ -25,24 +25,9 @@ export async function PUT(request: NextRequest) {
           id,
           name,
           description,
-          unit,
+          supplier,
           cost,
-          prepCategory,
-          allergens,
-          dietary,
-          images,
-          ingredients,
-          instructions,
-          hasGluten,
-          hasDairy,
-          hasSoy,
-          hasOnionGarlic,
-          hasSesame,
-          hasNuts,
-          hasEgg,
-          isVegetarian,
-          isVegan,
-          isHalal
+          prepCategory
         } = item
 
         if (!name || name.trim() === '') {
@@ -51,44 +36,24 @@ export async function PUT(request: NextRequest) {
           continue
         }
 
-        const data: any = {
+        const data = {
           name: name.trim(),
-          description: description?.trim() || null,
-          unit: unit?.trim() || null,
-          cost: cost ? parseFloat(cost) : null,
+          description: description?.trim() || '',
+          supplier: supplier?.trim() || '',
+          cost: cost ? parseFloat(cost) : 0,
           prepCategory: prepCategory?.trim() || null,
-          allergens: allergens || [],
-          dietary: dietary || [],
-          images: images || [],
-          ingredients: ingredients || [],
-          instructions: instructions?.trim() || null,
-          hasGluten: Boolean(hasGluten),
-          hasDairy: Boolean(hasDairy),
-          hasSoy: Boolean(hasSoy),
-          hasOnionGarlic: Boolean(hasOnionGarlic),
-          hasSesame: Boolean(hasSesame),
-          hasNuts: Boolean(hasNuts),
-          hasEgg: Boolean(hasEgg),
-          isVegetarian: Boolean(isVegetarian),
-          isVegan: Boolean(isVegan),
-          isHalal: Boolean(isHalal),
-        }
-        
-        // Add totalCost if cost is provided
-        if (cost) {
-          data.totalCost = parseFloat(cost)
         }
 
         if (id && id !== 'new') {
           // Update existing item
-          await prisma.otherItem.update({
+          await prisma.otherProduct.update({
             where: { id },
             data
           })
           results.updated++
         } else {
           // Create new item
-          await prisma.otherItem.create({
+          await prisma.otherProduct.create({
             data
           })
           results.created++
