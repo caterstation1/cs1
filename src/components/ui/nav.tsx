@@ -27,7 +27,7 @@ export function Nav() {
       } catch (error) {
         console.error('Failed to fetch production URL:', error)
         // Fallback to hardcoded URL if API fails
-        setProductionUrl('https://caterstation1-isyuxp2av-caterstation1s-projects.vercel.app')
+        setProductionUrl('https://caterstation1-qlfg144aj-caterstation1s-projects.vercel.app')
       }
     }
 
