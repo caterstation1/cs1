@@ -17,6 +17,8 @@ interface PopoverContentProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
   align?: 'start' | 'center' | 'end'
   sideOffset?: number
+  onOpenAutoFocus?: (e: any) => void
+  onCloseAutoFocus?: (e: any) => void
 }
 
 const PopoverContext = React.createContext<{
@@ -71,7 +73,7 @@ export const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTrigger
 PopoverTrigger.displayName = 'PopoverTrigger'
 
 export const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
-  ({ className, children, align = 'center', sideOffset = 4, ...props }, ref) => {
+  ({ className, children, align = 'center', sideOffset = 4, onOpenAutoFocus, onCloseAutoFocus, ...props }, ref) => {
     const { isOpen, setIsOpen } = React.useContext(PopoverContext)
     
     React.useEffect(() => {
