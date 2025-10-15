@@ -42,6 +42,7 @@ export const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTrigger
     
     if (asChild) {
       return React.cloneElement(children as React.ReactElement, {
+        ...((children as React.ReactElement).props || {}),
         onClick: () => setIsOpen(!isOpen),
         ref
       })
