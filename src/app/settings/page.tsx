@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-// import { MultiSelect, MultiSelectOption } from '@/components/ui/multi-select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Loader2, Send, Settings as SettingsIcon, Mail, Edit3, Save, RefreshCw, Plus, X } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
@@ -52,6 +52,25 @@ interface OtherItem {
   cost?: number
   prepCategory?: string
 }
+
+// Available options for dropdowns
+const PREP_CATEGORIES = ['Bakery', 'Butchery', 'Hot kitchen', 'Cold kitchen', 'Desserts', 'Pre day prep']
+
+const ALLERGENS = [
+  { id: 'hasGluten', label: 'Gluten' },
+  { id: 'hasDairy', label: 'Dairy' },
+  { id: 'hasSoy', label: 'Soy' },
+  { id: 'hasOnionGarlic', label: 'Onion/Garlic' },
+  { id: 'hasSesame', label: 'Sesame' },
+  { id: 'hasNuts', label: 'Nuts' },
+  { id: 'hasEgg', label: 'Egg' }
+]
+
+const DIETARY_OPTIONS = [
+  { id: 'isVegetarian', label: 'Vegetarian' },
+  { id: 'isVegan', label: 'Vegan' },
+  { id: 'isHalal', label: 'Halal' }
+]
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<EmailSetting[]>([])
@@ -610,27 +629,52 @@ export default function SettingsPage() {
                           />
                         </td>
                         <td className="border border-gray-300 p-2">
-                          <Input
-                            value={component.prepCategory || ''}
-                            onChange={(e) => updateComponent(index, 'prepCategory', e.target.value)}
-                            className="min-w-[120px]"
-                          />
+                          <Select 
+                            value={component.prepCategory || ''} 
+                            onValueChange={(value) => updateComponent(index, 'prepCategory', value)}
+                          >
+                            <SelectTrigger className="min-w-[140px]">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">None</SelectItem>
+                              {PREP_CATEGORIES.map(category => (
+                                <SelectItem key={category} value={category}>{category}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </td>
                         <td className="border border-gray-300 p-2">
-                          <Input
-                            value={Array.isArray(component.allergens) ? component.allergens.join(', ') : ''}
-                            onChange={(e) => updateComponent(index, 'allergens', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-                            placeholder="Gluten, Dairy, Soy"
-                            className="min-w-[120px]"
-                          />
+                          <div className="space-y-1 min-w-[140px]">
+                            {ALLERGENS.map(allergen => (
+                              <div key={allergen.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`${component.id}-${allergen.id}`}
+                                  checked={component[allergen.id as keyof Component] as boolean}
+                                  onCheckedChange={(checked) => updateComponent(index, allergen.id, checked)}
+                                />
+                                <Label htmlFor={`${component.id}-${allergen.id}`} className="text-xs">
+                                  {allergen.label}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
                         </td>
                         <td className="border border-gray-300 p-2">
-                          <Input
-                            value={Array.isArray(component.dietary) ? component.dietary.join(', ') : ''}
-                            onChange={(e) => updateComponent(index, 'dietary', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-                            placeholder="Vegetarian, Vegan"
-                            className="min-w-[120px]"
-                          />
+                          <div className="space-y-1 min-w-[120px]">
+                            {DIETARY_OPTIONS.map(dietary => (
+                              <div key={dietary.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`${component.id}-${dietary.id}`}
+                                  checked={component[dietary.id as keyof Component] as boolean}
+                                  onCheckedChange={(checked) => updateComponent(index, dietary.id, checked)}
+                                />
+                                <Label htmlFor={`${component.id}-${dietary.id}`} className="text-xs">
+                                  {dietary.label}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
                         </td>
                         <td className="border border-gray-300 p-2">
                           <Button
@@ -729,11 +773,20 @@ export default function SettingsPage() {
                           />
                         </td>
                         <td className="border border-gray-300 p-2">
-                          <Input
-                            value={item.prepCategory || ''}
-                            onChange={(e) => updateOtherItem(index, 'prepCategory', e.target.value)}
-                            className="min-w-[120px]"
-                          />
+                          <Select 
+                            value={item.prepCategory || ''} 
+                            onValueChange={(value) => updateOtherItem(index, 'prepCategory', value)}
+                          >
+                            <SelectTrigger className="min-w-[140px]">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">None</SelectItem>
+                              {PREP_CATEGORIES.map(category => (
+                                <SelectItem key={category} value={category}>{category}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </td>
                         <td className="border border-gray-300 p-2">
                           <Button
