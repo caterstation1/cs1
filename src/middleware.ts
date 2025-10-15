@@ -17,6 +17,8 @@ const PRICING_API_PREFIXES = [
 ]
 const PUBLIC_PREFIXES = [
   '/api/auth',
+  '/api/health',
+  '/api/test',
   '/_next',
   '/static',
   '/favicon.ico',
