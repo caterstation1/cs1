@@ -11,7 +11,8 @@ import { useEffect, useState } from 'react'
 
 export function Nav() {
   const pathname = usePathname()
-  const { data: session } = useSession()
+  const sessionData = useSession()
+  const session = sessionData?.data
   const access = session?.user?.accessLevel
   const [productionUrl, setProductionUrl] = useState<string>('')
 

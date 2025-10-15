@@ -23,7 +23,8 @@ export function useShopifySync() {
 }
 
 export function ShopifySyncProvider({ children }: { children: React.ReactNode }) {
-  const { data: session } = useSession()
+  const sessionData = useSession()
+  const session = sessionData?.data
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
   const [error, setError] = useState<string | null>(null)
