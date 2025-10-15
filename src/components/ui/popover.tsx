@@ -3,6 +3,9 @@ import { cn } from '@/lib/utils'
 
 interface PopoverProps {
   children: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  modal?: boolean
 }
 
 interface PopoverTriggerProps {
@@ -24,8 +27,12 @@ const PopoverContext = React.createContext<{
   setIsOpen: () => {}
 })
 
-export function Popover({ children }: PopoverProps) {
-  const [isOpen, setIsOpen] = React.useState(false)
+export function Popover({ children, open, onOpenChange, modal }: PopoverProps) {
+  const [internalIsOpen, setInternalIsOpen] = React.useState(false)
+  
+  // Use controlled state if open/onOpenChange provided, otherwise use internal state
+  const isOpen = open !== undefined ? open : internalIsOpen
+  const setIsOpen = onOpenChange || setInternalIsOpen
 
   return (
     <PopoverContext.Provider value={{ isOpen, setIsOpen }}>
