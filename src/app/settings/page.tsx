@@ -654,9 +654,15 @@ export default function SettingsPage() {
                                     const updatedCategories = checked 
                                       ? [...currentCategories, category]
                                       : currentCategories.filter(cat => cat !== category)
-                                    updateComponent(index, 'prepCategories', updatedCategories)
-                                    // Also update legacy single category field for backward compatibility
-                                    updateComponent(index, 'prepCategory', updatedCategories[0] || '')
+                                    
+                                    // Update both fields in a single updateComponent call
+                                    const updated = [...components]
+                                    updated[index] = {
+                                      ...updated[index],
+                                      prepCategories: updatedCategories,
+                                      prepCategory: updatedCategories[0] || ''
+                                    }
+                                    setComponents(updated)
                                   }}
                                 />
                                 <Label htmlFor={`${component.id}-prep-${category}`} className="text-xs">
@@ -806,9 +812,15 @@ export default function SettingsPage() {
                                     const updatedCategories = checked 
                                       ? [...currentCategories, category]
                                       : currentCategories.filter(cat => cat !== category)
-                                    updateOtherItem(index, 'prepCategories', updatedCategories)
-                                    // Also update legacy single category field for backward compatibility
-                                    updateOtherItem(index, 'prepCategory', updatedCategories[0] || '')
+                                    
+                                    // Update both fields in a single updateOtherItem call
+                                    const updated = [...otherItems]
+                                    updated[index] = {
+                                      ...updated[index],
+                                      prepCategories: updatedCategories,
+                                      prepCategory: updatedCategories[0] || ''
+                                    }
+                                    setOtherItems(updated)
                                   }}
                                 />
                                 <Label htmlFor={`${item.id}-other-prep-${category}`} className="text-xs">

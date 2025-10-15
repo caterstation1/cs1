@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 
 interface ShopifySyncContextType {
   lastSyncTime: Date | null
@@ -22,6 +23,7 @@ export function useShopifySync() {
 }
 
 export function ShopifySyncProvider({ children }: { children: React.ReactNode }) {
+  const { data: session } = useSession()
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -111,8 +113,14 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
     }
   }
 
-  // Set up interval for automatic syncing and initial sync
+  // Set up interval for automatic syncing and initial sync - only when authenticated
   useEffect(() => {
+    // Don't start sync if user is not authenticated
+    if (!session?.user) {
+      setSyncStatus('Waiting for authentication...')
+      return
+    }
+
     // Initial sync when component mounts - wrapped in try-catch to prevent crashes
     const initialSync = async () => {
       try {
@@ -135,10 +143,15 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
       console.log('Cleaning up sync interval')
       clearInterval(interval)
     }
-  }, [])
+  }, [session?.user])
 
-  // Add a retry mechanism for failed syncs
+  // Add a retry mechanism for failed syncs - only when authenticated
   useEffect(() => {
+    // Don't retry if user is not authenticated
+    if (!session?.user) {
+      return
+    }
+
     let retryTimeout: NodeJS.Timeout
 
     if (error && error.includes('Database connection temporarily unavailable')) {
@@ -154,7 +167,7 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
         clearTimeout(retryTimeout)
       }
     }
-  }, [error])
+  }, [error, session?.user])
 
   return (
     <ShopifySyncContext.Provider value={{ 

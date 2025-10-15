@@ -15,8 +15,12 @@ export function Nav() {
   const access = session?.user?.accessLevel
   const [productionUrl, setProductionUrl] = useState<string>('')
 
-  // Fetch the current production URL
+  // Fetch the current production URL only when user is authenticated
   useEffect(() => {
+    if (!session?.user) {
+      return // Don't fetch if user is not authenticated
+    }
+
     const fetchProductionUrl = async () => {
       try {
         const response = await fetch('/api/production-url')
@@ -27,12 +31,12 @@ export function Nav() {
       } catch (error) {
         console.error('Failed to fetch production URL:', error)
         // Fallback to hardcoded URL if API fails
-        setProductionUrl('https://caterstation1-qlfg144aj-caterstation1s-projects.vercel.app')
+        setProductionUrl('https://caterstation1-aji3fttat-caterstation1s-projects.vercel.app')
       }
     }
 
     fetchProductionUrl()
-  }, [])
+  }, [session?.user])
 
   const baseLinks = [
     { href: '/dashboard', label: 'Dashboard' },
