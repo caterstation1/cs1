@@ -651,7 +651,7 @@ export default function SettingsPage() {
                                 <Checkbox
                                   id={`${component.id}-${allergen.id}`}
                                   checked={component[allergen.id as keyof Component] as boolean}
-                                  onCheckedChange={(checked) => updateComponent(index, allergen.id, checked)}
+                                  onCheckedChange={(checked) => updateComponent(index, allergen.id as keyof Component, checked)}
                                 />
                                 <Label htmlFor={`${component.id}-${allergen.id}`} className="text-xs">
                                   {allergen.label}
@@ -667,7 +667,7 @@ export default function SettingsPage() {
                                 <Checkbox
                                   id={`${component.id}-${dietary.id}`}
                                   checked={component[dietary.id as keyof Component] as boolean}
-                                  onCheckedChange={(checked) => updateComponent(index, dietary.id, checked)}
+                                  onCheckedChange={(checked) => updateComponent(index, dietary.id as keyof Component, checked)}
                                 />
                                 <Label htmlFor={`${component.id}-${dietary.id}`} className="text-xs">
                                   {dietary.label}
