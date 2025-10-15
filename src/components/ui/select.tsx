@@ -19,6 +19,7 @@ interface SelectContentProps {
 interface SelectItemProps extends React.HTMLAttributes<HTMLDivElement> {
   value: string
   children: React.ReactNode
+  disabled?: boolean
 }
 
 interface SelectValueProps {
@@ -103,7 +104,7 @@ export const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps
 SelectContent.displayName = 'SelectContent'
 
 export const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
-  ({ className, value, children, ...props }, ref) => {
+  ({ className, value, children, disabled, ...props }, ref) => {
     const { value: selectedValue, onValueChange } = React.useContext(SelectContext)
     const isSelected = selectedValue === value
     
@@ -113,9 +114,10 @@ export const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
         className={cn(
           'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
           isSelected && 'bg-accent text-accent-foreground',
+          disabled && 'opacity-50 cursor-not-allowed',
           className
         )}
-        onClick={() => onValueChange?.(value)}
+        onClick={() => !disabled && onValueChange?.(value)}
         {...props}
       >
         {isSelected && (
