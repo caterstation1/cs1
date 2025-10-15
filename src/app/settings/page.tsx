@@ -27,6 +27,7 @@ interface Component {
   unit?: string
   cost?: number
   prepCategory?: string
+  prepCategories?: string[]
   allergens?: string[]
   dietary?: string[]
   images?: any[]
@@ -51,6 +52,7 @@ interface OtherItem {
   supplier?: string
   cost?: number
   prepCategory?: string
+  prepCategories?: string[]
 }
 
 // Available options for dropdowns
@@ -118,7 +120,12 @@ export default function SettingsPage() {
       const res = await fetch('/api/components')
       if (res.ok) {
         const data = await res.json()
-        setComponents(data || [])
+        // Ensure prepCategories field is populated from existing data
+        const componentsWithCategories = (data || []).map((component: any) => ({
+          ...component,
+          prepCategories: component.prepCategories || (component.prepCategory ? [component.prepCategory] : [])
+        }))
+        setComponents(componentsWithCategories)
       }
     } catch (error) {
       console.error('Error loading components:', error)
@@ -130,7 +137,12 @@ export default function SettingsPage() {
       const res = await fetch('/api/other')
       if (res.ok) {
         const data = await res.json()
-        setOtherItems(data?.products || [])
+        // Ensure prepCategories field is populated from existing data
+        const itemsWithCategories = (data?.products || []).map((item: any) => ({
+          ...item,
+          prepCategories: item.prepCategories || (item.prepCategory ? [item.prepCategory] : [])
+        }))
+        setOtherItems(itemsWithCategories)
       }
     } catch (error) {
       console.error('Error loading other items:', error)
@@ -250,6 +262,7 @@ export default function SettingsPage() {
       unit: '',
       cost: 0,
       prepCategory: '',
+      prepCategories: [],
       allergens: [],
       dietary: [],
       images: [],
@@ -277,6 +290,7 @@ export default function SettingsPage() {
       supplier: '',
       cost: 0,
       prepCategory: '',
+      prepCategories: [],
     }
     setOtherItems([...otherItems, newItem])
   }
@@ -629,20 +643,28 @@ export default function SettingsPage() {
                           />
                         </td>
                         <td className="border border-gray-300 p-2">
-                          <Select 
-                            value={component.prepCategory || ''} 
-                            onValueChange={(value) => updateComponent(index, 'prepCategory', value)}
-                          >
-                            <SelectTrigger className="min-w-[140px]">
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="">None</SelectItem>
-                              {PREP_CATEGORIES.map(category => (
-                                <SelectItem key={category} value={category}>{category}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="space-y-1 min-w-[140px] max-h-[120px] overflow-y-auto">
+                            {PREP_CATEGORIES.map(category => (
+                              <div key={category} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`${component.id}-prep-${category}`}
+                                  checked={component.prepCategories?.includes(category) || false}
+                                  onCheckedChange={(checked) => {
+                                    const currentCategories = component.prepCategories || []
+                                    const updatedCategories = checked 
+                                      ? [...currentCategories, category]
+                                      : currentCategories.filter(cat => cat !== category)
+                                    updateComponent(index, 'prepCategories', updatedCategories)
+                                    // Also update legacy single category field for backward compatibility
+                                    updateComponent(index, 'prepCategory', updatedCategories[0] || '')
+                                  }}
+                                />
+                                <Label htmlFor={`${component.id}-prep-${category}`} className="text-xs">
+                                  {category}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
                         </td>
                         <td className="border border-gray-300 p-2">
                           <div className="space-y-1 min-w-[140px]">
@@ -773,20 +795,28 @@ export default function SettingsPage() {
                           />
                         </td>
                         <td className="border border-gray-300 p-2">
-                          <Select 
-                            value={item.prepCategory || ''} 
-                            onValueChange={(value) => updateOtherItem(index, 'prepCategory', value)}
-                          >
-                            <SelectTrigger className="min-w-[140px]">
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="">None</SelectItem>
-                              {PREP_CATEGORIES.map(category => (
-                                <SelectItem key={category} value={category}>{category}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="space-y-1 min-w-[140px] max-h-[120px] overflow-y-auto">
+                            {PREP_CATEGORIES.map(category => (
+                              <div key={category} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`${item.id}-other-prep-${category}`}
+                                  checked={item.prepCategories?.includes(category) || false}
+                                  onCheckedChange={(checked) => {
+                                    const currentCategories = item.prepCategories || []
+                                    const updatedCategories = checked 
+                                      ? [...currentCategories, category]
+                                      : currentCategories.filter(cat => cat !== category)
+                                    updateOtherItem(index, 'prepCategories', updatedCategories)
+                                    // Also update legacy single category field for backward compatibility
+                                    updateOtherItem(index, 'prepCategory', updatedCategories[0] || '')
+                                  }}
+                                />
+                                <Label htmlFor={`${item.id}-other-prep-${category}`} className="text-xs">
+                                  {category}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
                         </td>
                         <td className="border border-gray-300 p-2">
                           <Button

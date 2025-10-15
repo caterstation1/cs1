@@ -27,7 +27,8 @@ export async function PUT(request: NextRequest) {
           description,
           supplier,
           cost,
-          prepCategory
+          prepCategory,
+          prepCategories
         } = item
 
         if (!name || name.trim() === '') {
@@ -36,12 +37,24 @@ export async function PUT(request: NextRequest) {
           continue
         }
 
+        // Handle prep categories: support both single and multiple
+        let prepCategorySingle: string | null = null
+        let prepCategoriesMultiple: string[] | null = null
+        
+        if (prepCategories && Array.isArray(prepCategories) && prepCategories.length > 0) {
+          prepCategoriesMultiple = prepCategories.filter(Boolean)
+          prepCategorySingle = prepCategoriesMultiple[0] || null // Keep first as legacy single for backward compatibility
+        } else if (prepCategory && prepCategory.trim()) {
+          prepCategorySingle = prepCategory.trim()
+        }
+
         const data = {
           name: name.trim(),
           description: description?.trim() || '',
           supplier: supplier?.trim() || '',
-          cost: cost ? parseFloat(cost) : 0,
-          prepCategory: prepCategory?.trim() || null,
+          cost: cost ? parseFloat(cost.toString()) : 0,
+          prepCategory: prepCategorySingle,
+          prepCategories: prepCategoriesMultiple,
         }
 
         if (id && id !== 'new') {
@@ -60,6 +73,7 @@ export async function PUT(request: NextRequest) {
         }
       } catch (error) {
         results.errors++
+        console.error(`Error updating other item ${item.name || item.id}:`, error)
         results.errorsList.push({
           id: item.id || 'unknown',
           name: item.name || 'unknown',

@@ -5290,6 +5290,7 @@ export namespace Prisma {
     description: number
     cost: number
     prepCategory: number
+    prepCategories: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5333,6 +5334,7 @@ export namespace Prisma {
     description?: true
     cost?: true
     prepCategory?: true
+    prepCategories?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5431,6 +5433,7 @@ export namespace Prisma {
     description: string
     cost: number
     prepCategory: string | null
+    prepCategories: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: OtherProductCountAggregateOutputType | null
@@ -5461,6 +5464,7 @@ export namespace Prisma {
     description?: boolean
     cost?: boolean
     prepCategory?: boolean
+    prepCategories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["otherProduct"]>
@@ -5472,6 +5476,7 @@ export namespace Prisma {
     description?: boolean
     cost?: boolean
     prepCategory?: boolean
+    prepCategories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["otherProduct"]>
@@ -5483,6 +5488,7 @@ export namespace Prisma {
     description?: boolean
     cost?: boolean
     prepCategory?: boolean
+    prepCategories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["otherProduct"]>
@@ -5494,11 +5500,12 @@ export namespace Prisma {
     description?: boolean
     cost?: boolean
     prepCategory?: boolean
+    prepCategories?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OtherProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "supplier" | "description" | "cost" | "prepCategory" | "createdAt" | "updatedAt", ExtArgs["result"]["otherProduct"]>
+  export type OtherProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "supplier" | "description" | "cost" | "prepCategory" | "prepCategories" | "createdAt" | "updatedAt", ExtArgs["result"]["otherProduct"]>
 
   export type $OtherProductPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OtherProduct"
@@ -5510,6 +5517,7 @@ export namespace Prisma {
       description: string
       cost: number
       prepCategory: string | null
+      prepCategories: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["otherProduct"]>
@@ -5941,6 +5949,7 @@ export namespace Prisma {
     readonly description: FieldRef<"OtherProduct", 'String'>
     readonly cost: FieldRef<"OtherProduct", 'Float'>
     readonly prepCategory: FieldRef<"OtherProduct", 'String'>
+    readonly prepCategories: FieldRef<"OtherProduct", 'Json'>
     readonly createdAt: FieldRef<"OtherProduct", 'DateTime'>
     readonly updatedAt: FieldRef<"OtherProduct", 'DateTime'>
   }
@@ -7425,6 +7434,7 @@ export namespace Prisma {
     ingredients: number
     totalCost: number
     prepCategory: number
+    prepCategories: number
     producedQuantity: number
     producedUnit: number
     rawWeight: number
@@ -7533,6 +7543,7 @@ export namespace Prisma {
     ingredients?: true
     totalCost?: true
     prepCategory?: true
+    prepCategories?: true
     producedQuantity?: true
     producedUnit?: true
     rawWeight?: true
@@ -7650,6 +7661,7 @@ export namespace Prisma {
     ingredients: JsonValue
     totalCost: number
     prepCategory: string | null
+    prepCategories: JsonValue | null
     producedQuantity: number
     producedUnit: string
     rawWeight: number | null
@@ -7699,6 +7711,7 @@ export namespace Prisma {
     ingredients?: boolean
     totalCost?: boolean
     prepCategory?: boolean
+    prepCategories?: boolean
     producedQuantity?: boolean
     producedUnit?: boolean
     rawWeight?: boolean
@@ -7731,6 +7744,7 @@ export namespace Prisma {
     ingredients?: boolean
     totalCost?: boolean
     prepCategory?: boolean
+    prepCategories?: boolean
     producedQuantity?: boolean
     producedUnit?: boolean
     rawWeight?: boolean
@@ -7761,6 +7775,7 @@ export namespace Prisma {
     ingredients?: boolean
     totalCost?: boolean
     prepCategory?: boolean
+    prepCategories?: boolean
     producedQuantity?: boolean
     producedUnit?: boolean
     rawWeight?: boolean
@@ -7791,6 +7806,7 @@ export namespace Prisma {
     ingredients?: boolean
     totalCost?: boolean
     prepCategory?: boolean
+    prepCategories?: boolean
     producedQuantity?: boolean
     producedUnit?: boolean
     rawWeight?: boolean
@@ -7814,7 +7830,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "ingredients" | "totalCost" | "prepCategory" | "producedQuantity" | "producedUnit" | "rawWeight" | "cookedWeight" | "trimWasteWeight" | "weightUnit" | "costPerOutputUnit" | "normalizedOutputUnit" | "hasGluten" | "hasDairy" | "hasSoy" | "hasOnionGarlic" | "hasSesame" | "hasNuts" | "hasEgg" | "isVegetarian" | "isVegan" | "isHalal" | "isComponentListItem" | "createdAt" | "updatedAt", ExtArgs["result"]["component"]>
+  export type ComponentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "ingredients" | "totalCost" | "prepCategory" | "prepCategories" | "producedQuantity" | "producedUnit" | "rawWeight" | "cookedWeight" | "trimWasteWeight" | "weightUnit" | "costPerOutputUnit" | "normalizedOutputUnit" | "hasGluten" | "hasDairy" | "hasSoy" | "hasOnionGarlic" | "hasSesame" | "hasNuts" | "hasEgg" | "isVegetarian" | "isVegan" | "isHalal" | "isComponentListItem" | "createdAt" | "updatedAt", ExtArgs["result"]["component"]>
   export type ComponentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     images?: boolean | Component$imagesArgs<ExtArgs>
     _count?: boolean | ComponentCountOutputTypeDefaultArgs<ExtArgs>
@@ -7834,6 +7850,7 @@ export namespace Prisma {
       ingredients: Prisma.JsonValue
       totalCost: number
       prepCategory: string | null
+      prepCategories: Prisma.JsonValue | null
       producedQuantity: number
       producedUnit: string
       rawWeight: number | null
@@ -8285,6 +8302,7 @@ export namespace Prisma {
     readonly ingredients: FieldRef<"Component", 'Json'>
     readonly totalCost: FieldRef<"Component", 'Float'>
     readonly prepCategory: FieldRef<"Component", 'String'>
+    readonly prepCategories: FieldRef<"Component", 'Json'>
     readonly producedQuantity: FieldRef<"Component", 'Float'>
     readonly producedUnit: FieldRef<"Component", 'String'>
     readonly rawWeight: FieldRef<"Component", 'Float'>
@@ -29010,6 +29028,7 @@ export namespace Prisma {
     description: 'description',
     cost: 'cost',
     prepCategory: 'prepCategory',
+    prepCategories: 'prepCategories',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -29037,6 +29056,7 @@ export namespace Prisma {
     ingredients: 'ingredients',
     totalCost: 'totalCost',
     prepCategory: 'prepCategory',
+    prepCategories: 'prepCategories',
     producedQuantity: 'producedQuantity',
     producedUnit: 'producedUnit',
     rawWeight: 'rawWeight',
@@ -29412,19 +29432,19 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-  export const JsonNullValueInput: {
-    JsonNull: typeof JsonNull
-  };
-
-  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
   export const NullableJsonNullValueInput: {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -29435,14 +29455,6 @@ export namespace Prisma {
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-  export const NullsOrder: {
-    first: 'first',
-    last: 'last'
-  };
-
-  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
   export const JsonNullValueFilter: {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull,
@@ -29450,6 +29462,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -29748,6 +29768,7 @@ export namespace Prisma {
     description?: StringFilter<"OtherProduct"> | string
     cost?: FloatFilter<"OtherProduct"> | number
     prepCategory?: StringNullableFilter<"OtherProduct"> | string | null
+    prepCategories?: JsonNullableFilter<"OtherProduct">
     createdAt?: DateTimeFilter<"OtherProduct"> | Date | string
     updatedAt?: DateTimeFilter<"OtherProduct"> | Date | string
   }
@@ -29759,6 +29780,7 @@ export namespace Prisma {
     description?: SortOrder
     cost?: SortOrder
     prepCategory?: SortOrderInput | SortOrder
+    prepCategories?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -29773,6 +29795,7 @@ export namespace Prisma {
     description?: StringFilter<"OtherProduct"> | string
     cost?: FloatFilter<"OtherProduct"> | number
     prepCategory?: StringNullableFilter<"OtherProduct"> | string | null
+    prepCategories?: JsonNullableFilter<"OtherProduct">
     createdAt?: DateTimeFilter<"OtherProduct"> | Date | string
     updatedAt?: DateTimeFilter<"OtherProduct"> | Date | string
   }, "id">
@@ -29784,6 +29807,7 @@ export namespace Prisma {
     description?: SortOrder
     cost?: SortOrder
     prepCategory?: SortOrderInput | SortOrder
+    prepCategories?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: OtherProductCountOrderByAggregateInput
@@ -29803,6 +29827,7 @@ export namespace Prisma {
     description?: StringWithAggregatesFilter<"OtherProduct"> | string
     cost?: FloatWithAggregatesFilter<"OtherProduct"> | number
     prepCategory?: StringNullableWithAggregatesFilter<"OtherProduct"> | string | null
+    prepCategories?: JsonNullableWithAggregatesFilter<"OtherProduct">
     createdAt?: DateTimeWithAggregatesFilter<"OtherProduct"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OtherProduct"> | Date | string
   }
@@ -29879,6 +29904,7 @@ export namespace Prisma {
     ingredients?: JsonFilter<"Component">
     totalCost?: FloatFilter<"Component"> | number
     prepCategory?: StringNullableFilter<"Component"> | string | null
+    prepCategories?: JsonNullableFilter<"Component">
     producedQuantity?: FloatFilter<"Component"> | number
     producedUnit?: StringFilter<"Component"> | string
     rawWeight?: FloatNullableFilter<"Component"> | number | null
@@ -29910,6 +29936,7 @@ export namespace Prisma {
     ingredients?: SortOrder
     totalCost?: SortOrder
     prepCategory?: SortOrderInput | SortOrder
+    prepCategories?: SortOrderInput | SortOrder
     producedQuantity?: SortOrder
     producedUnit?: SortOrder
     rawWeight?: SortOrderInput | SortOrder
@@ -29944,6 +29971,7 @@ export namespace Prisma {
     ingredients?: JsonFilter<"Component">
     totalCost?: FloatFilter<"Component"> | number
     prepCategory?: StringNullableFilter<"Component"> | string | null
+    prepCategories?: JsonNullableFilter<"Component">
     producedQuantity?: FloatFilter<"Component"> | number
     producedUnit?: StringFilter<"Component"> | string
     rawWeight?: FloatNullableFilter<"Component"> | number | null
@@ -29975,6 +30003,7 @@ export namespace Prisma {
     ingredients?: SortOrder
     totalCost?: SortOrder
     prepCategory?: SortOrderInput | SortOrder
+    prepCategories?: SortOrderInput | SortOrder
     producedQuantity?: SortOrder
     producedUnit?: SortOrder
     rawWeight?: SortOrderInput | SortOrder
@@ -30013,6 +30042,7 @@ export namespace Prisma {
     ingredients?: JsonWithAggregatesFilter<"Component">
     totalCost?: FloatWithAggregatesFilter<"Component"> | number
     prepCategory?: StringNullableWithAggregatesFilter<"Component"> | string | null
+    prepCategories?: JsonNullableWithAggregatesFilter<"Component">
     producedQuantity?: FloatWithAggregatesFilter<"Component"> | number
     producedUnit?: StringWithAggregatesFilter<"Component"> | string
     rawWeight?: FloatNullableWithAggregatesFilter<"Component"> | number | null
@@ -31973,6 +32003,7 @@ export namespace Prisma {
     description: string
     cost: number
     prepCategory?: string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -31984,6 +32015,7 @@ export namespace Prisma {
     description: string
     cost: number
     prepCategory?: string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -31995,6 +32027,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     cost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -32006,6 +32039,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     cost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -32017,6 +32051,7 @@ export namespace Prisma {
     description: string
     cost: number
     prepCategory?: string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -32028,6 +32063,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     cost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -32039,6 +32075,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     cost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -32120,6 +32157,7 @@ export namespace Prisma {
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
     prepCategory?: string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -32151,6 +32189,7 @@ export namespace Prisma {
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
     prepCategory?: string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -32182,6 +32221,7 @@ export namespace Prisma {
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -32213,6 +32253,7 @@ export namespace Prisma {
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -32244,6 +32285,7 @@ export namespace Prisma {
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
     prepCategory?: string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -32274,6 +32316,7 @@ export namespace Prisma {
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -32304,6 +32347,7 @@ export namespace Prisma {
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -34615,6 +34659,29 @@ export namespace Prisma {
     mode?: QueryMode
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type SortOrderInput = {
     sort: SortOrder
@@ -34628,6 +34695,7 @@ export namespace Prisma {
     description?: SortOrder
     cost?: SortOrder
     prepCategory?: SortOrder
+    prepCategories?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -34678,6 +34746,32 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type SupplierCountOrderByAggregateInput = {
@@ -34766,6 +34860,7 @@ export namespace Prisma {
     ingredients?: SortOrder
     totalCost?: SortOrder
     prepCategory?: SortOrder
+    prepCategories?: SortOrder
     producedQuantity?: SortOrder
     producedUnit?: SortOrder
     rawWeight?: SortOrder
@@ -34971,29 +35066,6 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type ProductCountOrderByAggregateInput = {
     id?: SortOrder
@@ -35095,32 +35167,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type ProductCustomDataCountOrderByAggregateInput = {
@@ -36862,6 +36908,29 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedFloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
@@ -36940,29 +37009,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedDecimalFilter<$PrismaModel = never> = {
@@ -37114,6 +37160,7 @@ export namespace Prisma {
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
     prepCategory?: string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -37144,6 +37191,7 @@ export namespace Prisma {
     ingredients: JsonNullValueInput | InputJsonValue
     totalCost: number
     prepCategory?: string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: number
     producedUnit?: string
     rawWeight?: number | null
@@ -37190,6 +37238,7 @@ export namespace Prisma {
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -37220,6 +37269,7 @@ export namespace Prisma {
     ingredients?: JsonNullValueInput | InputJsonValue
     totalCost?: FloatFieldUpdateOperationsInput | number
     prepCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    prepCategories?: NullableJsonNullValueInput | InputJsonValue
     producedQuantity?: FloatFieldUpdateOperationsInput | number
     producedUnit?: StringFieldUpdateOperationsInput | string
     rawWeight?: NullableFloatFieldUpdateOperationsInput | number | null

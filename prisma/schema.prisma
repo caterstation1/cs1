@@ -43,8 +43,9 @@ model OtherProduct {
   supplier    String
   description String
   cost        Float
-  // Operational grouping for prep/runsheet
-  prepCategory String?
+  // Operational grouping for prep/runsheet (multiple categories supported)
+  prepCategory   String?   // Legacy single category field
+  prepCategories Json?     // New multiple categories field (array of strings)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -65,8 +66,9 @@ model Component {
   description        String
   ingredients        Json
   totalCost          Float
-  // Operational grouping for prep/runsheet
-  prepCategory       String?
+  // Operational grouping for prep/runsheet (multiple categories supported)
+  prepCategory       String?   // Legacy single category field
+  prepCategories     Json?     // New multiple categories field (array of strings)
   // Yield and cooking loss fields
   producedQuantity   Float    @default(1)
   producedUnit       String   @default("unit") // e.g., kg | g | l | ml | unit

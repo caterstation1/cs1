@@ -156,6 +156,7 @@ exports.Prisma.OtherProductScalarFieldEnum = {
   description: 'description',
   cost: 'cost',
   prepCategory: 'prepCategory',
+  prepCategories: 'prepCategories',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -177,6 +178,7 @@ exports.Prisma.ComponentScalarFieldEnum = {
   ingredients: 'ingredients',
   totalCost: 'totalCost',
   prepCategory: 'prepCategory',
+  prepCategories: 'prepCategories',
   producedQuantity: 'producedQuantity',
   producedUnit: 'producedUnit',
   rawWeight: 'rawWeight',
@@ -495,12 +497,12 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.JsonNullValueInput = {
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
-exports.Prisma.NullableJsonNullValueInput = {
-  DbNull: Prisma.DbNull,
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -509,15 +511,15 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 exports.DeliveryDateResolvedSource = exports.$Enums.DeliveryDateResolvedSource = {
   FIELD: 'FIELD',

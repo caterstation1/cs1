@@ -28,6 +28,7 @@ export async function PUT(request: NextRequest) {
           unit,
           cost,
           prepCategory,
+          prepCategories,
           allergens,
           dietary,
           images,
@@ -51,17 +52,24 @@ export async function PUT(request: NextRequest) {
           continue
         }
 
+        // Handle prep categories: support both single and multiple
+        let prepCategorySingle: string | null = null
+        let prepCategoriesMultiple: string[] | null = null
+        
+        if (prepCategories && Array.isArray(prepCategories) && prepCategories.length > 0) {
+          prepCategoriesMultiple = prepCategories.filter(Boolean)
+          prepCategorySingle = prepCategoriesMultiple[0] || null // Keep first as legacy single for backward compatibility
+        } else if (prepCategory && prepCategory.trim()) {
+          prepCategorySingle = prepCategory.trim()
+        }
+
         const data: any = {
           name: name.trim(),
-          description: description?.trim() || null,
-          unit: unit?.trim() || null,
-          cost: cost ? parseFloat(cost) : null,
-          prepCategory: prepCategory?.trim() || null,
-          allergens: allergens || [],
-          dietary: dietary || [],
-          images: images || [],
+          description: description?.trim() || '',
           ingredients: ingredients || [],
-          instructions: instructions?.trim() || null,
+          totalCost: cost ? parseFloat(cost.toString()) : 0,
+          prepCategory: prepCategorySingle,
+          prepCategories: prepCategoriesMultiple,
           hasGluten: Boolean(hasGluten),
           hasDairy: Boolean(hasDairy),
           hasSoy: Boolean(hasSoy),
@@ -73,11 +81,10 @@ export async function PUT(request: NextRequest) {
           isVegan: Boolean(isVegan),
           isHalal: Boolean(isHalal),
         }
-        
-        // Add totalCost if cost is provided
-        if (cost) {
-          data.totalCost = parseFloat(cost)
-        }
+
+        // Only include optional fields if they exist and have valid values
+        if (unit && unit.trim()) data.unit = unit.trim()
+        if (instructions && instructions.trim()) data.instructions = instructions.trim()
 
         if (id && id !== 'new') {
           // Update existing component
@@ -95,6 +102,7 @@ export async function PUT(request: NextRequest) {
         }
       } catch (error) {
         results.errors++
+        console.error(`Error updating component ${component.name || component.id}:`, error)
         results.errorsList.push({
           id: component.id || 'unknown',
           name: component.name || 'unknown',
