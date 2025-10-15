@@ -48,13 +48,17 @@ export async function PUT(request: NextRequest) {
           prepCategorySingle = prepCategory.trim()
         }
 
-        const data = {
+        const data: any = {
           name: name.trim(),
           description: description?.trim() || '',
           supplier: supplier?.trim() || '',
           cost: cost ? parseFloat(cost.toString()) : 0,
           prepCategory: prepCategorySingle,
-          prepCategories: prepCategoriesMultiple,
+        }
+
+        // Only include prepCategories if it's not null
+        if (prepCategoriesMultiple !== null) {
+          data.prepCategories = prepCategoriesMultiple
         }
 
         if (id && id !== 'new') {

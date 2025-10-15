@@ -69,7 +69,6 @@ export async function PUT(request: NextRequest) {
           ingredients: ingredients || [],
           totalCost: cost ? parseFloat(cost.toString()) : 0,
           prepCategory: prepCategorySingle,
-          prepCategories: prepCategoriesMultiple,
           hasGluten: Boolean(hasGluten),
           hasDairy: Boolean(hasDairy),
           hasSoy: Boolean(hasSoy),
@@ -80,6 +79,11 @@ export async function PUT(request: NextRequest) {
           isVegetarian: Boolean(isVegetarian),
           isVegan: Boolean(isVegan),
           isHalal: Boolean(isHalal),
+        }
+
+        // Only include prepCategories if it's not null
+        if (prepCategoriesMultiple !== null) {
+          data.prepCategories = prepCategoriesMultiple
         }
 
         // Only include optional fields if they exist and have valid values
