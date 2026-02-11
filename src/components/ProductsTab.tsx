@@ -1218,6 +1218,7 @@ export function ProductsTab() {
                               onClick={(e) => e.stopPropagation()}
                             />
                           </TableCell>
+                          <TableCell />
                           <TableCell>
                             <div className="text-sm">{variant.shopifyName}</div>
                           </TableCell>
