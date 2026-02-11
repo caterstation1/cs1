@@ -47,11 +47,18 @@ ${enumObject}
     });
     
     // Also fix external enum declarations like: export const EnumName: typeof $Enums.EnumName
-    const externalEnumPattern = /export\s+const\s+(\w+)\s*:\s*typeof\s+\$Enums\.\1\s*;/g;
-    content = content.replace(externalEnumPattern, (match, enumName) => {
-      modified = true;
-      return `export const ${enumName}: typeof $Enums.${enumName} = $Enums.${enumName};`;
-    });
+    // Match with more flexible whitespace
+    const externalEnumPattern = /export\s+const\s+(\w+)\s*:\s*typeof\s+\$Enums\.\1\s*;?/gm;
+    const matches = [...content.matchAll(externalEnumPattern)];
+    if (matches.length > 0) {
+      matches.forEach(match => {
+        const enumName = match[1];
+        const fullMatch = match[0];
+        const fixed = `export const ${enumName}: typeof $Enums.${enumName} = $Enums.${enumName};`;
+        content = content.replace(fullMatch, fixed);
+        modified = true;
+      });
+    }
     
     if (modified) {
       fs.writeFileSync(filePath, content, 'utf8');
