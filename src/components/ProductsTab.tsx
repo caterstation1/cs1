@@ -101,6 +101,9 @@ export function ProductsTab() {
   const [baseEdits, setBaseEdits] = useState<Record<string, { displayName?: string }>>({});
   const [isSavingAllBase, setIsSavingAllBase] = useState(false);
   const [saveAllBaseProgress, setSaveAllBaseProgress] = useState<{done:number; total:number}>({done:0,total:0});
+  // Inline variant display name editing state
+  const [variantEdits, setVariantEdits] = useState<Record<string, { displayName?: string }>>({});
+  const [savingVariant, setSavingVariant] = useState<Record<string, boolean>>({});
   
   // Base product editing
   const [isBaseProductDialogOpen, setIsBaseProductDialogOpen] = useState(false);
@@ -464,6 +467,47 @@ export function ProductsTab() {
     await fetchProducts();
     setIsSavingAllBase(false);
   }, [baseEdits, fetchProducts]);
+
+  // Inline edit for variant display name
+  const handleInlineEditVariant = useCallback((variantId: string, value: string) => {
+    setVariantEdits(prev => ({ ...prev, [variantId]: { displayName: value } }));
+  }, []);
+
+  // Save variant display name
+  const handleSaveVariantDisplayName = useCallback(async (variantId: string) => {
+    const edit = variantEdits[variantId];
+    if (!edit || edit.displayName === undefined) return;
+    
+    setSavingVariant(prev => ({ ...prev, [variantId]: true }));
+    try {
+      const res = await fetch(`/api/products/variant/${variantId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ displayName: (edit.displayName ?? '').trim() })
+      });
+      if (!res.ok) {
+        console.error('Failed to save variant display name for', variantId, await res.text());
+        alert('Failed to save display name');
+      } else {
+        // Clear the edit after successful save
+        setVariantEdits(prev => {
+          const next = { ...prev };
+          delete next[variantId];
+          return next;
+        });
+        await fetchProducts();
+      }
+    } catch (e) {
+      console.error('Error saving variant display name', variantId, e);
+      alert('Error saving display name');
+    } finally {
+      setSavingVariant(prev => {
+        const next = { ...prev };
+        delete next[variantId];
+        return next;
+      });
+    }
+  }, [variantEdits, fetchProducts]);
 
   const toggleProductExpanded = useCallback((productId: string) => {
     setExpandedProducts(prev => {
@@ -1163,7 +1207,17 @@ export function ProductsTab() {
                               )}
                             </div>
                           </TableCell>
-                          <TableCell />
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <Input
+                              value={variantEdits[variant.variantId]?.displayName ?? variant.displayName ?? ''}
+                              onChange={(e) => handleInlineEditVariant(variant.variantId, e.target.value)}
+                              onBlur={() => handleSaveVariantDisplayName(variant.variantId)}
+                              placeholder="Display name"
+                              disabled={savingVariant[variant.variantId]}
+                              className="h-8"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </TableCell>
                           <TableCell>
                             <div className="text-sm">{variant.shopifyName}</div>
                           </TableCell>
