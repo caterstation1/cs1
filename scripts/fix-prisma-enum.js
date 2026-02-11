@@ -46,6 +46,13 @@ ${enumObject}
       return fixedEnum;
     });
     
+    // Also fix external enum declarations like: export const EnumName: typeof $Enums.EnumName
+    const externalEnumPattern = /export\s+const\s+(\w+)\s*:\s*typeof\s+\$Enums\.\1\s*;/g;
+    content = content.replace(externalEnumPattern, (match, enumName) => {
+      modified = true;
+      return `export const ${enumName}: typeof $Enums.${enumName} = $Enums.${enumName};`;
+    });
+    
     if (modified) {
       fs.writeFileSync(filePath, content, 'utf8');
       console.log(`✅ Fixed enum syntax errors in ${file}`);
