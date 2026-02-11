@@ -120,6 +120,14 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.SmsTemplateScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  content: 'content',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.GilmoursProductScalarFieldEnum = {
   id: 'id',
   sku: 'sku',
@@ -167,6 +175,7 @@ exports.Prisma.SupplierScalarFieldEnum = {
   contactName: 'contactName',
   contactNumber: 'contactNumber',
   contactEmail: 'contactEmail',
+  emailSettings: 'emailSettings',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -425,6 +434,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   travelTime: 'travelTime',
   leaveTime: 'leaveTime',
   driverId: 'driverId',
+  carId: 'carId',
   isDispatched: 'isDispatched',
   lastSmsSent: 'lastSmsSent',
   smsHistory: 'smsHistory',
@@ -481,6 +491,52 @@ exports.Prisma.ParsedLineItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ShopifyProductScalarFieldEnum = {
+  id: 'id',
+  shopifyProductId: 'shopifyProductId',
+  productTitle: 'productTitle',
+  displayName: 'displayName',
+  heroImageUrl: 'heroImageUrl',
+  shopifyVendor: 'shopifyVendor',
+  shopifyMarket: 'shopifyMarket',
+  isActive: 'isActive',
+  baseIngredients: 'baseIngredients',
+  isPartyPackDefault: 'isPartyPackDefault',
+  bundleDefaultItems: 'bundleDefaultItems',
+  bakery: 'bakery',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProductVariantScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  variantId: 'variantId',
+  shopifySku: 'shopifySku',
+  shopifyName: 'shopifyName',
+  shopifyTitle: 'shopifyTitle',
+  shopifyPrice: 'shopifyPrice',
+  shopifyInventory: 'shopifyInventory',
+  displayName: 'displayName',
+  meat1: 'meat1',
+  meat2: 'meat2',
+  timer1: 'timer1',
+  timer2: 'timer2',
+  option1: 'option1',
+  option2: 'option2',
+  meats: 'meats',
+  timers: 'timers',
+  options: 'options',
+  serveware: 'serveware',
+  isDraft: 'isDraft',
+  isPartyPack: 'isPartyPack',
+  bundleItems: 'bundleItems',
+  ingredients: 'ingredients',
+  totalCost: 'totalCost',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.EmailSettingScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -490,6 +546,151 @@ exports.Prisma.EmailSettingScalarFieldEnum = {
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WLGMessageScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  createdBy: 'createdBy',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  status: 'status',
+  statusChangedAt: 'statusChangedAt',
+  mentionedStaffIds: 'mentionedStaffIds',
+  mentionedOrders: 'mentionedOrders',
+  parentId: 'parentId',
+  stockOrderId: 'stockOrderId'
+};
+
+exports.Prisma.CartItemScalarFieldEnum = {
+  id: 'id',
+  city: 'city',
+  name: 'name',
+  sku: 'sku',
+  supplier: 'supplier',
+  qty: 'qty',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StockItemScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  supplierId: 'supplierId',
+  sku: 'sku',
+  priceExGst: 'priceExGst',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StockOrderScalarFieldEnum = {
+  id: 'id',
+  createdBy: 'createdBy',
+  createdByName: 'createdByName',
+  status: 'status',
+  subtotalExGst: 'subtotalExGst',
+  gst15: 'gst15',
+  totalIncGst: 'totalIncGst',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StockOrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  stockItemId: 'stockItemId',
+  nameSnapshot: 'nameSnapshot',
+  supplierNameSnapshot: 'supplierNameSnapshot',
+  unitPriceExGst: 'unitPriceExGst',
+  qty: 'qty',
+  lineTotalExGst: 'lineTotalExGst'
+};
+
+exports.Prisma.CarScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  rego: 'rego',
+  wofExpiry: 'wofExpiry',
+  regoExpiry: 'regoExpiry',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DashboardTodoScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  content: 'content',
+  isCompleted: 'isCompleted',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DataDriverScalarFieldEnum = {
+  id: 'id',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  status: 'status',
+  availability: 'availability',
+  vehicleMake: 'vehicleMake',
+  vehicleModel: 'vehicleModel',
+  vehiclePlate: 'vehiclePlate',
+  vehiclePhotoUrl: 'vehiclePhotoUrl',
+  licencePhotoUrl: 'licencePhotoUrl',
+  bankAccountEnc: 'bankAccountEnc',
+  baseSuburb: 'baseSuburb',
+  internalNotes: 'internalNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DataDriverApplicationScalarFieldEnum = {
+  id: 'id',
+  driverId: 'driverId',
+  submittedAt: 'submittedAt',
+  reviewedAt: 'reviewedAt',
+  reviewerId: 'reviewerId',
+  decision: 'decision',
+  adminNotes: 'adminNotes'
+};
+
+exports.Prisma.DeliveryJobScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  pickupAddress: 'pickupAddress',
+  dropoffAddress: 'dropoffAddress',
+  deliveryWindowStart: 'deliveryWindowStart',
+  deliveryWindowEnd: 'deliveryWindowEnd',
+  payout: 'payout',
+  notes: 'notes',
+  status: 'status',
+  assignedDriverId: 'assignedDriverId',
+  deliveredAt: 'deliveredAt',
+  deliveredNote: 'deliveredNote',
+  deliveredProofUrl: 'deliveredProofUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.JobOfferScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  driverId: 'driverId',
+  status: 'status',
+  offeredAt: 'offeredAt',
+  respondedAt: 'respondedAt'
+};
+
+exports.Prisma.JobEventScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  eventType: 'eventType',
+  actor: 'actor',
+  data: 'data',
+  timestamp: 'timestamp'
 };
 
 exports.Prisma.SortOrder = {
@@ -521,6 +722,11 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.SmsTemplateType = exports.$Enums.SmsTemplateType = {
+  delivery: 'delivery',
+  pickup: 'pickup'
+};
+
 exports.DeliveryDateResolvedSource = exports.$Enums.DeliveryDateResolvedSource = {
   FIELD: 'FIELD',
   NOTE: 'NOTE',
@@ -529,6 +735,7 @@ exports.DeliveryDateResolvedSource = exports.$Enums.DeliveryDateResolvedSource =
 };
 
 exports.Prisma.ModelName = {
+  SmsTemplate: 'SmsTemplate',
   GilmoursProduct: 'GilmoursProduct',
   BidfoodProduct: 'BidfoodProduct',
   OtherProduct: 'OtherProduct',
@@ -550,7 +757,21 @@ exports.Prisma.ModelName = {
   ShopifyOrder: 'ShopifyOrder',
   ParsedOrder: 'ParsedOrder',
   ParsedLineItem: 'ParsedLineItem',
-  EmailSetting: 'EmailSetting'
+  ShopifyProduct: 'ShopifyProduct',
+  ProductVariant: 'ProductVariant',
+  EmailSetting: 'EmailSetting',
+  WLGMessage: 'WLGMessage',
+  CartItem: 'CartItem',
+  StockItem: 'StockItem',
+  StockOrder: 'StockOrder',
+  StockOrderItem: 'StockOrderItem',
+  Car: 'Car',
+  DashboardTodo: 'DashboardTodo',
+  DataDriver: 'DataDriver',
+  DataDriverApplication: 'DataDriverApplication',
+  DeliveryJob: 'DeliveryJob',
+  JobOffer: 'JobOffer',
+  JobEvent: 'JobEvent'
 };
 
 /**
