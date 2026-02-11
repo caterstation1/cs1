@@ -14,34 +14,41 @@ files.forEach(file => {
     let content = fs.readFileSync(filePath, 'utf8');
     let modified = false;
     
-    // Fix the SmsTemplateType enum syntax error - match various whitespace patterns
-    const patterns = [
-      // Pattern 1: Original format
-      /export const SmsTemplateType: \{\s+delivery: 'delivery',\s+pickup: 'pickup'\s+\};/g,
-      // Pattern 2: With different spacing
-      /export const SmsTemplateType:\s*\{\s*delivery:\s*'delivery',\s*pickup:\s*'pickup'\s*\};/g,
-      // Pattern 3: More flexible
-      /export\s+const\s+SmsTemplateType\s*:\s*\{\s*delivery\s*:\s*'delivery',\s*pickup\s*:\s*'pickup'\s*\};/g
-    ];
+    // Fix ALL enum syntax errors - match pattern: export const EnumName: { ... };
+    // This pattern matches enums that have type annotation but no value assignment
+    const enumPattern = /export\s+const\s+(\w+)\s*:\s*\{([^}]+)\}\s*;/g;
     
-    const replacement = `export const SmsTemplateType: {
-    delivery: 'delivery',
-    pickup: 'pickup'
-  } = {
-    delivery: 'delivery',
-    pickup: 'pickup'
-  };`;
-  
-    patterns.forEach(pattern => {
-      if (pattern.test(content)) {
-        content = content.replace(pattern, replacement);
-        modified = true;
+    content = content.replace(enumPattern, (match, enumName, enumBody) => {
+      // Check if this enum already has an assignment (already fixed)
+      if (match.includes('=')) {
+        return match; // Already fixed, skip
       }
+      
+      // Extract the enum values from the body
+      const valuePairs = enumBody.split(',').map(pair => {
+        const trimmed = pair.trim();
+        const colonIndex = trimmed.indexOf(':');
+        if (colonIndex === -1) return null;
+        const key = trimmed.substring(0, colonIndex).trim();
+        const value = trimmed.substring(colonIndex + 1).trim();
+        return { key, value };
+      }).filter(Boolean);
+      
+      // Reconstruct the enum with proper assignment
+      const enumObject = valuePairs.map(({ key, value }) => `    ${key}: ${value}`).join(',\n');
+      const fixedEnum = `export const ${enumName}: {
+${enumObject}
+  } = {
+${enumObject}
+  };`;
+      
+      modified = true;
+      return fixedEnum;
     });
     
     if (modified) {
       fs.writeFileSync(filePath, content, 'utf8');
-      console.log(`✅ Fixed SmsTemplateType enum syntax error in ${file}`);
+      console.log(`✅ Fixed enum syntax errors in ${file}`);
     }
   } catch (error) {
     console.error(`❌ Error fixing Prisma enum in ${file}:`, error);
