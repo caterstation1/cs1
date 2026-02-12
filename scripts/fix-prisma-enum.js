@@ -65,8 +65,13 @@ ${enumObject}
         const lineEnd = newContent.indexOf('\n', endIndex);
         const line = newContent.substring(lineStart, lineEnd === -1 ? newContent.length : lineEnd);
         
-        // Only fix if line doesn't already have an assignment
-        if (!line.includes('=') || !line.includes(`= $Enums.${enumName}`)) {
+        // Only fix if line doesn't already have the correct assignment format
+        // Check for the exact pattern: = $Enums.EnumName; (with semicolon)
+        const alreadyFixed = line.includes(`= $Enums.${enumName};`) && 
+                            !line.includes(`= $Enums.${enumName};=`) && // Not duplicate
+                            line.split(`= $Enums.${enumName};`).length === 2; // Only one occurrence
+        
+        if (!alreadyFixed) {
           const before = newContent.substring(0, startIndex);
           const after = newContent.substring(endIndex);
           // Preserve the newline if it was there, otherwise add one
