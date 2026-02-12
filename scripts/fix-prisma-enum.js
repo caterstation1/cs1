@@ -5,6 +5,18 @@ const path = require('path');
 
 const prismaDir = path.join(__dirname, '../src/generated/prisma');
 
+// Delete broken leftover files with spaces in the name
+const brokenFiles = fs.readdirSync(prismaDir).filter(f => f.includes('index.d') && f.endsWith('.ts') && f.includes(' '));
+brokenFiles.forEach(file => {
+  const filePath = path.join(prismaDir, file);
+  try {
+    fs.unlinkSync(filePath);
+    console.log(`🗑️  Deleted broken file: ${file}`);
+  } catch (error) {
+    console.error(`❌ Error deleting ${file}:`, error);
+  }
+});
+
 // Fix all index.d.ts files (excluding ones with spaces/numbers in the name - these are broken leftovers)
 const files = fs.readdirSync(prismaDir).filter(f => f.includes('index.d') && f.endsWith('.ts') && !f.includes(' '));
 
