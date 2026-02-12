@@ -5,8 +5,8 @@ const path = require('path');
 
 const prismaDir = path.join(__dirname, '../src/generated/prisma');
 
-// Fix all index.d.ts files (including ones with spaces/numbers in the name)
-const files = fs.readdirSync(prismaDir).filter(f => f.includes('index.d') && f.endsWith('.ts'));
+// Fix all index.d.ts files (excluding ones with spaces/numbers in the name - these are broken leftovers)
+const files = fs.readdirSync(prismaDir).filter(f => f.includes('index.d') && f.endsWith('.ts') && !f.includes(' '));
 
 files.forEach(file => {
   const filePath = path.join(prismaDir, file);
