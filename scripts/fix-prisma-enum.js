@@ -47,17 +47,36 @@ ${enumObject}
     });
     
     // Also fix external enum declarations like: export const EnumName: typeof $Enums.EnumName
-    // Match with more flexible whitespace
-    const externalEnumPattern = /export\s+const\s+(\w+)\s*:\s*typeof\s+\$Enums\.\1\s*;?/gm;
+    // Only fix if it doesn't already have an assignment, and preserve newlines
+    const externalEnumPattern = /export\s+const\s+(\w+)\s*:\s*typeof\s+\$Enums\.\1\s*(?!=\s*\$Enums)(;?\s*\n?)/gm;
+    let newContent = content;
     const matches = [...content.matchAll(externalEnumPattern)];
     if (matches.length > 0) {
-      matches.forEach(match => {
+      // Process in reverse to avoid index shifting
+      for (let i = matches.length - 1; i >= 0; i--) {
+        const match = matches[i];
         const enumName = match[1];
-        const fullMatch = match[0];
-        const fixed = `export const ${enumName}: typeof $Enums.${enumName} = $Enums.${enumName};`;
-        content = content.replace(fullMatch, fixed);
-        modified = true;
-      });
+        const trailing = match[2] || '';
+        const startIndex = match.index;
+        const endIndex = startIndex + match[0].length;
+        
+        // Check the line doesn't already have an assignment
+        const lineStart = newContent.lastIndexOf('\n', startIndex) + 1;
+        const lineEnd = newContent.indexOf('\n', endIndex);
+        const line = newContent.substring(lineStart, lineEnd === -1 ? newContent.length : lineEnd);
+        
+        // Only fix if line doesn't already have an assignment
+        if (!line.includes('=') || !line.includes(`= $Enums.${enumName}`)) {
+          const before = newContent.substring(0, startIndex);
+          const after = newContent.substring(endIndex);
+          // Preserve the newline if it was there, otherwise add one
+          const newline = trailing.includes('\n') ? '' : '\n';
+          const fixed = `export const ${enumName}: typeof $Enums.${enumName} = $Enums.${enumName};${newline}`;
+          newContent = before + fixed + after;
+          modified = true;
+        }
+      }
+      content = newContent;
     }
     
     if (modified) {
