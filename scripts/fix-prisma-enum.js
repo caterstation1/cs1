@@ -46,6 +46,12 @@ ${enumObject}
       return fixedEnum;
     });
     
+    // First, clean up any existing duplicate assignments
+    // Remove orphaned "= $Enums.EnumName;" patterns that appear before export statements or comments
+    content = content.replace(/(=\s+\$Enums\.\w+;)+(?=\s*(export|\/\*))/g, '');
+    // Also remove duplicates after semicolons
+    content = content.replace(/;\s*(=\s+\$Enums\.\w+;)+/g, ';');
+    
     // Also fix external enum declarations like: export const EnumName: typeof $Enums.EnumName
     // Only fix if it doesn't already have an assignment, and preserve newlines
     const externalEnumPattern = /export\s+const\s+(\w+)\s*:\s*typeof\s+\$Enums\.\1\s*(?!=\s*\$Enums)(;?\s*\n?)/gm;
@@ -66,10 +72,11 @@ ${enumObject}
         const line = newContent.substring(lineStart, lineEnd === -1 ? newContent.length : lineEnd);
         
         // Only fix if line doesn't already have the correct assignment format
-        // Check for the exact pattern: = $Enums.EnumName; (with semicolon)
-        const alreadyFixed = line.includes(`= $Enums.${enumName};`) && 
-                            !line.includes(`= $Enums.${enumName};=`) && // Not duplicate
-                            line.split(`= $Enums.${enumName};`).length === 2; // Only one occurrence
+        // Check for the exact pattern: = $Enums.EnumName; (with semicolon) and ensure no duplicates
+        const assignmentPattern = `= $Enums.${enumName};`;
+        const hasAssignment = line.includes(assignmentPattern);
+        const assignmentCount = (line.match(new RegExp(assignmentPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+        const alreadyFixed = hasAssignment && assignmentCount === 1; // Exactly one assignment, no duplicates
         
         if (!alreadyFixed) {
           const before = newContent.substring(0, startIndex);
