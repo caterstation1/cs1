@@ -6,63 +6,85 @@ import OrderCardList from '@/components/realtime-orders/order-card-list'
 import { format, isSameDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth } from 'date-fns'
 import { Order } from '@/types/order'
 import { getTodayLocal, parseLocalDate } from '@/lib/date-utils'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Plus, RefreshCw } from 'lucide-react'
+import { isWellingtonOrder } from '@/lib/region'
 
 export default function WlgCalendarPage() {
   const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date>(() => getTodayLocal())
+  
+  // Add Order Modal state
+  const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false)
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false)
+  const [newOrderData, setNewOrderData] = useState({
+    customerFirstName: '',
+    customerLastName: '',
+    customerEmail: '',
+    customerPhone: '',
+    shippingAddress: {
+      address1: '',
+      address2: '',
+      city: 'Wellington',
+      province: 'Wellington',
+      zip: ''
+    },
+    deliveryDate: '',
+    deliveryTime: '',
+    note: '',
+    noteAttributes: [{ name: 'City', value: 'WLG' }]
+  })
 
-  const fetchOrders = async () => {
-    setLoading(true)
+  const fetchOrders = async (showLoading = false) => {
+    if (showLoading) setLoading(true)
     try {
       const res = await fetch('/api/orders?limit=10000')
       if (!res.ok) throw new Error('Failed to fetch orders')
       const data = await res.json()
       const list: Order[] = Array.isArray(data) ? data : Array.isArray(data.orders) ? data.orders : []
 
-      // Filter to city=WLG in either noteAttributes or any line item properties
-      const filtered = list.filter((o: any) => {
-        // 1) Primary source: order-level note_attributes City
-        const noteProps = Array.isArray(o.noteAttributes) ? o.noteAttributes : (Array.isArray(o.note_attributes) ? o.note_attributes : [])
-        const cityAttr = noteProps.find((p: any) => ((p?.name || '') as string).toLowerCase() === 'city')
-        if (cityAttr) {
-          const cityValue = String(cityAttr.value || '').toUpperCase()
-          if (cityValue === 'WLG') return true
-          // If city is explicitly set to something else (like AKL), continue to shipping address check
-          // This handles cases where customer selected wrong city but has Wellington shipping address
-        }
-
-        // 2) Fallback: line items properties (legacy)
-        let items: any[] = []
-        if (Array.isArray(o.lineItems)) items = o.lineItems
-        else if (typeof o.lineItems === 'string' && o.lineItems) {
-          try { items = JSON.parse(o.lineItems) } catch { items = [] }
-        }
-        if (items.some(it => Array.isArray(it?.properties) && it.properties.some((p: any) => ((p?.name || '') as string).toLowerCase() === 'city' && String(p?.value).toUpperCase() === 'WLG'))) return true
-
-        // 3) Fallback: shipping address
-        const ship = (o as any).shippingAddress || (o as any).shipping_address || {}
-        const shipCity = String(ship?.city || '').toLowerCase()
-        const shipProvince = String(ship?.province || '').toLowerCase()
-        const provinceCode = String(ship?.province_code || '').toUpperCase()
-        
-        // Check if city contains "wellington" or province is "Wellington" or province code is "WGN"
-        if (shipCity.includes('wellington') || shipProvince === 'wellington' || provinceCode === 'WGN') return true
-
-        return false
-      })
+      // Filter orders using centralized Wellington detection
+      const filtered = list.filter((o: any) => isWellingtonOrder(o))
 
       setOrders(filtered)
+      setError(null)
+      setLastRefresh(new Date())
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load orders')
-      setOrders([])
+      // Don't clear orders on error - keep existing data
     } finally {
-      setLoading(false)
+      if (showLoading) setLoading(false)
     }
   }
 
-  useEffect(() => { fetchOrders() }, [])
+  // Initial load - show UI immediately, load data in background
+  useEffect(() => {
+    // Load immediately in background (don't block UI)
+    fetchOrders(false)
+  }, [])
+
+  // Auto-refresh every 2 minutes (120000ms)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing WLG calendar data...')
+      fetchOrders(false) // Background refresh, don't show loading spinner
+    }, 120000) // 2 minutes
+
+    return () => clearInterval(interval)
+  }, [])
 
   // Group orders by date (YYYY-MM-DD) identical to main calendar
   const ordersByDate = useMemo(() => {
@@ -110,6 +132,76 @@ export default function WlgCalendarPage() {
   function goToPrevMonth() { setSelectedDate(prev => addDays(startOfMonth(prev), -1)) }
   function goToNextMonth() { setSelectedDate(prev => addDays(endOfMonth(prev), 1)) }
 
+  const handleCreateOrder = async () => {
+    try {
+      setIsCreatingOrder(true)
+      
+      const orderData = {
+        ...newOrderData,
+        deliveryDate: newOrderData.deliveryDate || format(selectedDate, 'yyyy-MM-dd'),
+        lineItems: []
+      }
+
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create order')
+      }
+
+      await fetchOrders()
+      
+      setIsAddOrderModalOpen(false)
+      setNewOrderData({
+        customerFirstName: '',
+        customerLastName: '',
+        customerEmail: '',
+        customerPhone: '',
+        shippingAddress: {
+          address1: '',
+          address2: '',
+          city: 'Wellington',
+          province: 'Wellington',
+          zip: ''
+        },
+        deliveryDate: '',
+        deliveryTime: '',
+        note: '',
+        noteAttributes: [{ name: 'City', value: 'WLG' }]
+      })
+    } catch (err) {
+      console.error('Error creating order:', err)
+      alert(`Error creating order: ${err instanceof Error ? err.message : 'Unknown error'}`)
+    } finally {
+      setIsCreatingOrder(false)
+    }
+  }
+
+  const openAddOrderModal = () => {
+    setNewOrderData({
+      customerFirstName: '',
+      customerLastName: '',
+      customerEmail: '',
+      customerPhone: '',
+      shippingAddress: {
+        address1: '',
+        address2: '',
+        city: 'Wellington',
+        province: 'Wellington',
+        zip: ''
+      },
+      deliveryDate: format(selectedDate, 'yyyy-MM-dd'),
+      deliveryTime: '',
+      note: '',
+      noteAttributes: [{ name: 'City', value: 'WLG' }]
+    })
+    setIsAddOrderModalOpen(true)
+  }
+
   return (
     <div className="flex w-full gap-6">
       {/* Left sidebar: Calendar + StockList */}
@@ -140,24 +232,165 @@ export default function WlgCalendarPage() {
       {/* Main content: OrderCardList */}
       <div className="flex-1 w-full max-w-full overflow-x-hidden">
         <div className="rounded-lg bg-white shadow p-4 w-full max-w-full overflow-x-hidden">
-          <div className="font-bold text-lg mb-2">Orders for {format(selectedDate, 'EEE, MMM d, yyyy')}</div>
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <div className="font-bold text-lg">
+                Orders for {format(selectedDate, 'EEE, MMM d, yyyy')}
+              </div>
+              {lastRefresh && (
+                <div className="text-xs text-muted-foreground">
+                  Last updated: {format(lastRefresh, 'HH:mm:ss')} • Auto-refresh every 2 min
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={() => fetchOrders(true)} 
+                size="sm" 
+                variant="outline"
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button onClick={openAddOrderModal} size="sm" className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Add Order
+              </Button>
+            </div>
+          </div>
           <div className="min-h-[300px] w-full max-w-full overflow-x-hidden">
-            {loading ? (
+            {error && (
+              <div className="text-center py-2 text-red-500 text-sm mb-2">{error}</div>
+            )}
+            {loading && orders.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">Loading orders...</div>
-            ) : error ? (
-              <div className="text-center py-8 text-red-500">{error}</div>
             ) : (
-              <OrderCardList orders={filteredOrders} onUpdateOrder={async (orderId, updates) => {
-                const res = await fetch(`/api/orders/${orderId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) })
-                if (!res.ok) throw new Error('Failed to update order')
-                const updated = await res.json()
-                setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updated } : o))
-                return updated
-              }} onBulkUpdateComplete={fetchOrders} selectedDate={selectedDate} originAddressOverride={"9 Ganges Road, Khandallah, Wellington 6035"} />
+              <>
+                {loading && orders.length > 0 && (
+                  <div className="text-center py-1 text-xs text-muted-foreground mb-2">
+                    🔄 Refreshing...
+                  </div>
+                )}
+                <OrderCardList orders={filteredOrders} onUpdateOrder={async (orderId, updates) => {
+                  const res = await fetch(`/api/orders/${orderId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) })
+                  if (!res.ok) throw new Error('Failed to update order')
+                  const updated = await res.json()
+                  setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updated } : o))
+                  return updated
+                }} onBulkUpdateComplete={() => fetchOrders(true)} selectedDate={selectedDate} originAddressOverride={"9 Ganges Road, Khandallah, Wellington 6035"} />
+              </>
             )}
           </div>
         </div>
       </div>
+
+      {/* Add Order Modal */}
+      <Dialog open={isAddOrderModalOpen} onOpenChange={setIsAddOrderModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Order</DialogTitle>
+            <DialogDescription>
+              Create a new WLG order for {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>First Name</Label>
+                <Input
+                  value={newOrderData.customerFirstName}
+                  onChange={(e) => setNewOrderData({...newOrderData, customerFirstName: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label>Last Name</Label>
+                <Input
+                  value={newOrderData.customerLastName}
+                  onChange={(e) => setNewOrderData({...newOrderData, customerLastName: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={newOrderData.customerEmail}
+                onChange={(e) => setNewOrderData({...newOrderData, customerEmail: e.target.value})}
+              />
+            </div>
+            
+            <div>
+              <Label>Phone</Label>
+              <Input
+                value={newOrderData.customerPhone}
+                onChange={(e) => setNewOrderData({...newOrderData, customerPhone: e.target.value})}
+              />
+            </div>
+            
+            <div>
+              <Label>Address Line 1</Label>
+              <Input
+                value={newOrderData.shippingAddress.address1}
+                onChange={(e) => setNewOrderData({
+                  ...newOrderData,
+                  shippingAddress: {...newOrderData.shippingAddress, address1: e.target.value}
+                })}
+              />
+            </div>
+            
+            <div>
+              <Label>Address Line 2</Label>
+              <Input
+                value={newOrderData.shippingAddress.address2}
+                onChange={(e) => setNewOrderData({
+                  ...newOrderData,
+                  shippingAddress: {...newOrderData.shippingAddress, address2: e.target.value}
+                })}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Delivery Date</Label>
+                <Input
+                  type="date"
+                  value={newOrderData.deliveryDate}
+                  onChange={(e) => setNewOrderData({...newOrderData, deliveryDate: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label>Delivery Time</Label>
+                <Input
+                  type="time"
+                  value={newOrderData.deliveryTime}
+                  onChange={(e) => setNewOrderData({...newOrderData, deliveryTime: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label>Notes</Label>
+              <Input
+                value={newOrderData.note}
+                onChange={(e) => setNewOrderData({...newOrderData, note: e.target.value})}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddOrderModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateOrder} disabled={isCreatingOrder}>
+              {isCreatingOrder ? 'Creating...' : 'Create Order'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

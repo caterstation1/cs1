@@ -6,14 +6,50 @@ import OrderCardList from '@/components/realtime-orders/order-card-list'
 import { format, isSameDay, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth } from 'date-fns'
 import { Order } from '@/types/order'
 import { parseLocalDate, getTodayLocal } from '@/lib/date-utils'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Plus, RefreshCw } from 'lucide-react'
+import { useShopifySync } from '@/components/shopify-sync/shopify-sync-provider'
+import { isWellingtonOrder } from '@/lib/region'
 
 export default function CalendarPage() {
+  const { syncOrders } = useShopifySync()
   const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     // Create a local midnight date for today
     return getTodayLocal();
+  })
+  
+  // Add Order Modal state
+  const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false)
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false)
+  const [newOrderData, setNewOrderData] = useState({
+    customerFirstName: '',
+    customerLastName: '',
+    customerEmail: '',
+    customerPhone: '',
+    shippingAddress: {
+      address1: '',
+      address2: '',
+      city: '',
+      province: '',
+      zip: ''
+    },
+    deliveryDate: '',
+    deliveryTime: '',
+    note: ''
   })
 
   // Real update handler for OrderCardList
@@ -35,8 +71,8 @@ export default function CalendarPage() {
   }
 
   // Re-fetch all orders (for after bulk update)
-  const fetchOrders = async () => {
-    setLoading(true)
+  const fetchOrders = async (showLoading = false) => {
+    if (showLoading) setLoading(true)
     try {
       // Fetch all orders with a high limit to ensure we get all orders
       const response = await fetch('/api/orders?limit=10000')
@@ -53,15 +89,18 @@ export default function CalendarPage() {
         console.warn('Unexpected orders data format:', data)
         ordersArray = []
       }
-      
 
-      setOrders(ordersArray)
+      // Filter to AKL-only (exclude WLG orders)
+      const aklOnly = ordersArray.filter(o => !isWellingtonOrder(o))
+      setOrders(aklOnly)
+      setError(null)
+      setLastRefresh(new Date())
     } catch (err) {
       console.error('Error fetching orders:', err)
       setError('Failed to load orders')
-      setOrders([]) // Ensure orders is always an array
+      // Don't clear orders on error - keep existing data
     } finally {
-      setLoading(false)
+      if (showLoading) setLoading(false)
     }
   }
 
@@ -145,16 +184,105 @@ export default function CalendarPage() {
     setSelectedDate(prev => addDays(endOfMonth(prev), 1))
   }
 
+  // Handle creating new order
+  const handleCreateOrder = async () => {
+    try {
+      setIsCreatingOrder(true)
+      
+      const orderData = {
+        ...newOrderData,
+        deliveryDate: newOrderData.deliveryDate || format(selectedDate, 'yyyy-MM-dd'),
+        lineItems: [] // Start with empty line items
+      }
 
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      })
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create order')
+      }
+
+      const newOrder = await response.json()
+      
+      // Refresh orders list
+      await fetchOrders()
+      
+      // Close modal and reset form
+      setIsAddOrderModalOpen(false)
+      setNewOrderData({
+        customerFirstName: '',
+        customerLastName: '',
+        customerEmail: '',
+        customerPhone: '',
+        shippingAddress: {
+          address1: '',
+          address2: '',
+          city: '',
+          province: '',
+          zip: ''
+        },
+        deliveryDate: '',
+        deliveryTime: '',
+        note: ''
+      })
+    } catch (err) {
+      console.error('Error creating order:', err)
+      alert(`Error creating order: ${err instanceof Error ? err.message : 'Unknown error'}`)
+    } finally {
+      setIsCreatingOrder(false)
+    }
+  }
+
+  // Reset form when modal opens and set default delivery date
+  const openAddOrderModal = () => {
+    setNewOrderData({
+      customerFirstName: '',
+      customerLastName: '',
+      customerEmail: '',
+      customerPhone: '',
+      shippingAddress: {
+        address1: '',
+        address2: '',
+        city: '',
+        province: '',
+        zip: ''
+      },
+      deliveryDate: format(selectedDate, 'yyyy-MM-dd'),
+      deliveryTime: '',
+      note: ''
+    })
+    setIsAddOrderModalOpen(true)
+  }
+
+  // Initial load - show UI immediately, load data in background
   useEffect(() => {
-    fetchOrders()
+    // Load immediately in background (don't block UI)
+    fetchOrders(false)
   }, [])
 
+  // Auto-refresh every 2 minutes (120000ms)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing calendar data...')
+      fetchOrders(false) // Background refresh, don't show loading spinner
+    }, 120000) // 2 minutes
+
+    return () => clearInterval(interval)
+  }, [])
+  
+  // Trigger a one-off Shopify sync when the calendar page opens
+  useEffect(() => {
+    syncOrders().catch(() => {})
+  }, [syncOrders])
+
   return (
-    <div className="flex w-full gap-6">
+    <div className="w-full flex flex-col md:flex-row gap-6">
       {/* Left sidebar: Calendar + StockList */}
-      <div className="flex flex-col w-[340px] min-w-[280px] max-w-[400px]">
+      <div className="flex flex-col w-full md:w-[340px] md:min-w-[280px] md:max-w-[400px]">
         <div className="mb-6 rounded-lg bg-white shadow p-4">
           {/* Modern Calendar */}
           <div className="flex items-center justify-between mb-2">
@@ -211,36 +339,223 @@ export default function CalendarPage() {
         </div>
         <div className="rounded-lg bg-white shadow p-4">
           <StockPanel 
-            autoRefresh={false} // No auto-refresh on calendar page
+            autoRefresh={true}
+            refreshInterval={20000}
             showRefreshButton={true}
-            targetDate={selectedDate} // Use the selected calendar date
+            targetDate={selectedDate}
           />
         </div>
       </div>
-      {/* Main content: OrderCardList */}
-      <div className="flex-1 w-full max-w-full overflow-x-hidden">
+      {/* Main content: OrderCardList (stacks below calendar on mobile) */}
+      <div className="flex-1 w-full max-w-full overflow-x-hidden min-w-0">
         <div className="rounded-lg bg-white shadow p-4 w-full max-w-full overflow-x-hidden">
-          <div className="font-bold text-lg mb-2">
-            Orders for {format(selectedDate, 'EEE, MMM d, yyyy')}
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <div className="font-bold text-lg">
+                Orders for {format(selectedDate, 'EEE, MMM d, yyyy')}
+              </div>
+              {lastRefresh && (
+                <div className="text-xs text-muted-foreground">
+                  Last updated: {format(lastRefresh, 'HH:mm:ss')} • Auto-refresh every 2 min
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={() => fetchOrders(true)} 
+                size="sm" 
+                variant="outline"
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button onClick={openAddOrderModal} size="sm" className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Add Order
+              </Button>
+            </div>
           </div>
           <div className="min-h-[300px] w-full max-w-full overflow-x-hidden">
-            {loading ? (
+            {error && (
+              <div className="text-center py-2 text-red-500 text-sm mb-2">{error}</div>
+            )}
+            {loading && orders.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">Loading orders...</div>
-            ) : error ? (
-              <div className="text-center py-8 text-red-500">{error}</div>
             ) : (
-              <OrderCardList 
-                orders={filteredOrders} 
-                onUpdateOrder={handleUpdateOrder}
-                onBulkUpdateComplete={fetchOrders}
-                selectedDate={selectedDate}
-              />
+              <>
+                {loading && orders.length > 0 && (
+                  <div className="text-center py-1 text-xs text-muted-foreground mb-2">
+                    🔄 Refreshing...
+                  </div>
+                )}
+                <OrderCardList 
+                  orders={filteredOrders} 
+                  onUpdateOrder={handleUpdateOrder}
+                  onBulkUpdateComplete={() => fetchOrders(true)}
+                  selectedDate={selectedDate}
+                />
+              </>
             )}
           </div>
         </div>
 
       </div>
-      
+
+      {/* Add Order Modal */}
+      <Dialog open={isAddOrderModalOpen} onOpenChange={setIsAddOrderModalOpen}>
+        <DialogContent className="w-full max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Order</DialogTitle>
+            <DialogDescription>
+              Create a new order for {format(selectedDate, 'EEE, MMM d, yyyy')}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Customer Information */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="customerFirstName">First Name *</Label>
+                <Input
+                  id="customerFirstName"
+                  value={newOrderData.customerFirstName}
+                  onChange={(e) => setNewOrderData(prev => ({ ...prev, customerFirstName: e.target.value }))}
+                  placeholder="Customer first name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerLastName">Last Name *</Label>
+                <Input
+                  id="customerLastName"
+                  value={newOrderData.customerLastName}
+                  onChange={(e) => setNewOrderData(prev => ({ ...prev, customerLastName: e.target.value }))}
+                  placeholder="Customer last name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerEmail">Email *</Label>
+                <Input
+                  id="customerEmail"
+                  type="email"
+                  value={newOrderData.customerEmail}
+                  onChange={(e) => setNewOrderData(prev => ({ ...prev, customerEmail: e.target.value }))}
+                  placeholder="customer@example.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerPhone">Phone</Label>
+                <Input
+                  id="customerPhone"
+                  value={newOrderData.customerPhone}
+                  onChange={(e) => setNewOrderData(prev => ({ ...prev, customerPhone: e.target.value }))}
+                  placeholder="Phone number"
+                />
+              </div>
+            </div>
+
+            {/* Delivery Information */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="deliveryDate">Delivery Date</Label>
+                <Input
+                  id="deliveryDate"
+                  type="date"
+                  value={newOrderData.deliveryDate}
+                  onChange={(e) => setNewOrderData(prev => ({ ...prev, deliveryDate: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="deliveryTime">Delivery Time</Label>
+                <Input
+                  id="deliveryTime"
+                  type="time"
+                  value={newOrderData.deliveryTime}
+                  onChange={(e) => setNewOrderData(prev => ({ ...prev, deliveryTime: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            {/* Delivery Address */}
+            <div className="space-y-4">
+              <Label className="text-sm font-medium">Delivery Address</Label>
+              <div className="space-y-2">
+                <Input
+                  placeholder="Address Line 1"
+                  value={newOrderData.shippingAddress.address1}
+                  onChange={(e) => setNewOrderData(prev => ({
+                    ...prev,
+                    shippingAddress: { ...prev.shippingAddress, address1: e.target.value }
+                  }))}
+                />
+                <Input
+                  placeholder="Address Line 2 (optional)"
+                  value={newOrderData.shippingAddress.address2}
+                  onChange={(e) => setNewOrderData(prev => ({
+                    ...prev,
+                    shippingAddress: { ...prev.shippingAddress, address2: e.target.value }
+                  }))}
+                />
+                <div className="grid grid-cols-3 gap-2">
+                  <Input
+                    placeholder="City"
+                    value={newOrderData.shippingAddress.city}
+                    onChange={(e) => setNewOrderData(prev => ({
+                      ...prev,
+                      shippingAddress: { ...prev.shippingAddress, city: e.target.value }
+                    }))}
+                  />
+                  <Input
+                    placeholder="Province/State"
+                    value={newOrderData.shippingAddress.province}
+                    onChange={(e) => setNewOrderData(prev => ({
+                      ...prev,
+                      shippingAddress: { ...prev.shippingAddress, province: e.target.value }
+                    }))}
+                  />
+                  <Input
+                    placeholder="Postal Code"
+                    value={newOrderData.shippingAddress.zip}
+                    onChange={(e) => setNewOrderData(prev => ({
+                      ...prev,
+                      shippingAddress: { ...prev.shippingAddress, zip: e.target.value }
+                    }))}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Order Notes */}
+            <div className="space-y-2">
+              <Label htmlFor="note">Order Notes</Label>
+              <textarea
+                id="note"
+                className="w-full min-h-[100px] px-3 py-2 border rounded-md"
+                value={newOrderData.note}
+                onChange={(e) => setNewOrderData(prev => ({ ...prev, note: e.target.value }))}
+                placeholder="Add any special instructions or notes..."
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsAddOrderModalOpen(false)}
+              disabled={isCreatingOrder}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateOrder}
+              disabled={isCreatingOrder || !newOrderData.customerFirstName || !newOrderData.customerLastName || !newOrderData.customerEmail}
+            >
+              {isCreatingOrder ? 'Creating...' : 'Create Order'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   )
