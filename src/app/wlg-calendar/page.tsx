@@ -362,10 +362,7 @@ export default function WlgCalendarPage() {
             <div className="flex items-center gap-2">
               {summary && summary.needsReviewCount > 0 && (
                 <Button 
-                  onClick={() => {
-                    setNeedsReviewOpen(true)
-                    fetchNeedsReview()
-                  }}
+                  onClick={() => window.location.href = `/orders/needs-review?region=${region}`}
                   size="sm" 
                   variant="outline"
                   className="flex items-center gap-2 text-orange-600 border-orange-300 hover:bg-orange-50"

@@ -22,7 +22,16 @@ export default function NeedsReviewPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Get region from URL params or default to AKL
   const [region, setRegion] = useState<'AKL' | 'WLG'>('AKL')
+  
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const regionParam = params.get('region')
+    if (regionParam === 'AKL' || regionParam === 'WLG') {
+      setRegion(regionParam)
+    }
+  }, [])
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
   const pageSize = 50
