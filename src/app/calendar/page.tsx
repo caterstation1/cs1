@@ -25,7 +25,7 @@ import { isWellingtonOrder } from '@/lib/region'
 export default function CalendarPage() {
   const { syncOrders } = useShopifySync()
   
-  // Use cached fetch for orders
+  // Use cached fetch for orders - will skip caching if too large to avoid quota errors
   const { 
     data: ordersData, 
     loading, 
