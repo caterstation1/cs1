@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
         const variantId = item.variant_id?.toString?.() || item.variantId?.toString?.() || ''
         let meta: any = null
         if (variantId) {
-          meta = await prisma.productWithCustomData.findUnique({ where: { variantId } })
+          meta = await prisma.productVariant.findUnique({ where: { variantId } })
         }
 
         // Get addon display names for the first label only
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
         if (orderLabelIndex === 1 && addonNames.length > 0) {
           for (const addon of addonNames) {
             if (addon.variantId) {
-              const addonMeta = await prisma.productWithCustomData.findUnique({ where: { variantId: addon.variantId } })
+              const addonMeta = await prisma.productVariant.findUnique({ where: { variantId: addon.variantId } })
               const addonDisplayName = addonMeta?.displayName || addon.item.title || ''
               if (addonDisplayName) {
                 addonDisplayNames.push(addonDisplayName)

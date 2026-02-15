@@ -21,7 +21,7 @@ export async function POST(
     }
 
     // Find all products that match this rule's pattern
-    const matchingProducts = await prisma.productWithCustomData.findMany({
+    const matchingProducts = await prisma.productVariant.findMany({
       where: {
         OR: [
           { shopifyName: { contains: rule.matchPattern, mode: 'insensitive' } },
@@ -66,8 +66,8 @@ export async function POST(
 
         // Only update if there are fields to revert
         if (Object.keys(updateData).length > 0) {
-          await prisma.productWithCustomData.update({
-            where: { id: product.id },
+          await prisma.productVariant.update({
+            where: { variantId: product.variantId },
             data: updateData
           })
           updatedCount++

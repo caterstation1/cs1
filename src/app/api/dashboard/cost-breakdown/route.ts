@@ -96,14 +96,6 @@ export async function GET(req: NextRequest) {
       }
     }) : []
     const allVariants = [...variantsById, ...variantsBySku]
-    const missingVariantIds = allVariants
-      .filter(v => !(typeof v.totalCost === 'number') || !isFinite(Number(v.totalCost)) || Number(v.totalCost) === 0)
-      .map(v => v.variantId)
-    const legacy = missingVariantIds.length ? await prisma.productWithCustomData.findMany({
-      where: { variantId: { in: Array.from(new Set(missingVariantIds)) } },
-      select: { variantId: true, totalCost: true }
-    }) : []
-    const legacyCostByVariantId = new Map<string, number>(legacy.map(l => [String(l.variantId), Number(l.totalCost || 0)]))
     // Calculate combined cost from base + variant ingredients when available
     const calcTotal = (ings: any[]): number => {
       if (!Array.isArray(ings)) return 0
@@ -119,10 +111,9 @@ export async function GET(req: NextRequest) {
       const base = Array.isArray(v.product?.baseIngredients) ? v.product.baseIngredients : []
       const varIngs = Array.isArray(v.ingredients) ? v.ingredients : []
       const combinedCost = calcTotal([...base, ...varIngs])
-      const fallback = legacyCostByVariantId.get(String(v.variantId)) || 0
       const primary = Number(v.totalCost || 0)
-      // Prefer computed combined if > 0, else variant.totalCost, else legacy
-      const unitCost = combinedCost > 0 ? combinedCost : (primary > 0 ? primary : fallback)
+      // Prefer computed combined if > 0, else variant.totalCost
+      const unitCost = combinedCost > 0 ? combinedCost : primary
       const payload = {
         variantId: String(v.variantId),
         name: v.shopifyName,

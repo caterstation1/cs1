@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
 
     const productsMap: Record<string, any> = {}
     if (skus.size > 0) {
-      const products = await prisma.productWithCustomData.findMany({
+      const products = await prisma.productVariant.findMany({
         where: { shopifySku: { in: Array.from(skus) } },
       })
       products.forEach(p => {

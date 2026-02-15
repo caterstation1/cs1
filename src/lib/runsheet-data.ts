@@ -88,14 +88,6 @@ export async function fetchRunsheetData(date: Date, isWLG: boolean = false, excl
     }
   })
 
-  // Fallback costs from legacy table in case variant.totalCost is not populated
-  const legacyCosts = await prisma.productWithCustomData.findMany({
-    where: { variantId: { in: Array.from(variantIds) } },
-    select: { variantId: true, totalCost: true }
-  })
-  const legacyCostByVariantId = new Map<string, number>(
-    legacyCosts.map(l => [String(l.variantId), Number(l.totalCost || 0)])
-  )
 
   const productsMap: Record<string, any> = {}
   variants.forEach(v => {
@@ -188,7 +180,7 @@ export async function fetchRunsheetData(date: Date, isWLG: boolean = false, excl
           productMap[name].total += totalQty
           if (am) productMap[name].am += totalQty
           // Cost aggregation for bundle child
-          const unitCostChild = Number(childProduct?.totalCost ?? 0) || legacyCostByVariantId.get(String(child.variantId)) || 0
+          const unitCostChild = Number(childProduct?.totalCost ?? 0) || 0
           if (!productCostAgg[name]) productCostAgg[name] = { qty: 0, totalCost: 0 }
           productCostAgg[name].qty += totalQty
           productCostAgg[name].totalCost += totalQty * unitCostChild
@@ -217,7 +209,7 @@ export async function fetchRunsheetData(date: Date, isWLG: boolean = false, excl
       productMap[name].total += qty
       if (am) productMap[name].am += qty
       // Cost aggregation for regular item
-      const unitCost = Number(product?.totalCost ?? 0) || legacyCostByVariantId.get(String(variantId)) || 0
+      const unitCost = Number(product?.totalCost ?? 0) || 0
       if (!productCostAgg[name]) productCostAgg[name] = { qty: 0, totalCost: 0 }
       productCostAgg[name].qty += qty
       productCostAgg[name].totalCost += qty * unitCost

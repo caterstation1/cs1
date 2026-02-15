@@ -6,7 +6,7 @@ export async function POST() {
     console.log('🔧 Fixing product titles...');
     
     // Get only a small number of products to avoid timeout
-    const products = await prisma.productWithCustomData.findMany({
+    const products = await prisma.productVariant.findMany({
       where: {
         shopifyName: {
           contains: '/'
@@ -69,9 +69,9 @@ export async function POST() {
         }
         
         // Update the product with the corrected titles
-        await prisma.productWithCustomData.update({
+        await prisma.productVariant.update({
           where: {
-            id: product.id
+            variantId: product.variantId
           },
           data: {
             shopifyTitle: baseProductName,

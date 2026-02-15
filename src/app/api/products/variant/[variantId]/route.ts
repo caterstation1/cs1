@@ -45,12 +45,6 @@ export async function GET(
       );
     }
 
-    // Legacy fallback
-    const legacy = await prisma.productWithCustomData.findUnique({
-      where: { variantId },
-      select: { ingredients: true, totalCost: true }
-    });
-
     const baseIngredients = (variant.product as any).baseIngredients ?? null;
     const variantIngredients = (variant as any).ingredients ?? null;
     const combined = [
@@ -58,7 +52,6 @@ export async function GET(
       ...(Array.isArray(variantIngredients) ? variantIngredients : []),
     ];
     const combinedTotal = calcTotal(combined);
-    const legacyTotal = calcTotal((legacy as any)?.ingredients || []) || Number((legacy as any)?.totalCost || 0);
 
     // Transform to match expected format
     const cleanedMeats = Array.isArray(variant.meats) ? (variant.meats as any[]).map(v => v ?? null) : null;
@@ -103,9 +96,7 @@ export async function GET(
       serveware: variant.serveware,
       isDraft: variant.isDraft,
       ingredients: variant.ingredients,
-      totalCost: combinedTotal > 0 ? combinedTotal : (Number(variant.totalCost || 0) || legacyTotal || 0),
-      legacyIngredients: legacy?.ingredients ?? null,
-      legacyTotalCost: legacyTotal || null,
+      totalCost: combinedTotal > 0 ? combinedTotal : Number(variant.totalCost || 0),
       isPartyPack: (variant as any).isPartyPack ?? false,
       bundleItems: (variant as any).bundleItems ?? null,
       productIsPartyPackDefault: (variant.product as any).isPartyPackDefault ?? false,

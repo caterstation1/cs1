@@ -204,7 +204,7 @@ export async function applyRulesToMatchingProducts(matchPattern?: string): Promi
     }
 
     // Get total count first
-    const totalCount = await prisma.productWithCustomData.count({
+    const totalCount = await prisma.productVariant.count({
       where: whereClause
     })
 
@@ -222,12 +222,13 @@ export async function applyRulesToMatchingProducts(matchPattern?: string): Promi
       console.log(`\n🔄 Processing batch ${currentBatch}/${totalBatches} (${skip + 1}-${Math.min(skip + batchSize, totalCount)}) - Progress: ${Math.round((currentBatch / totalBatches) * 100)}%`);
       
       // Get batch of products
-      const products = await prisma.productWithCustomData.findMany({
+      const products = await prisma.productVariant.findMany({
         where: whereClause,
         skip,
         take: batchSize,
         select: {
           id: true,
+          variantId: true,
           shopifyName: true,
           shopifyTitle: true,
           displayName: true,
@@ -306,8 +307,8 @@ export async function applyRulesToMatchingProducts(matchPattern?: string): Promi
               updateData.ingredients = product.ingredients
             }
 
-            await prisma.productWithCustomData.update({
-              where: { id: product.id },
+            await prisma.productVariant.update({
+              where: { variantId: product.variantId },
               data: updateData
             })
             updated++
