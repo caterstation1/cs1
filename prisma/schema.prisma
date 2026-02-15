@@ -402,10 +402,18 @@ model Order {
   deliveryDateResolvedSource DeliveryDateResolvedSource?
   deliveryDateResolvedAt DateTime?
 
+  // New canonical scheduling fields (for fast calendar queries)
+  deliveryDateTime DateTime? // Canonical datetime used for calendar + ops (indexed)
+  deliveryDateSource String? // Source: field|noteAttributes|tags|createdAtFallback|unknown
+  needsSchedulingReview Boolean @default(false) // True if deliveryDateTime missing/invalid
+  region String? // Canonical region: AKL|WLG|OTHER (indexed)
+
   @@index([orderNumber])
   @@index([createdAt])
   @@index([customerEmail])
   @@index([deliveryDateResolved])
+  @@index([region, deliveryDateTime])
+  @@index([needsSchedulingReview])
 }
 
 model ShopifyOrder {

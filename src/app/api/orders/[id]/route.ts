@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver';
+import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize';
 
 export async function GET(
   request: Request,
@@ -60,6 +61,15 @@ export async function PUT(
       createdAt: existing?.createdAt,
     }
     const resolved = resolveDeliveryDateResolved(candidate)
+    
+    // Recalculate canonical scheduling fields
+    const updatedOrderData = {
+      ...existing,
+      ...body,
+      shippingAddress: body.shippingAddress ?? existing?.shippingAddress,
+      noteAttributes: body.noteAttributes ?? existing?.noteAttributes,
+    }
+    const scheduling = canonicalizeOrderScheduling(updatedOrderData as any)
 
     const order = await prisma.order.update({
       where: { id },
@@ -69,6 +79,11 @@ export async function PUT(
         deliveryDateResolved: resolved.date,
         deliveryDateResolvedSource: resolved.source,
         deliveryDateResolvedAt: new Date(),
+        // Update canonical scheduling fields
+        region: scheduling.region,
+        deliveryDateTime: scheduling.deliveryDateTime,
+        deliveryDateSource: scheduling.deliveryDateSource,
+        needsSchedulingReview: scheduling.needsSchedulingReview,
       }
     });
     
@@ -105,6 +120,15 @@ export async function PATCH(
       createdAt: existing?.createdAt,
     }
     const resolved = resolveDeliveryDateResolved(candidate)
+    
+    // Recalculate canonical scheduling fields
+    const updatedOrderData = {
+      ...existing,
+      ...body,
+      shippingAddress: body.shippingAddress ?? existing?.shippingAddress,
+      noteAttributes: body.noteAttributes ?? existing?.noteAttributes,
+    }
+    const scheduling = canonicalizeOrderScheduling(updatedOrderData as any)
 
     const order = await prisma.order.update({
       where: { id },
@@ -114,6 +138,11 @@ export async function PATCH(
         deliveryDateResolved: resolved.date,
         deliveryDateResolvedSource: resolved.source,
         deliveryDateResolvedAt: new Date(),
+        // Update canonical scheduling fields
+        region: scheduling.region,
+        deliveryDateTime: scheduling.deliveryDateTime,
+        deliveryDateSource: scheduling.deliveryDateSource,
+        needsSchedulingReview: scheduling.needsSchedulingReview,
       }
     });
     

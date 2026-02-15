@@ -3,6 +3,7 @@ import { fetchShopifyOrders } from '@/lib/shopify-client';
 import { transformShopifyOrder } from '@/lib/data-transformer';
 import { prisma } from '@/lib/prisma';
 import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver';
+import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize';
 
 // Back-compat endpoint used by Orders UI. Delegates to Prisma/Railway sync (not Firestore).
 export async function POST() {
@@ -46,6 +47,13 @@ export async function POST() {
             createdAt: transformed.createdAt,
           });
           
+          // Apply canonical scheduling fields
+          const scheduling = canonicalizeOrderScheduling({
+            ...transformed,
+            shippingAddress: transformed.shippingAddress,
+            noteAttributes: transformed.noteAttributes,
+          });
+          
           await prisma.order.create({
             data: {
               shopifyId: transformed.shopifyId.toString(),
@@ -75,6 +83,11 @@ export async function POST() {
               deliveryDateResolved: (resolved.date as unknown as Date) ?? null,
               deliveryDateResolvedSource: (resolved.source as any) ?? null,
               deliveryDateResolvedAt: new Date(),
+              // New canonical scheduling fields
+              region: scheduling.region,
+              deliveryDateTime: scheduling.deliveryDateTime,
+              deliveryDateSource: scheduling.deliveryDateSource,
+              needsSchedulingReview: scheduling.needsSchedulingReview,
             }
           });
           

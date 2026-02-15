@@ -3,6 +3,7 @@ import { fetchShopifyOrders } from '../../../../lib/shopify-client';
 import { transformShopifyOrder } from '../../../../lib/data-transformer';
 import { prisma } from '../../../../lib/prisma';
 import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver';
+import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize';
 
 export async function GET() {
   return NextResponse.json({
@@ -60,6 +61,14 @@ export async function POST() {
             tags: transformedOrder.tags,
             createdAt: transformedOrder.createdAt,
           })
+          
+          // Apply canonical scheduling fields
+          const scheduling = canonicalizeOrderScheduling({
+            ...transformedOrder,
+            shippingAddress: transformedOrder.shippingAddress,
+            noteAttributes: transformedOrder.noteAttributes,
+          });
+          
           const newOrder = await prisma.order.create({
             data: {
               shopifyId: transformedOrder.shopifyId.toString(),
@@ -89,6 +98,11 @@ export async function POST() {
               deliveryDateResolved: resolved.date as unknown as Date,
               deliveryDateResolvedSource: resolved.source as any,
               deliveryDateResolvedAt: new Date(),
+              // New canonical scheduling fields
+              region: scheduling.region,
+              deliveryDateTime: scheduling.deliveryDateTime,
+              deliveryDateSource: scheduling.deliveryDateSource,
+              needsSchedulingReview: scheduling.needsSchedulingReview,
             }
           });
           

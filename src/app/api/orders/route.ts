@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma, withRetry } from '@/lib/prisma'
 import { parseLocalDate } from '@/lib/date-utils'
+import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize'
 
 export async function POST(request: Request) {
   try {
@@ -36,32 +37,43 @@ export async function POST(request: Request) {
     const nextOrderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1000
 
     // Create the order
+    const orderData = {
+      shopifyId: `manual-${Date.now()}`,
+      orderNumber: nextOrderNumber,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      totalPrice: 0,
+      subtotalPrice: 0,
+      totalTax: 0,
+      currency: 'NZD',
+      financialStatus: 'paid',
+      fulfillmentStatus: 'unfulfilled',
+      tags: '',
+      note: note || '',
+      customerEmail,
+      customerFirstName,
+      customerLastName,
+      customerPhone: customerPhone || '',
+      shippingAddress: shippingAddress ? JSON.parse(JSON.stringify(shippingAddress)) : null,
+      lineItems: JSON.parse(JSON.stringify(lineItems)),
+      source: 'manual',
+      hasLocalEdits: true,
+      deliveryDate: deliveryDate || null,
+      deliveryTime: deliveryTime || null,
+      deliveryDateResolved: deliveryDate ? parseLocalDate(deliveryDate) : null
+    }
+    
+    // Apply canonical scheduling fields
+    const scheduling = canonicalizeOrderScheduling(orderData as any)
+    
     const newOrder = await withRetry(async () => {
       return await prisma.order.create({
         data: {
-          shopifyId: `manual-${Date.now()}`,
-          orderNumber: nextOrderNumber,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          totalPrice: 0,
-          subtotalPrice: 0,
-          totalTax: 0,
-          currency: 'NZD',
-          financialStatus: 'paid',
-          fulfillmentStatus: 'unfulfilled',
-          tags: '',
-          note: note || '',
-          customerEmail,
-          customerFirstName,
-          customerLastName,
-          customerPhone: customerPhone || '',
-          shippingAddress: shippingAddress ? JSON.parse(JSON.stringify(shippingAddress)) : null,
-          lineItems: JSON.parse(JSON.stringify(lineItems)),
-          source: 'manual',
-          hasLocalEdits: true,
-          deliveryDate: deliveryDate || null,
-          deliveryTime: deliveryTime || null,
-          deliveryDateResolved: deliveryDate ? parseLocalDate(deliveryDate) : null
+          ...orderData,
+          region: scheduling.region,
+          deliveryDateTime: scheduling.deliveryDateTime,
+          deliveryDateSource: scheduling.deliveryDateSource,
+          needsSchedulingReview: scheduling.needsSchedulingReview,
         }
       })
     })
