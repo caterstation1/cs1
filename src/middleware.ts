@@ -20,6 +20,7 @@ const PUBLIC_PREFIXES = [
   '/api/health',
   '/api/test',
   '/api/production-url',
+  '/api/admin/backfill-scheduling', // Temporary: allow backfill endpoint
   '/_next',
   '/static',
   '/favicon.ico',
