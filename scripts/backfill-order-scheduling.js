@@ -9,14 +9,30 @@
  * Applies canonicalization logic to populate these fields.
  */
 
-const { PrismaClient } = require('@prisma/client')
-const { canonicalizeOrderScheduling } = require('../src/lib/order-canonicalize')
+const { PrismaClient } = require('../src/generated/prisma')
+// Use dynamic import for ES module
+let canonicalizeOrderScheduling
 
 const prisma = new PrismaClient()
 
 const BATCH_SIZE = 500
 
 async function backfillOrderScheduling() {
+  // Import ES module - need to use .js extension for compiled output
+  if (!canonicalizeOrderScheduling) {
+    try {
+      // Try importing from compiled .next output first
+      const module = await import('../.next/server/chunks/order-canonicalize.js')
+      canonicalizeOrderScheduling = module.canonicalizeOrderScheduling
+    } catch (e) {
+      // Fallback: use tsx or ts-node if available, otherwise fail with helpful message
+      console.error('❌ Cannot import TypeScript module directly.')
+      console.error('   Please run: npm install --save-dev tsx')
+      console.error('   Then update package.json script to use: tsx scripts/backfill-order-scheduling.ts')
+      throw new Error('TypeScript module import not supported. Install tsx or compile first.')
+    }
+  }
+  
   console.log('🔄 Starting backfill of order scheduling fields...')
   
   try {

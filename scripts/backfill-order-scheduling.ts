@@ -9,7 +9,7 @@
  * Applies canonicalization logic to populate these fields.
  */
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '../src/generated/prisma'
 import { canonicalizeOrderScheduling } from '../src/lib/order-canonicalize'
 
 const prisma = new PrismaClient()
