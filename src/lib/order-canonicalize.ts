@@ -11,7 +11,7 @@
  */
 
 import { isWellingtonOrder } from './region'
-import { parseLocalDate } from './date-utils'
+import { parseLocalDate, formatLocalDate, getNZDateRangeForYmd } from './date-utils'
 
 export type DeliveryDateSource = 'field' | 'noteAttributes' | 'tags' | 'createdAtFallback' | 'unknown'
 
@@ -59,14 +59,29 @@ export function extractDeliveryDateTime(order: any): { value: Date | null; sourc
     const date = parseLocalDate(order.deliveryDate)
     if (date) {
       // Combine with deliveryTime if available
+      // Store as UTC DateTime representing Auckland local time
       let dateTime = date
       if (order?.deliveryTime) {
         const timeMatch = order.deliveryTime.match(/(\d{1,2}):(\d{2})/)
         if (timeMatch) {
           const [, hours, minutes] = timeMatch
-          dateTime = new Date(date)
+          // Create date in Auckland timezone, then convert to UTC for storage
+          const aucklandDateStr = formatLocalDate(date)
+          // Use proper Auckland timezone handling
+          const { start } = getNZDateRangeForYmd(aucklandDateStr)
+          dateTime = new Date(start)
           dateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0)
+        } else {
+          // No time, use start of Auckland day
+          const aucklandDateStr = formatLocalDate(date)
+          const { start } = getNZDateRangeForYmd(aucklandDateStr)
+          dateTime = start
         }
+      } else {
+        // No time specified, use start of Auckland day
+        const aucklandDateStr = formatLocalDate(date)
+        const { start } = getNZDateRangeForYmd(aucklandDateStr)
+        dateTime = start
       }
       return { value: dateTime, source: 'field' }
     }
@@ -97,18 +112,26 @@ export function extractDeliveryDateTime(order: any): { value: Date | null; sourc
     
     if (dateAttr?.value) {
       const date = parseLocalDate(dateAttr.value)
-      if (date) {
-        let dateTime = date
-        if (timeAttr?.value) {
-          const timeMatch = String(timeAttr.value).match(/(\d{1,2}):(\d{2})/)
-          if (timeMatch) {
-            const [, hours, minutes] = timeMatch
-            dateTime = new Date(date)
-            dateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0)
+        if (date) {
+          // Store as UTC DateTime representing Auckland local time
+          const aucklandDateStr = formatLocalDate(date)
+          const { start } = getNZDateRangeForYmd(aucklandDateStr)
+          let dateTime: Date
+          
+          if (timeAttr?.value) {
+            const timeMatch = String(timeAttr.value).match(/(\d{1,2}):(\d{2})/)
+            if (timeMatch) {
+              const [, hours, minutes] = timeMatch
+              dateTime = new Date(start)
+              dateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0)
+            } else {
+              dateTime = start
+            }
+          } else {
+            dateTime = start
           }
+          return { value: dateTime, source: 'noteAttributes' }
         }
-        return { value: dateTime, source: 'noteAttributes' }
-      }
     }
   }
   
@@ -129,7 +152,9 @@ export function extractDeliveryDateTime(order: any): { value: Date | null; sourc
         const date = parseLocalDate(dateStr)
         if (date) {
           // Try to extract time from tags (e.g. "11:45 AM - 12:00 PM")
-          let dateTime = date
+          const aucklandDateStr = formatLocalDate(date)
+          const { start } = getNZDateRangeForYmd(aucklandDateStr)
+          let dateTime: Date
           const timeMatch = order.tags.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i)
           if (timeMatch) {
             let hours = parseInt(timeMatch[1], 10)
@@ -137,8 +162,10 @@ export function extractDeliveryDateTime(order: any): { value: Date | null; sourc
             const ampm = timeMatch[3]?.toUpperCase()
             if (ampm === 'PM' && hours !== 12) hours += 12
             if (ampm === 'AM' && hours === 12) hours = 0
-            dateTime = new Date(date)
+            dateTime = new Date(start)
             dateTime.setHours(hours, minutes, 0, 0)
+          } else {
+            dateTime = start
           }
           return { value: dateTime, source: 'tags' }
         }

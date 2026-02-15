@@ -62,6 +62,9 @@ async function backfillOrderScheduling() {
       
       for (const order of batch) {
         try {
+          // Only update fields that are missing (don't overwrite existing good values)
+          const updateData: any = {}
+          
           // Apply canonicalization
           const scheduling = canonicalizeOrderScheduling({
             deliveryDate: order.deliveryDate,
@@ -73,16 +76,28 @@ async function backfillOrderScheduling() {
             lineItems: order.lineItems as any,
           })
           
-          // Update order
-          await prisma.order.update({
-            where: { id: order.id },
-            data: {
-              region: scheduling.region,
-              deliveryDateTime: scheduling.deliveryDateTime,
-              deliveryDateSource: scheduling.deliveryDateSource,
-              needsSchedulingReview: scheduling.needsSchedulingReview,
-            }
-          })
+          // Only set fields that are currently null
+          if (order.region === null) {
+            updateData.region = scheduling.region
+          }
+          if (order.deliveryDateTime === null) {
+            updateData.deliveryDateTime = scheduling.deliveryDateTime
+          }
+          if (order.deliveryDateSource === null) {
+            updateData.deliveryDateSource = scheduling.deliveryDateSource
+          }
+          // Always update needsSchedulingReview if deliveryDateTime is null (safety check)
+          if (order.deliveryDateTime === null || scheduling.needsSchedulingReview) {
+            updateData.needsSchedulingReview = scheduling.needsSchedulingReview
+          }
+          
+          // Only update if there's something to update
+          if (Object.keys(updateData).length > 0) {
+            await prisma.order.update({
+              where: { id: order.id },
+              data: updateData
+            })
+          }
           
           updated++
           if (scheduling.needsSchedulingReview) {

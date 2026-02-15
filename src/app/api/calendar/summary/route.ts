@@ -74,10 +74,11 @@ export async function GET(request: NextRequest) {
     }
     
     // Query orders using Prisma $queryRaw for GROUP BY performance
+    // Group by Auckland date (Pacific/Auckland timezone) to ensure correct day grouping
     const result = await withRetry(async () => {
       return await prisma.$queryRaw<Array<{ date: Date; count: bigint }>>`
         SELECT 
-          DATE("deliveryDateTime" AT TIME ZONE 'UTC') as date,
+          DATE("deliveryDateTime" AT TIME ZONE 'UTC' AT TIME ZONE 'Pacific/Auckland') as date,
           COUNT(*)::int as count
         FROM "Order"
         WHERE 
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
           AND "deliveryDateTime" >= ${startDate}
           AND "deliveryDateTime" < ${endDate}
           AND "deliveryDateTime" IS NOT NULL
-        GROUP BY DATE("deliveryDateTime" AT TIME ZONE 'UTC')
+        GROUP BY DATE("deliveryDateTime" AT TIME ZONE 'UTC' AT TIME ZONE 'Pacific/Auckland')
         ORDER BY date ASC
       `
     })

@@ -30,10 +30,11 @@ export async function GET(request: NextRequest) {
       )
     }
     
-    // Parse date (half-open range: [date 00:00, date+1 00:00))
-    const dateObj = new Date(date + 'T00:00:00.000Z')
-    const nextDate = new Date(dateObj)
-    nextDate.setDate(nextDate.getDate() + 1)
+    // Parse date (half-open range: [date 00:00 Auckland, date+1 00:00 Auckland))
+    // Use proper Auckland timezone handling
+    const { start: dateObj } = getNZDateRangeForYmd(date)
+    const nextDayStr = addDaysNZ(date, 1)
+    const { start: nextDate } = getNZDateRangeForYmd(nextDayStr)
     
     if (isNaN(dateObj.getTime())) {
       return NextResponse.json(
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
             region,
             deliveryDateTime: {
               gte: dateObj,
-              lt: nextDate
+              lt: nextDate // Half-open: [dateObj, nextDate)
             }
           },
           select: {
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
             region,
             deliveryDateTime: {
               gte: dateObj,
-              lt: nextDate
+              lt: nextDate // Half-open: [dateObj, nextDate)
             }
           }
         })
