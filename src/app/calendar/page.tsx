@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { StockPanel } from '@/components/StockPanel'
 import OrderCardList from '@/components/realtime-orders/order-card-list'
-import { format, isSameDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, subDays } from 'date-fns'
+import { format, isSameDay, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth } from 'date-fns'
 import { Order } from '@/types/order'
-import { getTodayLocal } from '@/lib/date-utils'
+import { parseLocalDate, getTodayLocal } from '@/lib/date-utils'
 import { Button } from '@/components/ui/button'
+import { useCachedFetch } from '@/lib/use-cached-fetch'
 import {
   Dialog,
   DialogContent,
@@ -17,37 +18,42 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Plus, RefreshCw, AlertCircle } from 'lucide-react'
+import { Plus, RefreshCw } from 'lucide-react'
 import { useShopifySync } from '@/components/shopify-sync/shopify-sync-provider'
-
-interface CalendarSummary {
-  region: string
-  start: string
-  end: string
-  countsByDay: Array<{ date: string; count: number }>
-  needsReviewCount: number
-}
+import { isWellingtonOrder } from '@/lib/region'
 
 export default function CalendarPage() {
   const { syncOrders } = useShopifySync()
-  const region = 'AKL' // Auckland calendar
   
-  const [selectedDate, setSelectedDate] = useState<Date>(() => getTodayLocal())
-  const [summary, setSummary] = useState<CalendarSummary | null>(null)
-  const [summaryLoading, setSummaryLoading] = useState(false)
-  const [summaryError, setSummaryError] = useState<string | null>(null)
-  const [lastSummaryFetch, setLastSummaryFetch] = useState<Date | null>(null)
+  // Use cached fetch for orders - will skip caching if too large to avoid quota errors
+  const { 
+    data: ordersData, 
+    loading, 
+    error, 
+    refresh: refreshOrders,
+    lastFetch 
+  } = useCachedFetch<Order[] | { orders: Order[] }>(
+    '/api/orders?limit=10000',
+    { key: 'orders_akl', ttl: 120000 } // 2 minutes cache
+  )
   
-  // Orders for selected day (fetched on demand)
-  const [dayOrders, setDayOrders] = useState<Order[]>([])
-  const [dayOrdersLoading, setDayOrdersLoading] = useState(false)
-  const [dayOrdersError, setDayOrdersError] = useState<string | null>(null)
+  // Extract orders array from response
+  const orders = useMemo(() => {
+    if (!ordersData) return []
+    if (Array.isArray(ordersData)) return ordersData
+    if (ordersData && Array.isArray((ordersData as any).orders)) return (ordersData as any).orders
+    return []
+  }, [ordersData])
   
-  // Needs Review panel state
-  const [needsReviewOpen, setNeedsReviewOpen] = useState(false)
-  const [needsReviewOrders, setNeedsReviewOrders] = useState<Order[]>([])
-  const [needsReviewLoading, setNeedsReviewLoading] = useState(false)
-
+  // Filter to AKL-only (exclude WLG orders)
+  const aklOrders = useMemo(() => {
+    return orders.filter((o: Order) => !isWellingtonOrder(o))
+  }, [orders])
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    // Create a local midnight date for today
+    return getTodayLocal();
+  })
+  
   // Add Order Modal state
   const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
@@ -68,98 +74,82 @@ export default function CalendarPage() {
     note: ''
   })
 
-  // Fetch calendar summary for visible range + buffer
-  const fetchCalendarSummary = useCallback(async (viewMonth: Date) => {
-    setSummaryLoading(true)
-    setSummaryError(null)
-    
+  // Real update handler for OrderCardList
+  const handleUpdateOrder = async (orderId: string, updates: Partial<Order>): Promise<Order> => {
     try {
-      // Compute grid range
-      const monthStart = startOfMonth(viewMonth)
-      const monthEnd = endOfMonth(monthStart)
-      const gridStart = startOfWeek(monthStart, { weekStartsOn: 0 })
-      const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
-      
-      // Add safety buffer (7 days before/after)
-      const fetchStart = subDays(gridStart, 7)
-      const fetchEnd = addDays(gridEnd, 7)
-      
-      const startStr = format(fetchStart, 'yyyy-MM-dd')
-      const endStr = format(fetchEnd, 'yyyy-MM-dd')
-      
-      const response = await fetch(`/api/calendar/summary?region=${region}&start=${startStr}&end=${endStr}`)
-      if (!response.ok) throw new Error('Failed to fetch calendar summary')
-      
-      const data = await response.json()
-      setSummary(data)
-      setLastSummaryFetch(new Date())
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      })
+      if (!response.ok) throw new Error('Failed to update order')
+      const updatedOrder = await response.json()
+      // Invalidate cache and refresh in background
+      setTimeout(() => refreshOrders(), 500) // Small delay to let update complete
+      return updatedOrder
     } catch (err) {
-      setSummaryError(err instanceof Error ? err.message : 'Failed to load calendar')
-      console.error('Error fetching calendar summary:', err)
-    } finally {
-      setSummaryLoading(false)
+      console.error('Error updating order:', err)
+      throw err
     }
-  }, [region])
+  }
 
-  // Fetch orders for a specific day
-  const fetchDayOrders = useCallback(async (date: Date) => {
-    setDayOrdersLoading(true)
-    setDayOrdersError(null)
-    
-    try {
-      const dateStr = format(date, 'yyyy-MM-dd')
-      const response = await fetch(`/api/orders/by-day?region=${region}&date=${dateStr}`)
-      if (!response.ok) throw new Error('Failed to fetch day orders')
-      
-      const data = await response.json()
-      setDayOrders(data.orders || [])
-    } catch (err) {
-      setDayOrdersError(err instanceof Error ? err.message : 'Failed to load orders')
-      console.error('Error fetching day orders:', err)
-    } finally {
-      setDayOrdersLoading(false)
+  // Re-fetch all orders (for after bulk update) - uses cached fetch
+  const fetchOrders = refreshOrders
+
+  // Helper: extract delivery date from order (prefer deliveryDate field)
+  function getOrderDeliveryDate(order: Order): Date | null {
+    // 1. Use deliveryDate field if present
+    if (order.deliveryDate) {
+      const localDate = parseLocalDate(order.deliveryDate);
+      if (localDate) return localDate;
     }
-  }, [region])
-
-  // Fetch needs review orders
-  const fetchNeedsReview = useCallback(async () => {
-    setNeedsReviewLoading(true)
-    try {
-      const response = await fetch(`/api/orders/needs-review?region=${region}`)
-      if (!response.ok) throw new Error('Failed to fetch needs review orders')
-      const data = await response.json()
-      setNeedsReviewOrders(data.orders || [])
-    } catch (err) {
-      console.error('Error fetching needs review orders:', err)
-    } finally {
-      setNeedsReviewLoading(false)
+    // 2. Try to extract from note_attributes (e.g. "July 17, 2025")
+    if ((order as any).note_attributes && Array.isArray((order as any).note_attributes)) {
+      const dateAttr = (order as any).note_attributes.find((a: any) => a.name === 'Delivery Date');
+      if (dateAttr && dateAttr.value) {
+        const localDate = parseLocalDate(dateAttr.value);
+        if (localDate) return localDate;
+      }
     }
-  }, [region])
+    // 3. Try to extract from tags (e.g. "Thu Jul 17 2025")
+    if (order.tags) {
+      const tagMatch = order.tags.match(/\b\w{3,9} \d{1,2} \d{4}\b/);
+      if (tagMatch) {
+        const localDate = parseLocalDate(tagMatch[0]);
+        if (localDate) return localDate;
+      }
+    }
+    // 4. Fallback to createdAt
+    if (order.createdAt) {
+      const localDate = parseLocalDate(order.createdAt);
+      if (localDate) return localDate;
+    }
+    return null;
+  }
 
-  // Initial load and when month changes
-  useEffect(() => {
-    fetchCalendarSummary(selectedDate)
-  }, [selectedDate, fetchCalendarSummary])
+  // Group orders by date (YYYY-MM-DD)
+  const ordersByDate = useMemo(() => {
+    const map: Record<string, Order[]> = {}
+    // Ensure aklOrders is an array before iterating
+    if (!Array.isArray(aklOrders)) {
+      console.warn('Orders is not an array:', aklOrders)
+      return map
+    }
+    for (const order of aklOrders) {
+      const date = getOrderDeliveryDate(order)
+      if (!date) continue
+      const key = format(date, 'yyyy-MM-dd')
+      if (!map[key]) map[key] = []
+      map[key].push(order)
+    }
+    return map
+  }, [aklOrders])
 
-  // Fetch day orders when date is selected
-  useEffect(() => {
-    fetchDayOrders(selectedDate)
-  }, [selectedDate, fetchDayOrders])
-
-  // Auto-refresh summary every 2 minutes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing calendar summary...')
-      fetchCalendarSummary(selectedDate)
-    }, 120000) // 2 minutes
-
-    return () => clearInterval(interval)
-  }, [selectedDate, fetchCalendarSummary])
-
-  // Trigger Shopify sync on mount
-  useEffect(() => {
-    syncOrders().catch(() => {})
-  }, [syncOrders])
+  // Orders for selected date
+  const filteredOrders = useMemo(() => {
+    const key = format(selectedDate, 'yyyy-MM-dd')
+    return ordersByDate[key] || []
+  }, [ordersByDate, selectedDate])
 
   // Calendar rendering helpers
   const monthStart = startOfMonth(selectedDate)
@@ -168,17 +158,6 @@ export default function CalendarPage() {
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 })
   const today = new Date()
 
-  // Build counts map from summary
-  const countsByDay = useMemo(() => {
-    const map: Record<string, number> = {}
-    if (summary?.countsByDay) {
-      for (const item of summary.countsByDay) {
-        map[item.date] = item.count
-      }
-    }
-    return map
-  }, [summary])
-
   const calendarDays: { date: Date; isCurrentMonth: boolean; isToday: boolean; orderCount: number }[] = []
   for (let d = startDate; d <= endDate; d = addDays(d, 1)) {
     const key = format(d, 'yyyy-MM-dd')
@@ -186,7 +165,7 @@ export default function CalendarPage() {
       date: d,
       isCurrentMonth: isSameMonth(d, monthStart),
       isToday: isSameDay(d, today),
-      orderCount: countsByDay[key] || 0,
+      orderCount: ordersByDate[key]?.length || 0,
     })
   }
 
@@ -205,7 +184,7 @@ export default function CalendarPage() {
       const orderData = {
         ...newOrderData,
         deliveryDate: newOrderData.deliveryDate || format(selectedDate, 'yyyy-MM-dd'),
-        lineItems: []
+        lineItems: [] // Start with empty line items
       }
 
       const response = await fetch('/api/orders', {
@@ -219,12 +198,12 @@ export default function CalendarPage() {
         throw new Error(errorData.error || 'Failed to create order')
       }
 
-      // Refresh summary and day orders
-      await Promise.all([
-        fetchCalendarSummary(selectedDate),
-        fetchDayOrders(selectedDate)
-      ])
+      const newOrder = await response.json()
       
+      // Refresh orders list
+      await fetchOrders()
+      
+      // Close modal and reset form
       setIsAddOrderModalOpen(false)
       setNewOrderData({
         customerFirstName: '',
@@ -250,6 +229,7 @@ export default function CalendarPage() {
     }
   }
 
+  // Reset form when modal opens and set default delivery date
   const openAddOrderModal = () => {
     setNewOrderData({
       customerFirstName: '',
@@ -270,29 +250,20 @@ export default function CalendarPage() {
     setIsAddOrderModalOpen(true)
   }
 
-  // Real update handler for OrderCardList
-  const handleUpdateOrder = async (orderId: string, updates: Partial<Order>): Promise<Order> => {
-    try {
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      })
-      if (!response.ok) throw new Error('Failed to update order')
-      const updatedOrder = await response.json()
-      
-      // Refresh summary and day orders
-      setTimeout(() => {
-        fetchCalendarSummary(selectedDate)
-        fetchDayOrders(selectedDate)
-      }, 500)
-      
-      return updatedOrder
-    } catch (err) {
-      console.error('Error updating order:', err)
-      throw err
-    }
-  }
+  // Auto-refresh every 2 minutes (120000ms) - handled by useCachedFetch
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing calendar data...')
+      fetchOrders() // Background refresh
+    }, 120000) // 2 minutes
+
+    return () => clearInterval(interval)
+  }, [fetchOrders])
+  
+  // Trigger a one-off Shopify sync when the calendar page opens
+  useEffect(() => {
+    syncOrders().catch(() => {})
+  }, [syncOrders])
 
   return (
     <div className="w-full flex flex-col md:flex-row gap-6">
@@ -321,8 +292,16 @@ export default function CalendarPage() {
                 <button
                   key={date.toISOString()}
                   onClick={() => {
-                    const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0)
-                    setSelectedDate(localDate)
+                    // Fix: Create a true local midnight date to avoid timezone issues
+                    const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+                    console.log('Calendar date click:', {
+                      originalDate: date.toISOString(),
+                      localDate: localDate.toISOString(),
+                      localDateString: localDate.toDateString(),
+                      selectedDate: selectedDate.toISOString(),
+                      orderCount
+                    });
+                    setSelectedDate(localDate);
                   }}
                   className={
                     'aspect-square w-full rounded flex flex-col items-center justify-center border ' +
@@ -353,8 +332,7 @@ export default function CalendarPage() {
           />
         </div>
       </div>
-      
-      {/* Main content: OrderCardList */}
+      {/* Main content: OrderCardList (stacks below calendar on mobile) */}
       <div className="flex-1 w-full max-w-full overflow-x-hidden min-w-0">
         <div className="rounded-lg bg-white shadow p-4 w-full max-w-full overflow-x-hidden">
           <div className="flex items-center justify-between mb-2">
@@ -362,35 +340,21 @@ export default function CalendarPage() {
               <div className="font-bold text-lg">
                 Orders for {format(selectedDate, 'EEE, MMM d, yyyy')}
               </div>
-              {lastSummaryFetch && (
+              {lastFetch && (
                 <div className="text-xs text-muted-foreground">
-                  Last updated: {format(lastSummaryFetch, 'HH:mm:ss')} • Auto-refresh every 2 min
+                  Last updated: {format(lastFetch, 'HH:mm:ss')} • Auto-refresh every 2 min
                 </div>
               )}
             </div>
             <div className="flex items-center gap-2">
-              {summary && summary.needsReviewCount > 0 && (
-                <Button 
-                  onClick={() => {
-                    setNeedsReviewOpen(true)
-                    fetchNeedsReview()
-                  }}
-                  size="sm" 
-                  variant="outline"
-                  className="flex items-center gap-2 text-orange-600 border-orange-300 hover:bg-orange-50"
-                >
-                  <AlertCircle className="w-4 h-4" />
-                  Needs Review ({summary.needsReviewCount})
-                </Button>
-              )}
               <Button 
-                onClick={() => fetchCalendarSummary(selectedDate)} 
+                onClick={() => fetchOrders()} 
                 size="sm" 
                 variant="outline"
-                disabled={summaryLoading}
+                disabled={loading}
                 className="flex items-center gap-2"
               >
-                <RefreshCw className={`w-4 h-4 ${summaryLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               <Button onClick={openAddOrderModal} size="sm" className="flex items-center gap-2">
@@ -400,80 +364,30 @@ export default function CalendarPage() {
             </div>
           </div>
           <div className="min-h-[300px] w-full max-w-full overflow-x-hidden">
-            {summaryError && (
-              <div className="text-center py-2 text-red-500 text-sm mb-2">{summaryError}</div>
+            {error && (
+              <div className="text-center py-2 text-red-500 text-sm mb-2">{error}</div>
             )}
-            {dayOrdersError && (
-              <div className="text-center py-2 text-red-500 text-sm mb-2">{dayOrdersError}</div>
-            )}
-            {dayOrdersLoading && dayOrders.length === 0 ? (
+            {loading && orders.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">Loading orders...</div>
             ) : (
               <>
-                {dayOrdersLoading && dayOrders.length > 0 && (
+                {loading && orders.length > 0 && (
                   <div className="text-center py-1 text-xs text-muted-foreground mb-2">
                     🔄 Refreshing...
                   </div>
                 )}
                 <OrderCardList 
-                  orders={dayOrders} 
+                  orders={filteredOrders} 
                   onUpdateOrder={handleUpdateOrder}
-                  onBulkUpdateComplete={() => {
-                    fetchCalendarSummary(selectedDate)
-                    fetchDayOrders(selectedDate)
-                  }}
+                  onBulkUpdateComplete={() => fetchOrders()}
                   selectedDate={selectedDate}
                 />
               </>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Needs Review Dialog */}
-      <Dialog open={needsReviewOpen} onOpenChange={setNeedsReviewOpen}>
-        <DialogContent className="w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Orders Needing Review ({summary?.needsReviewCount || 0})</DialogTitle>
-            <DialogDescription>
-              Orders with unclear delivery dates that require manual scheduling
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            {needsReviewLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
-            ) : needsReviewOrders.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No orders need review</div>
-            ) : (
-              needsReviewOrders.map((order) => (
-                <div key={order.id} className="border rounded p-3 hover:bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">Order #{order.orderNumber}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {order.customerFirstName} {order.customerLastName}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        Created: {order.createdAt ? format(new Date(order.createdAt), 'MMM d, yyyy') : 'Unknown'}
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        // Open order in new tab or navigate
-                        window.open(`/orders?search=${order.orderNumber}`, '_blank')
-                      }}
-                    >
-                      Open Order
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      </div>
 
       {/* Add Order Modal */}
       <Dialog open={isAddOrderModalOpen} onOpenChange={setIsAddOrderModalOpen}>
@@ -628,6 +542,7 @@ export default function CalendarPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </div>
   )
-}
+} 
