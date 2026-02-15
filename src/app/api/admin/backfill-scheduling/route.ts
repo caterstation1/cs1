@@ -16,8 +16,12 @@ export async function POST(request: Request) {
     // TEMPORARY: Auth disabled for backfill - remove after completion
     // TODO: Re-enable auth or delete this endpoint after backfill
     console.log('🔄 Backfill endpoint called')
-
-    console.log('🔄 Starting backfill of order scheduling fields...')
+    
+    const { searchParams } = new URL(request.url)
+    const batchNumber = parseInt(searchParams.get('batch') || '1')
+    const maxBatches = parseInt(searchParams.get('maxBatches') || '1') // Process 1 batch per call to avoid timeout
+    
+    console.log(`🔄 Starting backfill batch ${batchNumber}...`)
     
     // Find orders missing canonical scheduling fields
     const totalToProcess = await prisma.order.count({
@@ -39,7 +43,8 @@ export async function POST(request: Request) {
         processed: 0,
         updated: 0,
         needsReview: 0,
-        errors: 0
+        errors: 0,
+        totalRemaining: 0
       })
     }
     
@@ -47,10 +52,38 @@ export async function POST(request: Request) {
     let updated = 0
     let needsReviewCount = 0
     let errors = 0
-    let skip = 0
+    const skip = (batchNumber - 1) * BATCH_SIZE
     
-    // Process in batches
-    while (true) {
+    // Process ONE batch only (to avoid timeout)
+    const batch = await prisma.order.findMany({
+      where: {
+        OR: [
+          { deliveryDateTime: null },
+          { region: null },
+          { deliveryDateSource: null },
+        ]
+      },
+      take: BATCH_SIZE,
+      skip,
+      orderBy: { createdAt: 'desc' }
+    })
+    
+    if (batch.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: 'All batches processed!',
+        processed: 0,
+        updated: 0,
+        needsReview: 0,
+        errors: 0,
+        totalRemaining: 0
+      })
+    }
+    
+    console.log(`📦 Processing batch ${batchNumber} (${batch.length} orders)...`)
+    
+    // Process this batch
+    for (const order of batch) {
       const batch = await prisma.order.findMany({
         where: {
           OR: [
@@ -120,26 +153,29 @@ export async function POST(request: Request) {
         processed++
       }
       
-      skip += BATCH_SIZE
-      
-      // Progress update
-      if (processed % 1000 === 0) {
-        console.log(`📈 Progress: ${processed}/${totalToProcess} processed, ${updated} updated, ${needsReviewCount} need review`)
-      }
-    }
+    const totalRemaining = Math.max(0, totalToProcess - (skip + batch.length))
+    const hasMore = totalRemaining > 0
     
     const result = {
       success: true,
-      message: 'Backfill complete!',
+      message: hasMore ? `Batch ${batchNumber} complete. More batches remaining.` : 'All batches complete!',
+      batch: batchNumber,
       summary: {
-        totalProcessed: processed,
-        updated,
-        needsReview: needsReviewCount,
-        errors
-      }
+        batchProcessed: processed,
+        batchUpdated: updated,
+        batchNeedsReview: needsReviewCount,
+        batchErrors: errors
+      },
+      total: {
+        totalToProcess,
+        totalProcessed: skip + batch.length,
+        totalRemaining,
+        hasMore
+      },
+      nextBatch: hasMore ? `/api/admin/backfill-scheduling?batch=${batchNumber + 1}` : null
     }
     
-    console.log('✅ Backfill complete!', result.summary)
+    console.log(`✅ Batch ${batchNumber} complete!`, result.summary)
     
     return NextResponse.json(result)
   } catch (error) {
