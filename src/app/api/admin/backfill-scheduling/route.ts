@@ -15,8 +15,20 @@ export async function POST(request: Request) {
   try {
     // Simple auth check - you can add proper auth later
     const authHeader = request.headers.get('authorization')
-    if (authHeader !== `Bearer ${process.env.ADMIN_SECRET || 'temp-secret-change-me'}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const expectedSecret = process.env.ADMIN_SECRET || 'temp-secret-change-me'
+    
+    // Debug: log what we're comparing (remove in production)
+    console.log('🔐 Auth check:', {
+      hasHeader: !!authHeader,
+      headerValue: authHeader?.substring(0, 20) + '...',
+      expectedSecret: expectedSecret.substring(0, 20) + '...'
+    })
+    
+    if (!authHeader || authHeader !== `Bearer ${expectedSecret}`) {
+      return NextResponse.json({ 
+        error: 'Unauthorized',
+        hint: 'Expected: Bearer ' + expectedSecret.substring(0, 10) + '...'
+      }, { status: 401 })
     }
 
     console.log('🔄 Starting backfill of order scheduling fields...')
