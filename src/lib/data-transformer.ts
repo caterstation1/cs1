@@ -66,7 +66,7 @@ export interface TransformedOrder {
 // Extract phone number from various sources
 function extractPhoneNumber(order: ShopifyOrder): string {
   // Priority 1: Customer phone
-  if (order.customer.phone) {
+  if (order.customer?.phone) {
     return order.customer.phone;
   }
   
@@ -201,16 +201,19 @@ export function transformShopifyOrder(shopifyOrder: ShopifyOrder): TransformedOr
   
   const { deliveryTime, deliveryDate } = parseDeliveryInfo(shopifyOrder);
   const customerPhone = extractPhoneNumber(shopifyOrder);
+  const customerFirstName = shopifyOrder.customer?.first_name || ''
+  const customerLastName = shopifyOrder.customer?.last_name || ''
+  const customerEmail = shopifyOrder.customer?.email || ''
   
   const transformedOrder: TransformedOrder = {
     id: shopifyOrder.id.toString(),
     orderNumber: shopifyOrder.order_number.toString(),
     name: `#${shopifyOrder.order_number}`,
-    customerFirstName: shopifyOrder.customer.first_name,
-    customerLastName: shopifyOrder.customer.last_name,
+    customerFirstName,
+    customerLastName,
     customerCompany: shopifyOrder.shipping_address?.company,
     customerPhone,
-    customerEmail: shopifyOrder.customer.email,
+    customerEmail,
     shippingAddress: {
       address1: shopifyOrder.shipping_address?.address1 || '',
       address2: shopifyOrder.shipping_address?.address2,

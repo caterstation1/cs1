@@ -118,6 +118,10 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent horizontal overflow-induced zoom/pan on mobile */
+    max-width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
   }
 }
 

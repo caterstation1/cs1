@@ -53,6 +53,7 @@ export async function PUT(
     if (body.mileage !== undefined) updateData.mileage = parseFloat(body.mileage) || null
     if (body.notes !== undefined) updateData.notes = body.notes
     if (body.status) updateData.status = body.status
+    if (body.date) updateData.date = new Date(body.date)
     
     // Calculate total hours if both clock in and out are provided
     if (body.clockIn && body.clockOut) {

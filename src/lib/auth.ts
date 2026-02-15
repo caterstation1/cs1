@@ -1,8 +1,10 @@
 import { prisma } from './prisma'
-import { compare, hash } from 'bcrypt'
+import bcryptjs from 'bcryptjs'
 import { sign, verify } from 'jsonwebtoken'
 import { randomBytes } from 'crypto'
 import nodemailer from 'nodemailer'
+import fs from 'fs/promises'
+import path from 'path'
 import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
@@ -40,7 +42,15 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const isValid = await comparePasswords(credentials.password as string, staff.password)
+        let isValid = false
+        try {
+          isValid = await comparePasswords(credentials.password as string, staff.password)
+        } catch {}
+        // Backward-compat: allow plaintext match if DB stored un-hashed password
+        if (!isValid && credentials.password === staff.password) {
+          isValid = true
+          console.warn('⚠️ Plaintext password match used for staff:', staff.email)
+        }
 
         if (!isValid) {
           return null
@@ -94,12 +104,12 @@ export function generateResetToken(): string {
 
 // Hash a password
 export async function hashPassword(password: string): Promise<string> {
-  return hash(password, 10)
+  return bcryptjs.hash(password, 10)
 }
 
 // Compare a password with a hash
 export async function comparePasswords(password: string, hash: string): Promise<boolean> {
-  return compare(password, hash)
+  return bcryptjs.compare(password, hash)
 }
 
 // Generate a JWT token
@@ -174,11 +184,11 @@ export async function sendLoginInvitation(staffId: string): Promise<{ success: b
         return { success: true }
       }
 
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: staff.email,
-        subject: 'Set Up Your CaterStation Account',
-        html: `
+      // Determine if WLG staff (keep existing email), otherwise use AKL-specific copy + attachment
+      const isWlg = staff.accessLevel === 'wlg_team' || staff.accessLevel === 'wlg_admin'
+
+      // Default (WLG or legacy) email HTML
+      const defaultHtml = `
           <h1>Welcome to CaterStation!</h1>
           <p>Hello ${staff.firstName},</p>
           <p>You've been invited to set up your CaterStation account. Click the link below to set your password:</p>
@@ -186,6 +196,42 @@ export async function sendLoginInvitation(staffId: string): Promise<{ success: b
           <p>This link will expire in 24 hours.</p>
           <p>If you didn't request this invitation, please ignore this email.</p>
         `
+
+      // AKL-specific email HTML
+      const aklHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <p>Hi ${staff.firstName}</p>
+          <p>Please see the link below to generate a new password.</p>
+          <p><a href="${resetLink}" style="color: #2563eb; text-decoration: underline;">Create your password</a></p>
+          <p>Please also fill out this link <a href="https://b8lphoy2f40.typeform.com/to/TTJw3LGb" style="color: #2563eb; text-decoration: underline;">https://b8lphoy2f40.typeform.com/to/TTJw3LGb</a> so we can load you into our payroll system.</p>
+          <p>Attached you will find a brief CS introduction manual - please take a minute to read through.</p>
+          <p>Thanks again.</p>
+        </div>
+      `
+
+      // Attempt to attach AKL manual PDF (best-effort)
+      let attachments: { filename: string; content: Buffer; contentType: string }[] | undefined
+      if (!isWlg) {
+        const manualPath = path.join(process.cwd(), 'public', 'docs', 'cs-introduction-manual.pdf')
+        try {
+          const manualBuffer = await fs.readFile(manualPath)
+          attachments = [{
+            filename: 'CS-Introduction-Manual.pdf',
+            content: manualBuffer,
+            contentType: 'application/pdf'
+          }]
+          console.log('📎 Added CS Introduction Manual attachment from:', manualPath)
+        } catch (pdfErr) {
+          console.warn('⚠️ CS Introduction Manual PDF not found. Expected at:', manualPath)
+        }
+      }
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: staff.email,
+        subject: 'Set Up Your CaterStation Account',
+        html: isWlg ? defaultHtml : aklHtml,
+        attachments
       })
       
       console.log('Successfully sent invitation email')

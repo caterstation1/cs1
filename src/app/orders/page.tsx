@@ -18,6 +18,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { ProductEditModal, Product } from '@/components/ProductEditModal';
+import { TextOrdersModal } from '@/components/TextOrdersModal'
 
 // Define the Order type based on our Prisma model
 interface Order {
@@ -96,6 +97,7 @@ export default function OrdersPage() {
     productTitle: '',
     variantTitle: ''
   });
+  const [isTextModalOpen, setIsTextModalOpen] = useState(false)
 
   const fetchOrders = async (search?: string, offset = 0) => {
     try {
@@ -261,13 +263,21 @@ export default function OrdersPage() {
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">All Orders</h1>
-        <button
-          onClick={syncOrders}
-          disabled={syncing}
-          className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 disabled:opacity-50"
-        >
-          {syncing ? 'Syncing...' : 'Sync Orders'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsTextModalOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Text all
+          </button>
+          <button
+            onClick={syncOrders}
+            disabled={syncing}
+            className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 disabled:opacity-50"
+          >
+            {syncing ? 'Syncing...' : 'Sync Orders'}
+          </button>
+        </div>
       </div>
 
       {/* Search Interface */}
@@ -856,6 +866,13 @@ export default function OrdersPage() {
         productTitle={productEditModal.productTitle}
         variantTitle={productEditModal.variantTitle}
         onProductUpdated={handleProductUpdated}
+      />
+      <TextOrdersModal
+        isOpen={isTextModalOpen}
+        onClose={() => setIsTextModalOpen(false)}
+        orders={orders as any}
+        defaultTemplate="delivery"
+        presetSelection={orders.map(o => o.id)}
       />
     </div>
   );

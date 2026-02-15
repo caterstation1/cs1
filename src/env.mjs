@@ -8,6 +8,13 @@ export const env = createEnv({
     SHOPIFY_API_VERSION: z.string(),
     SHOPIFY_API_SECRET: z.string(),
     SHOPIFY_LOCATION_ID: z.string(),
+    // AI
+    OPENAI_API_KEY: z.string().optional(),
+    AI_MODEL: z.string().default('gpt-4.1-mini'),
+    AI_ENABLED: z
+      .string()
+      .optional()
+      .transform((v) => (v ?? 'false').toLowerCase() === 'true'),
     // Cloudinary (server-side operations like destroy)
     CLOUDINARY_CLOUD_NAME: z.string().optional(),
     CLOUDINARY_API_KEY: z.string().optional(),
@@ -16,6 +23,8 @@ export const env = createEnv({
     CLICKSEND_USERNAME: z.string(),
     CLICKSEND_API_KEY: z.string(),
     CLICKSEND_SENDER_ID: z.string().optional(),
+    // Driver Portal tokens
+    DD_JWT_SECRET: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN: z.string(),
@@ -31,6 +40,9 @@ export const env = createEnv({
     SHOPIFY_API_VERSION: process.env.SHOPIFY_API_VERSION,
     SHOPIFY_API_SECRET: process.env.SHOPIFY_API_SECRET,
     SHOPIFY_LOCATION_ID: process.env.SHOPIFY_LOCATION_ID,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    AI_MODEL: process.env.AI_MODEL,
+    AI_ENABLED: process.env.AI_ENABLED,
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,

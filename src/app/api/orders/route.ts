@@ -2,8 +2,87 @@ import { NextResponse } from 'next/server'
 import { prisma, withRetry } from '@/lib/prisma'
 import { parseLocalDate } from '@/lib/date-utils'
 
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    
+    const {
+      customerFirstName,
+      customerLastName,
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      deliveryDate,
+      deliveryTime,
+      note,
+      lineItems = []
+    } = body
+
+    // Validate required fields
+    if (!customerFirstName || !customerLastName || !customerEmail) {
+      return NextResponse.json(
+        { error: 'Missing required fields: customerFirstName, customerLastName, customerEmail' },
+        { status: 400 }
+      )
+    }
+
+    // Get the next order number
+    const lastOrder = await withRetry(async () => {
+      return await prisma.order.findFirst({
+        orderBy: { orderNumber: 'desc' }
+      })
+    })
+    
+    const nextOrderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1000
+
+    // Create the order
+    const newOrder = await withRetry(async () => {
+      return await prisma.order.create({
+        data: {
+          shopifyId: `manual-${Date.now()}`,
+          orderNumber: nextOrderNumber,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          totalPrice: 0,
+          subtotalPrice: 0,
+          totalTax: 0,
+          currency: 'NZD',
+          financialStatus: 'paid',
+          fulfillmentStatus: 'unfulfilled',
+          tags: '',
+          note: note || '',
+          customerEmail,
+          customerFirstName,
+          customerLastName,
+          customerPhone: customerPhone || '',
+          shippingAddress: shippingAddress ? JSON.parse(JSON.stringify(shippingAddress)) : null,
+          lineItems: JSON.parse(JSON.stringify(lineItems)),
+          source: 'manual',
+          hasLocalEdits: true,
+          deliveryDate: deliveryDate || null,
+          deliveryTime: deliveryTime || null,
+          deliveryDateResolved: deliveryDate ? parseLocalDate(deliveryDate) : null
+        }
+      })
+    })
+
+    console.log('✅ Successfully created new order:', newOrder.orderNumber)
+    return NextResponse.json(newOrder)
+  } catch (error) {
+    console.error('❌ Error creating order:', error)
+    return NextResponse.json(
+      { error: 'Failed to create order' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function GET(request: Request) {
   try {
+    // Ensure carId column exists (idempotent)
+    try {
+      await prisma.$executeRawUnsafe('ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "carId" TEXT');
+    } catch {}
     const { searchParams } = new URL(request.url)
     const date = searchParams.get('date')
     const deliveryDateResolved = searchParams.get('deliveryDateResolved') // YYYY-MM-DD

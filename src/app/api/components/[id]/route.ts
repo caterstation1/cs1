@@ -66,6 +66,7 @@ export async function PUT(
         ingredients: body.ingredients,
         totalCost,
         prepCategory: body.prepCategory ?? null,
+        prepCategories: body.prepCategories ?? null,
         producedQuantity,
         producedUnit,
         rawWeight: rawWeight as any,

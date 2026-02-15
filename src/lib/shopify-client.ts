@@ -22,7 +22,7 @@ export interface ShopifyOrder {
     first_name: string
     last_name: string
     phone: string
-  }
+  } | null
   shipping_address: any
   billing_address: any
   line_items: any[]
@@ -64,7 +64,11 @@ export async function fetchShopifyOrders(limit: number = 250): Promise<ShopifyOr
   })
 
   if (!response.ok) {
-    throw new Error(`Shopify API error: ${response.statusText}`)
+    // Surface Too Many Requests clearly for the UI
+    if (response.status === 429) {
+      throw new Error('Shopify API error: Too Many Requests')
+    }
+    throw new Error(`Shopify API error: ${response.status} ${response.statusText}`)
   }
 
   let data;

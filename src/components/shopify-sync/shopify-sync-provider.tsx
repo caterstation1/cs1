@@ -56,8 +56,19 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
     throw lastError ?? new Error('Unknown error')
   }
 
-  const syncOrders = async () => {
+  const syncOrders = async (opts?: { force?: boolean }) => {
     if (isSyncing) return
+    // Throttle: skip if we synced very recently (10 minutes) unless forced
+    try {
+      const last = typeof window !== 'undefined' ? localStorage.getItem('orders-sync-last') : null
+      if (!opts?.force && last) {
+        const lastMs = Number(last)
+        if (!Number.isNaN(lastMs) && Date.now() - lastMs < 10 * 60 * 1000) {
+          setSyncStatus('Recently synced')
+          return
+        }
+      }
+    } catch {}
 
     try {
       setIsSyncing(true)
@@ -67,7 +78,8 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
 
       // Use a client-safe retry wrapper
       const result = await withRetryClient(async () => {
-        const response = await fetch('/api/shopify/sync-orders', {
+        // Use the same endpoint the Orders page uses so behavior is consistent
+        const response = await fetch('/api/orders/sync', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,6 +97,7 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
       setLastSyncTime(new Date())
       setSyncStatus('Last sync: ' + new Date().toLocaleTimeString())
       console.log('✅ Shopify sync completed successfully:', result)
+      try { localStorage.setItem('orders-sync-last', String(Date.now())) } catch {}
     } catch (err) {
       let errorMessage = err instanceof Error ? err.message : 'An unknown error occurred'
       let errorStack = err instanceof Error ? err.stack : null
@@ -122,7 +135,13 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
       return
     }
 
-    // Initial sync when component mounts - wrapped in try-catch to prevent crashes
+    // Don't sync on login page to avoid refresh loops
+    if (typeof window !== 'undefined' && window.location.pathname === '/login') {
+      return
+    }
+
+    // Initial sync when component mounts - wrapped in try-catch to prevent crashes.
+    // Throttled by syncOrders logic (skips if run within last 10 minutes).
     const initialSync = async () => {
       try {
         await syncOrders()
@@ -133,12 +152,12 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
     
     initialSync()
 
-    // Set up interval for subsequent syncs
+    // Set up interval for subsequent syncs (every 15 minutes)
     const interval = setInterval(() => {
       syncOrders().catch(err => {
         console.error('Periodic sync failed, but continuing:', err)
       })
-    }, 60000) // Sync every minute
+    }, 900000) // 15 minutes
     
     return () => {
       console.log('Cleaning up sync interval')

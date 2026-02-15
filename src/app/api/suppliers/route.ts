@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
@@ -12,13 +11,10 @@ export async function GET() {
     });
     
     console.log(`✅ Successfully fetched ${suppliers.length} suppliers`);
-    return NextResponse.json(suppliers);
+    return new Response(JSON.stringify(suppliers), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
     console.error('❌ Error fetching suppliers:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch suppliers' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch suppliers' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }
 
@@ -36,12 +32,9 @@ export async function POST(request: Request) {
     });
     
     console.log(`✅ Created supplier: ${supplier.name}`);
-    return NextResponse.json(supplier, { status: 201 });
+    return new Response(JSON.stringify(supplier), { status: 201, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
     console.error('❌ Error creating supplier:', error);
-    return NextResponse.json(
-      { error: 'Failed to create supplier' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to create supplier' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 } 

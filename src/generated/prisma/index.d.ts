@@ -204,14 +204,11 @@ export type JobEvent = $Result.DefaultSelection<Prisma.$JobEventPayload>
  */
 export namespace $Enums {
   export const SmsTemplateType: {
-    delivery: 'delivery',
-    pickup: 'pickup'
-  } = {
-    delivery: 'delivery',
-    pickup: 'pickup'
-  };
+  delivery: 'delivery',
+  pickup: 'pickup'
+};
 
-  export type SmsTemplateType = (typeof SmsTemplateType)[keyof typeof SmsTemplateType]
+export type SmsTemplateType = (typeof SmsTemplateType)[keyof typeof SmsTemplateType]
 
 
 export const DeliveryDateResolvedSource: {

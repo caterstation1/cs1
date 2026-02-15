@@ -1,11 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getNZDateRangeForYmd, parseLocalDate } from '@/lib/date-utils'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    console.log('📊 Fetching shifts from database...')
-    
+    const { searchParams } = new URL(request.url)
+    const startDateStr = searchParams.get('startDate')
+    const endDateStr = searchParams.get('endDate')
+    const singleDateStr = searchParams.get('date')
+    const status = searchParams.get('status') // 'active' | 'completed'
+    const staffId = searchParams.get('staffId')
+
+    const where: any = {}
+    // Date filtering (Auckland-local boundaries)
+    if (singleDateStr) {
+      const { start, end } = getNZDateRangeForYmd(singleDateStr)
+      where.date = { gte: start, lte: end }
+    } else if (startDateStr || endDateStr) {
+      if (startDateStr && endDateStr) {
+        const s = getNZDateRangeForYmd(startDateStr).start
+        const e = getNZDateRangeForYmd(endDateStr).end
+        where.date = { gte: s, lte: e }
+      } else if (startDateStr) {
+        const s = getNZDateRangeForYmd(startDateStr).start
+        where.date = { gte: s }
+      } else if (endDateStr) {
+        const e = getNZDateRangeForYmd(endDateStr).end
+        where.date = { lte: e }
+      }
+    }
+
+    if (status === 'active') {
+      where.clockOut = null
+      where.status = 'active'
+    } else if (status === 'completed') {
+      where.status = 'completed'
+    }
+
+    if (staffId) where.staffId = staffId
+
     const shifts = await prisma.shift.findMany({
+      where,
       include: {
         staff: true,
         reimbursements: true,

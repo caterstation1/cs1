@@ -7,6 +7,7 @@ import { Order } from '@/types/order'
 import { parseLocalDate, getTodayLocal, formatLocalDate } from '@/lib/date-utils'
 import { StockPanel } from '@/components/StockPanel'
 import { deduplicateOrderUpdate, requestDeduplicator } from '@/lib/request-deduplication'
+import { isWellingtonOrder } from '@/lib/region'
 
 const MAX_CONCURRENT_UPDATES = 1000 // Increased from 5 to 1000 for testing
 let currentUpdates = 0
@@ -41,9 +42,27 @@ export default function RealtimeOrdersView() {
   const [lastSyncMs, setLastSyncMs] = useState<number | null>(null)
   const isPollingRef = useRef(false)
   const lastLocalUpdateMsRef = useRef<number>(0)
+  const [isTvMode, setIsTvMode] = useState<boolean>(false)
 
   // Create a stable reference to today's date to prevent infinite re-renders
   const today = useMemo(() => getTodayLocal(), [])
+  // Use centralized region detection
+
+  // Load TV mode preference
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('realtime-tv-mode')
+      if (saved) setIsTvMode(saved === '1')
+    } catch {}
+  }, [])
+
+  const toggleTvMode = () => {
+    setIsTvMode(prev => {
+      const next = !prev
+      try { localStorage.setItem('realtime-tv-mode', next ? '1' : '0') } catch {}
+      return next
+    })
+  }
 
   // Helper: extract delivery date from order (prefer deliveryDateResolved if present)
   function getOrderDeliveryDate(order: Order): Date | null {
@@ -92,6 +111,9 @@ export default function RealtimeOrdersView() {
       return !!d && format(d, 'yyyy-MM-dd') === todayKey
     })
   }, [orders, todayKey])
+
+  // AKL-only: exclude WLG orders
+  const aklOrders = useMemo(() => todaysOrders.filter(o => !isWellingtonOrder(o)), [todaysOrders])
 
   const fetchOrders = async (isRefresh = false) => {
     // Prevent fetching too frequently (minimum 5 seconds between fetches)
@@ -340,22 +362,45 @@ export default function RealtimeOrdersView() {
 
   return (
     <div className="w-full mx-0 px-0">
-      <div className="grid grid-cols-1 lg:grid-cols-[85%_15%] gap-4">
-        <div>
+      <div className="flex items-center justify-between px-2 py-1">
+        <div className="text-sm text-gray-600">Realtime Orders (AKL-only)</div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fetchOrders(true)}
+            className="px-3 py-1 rounded border text-sm bg-white text-gray-700 border-gray-300"
+            title="Refresh"
+          >
+            Refresh
+          </button>
+          <button
+            onClick={toggleTvMode}
+            className={`px-3 py-1 rounded border text-sm ${isTvMode ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-gray-700 border-gray-300'}`}
+            title="Toggle TV Mode"
+          >
+            {isTvMode ? 'TV Mode' : 'Normal'}
+          </button>
+        </div>
+      </div>
+      <div className={`${isTvMode ? 'grid grid-cols-1' : 'grid grid-cols-1 lg:grid-cols-[85%_15%]'} gap-4`}>
+        <div className="min-w-0">
           <OrderCardList 
-            orders={todaysOrders} 
+            orders={aklOrders} 
             onUpdateOrder={handleUpdateOrderWithLocalStamp}
             onBulkUpdateComplete={() => fetchOrders(true)} // Refresh after bulk update
+            selectedDate={today}
+            isTvMode={isTvMode}
           />
         </div>
-        <div>
-          <StockPanel 
-            autoRefresh={true}
-            refreshInterval={60000} // Refresh every minute
-            showRefreshButton={true}
-            targetDate={today} // Use today's date for realtime orders
-          />
-        </div>
+        {!isTvMode && (
+          <div>
+            <StockPanel 
+              autoRefresh={true}
+              refreshInterval={60000} // Refresh every minute
+              showRefreshButton={true}
+              targetDate={today} // Use today's date for realtime orders
+            />
+          </div>
+        )}
       </div>
     </div>
   )

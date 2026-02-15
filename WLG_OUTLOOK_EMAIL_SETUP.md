@@ -188,3 +188,5 @@ If you need help, check:
 2. Email service logs (Gmail sent items)
 3. Test the endpoint manually with curl
 
+
+

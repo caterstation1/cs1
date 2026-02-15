@@ -4,11 +4,10 @@ import { prisma } from '@/lib/prisma';
 // Function to calculate total cost from ingredients
 const calculateTotalCost = (ingredients: any[]): number => {
   if (!Array.isArray(ingredients)) return 0;
-  
   return ingredients.reduce((total, ingredient) => {
-    const quantity = ingredient.quantity || 0;
-    const cost = ingredient.cost || 0;
-    return total + (quantity * cost);
+    const quantity = Number(ingredient?.quantity || 0);
+    const cost = Number(ingredient?.cost || 0);
+    return total + (isFinite(quantity) && isFinite(cost) ? quantity * cost : 0);
   }, 0);
 };
 
@@ -45,7 +44,7 @@ const getCurrentIngredientCost = async (source: string, id: string): Promise<num
         return component?.totalCost || 0;
         
       case 'Products':
-        const product = await prisma.productWithCustomData.findUnique({
+        const product = await prisma.productVariant.findUnique({
           where: { variantId: id }
         });
         return product?.totalCost || 0;
@@ -62,17 +61,12 @@ const getCurrentIngredientCost = async (source: string, id: string): Promise<num
 // Function to update ingredient costs in a product's ingredients array
 const updateIngredientCosts = async (ingredients: any[]): Promise<any[]> => {
   if (!Array.isArray(ingredients)) return [];
-  
   const updatedIngredients = await Promise.all(
     ingredients.map(async (ingredient) => {
-      const currentCost = await getCurrentIngredientCost(ingredient.source, ingredient.id);
-      return {
-        ...ingredient,
-        cost: currentCost
-      };
+      const currentCost = await getCurrentIngredientCost(String(ingredient?.source || ''), String(ingredient?.id || ''));
+      return { ...ingredient, cost: currentCost };
     })
   );
-  
   return updatedIngredients;
 };
 
@@ -80,12 +74,21 @@ export async function POST(request: Request) {
   try {
     console.log('🔄 Starting product cost recalculation...');
     
-    // Get all products with ingredients
-    const products = await prisma.productWithCustomData.findMany({
-      where: {
-        ingredients: {
-          not: null as any
-        }
+    // Optional filters
+    let filter: any = undefined
+    try {
+      const body = await request.json().catch(() => ({}))
+      const variantId = body?.variantId ? String(body.variantId) : null
+      const productId = body?.productId ? String(body.productId) : null
+      if (variantId) filter = { where: { variantId } }
+      else if (productId) filter = { where: { productId } }
+    } catch {}
+
+    // Get variants along with their parent product baseIngredients
+    const products = await prisma.productVariant.findMany({
+      ...(filter || {}),
+      include: {
+        product: { select: { baseIngredients: true } }
       }
     });
     
@@ -97,19 +100,19 @@ export async function POST(request: Request) {
     // Process each product
     for (const product of products) {
       try {
-        const ingredients = product.ingredients as any[];
-        
-        // Update ingredient costs with current database values
-        const updatedIngredients = await updateIngredientCosts(ingredients);
-        
-        // Calculate new total cost
-        const newTotalCost = calculateTotalCost(updatedIngredients);
+        const variantIngredients = Array.isArray(product.ingredients) ? product.ingredients as any[] : [];
+        const baseIngredients = Array.isArray((product as any).product?.baseIngredients) ? ((product as any).product?.baseIngredients as any[]) : [];
+        // Combine base + variant for costing
+        const combined = [...baseIngredients, ...variantIngredients];
+        const updatedCombined = await updateIngredientCosts(combined);
+        // Calculate new total cost from combined
+        const newTotalCost = calculateTotalCost(updatedCombined);
         
         // Update the product
-        await prisma.productWithCustomData.update({
+        await prisma.productVariant.update({
           where: { id: product.id },
           data: {
-            ingredients: updatedIngredients,
+            // Keep variant-specific ingredients as-is; totalCost reflects base+variant
             totalCost: newTotalCost
           }
         });

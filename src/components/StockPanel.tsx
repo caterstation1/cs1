@@ -241,13 +241,13 @@ export function StockPanel({
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className="p-4 space-y-2">
+            <div className="p-3 space-y-1.5">
               {sortedComponents.map((component) => {
                 const isCompleted = completedItems.has(component.id)
                 return (
                   <div 
                     key={component.id} 
-                    className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
+                    className={`flex items-center justify-between p-2 rounded-md border cursor-pointer transition-all duration-150 ${
                       isCompleted 
                         ? 'bg-gray-100 text-gray-500 border-gray-200' 
                         : 'hover:bg-gray-50 border-gray-200'
@@ -264,13 +264,13 @@ export function StockPanel({
                         <IdCard className="h-4 w-4" />
                       </button>
                       <div className="flex-1 min-w-0">
-                        <p className={`font-medium truncate ${isCompleted ? 'line-through' : ''}`}>
+                        <p className={`font-medium truncate text-sm ${isCompleted ? 'line-through' : ''}`}>
                           {component.name}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className={`font-medium text-sm ${isCompleted ? 'text-gray-400' : ''}`}>
+                      <div className={`font-medium text-xs ${isCompleted ? 'text-gray-400' : ''}`}>
                         {component.quantity}
                       </div>
                     </div>
@@ -339,4 +339,6 @@ export function StockPanel({
     </>
   )
 } 
+
+
 

@@ -227,25 +227,74 @@ export async function POST(request: NextRequest) {
     const tomorrowDateStr = format(tomorrow, 'EEEE, MMMM d, yyyy')
     const dayAfterDateStr = format(dayAfter, 'EEEE, MMMM d, yyyy')
 
-    // Generate email HTML
+    // Generate email HTML with ISO dates for links
+    const todayISO = format(today, 'yyyy-MM-dd')
+    const tomorrowISO = format(tomorrow, 'yyyy-MM-dd')
+    const dayAfterISO = format(dayAfter, 'yyyy-MM-dd')
+    
     const emailHTML = formatWLGOutlookEmail(
       todayEmailData,
       tomorrowEmailData,
       dayAfterEmailData,
       todayDateStr,
       tomorrowDateStr,
-      dayAfterDateStr
+      dayAfterDateStr,
+      todayISO,
+      tomorrowISO,
+      dayAfterISO
     )
 
+    // Generate PDFs for today's runsheet
+    let runsheetPDF: Buffer | null = null
+    
+    try {
+      console.log('📄 Starting runsheet PDF generation...')
+      const React = await import('react')
+      const { renderToBuffer } = await import('@react-pdf/renderer')
+      const { RunsheetDocument } = await import('@/lib/pdf/runsheet-document')
+      const { fetchRunsheetData } = await import('@/lib/runsheet-data')
+      
+      console.log('📄 Fetching runsheet data for today...')
+      const runsheetData = await fetchRunsheetData(today, true) // isWLG = true
+      console.log('📄 Runsheet data fetched:', {
+        orderCount: runsheetData.orderCount,
+        boxesCount: runsheetData.boxesCount,
+        productsCount: runsheetData.productsList.length
+      })
+      
+      console.log('📄 Creating PDF document...')
+      const doc = React.createElement(RunsheetDocument, { data: runsheetData })
+      runsheetPDF = await renderToBuffer(doc as any)
+      console.log('✅ Generated runsheet PDF, size:', runsheetPDF.length, 'bytes')
+    } catch (pdfError: any) {
+      console.error('❌ Failed to generate runsheet PDF:', pdfError)
+      console.error('❌ Error stack:', pdfError?.stack)
+    }
+
+    const attachments: any[] = []
+    if (runsheetPDF) {
+      console.log('📎 Adding runsheet PDF attachment')
+      attachments.push({
+        filename: `runsheet-${format(today, 'yyyy-MM-dd')}.pdf`,
+        content: runsheetPDF,
+        contentType: 'application/pdf'
+      })
+    } else {
+      console.log('⚠️ No runsheet PDF generated, skipping attachment')
+    }
+
     // Send email
+    console.log(`📧 Sending test email to ${recipientEmail} with ${attachments.length} attachments`)
+    
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: recipientEmail,
       subject: `WLG 3-Day Outlook - ${format(today, 'MMM d')}, ${format(tomorrow, 'MMM d')} & ${format(dayAfter, 'MMM d')}`,
       html: emailHTML,
+      attachments
     })
 
-    console.log(`✅ Test WLG Outlook email sent to ${recipientEmail}`)
+    console.log(`✅ Test WLG Outlook email sent to ${recipientEmail} with ${attachments.length} attachments`)
     console.log(`   Today (${todayDateStr}): ${todayOrders.length} orders`)
     console.log(`   Tomorrow (${tomorrowDateStr}): ${tomorrowOrders.length} orders`)
     console.log(`   Day After (${dayAfterDateStr}): ${dayAfterOrders.length} orders`)

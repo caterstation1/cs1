@@ -86,3 +86,69 @@ export function getTodayLocal(): Date {
   // Create a new date object set to Auckland midnight
   return new Date(year, month - 1, day, 0, 0, 0, 0);
 } 
+
+/**
+ * Formats a Date as YYYY-MM-DD in Pacific/Auckland timezone.
+ * Uses Intl to avoid environment local timezone differences.
+ */
+export function formatNZYMD(date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-NZ', {
+    timeZone: 'Pacific/Auckland',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const y = parts.find(p => p.type === 'year')?.value || '1970';
+  const m = parts.find(p => p.type === 'month')?.value || '01';
+  const d = parts.find(p => p.type === 'day')?.value || '01';
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * Returns the correct NZ offset suffix (+12:00 or +13:00) for the given YYYY-MM-DD.
+ * Determines DST by verifying which candidate yields 00:00 wall time in Auckland.
+ */
+function getAucklandOffsetSuffixForYmd(ymd: string): string {
+  const fmt = (date: Date) => {
+    const parts = new Intl.DateTimeFormat('en-NZ', {
+      timeZone: 'Pacific/Auckland',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).formatToParts(date);
+    const y = parts.find(p => p.type === 'year')?.value || '1970';
+    const m = parts.find(p => p.type === 'month')?.value || '01';
+    const d = parts.find(p => p.type === 'day')?.value || '01';
+    const hh = parts.find(p => p.type === 'hour')?.value || '00';
+    return { ymd: `${y}-${m}-${d}`, hh };
+  };
+  const c12 = new Date(`${ymd}T00:00:00.000+12:00`);
+  const p12 = fmt(c12);
+  if (p12.ymd === ymd && p12.hh === '00') return '+12:00';
+  return '+13:00';
+}
+
+/**
+ * Given a YYYY-MM-DD, returns [start,end] Date objects representing
+ * Auckland-local day's start and end as absolute instants.
+ */
+export function getNZDateRangeForYmd(ymd: string): { start: Date; end: Date } {
+  const offset = getAucklandOffsetSuffixForYmd(ymd);
+  const start = new Date(`${ymd}T00:00:00.000${offset}`);
+  const end = new Date(`${ymd}T23:59:59.999${offset}`);
+  return { start, end };
+}
+
+/**
+ * Adds N days to a YYYY-MM-DD string and returns the resulting NZ date string (YYYY-MM-DD).
+ * This uses Date arithmetic then formats back in NZ time to be DST-safe.
+ */
+export function addDaysNZ(ymd: string, days: number): string {
+  // Use the start of NZ day to anchor, then add 24h*days, then format in NZ.
+  const { start } = getNZDateRangeForYmd(ymd);
+  const next = new Date(start.getTime() + days * 24 * 60 * 60 * 1000);
+  return formatNZYMD(next);
+}

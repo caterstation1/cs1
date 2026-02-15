@@ -11,3 +11,5 @@ export async function GET() {
     message: 'Current production deployment URL'
   })
 }
+
+export const dynamic = 'force-dynamic'

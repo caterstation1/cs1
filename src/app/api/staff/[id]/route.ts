@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { hashPassword } from '@/lib/auth'
 
 export async function GET(
   request: NextRequest,
@@ -48,17 +49,21 @@ export async function PUT(
     const { id } = await params
     const data = await request.json()
     
+    const updateData: any = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phone: data.phone,
+      payRate: data.payRate,
+      accessLevel: data.accessLevel,
+      isDriver: data.isDriver,
+    }
+    if (typeof data.password === 'string' && data.password.trim()) {
+      updateData.password = await hashPassword(data.password.trim())
+    }
     const staff = await prisma.staff.update({
       where: { id },
-      data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        payRate: data.payRate,
-        accessLevel: data.accessLevel,
-        isDriver: data.isDriver,
-      },
+      data: updateData,
       select: {
         id: true,
         firstName: true,

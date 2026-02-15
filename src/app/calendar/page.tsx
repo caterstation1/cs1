@@ -7,6 +7,7 @@ import { format, isSameDay, parseISO, startOfMonth, endOfMonth, startOfWeek, end
 import { Order } from '@/types/order'
 import { parseLocalDate, getTodayLocal } from '@/lib/date-utils'
 import { Button } from '@/components/ui/button'
+import { useCachedFetch } from '@/lib/use-cached-fetch'
 import {
   Dialog,
   DialogContent,
@@ -23,10 +24,31 @@ import { isWellingtonOrder } from '@/lib/region'
 
 export default function CalendarPage() {
   const { syncOrders } = useShopifySync()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
+  
+  // Use cached fetch for orders
+  const { 
+    data: ordersData, 
+    loading, 
+    error, 
+    refresh: refreshOrders,
+    lastFetch 
+  } = useCachedFetch<Order[] | { orders: Order[] }>(
+    '/api/orders?limit=10000',
+    { key: 'orders_akl', ttl: 120000 } // 2 minutes cache
+  )
+  
+  // Extract orders array from response
+  const orders = useMemo(() => {
+    if (!ordersData) return []
+    if (Array.isArray(ordersData)) return ordersData
+    if (ordersData && Array.isArray((ordersData as any).orders)) return (ordersData as any).orders
+    return []
+  }, [ordersData])
+  
+  // Filter to AKL-only (exclude WLG orders)
+  const aklOrders = useMemo(() => {
+    return orders.filter(o => !isWellingtonOrder(o))
+  }, [orders])
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     // Create a local midnight date for today
     return getTodayLocal();
@@ -62,7 +84,8 @@ export default function CalendarPage() {
       })
       if (!response.ok) throw new Error('Failed to update order')
       const updatedOrder = await response.json()
-      setOrders(prev => prev.map(order => order.id === orderId ? { ...order, ...updatedOrder } : order))
+      // Invalidate cache and refresh in background
+      setTimeout(() => refreshOrders(), 500) // Small delay to let update complete
       return updatedOrder
     } catch (err) {
       console.error('Error updating order:', err)
@@ -70,39 +93,8 @@ export default function CalendarPage() {
     }
   }
 
-  // Re-fetch all orders (for after bulk update)
-  const fetchOrders = async (showLoading = false) => {
-    if (showLoading) setLoading(true)
-    try {
-      // Fetch all orders with a high limit to ensure we get all orders
-      const response = await fetch('/api/orders?limit=10000')
-      if (!response.ok) throw new Error('Failed to fetch orders')
-      const data = await response.json()
-      
-      // Ensure we have an array of orders
-      let ordersArray: Order[] = []
-      if (Array.isArray(data)) {
-        ordersArray = data
-      } else if (data && Array.isArray(data.orders)) {
-        ordersArray = data.orders
-      } else {
-        console.warn('Unexpected orders data format:', data)
-        ordersArray = []
-      }
-
-      // Filter to AKL-only (exclude WLG orders)
-      const aklOnly = ordersArray.filter(o => !isWellingtonOrder(o))
-      setOrders(aklOnly)
-      setError(null)
-      setLastRefresh(new Date())
-    } catch (err) {
-      console.error('Error fetching orders:', err)
-      setError('Failed to load orders')
-      // Don't clear orders on error - keep existing data
-    } finally {
-      if (showLoading) setLoading(false)
-    }
-  }
+  // Re-fetch all orders (for after bulk update) - uses cached fetch
+  const fetchOrders = refreshOrders
 
   // Helper: extract delivery date from order (prefer deliveryDate field)
   function getOrderDeliveryDate(order: Order): Date | null {
@@ -138,12 +130,12 @@ export default function CalendarPage() {
   // Group orders by date (YYYY-MM-DD)
   const ordersByDate = useMemo(() => {
     const map: Record<string, Order[]> = {}
-    // Ensure orders is an array before iterating
-    if (!Array.isArray(orders)) {
-      console.warn('Orders is not an array:', orders)
+    // Ensure aklOrders is an array before iterating
+    if (!Array.isArray(aklOrders)) {
+      console.warn('Orders is not an array:', aklOrders)
       return map
     }
-    for (const order of orders) {
+    for (const order of aklOrders) {
       const date = getOrderDeliveryDate(order)
       if (!date) continue
       const key = format(date, 'yyyy-MM-dd')
@@ -151,7 +143,7 @@ export default function CalendarPage() {
       map[key].push(order)
     }
     return map
-  }, [orders])
+  }, [aklOrders])
 
   // Orders for selected date
   const filteredOrders = useMemo(() => {
@@ -258,21 +250,15 @@ export default function CalendarPage() {
     setIsAddOrderModalOpen(true)
   }
 
-  // Initial load - show UI immediately, load data in background
-  useEffect(() => {
-    // Load immediately in background (don't block UI)
-    fetchOrders(false)
-  }, [])
-
-  // Auto-refresh every 2 minutes (120000ms)
+  // Auto-refresh every 2 minutes (120000ms) - handled by useCachedFetch
   useEffect(() => {
     const interval = setInterval(() => {
       console.log('🔄 Auto-refreshing calendar data...')
-      fetchOrders(false) // Background refresh, don't show loading spinner
+      fetchOrders() // Background refresh
     }, 120000) // 2 minutes
 
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchOrders])
   
   // Trigger a one-off Shopify sync when the calendar page opens
   useEffect(() => {
@@ -354,15 +340,15 @@ export default function CalendarPage() {
               <div className="font-bold text-lg">
                 Orders for {format(selectedDate, 'EEE, MMM d, yyyy')}
               </div>
-              {lastRefresh && (
+              {lastFetch && (
                 <div className="text-xs text-muted-foreground">
-                  Last updated: {format(lastRefresh, 'HH:mm:ss')} • Auto-refresh every 2 min
+                  Last updated: {format(lastFetch, 'HH:mm:ss')} • Auto-refresh every 2 min
                 </div>
               )}
             </div>
             <div className="flex items-center gap-2">
               <Button 
-                onClick={() => fetchOrders(true)} 
+                onClick={() => fetchOrders()} 
                 size="sm" 
                 variant="outline"
                 disabled={loading}
@@ -393,7 +379,7 @@ export default function CalendarPage() {
                 <OrderCardList 
                   orders={filteredOrders} 
                   onUpdateOrder={handleUpdateOrder}
-                  onBulkUpdateComplete={() => fetchOrders(true)}
+                  onBulkUpdateComplete={() => fetchOrders()}
                   selectedDate={selectedDate}
                 />
               </>

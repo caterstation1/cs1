@@ -7,6 +7,7 @@ import { format, isSameDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, ad
 import { Order } from '@/types/order'
 import { getTodayLocal, parseLocalDate } from '@/lib/date-utils'
 import { Button } from '@/components/ui/button'
+import { useCachedFetch } from '@/lib/use-cached-fetch'
 import {
   Dialog,
   DialogContent,
@@ -21,10 +22,30 @@ import { Plus, RefreshCw } from 'lucide-react'
 import { isWellingtonOrder } from '@/lib/region'
 
 export default function WlgCalendarPage() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
+  // Use cached fetch for orders
+  const { 
+    data: ordersData, 
+    loading, 
+    error, 
+    refresh: refreshOrders,
+    lastFetch 
+  } = useCachedFetch<Order[] | { orders: Order[] }>(
+    '/api/orders?limit=10000',
+    { key: 'orders_wlg', ttl: 120000 } // 2 minutes cache
+  )
+  
+  // Extract orders array from response
+  const ordersRaw = useMemo(() => {
+    if (!ordersData) return []
+    if (Array.isArray(ordersData)) return ordersData
+    if (ordersData && Array.isArray((ordersData as any).orders)) return (ordersData as any).orders
+    return []
+  }, [ordersData])
+  
+  // Filter orders using centralized Wellington detection
+  const orders = useMemo(() => {
+    return ordersRaw.filter((o: any) => isWellingtonOrder(o))
+  }, [ordersRaw])
   const [selectedDate, setSelectedDate] = useState<Date>(() => getTodayLocal())
   
   // Add Order Modal state
@@ -48,43 +69,18 @@ export default function WlgCalendarPage() {
     noteAttributes: [{ name: 'City', value: 'WLG' }]
   })
 
-  const fetchOrders = async (showLoading = false) => {
-    if (showLoading) setLoading(true)
-    try {
-      const res = await fetch('/api/orders?limit=10000')
-      if (!res.ok) throw new Error('Failed to fetch orders')
-      const data = await res.json()
-      const list: Order[] = Array.isArray(data) ? data : Array.isArray(data.orders) ? data.orders : []
+  // Re-fetch all orders (for after bulk update) - uses cached fetch
+  const fetchOrders = refreshOrders
 
-      // Filter orders using centralized Wellington detection
-      const filtered = list.filter((o: any) => isWellingtonOrder(o))
-
-      setOrders(filtered)
-      setError(null)
-      setLastRefresh(new Date())
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load orders')
-      // Don't clear orders on error - keep existing data
-    } finally {
-      if (showLoading) setLoading(false)
-    }
-  }
-
-  // Initial load - show UI immediately, load data in background
-  useEffect(() => {
-    // Load immediately in background (don't block UI)
-    fetchOrders(false)
-  }, [])
-
-  // Auto-refresh every 2 minutes (120000ms)
+  // Auto-refresh every 2 minutes (120000ms) - handled by useCachedFetch
   useEffect(() => {
     const interval = setInterval(() => {
       console.log('🔄 Auto-refreshing WLG calendar data...')
-      fetchOrders(false) // Background refresh, don't show loading spinner
+      fetchOrders() // Background refresh
     }, 120000) // 2 minutes
 
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchOrders])
 
   // Group orders by date (YYYY-MM-DD) identical to main calendar
   const ordersByDate = useMemo(() => {
@@ -237,15 +233,15 @@ export default function WlgCalendarPage() {
               <div className="font-bold text-lg">
                 Orders for {format(selectedDate, 'EEE, MMM d, yyyy')}
               </div>
-              {lastRefresh && (
+              {lastFetch && (
                 <div className="text-xs text-muted-foreground">
-                  Last updated: {format(lastRefresh, 'HH:mm:ss')} • Auto-refresh every 2 min
+                  Last updated: {format(lastFetch, 'HH:mm:ss')} • Auto-refresh every 2 min
                 </div>
               )}
             </div>
             <div className="flex items-center gap-2">
               <Button 
-                onClick={() => fetchOrders(true)} 
+                onClick={() => fetchOrders()} 
                 size="sm" 
                 variant="outline"
                 disabled={loading}
@@ -277,9 +273,10 @@ export default function WlgCalendarPage() {
                   const res = await fetch(`/api/orders/${orderId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) })
                   if (!res.ok) throw new Error('Failed to update order')
                   const updated = await res.json()
-                  setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updated } : o))
+                  // Invalidate cache and refresh in background
+                  setTimeout(() => fetchOrders(), 500)
                   return updated
-                }} onBulkUpdateComplete={() => fetchOrders(true)} selectedDate={selectedDate} originAddressOverride={"9 Ganges Road, Khandallah, Wellington 6035"} />
+                }} onBulkUpdateComplete={() => fetchOrders()} selectedDate={selectedDate} originAddressOverride={"9 Ganges Road, Khandallah, Wellington 6035"} />
               </>
             )}
           </div>

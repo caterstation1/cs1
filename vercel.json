@@ -4,6 +4,7 @@
       "maxDuration": 300
     }
   },
+  "installCommand": "npm install --no-package-lock --no-audit --no-fund",
   "headers": [
     {
       "source": "/api/(.*)",
@@ -26,7 +27,23 @@
   "crons": [
     {
       "path": "/api/cron/wlg-outlook",
-      "schedule": "0 9 * * *"
+      "schedule": "0 21 * * *"
+    },
+    {
+      "path": "/api/cron/supplier-emails",
+      "schedule": "0 21 * * *"
+    },
+    {
+      "path": "/api/cron/supplier-emails",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/supplier-emails",
+      "schedule": "15 3 * * *"
+    },
+    {
+      "path": "/api/cron/supplier-emails",
+      "schedule": "15 2 * * *"
     }
   ]
 } 

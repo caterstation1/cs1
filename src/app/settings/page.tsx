@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import DataDriversAdminTab from './_components/DataDriversAdminTab'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Loader2, Send, Settings as SettingsIcon, Mail, Edit3, Save, RefreshCw, Plus, X } from 'lucide-react'
@@ -83,6 +84,18 @@ export default function SettingsPage() {
   const [testingEmail, setTestingEmail] = useState(false)
   const [bulkSaving, setBulkSaving] = useState<'components' | 'other' | null>(null)
   const { toast } = useToast()
+  // Stock items state
+  const [stockItems, setStockItems] = useState<any[]>([])
+  const [suppliers, setSuppliers] = useState<any[]>([])
+  const [savingStock, setSavingStock] = useState(false)
+  // SMS templates
+  const [smsDelivery, setSmsDelivery] = useState('')
+  const [smsPickup, setSmsPickup] = useState('')
+  const [savingSms, setSavingSms] = useState(false)
+  // Cars (Fleet)
+  const [cars, setCars] = useState<Array<{ id: string; name: string; rego: string; wofExpiry?: string | null; regoExpiry?: string | null }>>([])
+  const [carForm, setCarForm] = useState<{ name: string; rego: string; wofExpiry?: string | null; regoExpiry?: string | null }>({ name: '', rego: '', wofExpiry: '', regoExpiry: '' })
+  const [savingCar, setSavingCar] = useState(false)
 
   // Load all data
   useEffect(() => {
@@ -94,7 +107,11 @@ export default function SettingsPage() {
       await Promise.all([
         loadSettings(),
         loadComponents(),
-        loadOtherItems()
+        loadOtherItems(),
+        loadStock(),
+        loadSuppliers(),
+        loadSmsTemplates(),
+        loadCars()
       ])
     } catch (error) {
       console.error('Error loading data:', error)
@@ -113,6 +130,144 @@ export default function SettingsPage() {
     } catch (error) {
       console.error('Error loading settings:', error)
     }
+  }
+
+  const loadCars = async () => {
+    try {
+      const res = await fetch('/api/cars', { cache: 'no-store' })
+      if (res.ok) {
+        const data = await res.json()
+        setCars(Array.isArray(data) ? data : [])
+      }
+    } catch (e) {
+      console.error('Error loading cars', e)
+    }
+  }
+
+  const addCar = async () => {
+    try {
+      setSavingCar(true)
+      const res = await fetch('/api/cars', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: carForm.name,
+          rego: carForm.rego,
+          wofExpiry: carForm.wofExpiry || null,
+          regoExpiry: carForm.regoExpiry || null,
+        })
+      })
+      if (!res.ok) throw new Error('Failed to create car')
+      setCarForm({ name: '', rego: '', wofExpiry: '', regoExpiry: '' })
+      await loadCars()
+      toast({ title: 'Saved', description: 'Car added' })
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to add car', variant: 'destructive' })
+    } finally {
+      setSavingCar(false)
+    }
+  }
+
+  const updateCar = async (id: string, patch: Partial<{ name: string; rego: string; wofExpiry?: string | null; regoExpiry?: string | null }>) => {
+    try {
+      const res = await fetch(`/api/cars/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch)
+      })
+      if (!res.ok) throw new Error('Failed to update car')
+      await loadCars()
+      toast({ title: 'Updated', description: 'Car updated' })
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to update car', variant: 'destructive' })
+    }
+  }
+
+  const deleteCar = async (id: string) => {
+    try {
+      const res = await fetch(`/api/cars/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete car')
+      await loadCars()
+      toast({ title: 'Deleted', description: 'Car removed' })
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to delete car', variant: 'destructive' })
+    }
+  }
+
+  const loadSmsTemplates = async () => {
+    try {
+      const res = await fetch('/api/settings/sms-templates')
+      if (res.ok) {
+        const data = await res.json()
+        setSmsDelivery(data.delivery || '')
+        setSmsPickup(data.pickup || '')
+      }
+    } catch (e) {
+      console.error('Error loading SMS templates', e)
+    }
+  }
+
+  const saveSmsTemplates = async () => {
+    setSavingSms(true)
+    try {
+      const res = await fetch('/api/settings/sms-templates', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ delivery: smsDelivery, pickup: smsPickup })
+      })
+      if (!res.ok) throw new Error('Failed to save SMS templates')
+      toast({ title: 'Saved', description: 'SMS templates updated' })
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Failed to save SMS templates', variant: 'destructive' })
+    } finally {
+      setSavingSms(false)
+    }
+  }
+
+  const loadSuppliers = async () => {
+    try {
+      const res = await fetch('/api/suppliers')
+      if (res.ok) {
+        const data = await res.json()
+        setSuppliers(data || [])
+      }
+    } catch (e) { console.error('Error loading suppliers', e) }
+  }
+
+  const loadStock = async () => {
+    try {
+      const res = await fetch('/api/stock-items')
+      if (res.ok) {
+        const data = await res.json()
+        setStockItems(Array.isArray(data) ? data : [])
+      }
+    } catch (e) { console.error('Error loading stock items', e) }
+  }
+
+  const addStockItem = () => {
+    setStockItems(prev => ([...prev, { id: 'new', name: '', description: '', supplierId: '', priceExGst: 0, isActive: true }]))
+  }
+  const updateStockItem = (index: number, field: string, value: any) => {
+    const updated = [...stockItems]
+    updated[index] = { ...updated[index], [field]: value }
+    setStockItems(updated)
+  }
+  const removeStockItem = (index: number) => setStockItems(stockItems.filter((_: any, i: number) => i !== index))
+  const saveStockItems = async () => {
+    setSavingStock(true)
+    try {
+      for (const item of stockItems) {
+        if (item.id === 'new') {
+          await fetch('/api/stock-items', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item) })
+        } else {
+          await fetch(`/api/stock-items/${item.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item) })
+        }
+      }
+      toast({ title: 'Saved', description: 'Stock items updated' })
+      await loadStock()
+    } catch (e) {
+      toast({ title: 'Error', description: 'Failed to save stock items', variant: 'destructive' })
+    } finally { setSavingStock(false) }
   }
 
   const loadComponents = async () => {
@@ -397,7 +552,7 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="email" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="email" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
             Email Automation
@@ -405,6 +560,22 @@ export default function SettingsPage() {
           <TabsTrigger value="bulk-edit" className="flex items-center gap-2">
             <Edit3 className="h-4 w-4" />
             Bulk Edit
+          </TabsTrigger>
+          <TabsTrigger value="stock" className="flex items-center gap-2">
+            <SettingsIcon className="h-4 w-4" />
+            CS Stock Items
+          </TabsTrigger>
+          <TabsTrigger value="messaging" className="flex items-center gap-2">
+            <SettingsIcon className="h-4 w-4" />
+            Messaging (SMS)
+          </TabsTrigger>
+          <TabsTrigger value="cars" className="flex items-center gap-2">
+            <SettingsIcon className="h-4 w-4" />
+            Cars
+          </TabsTrigger>
+          <TabsTrigger value="datadrivers" className="flex items-center gap-2">
+            <SettingsIcon className="h-4 w-4" />
+            DataDrivers
           </TabsTrigger>
         </TabsList>
 
@@ -846,6 +1017,158 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="cars" className="mt-6">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold">Fleet Cars</h2>
+                <p className="text-sm text-muted-foreground">Manage vehicles available for deliveries</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+              <div>
+                <Label>Name</Label>
+                <Input value={carForm.name} onChange={e=>setCarForm(f=>({ ...f, name: e.target.value }))} placeholder="e.g. Van 1" />
+              </div>
+              <div>
+                <Label>Rego</Label>
+                <Input value={carForm.rego} onChange={e=>setCarForm(f=>({ ...f, rego: e.target.value }))} placeholder="e.g. ABC123" />
+              </div>
+              <div>
+                <Label>WOF Expiry</Label>
+                <Input type="date" value={carForm.wofExpiry || ''} onChange={e=>setCarForm(f=>({ ...f, wofExpiry: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Rego Expiry</Label>
+                <Input type="date" value={carForm.regoExpiry || ''} onChange={e=>setCarForm(f=>({ ...f, regoExpiry: e.target.value }))} />
+              </div>
+            </div>
+            <div className="mt-3">
+              <Button onClick={addCar} disabled={savingCar || !carForm.name || !carForm.rego} className="flex items-center gap-2">
+                {savingCar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                Add Car
+              </Button>
+            </div>
+            <div className="divide-y mt-4">
+              {cars.map(car => {
+                const toDateVal = (v?: string | null) => {
+                  if (!v) return ''
+                  const d = new Date(v)
+                  if (Number.isNaN(d.getTime())) return ''
+                  const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0')
+                  return `${y}-${m}-${day}`
+                }
+                return (
+                  <div key={car.id} className="py-3 grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
+                    <Input value={car.name} onChange={e=>updateCar(car.id, { name: e.target.value })} />
+                    <Input value={car.rego} onChange={e=>updateCar(car.id, { rego: e.target.value })} />
+                    <Input type="date" value={toDateVal(car.wofExpiry)} onChange={e=>updateCar(car.id, { wofExpiry: e.target.value })} />
+                    <Input type="date" value={toDateVal(car.regoExpiry)} onChange={e=>updateCar(car.id, { regoExpiry: e.target.value })} />
+                    <div className="text-right">
+                      <Button variant="destructive" size="sm" onClick={()=>deleteCar(car.id)}><X className="h-4 w-4" /></Button>
+                    </div>
+                  </div>
+                )
+              })}
+              {cars.length === 0 && (
+                <div className="py-6 text-sm text-muted-foreground">No cars yet. Add your first car above.</div>
+              )}
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="stock" className="mt-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <SettingsIcon className="h-5 w-5" />
+                    CS Stock Items
+                  </CardTitle>
+                  <CardDescription>Manage stock items available to WLG licensees</CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={addStockItem} variant="outline" size="sm"><Plus className="h-4 w-4 mr-2"/>Add Item</Button>
+                  <Button onClick={saveStockItems} disabled={savingStock} className="flex items-center gap-2">{savingStock ? <Loader2 className="h-4 w-4 animate-spin"/> : <Save className="h-4 w-4"/>}Save All</Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-300">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Name</th>
+                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Description</th>
+                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Supplier</th>
+                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">SKU</th>
+                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Price (ex GST)</th>
+                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Active</th>
+                      <th className="border border-gray-300 p-2 text-left text-sm font-medium">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stockItems.map((item, index) => (
+                      <tr key={item.id || index} className="hover:bg-gray-50">
+                        <td className="border border-gray-300 p-2"><Input value={item.name} onChange={e=>updateStockItem(index,'name',e.target.value)} /></td>
+                        <td className="border border-gray-300 p-2"><Input value={item.description||''} onChange={e=>updateStockItem(index,'description',e.target.value)} /></td>
+                        <td className="border border-gray-300 p-2">
+                          <Select value={item.supplierId||''} onValueChange={(v)=>updateStockItem(index,'supplierId',v)}>
+                            <SelectTrigger className="w-[220px]">
+                              <div className="truncate text-left w-full">
+                                {suppliers.find((s:any)=>s.id===item.supplierId)?.name || 'Select supplier'}
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {suppliers.map(s=> <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="border border-gray-300 p-2"><Input value={item.sku||''} onChange={e=>updateStockItem(index,'sku',e.target.value)} /></td>
+                        <td className="border border-gray-300 p-2"><Input type="number" step="0.01" value={item.priceExGst} onChange={e=>updateStockItem(index,'priceExGst',parseFloat(e.target.value)||0)} /></td>
+                        <td className="border border-gray-300 p-2">
+                          <input type="checkbox" checked={!!item.isActive} onChange={e=>updateStockItem(index,'isActive',e.target.checked)} />
+                        </td>
+                        <td className="border border-gray-300 p-2">
+                          <Button onClick={()=>removeStockItem(index)} variant="destructive" size="sm"><X className="h-4 w-4"/></Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="messaging" className="mt-6">
+          <Card className="p-6">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">SMS Templates</h2>
+              <p className="text-sm text-muted-foreground">
+                Supported tokens: {'{{CustomerFirstName}}'}, {'{{DeliveryTime}}'}, {'{{ShippingAddress.company}}'}, {'{{ShippingAddress.address1}}'}, {'{{ShippingAddress.address2}}'}, {'{{LineItemsList}}'}.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Delivery Template</Label>
+                <textarea className="w-full min-h-[240px] border rounded p-2" value={smsDelivery} onChange={(e)=>setSmsDelivery(e.target.value)} />
+              </div>
+              <div>
+                <Label>Pickup Template</Label>
+                <textarea className="w-full min-h-[240px] border rounded p-2" value={smsPickup} onChange={(e)=>setSmsPickup(e.target.value)} />
+              </div>
+            </div>
+            <div className="mt-4 flex justify-end">
+              <Button onClick={saveSmsTemplates} disabled={savingSms}>{savingSms ? 'Saving...' : 'Save Templates'}</Button>
+            </div>
+          </Card>
+        </TabsContent>
+        <TabsContent value="datadrivers" className="mt-6">
+          <DataDriversAdminTab />
         </TabsContent>
       </Tabs>
     </div>

@@ -9,35 +9,133 @@ export async function GET(request: NextRequest) {
 
     // Handle single SKU lookup
     if (sku && variantIds.length === 0) {
-      const product = await prisma.productWithCustomData.findFirst({
+      const variant = await prisma.productVariant.findFirst({
         where: {
           shopifySku: sku
+        },
+        include: {
+          product: {
+            select: {
+              shopifyProductId: true,
+              productTitle: true,
+              displayName: true,
+              heroImageUrl: true,
+              shopifyVendor: true,
+              shopifyMarket: true,
+              baseIngredients: true,
+              isPartyPackDefault: true,
+              bundleDefaultItems: true
+            }
+          }
         }
       });
 
-      if (!product) {
+      if (!variant) {
         return NextResponse.json(
           { error: 'Product not found' },
           { status: 404 }
         );
       }
 
+      // Transform to match expected format
+      const product = {
+        id: variant.id,
+        variantId: variant.variantId,
+        shopifyProductId: variant.product.shopifyProductId,
+        shopifySku: variant.shopifySku,
+        shopifyName: variant.shopifyName,
+        shopifyTitle: variant.shopifyTitle,
+        shopifyPrice: variant.shopifyPrice,
+        shopifyInventory: variant.shopifyInventory,
+        shopifyVendor: variant.product.shopifyVendor,
+        shopifyMarket: variant.product.shopifyMarket,
+        heroImageUrl: variant.product.heroImageUrl,
+        displayName: variant.displayName,
+        productDisplayName: variant.product.displayName,
+        // parent-level pack defaults
+        productIsPartyPackDefault: (variant.product as any).isPartyPackDefault ?? false,
+        productBundleDefaultItems: (variant.product as any).bundleDefaultItems ?? null,
+        meats: Array.isArray((variant as any).meats) ? (variant as any).meats : [variant.meat1 ?? null, variant.meat2 ?? null],
+        timers: Array.isArray((variant as any).timers) ? (variant as any).timers : [variant.timer1 ?? null, variant.timer2 ?? null],
+        options: Array.isArray((variant as any).options) ? (variant as any).options : [variant.option1 ?? null, variant.option2 ?? null],
+        meat1: variant.meat1,
+        meat2: variant.meat2,
+        timer1: variant.timer1,
+        timer2: variant.timer2,
+        option1: variant.option1,
+        option2: variant.option2,
+        serveware: variant.serveware,
+        isDraft: variant.isDraft,
+        ingredients: variant.ingredients,
+        baseIngredients: variant.product.baseIngredients,
+        totalCost: variant.totalCost,
+        isPartyPack: (variant as any).isPartyPack ?? false,
+        bundleItems: (variant as any).bundleItems ?? null
+      };
+
       return NextResponse.json(product);
     }
 
     // Handle multiple variantId lookup
     if (variantIds.length > 0) {
-      const products = await prisma.productWithCustomData.findMany({
+      const variants = await prisma.productVariant.findMany({
         where: {
           variantId: {
             in: variantIds
+          }
+        },
+        include: {
+          product: {
+            select: {
+              shopifyProductId: true,
+              productTitle: true,
+              displayName: true,
+              heroImageUrl: true,
+              shopifyVendor: true,
+              shopifyMarket: true,
+              baseIngredients: true,
+              isPartyPackDefault: true,
+              bundleDefaultItems: true
+            }
           }
         }
       });
 
       // Create a map of variantId to product
-      const productMap = products.reduce((acc, product) => {
-        acc[product.variantId] = product;
+      const productMap = variants.reduce((acc, variant) => {
+        acc[variant.variantId] = {
+          id: variant.id,
+          variantId: variant.variantId,
+          shopifyProductId: variant.product.shopifyProductId,
+          shopifySku: variant.shopifySku,
+          shopifyName: variant.shopifyName,
+          shopifyTitle: variant.shopifyTitle,
+          shopifyPrice: variant.shopifyPrice,
+          shopifyInventory: variant.shopifyInventory,
+          shopifyVendor: variant.product.shopifyVendor,
+          shopifyMarket: variant.product.shopifyMarket,
+          heroImageUrl: variant.product.heroImageUrl,
+          displayName: variant.displayName,
+          productDisplayName: variant.product.displayName,
+          productIsPartyPackDefault: (variant.product as any).isPartyPackDefault ?? false,
+          productBundleDefaultItems: (variant.product as any).bundleDefaultItems ?? null,
+          meats: Array.isArray((variant as any).meats) ? (variant as any).meats : [variant.meat1 ?? null, variant.meat2 ?? null],
+          timers: Array.isArray((variant as any).timers) ? (variant as any).timers : [variant.timer1 ?? null, variant.timer2 ?? null],
+          options: Array.isArray((variant as any).options) ? (variant as any).options : [variant.option1 ?? null, variant.option2 ?? null],
+          meat1: variant.meat1,
+          meat2: variant.meat2,
+          timer1: variant.timer1,
+          timer2: variant.timer2,
+          option1: variant.option1,
+          option2: variant.option2,
+          serveware: variant.serveware,
+          isDraft: variant.isDraft,
+          ingredients: variant.ingredients,
+          baseIngredients: variant.product.baseIngredients,
+          totalCost: variant.totalCost,
+          isPartyPack: (variant as any).isPartyPack ?? false,
+          bundleItems: (variant as any).bundleItems ?? null
+        };
         return acc;
       }, {} as Record<string, any>);
 

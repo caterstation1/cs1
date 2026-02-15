@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { MapPin, Clock, DollarSign } from 'lucide-react'
 
 interface DeliveryPoint {
+  orderId?: string
   orderNumber: string
   deliveryTime: string
   address: string
@@ -15,13 +16,37 @@ interface DeliveryPoint {
 
 interface DeliveryMapProps {
   deliveryPoints: DeliveryPoint[]
+  heightPx?: number
+  allowAssignDriver?: boolean
+  listHeightPx?: number
 }
 
-export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
+export default function DeliveryMap({ deliveryPoints, heightPx = 256, allowAssignDriver = false, listHeightPx }: DeliveryMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [map, setMap] = useState<any>(null)
   const [markers, setMarkers] = useState<any[]>([])
   const [selectedDelivery, setSelectedDelivery] = useState<DeliveryPoint | null>(null)
+  const [assignFor, setAssignFor] = useState<string | null>(null) // orderId or orderNumber
+  const [drivers, setDrivers] = useState<{ id: string; firstName: string; lastName: string; accessLevel: string }[]>([])
+  const [driverForOrder, setDriverForOrder] = useState<Record<string, string>>({})
+  const [savingDriver, setSavingDriver] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!allowAssignDriver) return
+    const fetchDrivers = async () => {
+      try {
+        const res = await fetch('/api/staff')
+        if (!res.ok) return
+        const all = await res.json()
+        const list = (Array.isArray(all) ? all : Array.isArray(all.staff) ? all.staff : []).filter((s: any) => {
+          const acc = String(s.accessLevel || '').toLowerCase()
+          return s.isDriver && acc !== 'wlg_team' && acc !== 'wlg_admin'
+        }).map((s: any) => ({ id: s.id, firstName: s.firstName, lastName: s.lastName, accessLevel: s.accessLevel }))
+        setDrivers(list)
+      } catch {}
+    }
+    fetchDrivers()
+  }, [allowAssignDriver])
 
   useEffect(() => {
     // Load Google Maps API
@@ -249,8 +274,12 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
           {/* Interactive Map */}
           <div 
             ref={mapRef} 
-            className="h-64 w-full rounded-lg border bg-gray-50"
-            style={{ minHeight: '256px', position: 'relative' }}
+            className="w-full rounded-lg border bg-gray-50"
+            style={{
+              minHeight: `${Math.max(120, listHeightPx ? Math.max(120, heightPx - listHeightPx - 12) : heightPx)}px`,
+              position: 'relative',
+              height: `${Math.max(120, listHeightPx ? Math.max(120, heightPx - listHeightPx - 12) : heightPx)}px`
+            }}
           >
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
@@ -261,7 +290,7 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
           </div>
           
           {/* Delivery List */}
-          <div className="space-y-2">
+          <div className="space-y-2" style={listHeightPx ? { maxHeight: `${listHeightPx}px`, overflowY: 'auto' } : undefined}>
             <div className="flex items-center justify-between text-sm font-medium text-gray-600 mb-2">
               <span>Delivery Points ({deliveryPoints.length})</span>
               <span className="text-green-600">
@@ -284,11 +313,72 @@ export default function DeliveryMap({ deliveryPoints }: DeliveryMapProps) {
                     {index + 1}
                   </Badge>
                   <div>
-                    <div className="font-medium text-sm">#{delivery.orderNumber}</div>
+                    <div className="font-medium text-sm">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (allowAssignDriver) {
+                            const key = delivery.orderId || delivery.orderNumber
+                            setAssignFor(prev => prev === key ? null : key)
+                          }
+                        }}
+                        className="underline underline-offset-2 decoration-dotted hover:text-blue-700"
+                        title={allowAssignDriver ? 'Assign driver' : undefined}
+                      >
+                        #{delivery.orderNumber}
+                      </button>
+                    </div>
                     <div className="text-xs text-gray-600 flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {delivery.deliveryTime}
                     </div>
+                    {allowAssignDriver && (assignFor === (delivery.orderId || delivery.orderNumber)) && (
+                      <div className="mt-1 flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                        <select
+                          className="border rounded px-2 py-1 text-xs"
+                          value={driverForOrder[delivery.orderId || delivery.orderNumber] || ''}
+                          onChange={(e) => {
+                            const key = delivery.orderId || delivery.orderNumber
+                            setDriverForOrder(prev => ({ ...prev, [key]: e.target.value }))
+                          }}
+                        >
+                          <option value="">Select driver…</option>
+                          {drivers.map(d => (
+                            <option key={d.id} value={d.id}>{d.firstName} {d.lastName}</option>
+                          ))}
+                        </select>
+                        <button
+                          className="px-2 py-1 text-xs bg-blue-600 text-white rounded disabled:opacity-50"
+                          disabled={!driverForOrder[delivery.orderId || delivery.orderNumber] || !!savingDriver}
+                          onClick={async () => {
+                            const key = delivery.orderId || delivery.orderNumber
+                            const chosen = driverForOrder[key]
+                            if (!chosen) return
+                            if (!delivery.orderId) {
+                              alert('Order ID not available for assignment')
+                              return
+                            }
+                            try {
+                              setSavingDriver(key)
+                              const res = await fetch(`/api/orders/${delivery.orderId}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ driverId: chosen })
+                              })
+                              if (!res.ok) {
+                                alert('Failed to assign driver')
+                              } else {
+                                setAssignFor(null)
+                              }
+                            } finally {
+                              setSavingDriver(null)
+                            }
+                          }}
+                        >
+                          {savingDriver ? 'Saving…' : 'Save'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="text-right">

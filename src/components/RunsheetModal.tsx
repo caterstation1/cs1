@@ -4,6 +4,7 @@ import { useMemo, useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { fetchProducts } from '@/lib/product-service'
+import { resolveBundleItems } from '@/lib/product-service'
 
 interface RunsheetModalProps {
   isOpen: boolean
@@ -11,9 +12,10 @@ interface RunsheetModalProps {
   date: Date
   orders: any[]
   productsMap: Record<string, any>
+  isWLG?: boolean
 }
 
-export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: RunsheetModalProps) {
+export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWLG = false }: RunsheetModalProps) {
   const [nextDayOrders, setNextDayOrders] = useState<any[]>([])
   const [componentsCatalog, setComponentsCatalog] = useState<any[]>([])
   const [otherCatalog, setOtherCatalog] = useState<any[]>([])
@@ -21,6 +23,31 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
   const [rosterAssignments, setRosterAssignments] = useState<any[]>([])
 
   const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
+  
+  const isWLGOrder = (order: any): boolean => {
+    // 1) Check note_attributes City
+    const noteProps = Array.isArray(order.noteAttributes) ? order.noteAttributes : (Array.isArray(order.note_attributes) ? order.note_attributes : [])
+    const cityAttr = noteProps.find((p: any) => (p?.name || '').toLowerCase() === 'city')
+    if (cityAttr && String(cityAttr.value || '').toUpperCase() === 'WLG') return true
+    
+    // 2) Fallback: line items properties
+    let items: any[] = []
+    if (Array.isArray(order.lineItems)) items = order.lineItems
+    else if (typeof order.lineItems === 'string' && order.lineItems) {
+      try { items = JSON.parse(order.lineItems) } catch { items = [] }
+    }
+    if (items.some(it => Array.isArray(it?.properties) && it.properties.some((p: any) => (p?.name || '').toLowerCase() === 'city' && String(p?.value).toUpperCase() === 'WLG'))) return true
+    
+    // 3) Fallback: shipping address
+    const ship = order.shippingAddress || order.shipping_address || {}
+    const shipCity = String(ship?.city || '').toLowerCase()
+    const shipProvince = String(ship?.province || '').toLowerCase()
+    const provinceCode = String(ship?.province_code || '').toUpperCase()
+    
+    if (shipCity.includes('wellington') || shipProvince === 'wellington' || provinceCode === 'WGN') return true
+    
+    return false
+  }
   const firstTimeTo24 = (range: string) => {
     try {
       if (!range) return ''
@@ -71,8 +98,41 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
         const qty = Number(it.quantity || 0)
         const variantId = it.variant_id?.toString() || it.variantId?.toString()
         const product = variantId ? productsMap[variantId] : undefined
+        // If pack, expand and count children as products
+        if (product) {
+          const children = resolveBundleItems(product)
+          if (children.length > 0) {
+            for (const child of children) {
+              const childProduct = productsMap[child.variantId]
+              if (!childProduct) continue
+              const totalQty = qty * Math.max(1, Number(child.quantity || 1))
+              // Addons list
+              if (isAddon(childProduct?.shopifySku)) {
+                const key = childProduct?.productDisplayName?.trim() ? childProduct.productDisplayName : (childProduct?.displayName?.trim() ? childProduct.displayName : (childProduct?.shopifyName && childProduct.shopifyName !== 'Default Title' ? childProduct.shopifyName : childProduct?.shopifyTitle))
+                if (!addonsMap[key]) addonsMap[key] = { total: 0, am: 0 }
+                addonsMap[key].total += totalQty
+                if (am) addonsMap[key].am += totalQty
+              } else {
+                boxesCount += totalQty
+                if (childProduct?.serveware) servewareBoxes += totalQty
+                const name = childProduct?.productDisplayName?.trim() ? childProduct.productDisplayName : (childProduct?.displayName?.trim() ? childProduct.displayName : (childProduct?.shopifyName && childProduct.shopifyName !== 'Default Title' ? childProduct.shopifyName : childProduct?.shopifyTitle))
+                if (!productMap[name]) productMap[name] = { total: 0, am: 0, name }
+                productMap[name].total += totalQty
+                if (am) productMap[name].am += totalQty
+                const initials = [childProduct?.meat1, childProduct?.meat2].filter(Boolean).map((s: string) => s!.trim()[0]?.toUpperCase()).filter(Boolean)
+                for (const init of initials) {
+                  if (!proteins[init]) proteins[init] = { total: 0, am: 0 }
+                  proteins[init].total += totalQty
+                  if (am) proteins[init].am += totalQty
+                }
+              }
+            }
+            continue
+          }
+        }
         if (isAddon(it.sku)) {
-          const key = product?.displayName?.trim() ? product.displayName : (product?.shopifyName && product.shopifyName !== 'Default Title' ? product.shopifyName : it.title)
+          // Prefer productDisplayName for addons too
+          const key = product?.productDisplayName?.trim() ? product.productDisplayName : (product?.displayName?.trim() ? product.displayName : (product?.shopifyName && product.shopifyName !== 'Default Title' ? product.shopifyName : it.title))
           if (!addonsMap[key]) addonsMap[key] = { total: 0, am: 0 }
           addonsMap[key].total += qty
           if (am) addonsMap[key].am += qty
@@ -80,7 +140,8 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
         }
         boxesCount += qty
         if (product?.serveware) servewareBoxes += qty
-        const name = product?.displayName?.trim() ? product.displayName : (product?.shopifyName && product.shopifyName !== 'Default Title' ? product.shopifyName : product?.shopifyTitle || it.title)
+        // Prefer productDisplayName (from parent ShopifyProduct) over variant displayName, then shopifyName
+        const name = product?.productDisplayName?.trim() ? product.productDisplayName : (product?.displayName?.trim() ? product.displayName : (product?.shopifyName && product.shopifyName !== 'Default Title' ? product.shopifyName : product?.shopifyTitle || it.title))
         if (!productMap[name]) productMap[name] = { total: 0, am: 0, name }
         productMap[name].total += qty
         if (am) productMap[name].am += qty
@@ -126,7 +187,11 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
         const res = await fetch(`/api/orders?deliveryDateResolved=${key}&limit=10000`)
         if (res.ok) {
           const data = await res.json()
-          const arr = Array.isArray(data) ? data : (Array.isArray(data.orders) ? data.orders : [])
+          let arr = Array.isArray(data) ? data : (Array.isArray(data.orders) ? data.orders : [])
+          // Filter to WLG orders only if this is the WLG calendar
+          if (isWLG) {
+            arr = arr.filter(isWLGOrder)
+          }
           setNextDayOrders(arr)
         } else {
           setNextDayOrders([])
@@ -134,7 +199,7 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
       } catch { setNextDayOrders([]) }
     }
     if (isOpen) load()
-  }, [isOpen, date])
+  }, [isOpen, date, isWLG])
 
   // Fetch products for next-day orders so proteins and sections compute correctly
   useEffect(() => {
@@ -174,6 +239,8 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
         const oData = oRes.ok ? await oRes.json() : { products: [] }
         const components = Array.isArray(cData) ? cData : (cData.components || [])
         const others = Array.isArray(oData) ? oData : (oData.products || [])
+        console.log('📋 Runsheet loaded components catalog:', components.length, 'components')
+        console.log('📋 Sample component:', components[0])
         setComponentsCatalog(components)
         setOtherCatalog(others)
       } catch {
@@ -234,18 +301,60 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
         const variantId = it.variant_id?.toString() || it.variantId?.toString()
         const product = variantId ? productsLookup[variantId] : undefined
         if (!product || isAddon(it.sku)) continue
-        // walk ingredients
-        const ings = Array.isArray(product.ingredients) ? product.ingredients : []
+
+        // Expand party pack bundles into child items (client-side UI runsheet)
+        const bundleChildren = resolveBundleItems(product)
+        if (bundleChildren.length > 0) {
+          for (const child of bundleChildren) {
+            const childProduct = productsLookup[child.variantId]
+            if (!childProduct) continue
+            const totalQty = qty * Math.max(1, Number(child.quantity || 1))
+            const baseIngs = Array.isArray(childProduct.baseIngredients) ? childProduct.baseIngredients : []
+            const variantIngs = Array.isArray(childProduct.ingredients) ? childProduct.ingredients : []
+            const ings = [...baseIngs, ...variantIngs]
+            for (const ing of ings) {
+              const src = (ing.source || '').toString()
+              const name = ing.name || ''
+              const addQty = (Number(ing.quantity) || 0) * totalQty
+              if (src === 'Components') {
+                const found = componentsCatalog.find((c:any)=> (c?.id===ing.id) || ((c?.name||'').toLowerCase().trim()===(name||'').toLowerCase().trim()))
+                const categories = found?.prepCategories ? (Array.isArray(found.prepCategories) ? found.prepCategories : [found.prepCategories]) : (found?.prepCategory ? [found.prepCategory] : [])
+                for (const cat of categories) { addItem(cat as string, name, addQty, am) }
+              } else if (src === 'Other') {
+                const found = otherCatalog.find((p:any)=> (p?.id===ing.id) || ((p?.name||'').toLowerCase().trim()===(name||'').toLowerCase().trim()))
+                const categories = found?.prepCategories ? (Array.isArray(found.prepCategories) ? found.prepCategories : [found.prepCategories]) : (found?.prepCategory ? [found.prepCategory] : [])
+                for (const cat of categories) { addItem(cat as string, name, addQty, am) }
+              }
+            }
+          }
+          continue
+        }
+        // Combine base ingredients (from parent product) with variant-specific ingredients
+        const baseIngs = Array.isArray(product.baseIngredients) ? product.baseIngredients : []
+        const variantIngs = Array.isArray(product.ingredients) ? product.ingredients : []
+        const ings = [...baseIngs, ...variantIngs]
+        console.log(`🔍 Product ${product.shopifyName} (${variantId}) has ${baseIngs.length} base + ${variantIngs.length} variant = ${ings.length} total ingredients`)
+        if (ings.length > 0) console.log('🔍 Sample ingredient:', ings[0])
         for (const ing of ings) {
           const src = (ing.source || '').toString()
           const name = ing.name || ''
           const totalQty = (Number(ing.quantity) || 0) * qty
           if (src === 'Components') {
             const found = componentsCatalog.find((c:any)=> (c?.id===ing.id) || ((c?.name||'').toLowerCase().trim()===(name||'').toLowerCase().trim()))
-            addItem(found?.prepCategory, name, totalQty, am)
+            console.log(`🔍 Looking for component "${name}" (id: ${ing.id}), found:`, found ? `${found.name} with prepCategories: ${JSON.stringify(found.prepCategories)}` : 'NOT FOUND')
+            // Support both prepCategories (array) and prepCategory (legacy single)
+            const categories = found?.prepCategories ? (Array.isArray(found.prepCategories) ? found.prepCategories : [found.prepCategories]) : (found?.prepCategory ? [found.prepCategory] : [])
+            console.log(`🔍 Categories to add to:`, categories)
+            for (const cat of categories) {
+              addItem(cat, name, totalQty, am)
+            }
           } else if (src === 'Other') {
             const found = otherCatalog.find((p:any)=> (p?.id===ing.id) || ((p?.name||'').toLowerCase().trim()===(name||'').toLowerCase().trim()))
-            addItem(found?.prepCategory, name, totalQty, am)
+            // Support both prepCategories (array) and prepCategory (legacy single)
+            const categories = found?.prepCategories ? (Array.isArray(found.prepCategories) ? found.prepCategories : [found.prepCategories]) : (found?.prepCategory ? [found.prepCategory] : [])
+            for (const cat of categories) {
+              addItem(cat, name, totalQty, am)
+            }
           }
         }
       }
@@ -300,13 +409,7 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
   return (
     <Dialog open={isOpen} onOpenChange={(o)=>{ if(!o) onClose() }}>
       <DialogContent className="p-0 bg-transparent border-0 shadow-none max-w-[310mm]">
-        <div id="print-root" className="a4-page relative mx-auto" style={{ width: '297mm', height: '210mm' }}>
-        {/* Watermark logo (prints only, behind content) */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/caterstation-logo.png" alt="Cater Station" className="pointer-events-none select-none absolute top-6 left-6 opacity-10 hidden print:block" style={{ width: '260mm', zIndex: 0 }} onError={(e)=>{ (e.currentTarget as HTMLImageElement).style.display='none' }} />
-        {/* Secondary subtle watermark near the date */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/caterstation-logo.png" alt="Cater Station" className="pointer-events-none select-none absolute hidden print:block" style={{ top: '22mm', left: '8mm', width: '120mm', opacity: 0.08 as any, zIndex: 0 }} onError={(e)=>{ (e.currentTarget as HTMLImageElement).style.display='none' }} />
+        <div className="bg-white p-6 rounded-lg" style={{ width: '297mm', minHeight: 'auto' }}>
         <DialogHeader className="print-hide">
           <div className="flex items-center justify-between bg-gradient-to-r from-sky-600 via-sky-500 to-sky-400 text-white px-4 py-3 rounded-md shadow">
             <div className="flex items-center gap-3">
@@ -361,28 +464,35 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
 
           {/* Main dashboard grid */}
           <div className="grid grid-cols-[4.2fr_0.72fr] print:grid-cols-[4.2fr_0.72fr] gap-5">
-            {/* Left: five columns */}
-            <div className="grid grid-cols-1 md:grid-cols-5 print:grid-cols-5 gap-4">
+            {/* Left: five columns with custom widths - Products, Cold (wider), Hot, Desserts (narrower), Pre-prep */}
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_1.3fr_1fr_0.8fr_1fr] print:grid-cols-[1fr_1.3fr_1fr_0.8fr_1fr] gap-4">
               {/* Products column */}
-              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-4">
+              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
                 <div className="font-semibold mb-2 text-sky-700">Products</div>
-                <div className="space-y-1 max-h-[60vh] overflow-auto pr-2">
+                <div className="space-y-1 max-h-[60vh] overflow-auto pr-1">
                   {productsList.map((p) => (
                     <div key={p.name} className="grid grid-cols-[3ch_auto] gap-2 items-baseline text-[1.05rem] leading-tight">
                       <div className="font-semibold" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {p.total}
                         <sup className="ml-1 align-super text-[10px]">{p.am}</sup>
                       </div>
-                      <div>{p.name}</div>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span>{p.name}</span>
+                        {typeof (p as any).avgUnitCost === 'number' && typeof (p as any).totalCost === 'number' && (
+                          <span className="text-xs text-gray-600 whitespace-nowrap" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                            ${((p as any).avgUnitCost ?? 0).toFixed(2)} avg • ${((p as any).totalCost ?? 0).toFixed(2)} total
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Cold */}
-              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-4">
+              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
                 <div className="font-semibold mb-2 text-sky-700">Cold kitchen</div>
-                <div className="space-y-1 max-h-[60vh] overflow-auto pr-2">
+                <div className="space-y-1 max-h-[60vh] overflow-auto pr-1">
                   {Object.entries(tasksByCategory['Cold kitchen'].items).map(([name, q]) => (
                     <div key={name} className="grid grid-cols-[3ch_auto] gap-2 items-baseline text-sm">
                       <div className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{(q as any).total}<sup className="ml-1 align-super text-[10px]">{(q as any).am}</sup></div>
@@ -393,9 +503,9 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
               </div>
 
               {/* Hot */}
-              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-4">
+              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
                 <div className="font-semibold mb-2 text-sky-700">Hot kitchen</div>
-                <div className="space-y-1 max-h-[60vh] overflow-auto pr-2">
+                <div className="space-y-1 max-h-[60vh] overflow-auto pr-1">
                   {Object.entries(tasksByCategory['Hot kitchen'].items).map(([name, q]) => (
                     <div key={name} className="grid grid-cols-[3ch_auto] gap-2 items-baseline text-sm">
                       <div className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{(q as any).total}<sup className="ml-1 align-super text-[10px]">{(q as any).am}</sup></div>
@@ -406,9 +516,9 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
               </div>
 
               {/* Desserts */}
-              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-4">
+              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
                 <div className="font-semibold mb-2 text-sky-700">Desserts</div>
-                <div className="space-y-1 max-h-[60vh] overflow-auto pr-2">
+                <div className="space-y-1 max-h-[60vh] overflow-auto pr-1">
                   {Object.entries(tasksByCategory['Desserts'].items).map(([name, q]) => (
                     <div key={name} className="grid grid-cols-[3ch_auto] gap-2 items-baseline text-sm">
                       <div className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{(q as any).total}<sup className="ml-1 align-super text-[10px]">{(q as any).am}</sup></div>
@@ -419,9 +529,9 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
               </div>
 
               {/* Pre day prep */}
-              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-4">
+              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
                 <div className="font-semibold mb-2 text-sky-700">Pre day prep</div>
-                <div className="space-y-1 max-h-[60vh] overflow-auto pr-2">
+                <div className="space-y-1 max-h-[60vh] overflow-auto pr-1">
                   {Object.entries(tasksByCategory['Pre day prep'].items).map(([name, q]) => (
                     <div key={name} className="grid grid-cols-[3ch_auto] gap-2 items-baseline text-sm">
                       <div className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{(q as any).total}<sup className="ml-1 align-super text-[10px]">{(q as any).am}</sup></div>
@@ -507,24 +617,70 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap }: Ru
           </div>
         </div>
 
-        {/* Print: Landscape page setup */}
-        <style jsx global>{`
-          @media print {
-            @page { size: A4 landscape; margin: 10mm; }
-            /* Print only our runsheet content and collapse everything else to avoid extra pages */
-            body * { visibility: hidden !important; height: 0 !important; }
-            #print-root, #print-root * { visibility: visible !important; height: auto !important; }
-            #print-root { position: static !important; width: 297mm !important; height: auto !important; overflow: visible !important; }
-            .runsheet { background: white !important; padding: 0 !important; overflow: visible !important; }
-            .no-print { display: none !important; }
-            .print-hide { display: none !important; }
-            body, #print-root, .runsheet, .runsheet * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-            /* Force tomorrow section onto a new page */
-            .tomorrow-break { break-before: page; page-break-before: always; break-inside: avoid-page; page-break-inside: avoid; }
-          }
-        `}</style>
         </div>
       </DialogContent>
+      
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 landscape;
+            margin: 8mm;
+          }
+          
+          html, body {
+            background: #ffffff !important;
+            height: auto !important;
+          }
+          
+          /* Hide everything first, then selectively show */
+          body * {
+            visibility: hidden !important;
+          }
+          
+          /* Remove Radix dialog positioning so it prints from top-left */
+          [data-radix-dialog-content] {
+            position: static !important;
+            transform: none !important;
+            inset: auto !important;
+            width: auto !important;
+            height: auto !important;
+            max-height: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            border: 0 !important;
+            padding: 0 !important;
+            margin: 0 auto !important;
+            visibility: visible !important; /* make sure container is visible */
+          }
+          
+          /* Ensure overlay is hidden */
+          [data-radix-dialog-overlay] {
+            display: none !important;
+          }
+          
+          /* Ensure only the runsheet content is visible and can flow across pages */
+          .runsheet {
+            width: 100% !important;
+            min-height: auto !important;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            background: #ffffff !important;
+            visibility: visible !important; /* show runsheet */
+          }
+          .runsheet * {
+            max-height: none !important;
+            overflow: visible !important;
+            visibility: visible !important; /* show all children */
+          }
+          
+          /* Colors */
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `}</style>
     </Dialog>
   )
 }

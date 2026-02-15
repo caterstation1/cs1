@@ -33,129 +33,139 @@ export async function POST(request: Request) {
     const doCreate = mode !== 'update-only';
     const doUpdate = mode !== 'create-only';
 
-    // Get existing product IDs to avoid unnecessary database calls
-    const existingProductIds = await prisma.productWithCustomData.findMany({
-      select: { variantId: true }
+    // Get existing variant IDs and product IDs to avoid unnecessary database calls
+    const existingVariants = await prisma.productVariant.findMany({
+      select: { variantId: true, productId: true, product: { select: { shopifyProductId: true } } }
     });
-    const existingIdsSet = new Set(existingProductIds.map(p => p.variantId));
+    const existingVariantIdsSet = new Set(existingVariants.map(v => v.variantId));
+    const existingProductIdsSet = new Set(existingVariants.map(v => v.product.shopifyProductId));
     
-    console.log(`📋 Found ${existingIdsSet.size} existing products in database`);
+    console.log(`📋 Found ${existingVariantIdsSet.size} existing variants and ${existingProductIdsSet.size} existing products in database`);
 
-    let created = 0;
-    let updated = 0;
+    let createdProducts = 0;
+    let createdVariants = 0;
+    let updatedProducts = 0;
+    let updatedVariants = 0;
     let skipped = 0;
     let errors = 0;
 
-    // Process products in batches
-    const BATCH_SIZE = 10;
-    
-    for (let i = 0; i < shopifyProducts.length; i += BATCH_SIZE) {
-      const batch = shopifyProducts.slice(i, i + BATCH_SIZE);
-      console.log(`🔄 Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(shopifyProducts.length / BATCH_SIZE)} (${batch.length} products)`);
-      
-      // Partition by new vs existing
-      const newProducts = batch.filter(product => !existingIdsSet.has(product.id.toString()));
-      const existingProducts = batch.filter(product => existingIdsSet.has(product.id.toString()));
+    // Group variants by product
+    const productGroups = new Map<string, any[]>();
+    for (const shopifyProduct of shopifyProducts) {
+      const productId = shopifyProduct.product_id.toString();
+      if (!productGroups.has(productId)) {
+        productGroups.set(productId, []);
+      }
+      productGroups.get(productId)!.push(shopifyProduct);
+    }
 
-      // Create pass (only Shopify-sourced fields + initial record)
-      const createPromises = doCreate ? newProducts.map(async (shopifyProduct) => {
-        try {
-          // Create new product
-          await prisma.productWithCustomData.create({
+    console.log(`🔄 Processing ${productGroups.size} product groups with ${shopifyProducts.length} total variants`);
+
+    // Process each product group
+    for (const [productId, variants] of productGroups) {
+      try {
+        // Check if product exists, create if not
+        let shopifyProductRecord = await prisma.shopifyProduct.findUnique({
+          where: { shopifyProductId: productId }
+        });
+
+        if (!shopifyProductRecord && doCreate) {
+          // Create new product (use first variant for product-level data)
+          const firstVariant = variants[0];
+          shopifyProductRecord = await prisma.shopifyProduct.create({
             data: {
-              variantId: shopifyProduct.id.toString(),
-              shopifyProductId: shopifyProduct.product_id.toString(),
-              shopifySku: shopifyProduct.sku,
-              shopifyName: shopifyProduct.title, // Variant title
-              shopifyTitle: shopifyProduct.product_title, // Base product title
-              shopifyPrice: parseFloat(shopifyProduct.price),
-              shopifyInventory: shopifyProduct.inventory_quantity,
-              // extra fields may not exist in generated types; use type assertion in separate updates
-              displayName: shopifyProduct.product_title, // Use base product title as default display name
-              isDraft: false,
-              totalCost: 0
+              shopifyProductId: productId,
+              productTitle: firstVariant.product_title,
+              displayName: firstVariant.product_title,
+              heroImageUrl: (firstVariant as any).product_image || null,
+              shopifyVendor: (firstVariant as any).product_vendor || null,
+              shopifyMarket: (firstVariant as any).product_market || null,
+              isActive: true
             }
           });
-
-          // Update optional fields separately to avoid TS type mismatch
-          const vendor = (shopifyProduct as any).product_vendor || null
-          const market = (shopifyProduct as any).product_market || null
-          const hero = (shopifyProduct as any).product_image || null
-          if (vendor || market || hero) {
-            await (prisma as any).productWithCustomData.update({
-              where: { variantId: shopifyProduct.id.toString() },
-              data: {
-                shopifyVendor: vendor as any,
-                shopifyMarket: market as any,
-                heroImageUrl: hero as any,
-              }
-            })
-          }
-
-          console.log(`✅ Synced product: ${shopifyProduct.title}`);
-          return { success: true, productId: shopifyProduct.id, kind: 'create' };
-        } catch (error) {
-          console.error(`❌ Error syncing product ${shopifyProduct.id}:`, error);
-          return { success: false, productId: shopifyProduct.id, error };
+          createdProducts++;
+          console.log(`✅ Created new product: ${firstVariant.product_title}`);
+        } else if (shopifyProductRecord && doUpdate) {
+          // Update existing product with latest data
+          const firstVariant = variants[0];
+          shopifyProductRecord = await prisma.shopifyProduct.update({
+            where: { id: shopifyProductRecord.id },
+            data: {
+              productTitle: firstVariant.product_title,
+              heroImageUrl: (firstVariant as any).product_image || shopifyProductRecord.heroImageUrl,
+              shopifyVendor: (firstVariant as any).product_vendor || shopifyProductRecord.shopifyVendor,
+              shopifyMarket: (firstVariant as any).product_market || shopifyProductRecord.shopifyMarket,
+            }
+          });
+          updatedProducts++;
         }
-      }) : [];
 
-      // Update pass for existing rows (preserve custom fields)
-      const updatePromises = doUpdate ? existingProducts.map(async (shopifyProduct) => {
-        try {
-          const vendor = (shopifyProduct as any).product_vendor ?? null;
-          const market = (shopifyProduct as any).product_market ?? null;
-          const hero = (shopifyProduct as any).product_image ?? null;
-          if (vendor != null || market != null || hero != null) {
-            await (prisma as any).productWithCustomData.update({
-              where: { variantId: shopifyProduct.id.toString() },
-              data: {
-                shopifyVendor: vendor as any,
-                shopifyMarket: market as any,
-                heroImageUrl: hero as any,
-              }
-            });
-          }
-          return { success: true, productId: shopifyProduct.id, kind: 'update' };
-        } catch (error) {
-          console.error(`❌ Error updating product ${shopifyProduct.id}:`, error);
-          return { success: false, productId: shopifyProduct.id, error };
+        if (!shopifyProductRecord) {
+          skipped += variants.length;
+          continue;
         }
-      }) : [];
-      
-      // Wait for batch to complete
-      const batchResults = await Promise.allSettled([...
-        createPromises,
-        ...updatePromises
-      ]);
-      
-      // Count results
-      batchResults.forEach((result) => {
-        if (result.status === 'fulfilled') {
-          if (result.value.success) {
-            if ((result.value as any).kind === 'update') updated++; else created++;
+
+        // Process variants for this product
+        for (const variant of variants) {
+          if (existingVariantIdsSet.has(variant.id.toString())) {
+            // Update existing variant
+            if (doUpdate) {
+              try {
+                await prisma.productVariant.update({
+                  where: { variantId: variant.id.toString() },
+                  data: {
+                    shopifySku: variant.sku,
+                    shopifyName: variant.title,
+                    shopifyTitle: variant.product_title,
+                    shopifyPrice: parseFloat(variant.price),
+                    shopifyInventory: variant.inventory_quantity,
+                  }
+                });
+                updatedVariants++;
+              } catch (error) {
+                console.error(`❌ Error updating variant ${variant.id}:`, error);
+                errors++;
+              }
+            } else {
+              skipped++;
+            }
           } else {
-            errors++;
+            // Create new variant
+            if (doCreate) {
+              try {
+                await prisma.productVariant.create({
+                  data: {
+                    productId: shopifyProductRecord!.id,
+                    variantId: variant.id.toString(),
+                    shopifySku: variant.sku,
+                    shopifyName: variant.title,
+                    shopifyTitle: variant.product_title,
+                    shopifyPrice: parseFloat(variant.price),
+                    shopifyInventory: variant.inventory_quantity,
+                    displayName: variant.product_title, // Default to product title
+                    isDraft: false,
+                    totalCost: 0
+                  }
+                });
+                createdVariants++;
+                console.log(`✅ Created variant: ${variant.title}`);
+              } catch (error) {
+                console.error(`❌ Error creating variant ${variant.id}:`, error);
+                errors++;
+              }
+            } else {
+              skipped++;
+            }
           }
-        } else {
-          errors++;
         }
-      });
-      
-      // Count skipped depending on mode
-      if (!doCreate && doUpdate) {
-        // new ones are skipped
-        skipped += newProducts.length;
-      } else if (doCreate && !doUpdate) {
-        // existing ones are skipped
-        skipped += existingProducts.length;
-      }
-      
-      // Small delay between batches
-      if (i + BATCH_SIZE < shopifyProducts.length) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (error) {
+        console.error(`❌ Error processing product group ${productId}:`, error);
+        errors += variants.length;
       }
     }
+
+    const created = createdProducts + createdVariants;
+    const updated = updatedProducts + updatedVariants;
 
     console.log(`🎉 Sync completed: ${created} created, ${updated} updated, ${skipped} skipped, ${errors} errors`);
 
@@ -167,7 +177,13 @@ export async function POST(request: Request) {
       updated,
       skipped,
       errors,
-      total: shopifyProducts.length
+      total: shopifyProducts.length,
+      breakdown: {
+        createdProducts,
+        createdVariants,
+        updatedProducts,
+        updatedVariants
+      }
     });
 
   } catch (error) {

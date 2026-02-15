@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { AskAIButton } from '@/components/ai/AskAI'
 
 const navItems = [
   { name: 'Orders', href: '/orders' },
@@ -10,6 +11,7 @@ const navItems = [
   { name: 'Staff', href: '/staff' },
   { name: 'Roster', href: '/roster' },
   { name: 'Timesheet', href: '/timesheet' },
+  { name: 'Accounting', href: '/accounting' },
 ]
 
 export function MainNav() {
@@ -17,7 +19,7 @@ export function MainNav() {
 
   return (
     <nav className="border-b">
-      <div className="flex h-16 items-center px-4">
+      <div className="flex h-16 items-center px-4 justify-between">
         <div className="flex space-x-4">
           {navItems.map((item) => (
             <Link
@@ -33,6 +35,7 @@ export function MainNav() {
             </Link>
           ))}
         </div>
+        <AskAIButton />
       </div>
     </nav>
   )

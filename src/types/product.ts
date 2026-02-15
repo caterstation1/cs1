@@ -23,4 +23,38 @@ export interface Product extends ProductFormData {
   realizedMargin?: number
   createdAt: Date
   updatedAt: Date
+}
+
+export interface ShopifyProduct {
+  id: string
+  shopifyProductId: string
+  productTitle: string
+  displayName?: string
+  heroImageUrl?: string
+  shopifyVendor?: string
+  shopifyMarket?: string
+  isActive: boolean
+  variants?: ProductVariant[]
+}
+
+export interface ProductVariant {
+  id: string
+  productId: string
+  variantId: string
+  shopifySku?: string
+  shopifyName: string
+  shopifyTitle: string
+  shopifyPrice: string | number
+  shopifyInventory: number
+  displayName?: string
+  meat1?: string
+  meat2?: string
+  timer1?: number | null
+  timer2?: number | null
+  option1?: string
+  option2?: string
+  serveware: boolean
+  isDraft: boolean
+  ingredients?: any[]
+  totalCost: number
 } 

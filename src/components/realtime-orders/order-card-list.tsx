@@ -6,9 +6,10 @@ import OrderCard from './order-card'
 import { Button } from '@/components/ui/button'
 import { Loader2, Volume2, VolumeX, Printer, ListChecks } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
-import { fetchProducts, clearProductCache } from '@/lib/product-service'
+import { fetchProductsWithBundles, clearProductCache } from '@/lib/product-service'
 import { format } from 'date-fns'
 import { RunsheetModal } from '@/components/RunsheetModal'
+import { TextOrdersModal } from '@/components/TextOrdersModal'
 
 interface OrderCardListProps {
   orders: Order[]
@@ -16,6 +17,7 @@ interface OrderCardListProps {
   onBulkUpdateComplete?: () => void // Optional callback for parent to re-fetch orders
   selectedDate?: Date // Date for printing labels
   originAddressOverride?: string
+  isTvMode?: boolean
 }
 
 // Global audio state - shared across all order cards
@@ -34,7 +36,7 @@ function safeFormatDate(dateString: string | undefined | null): string {
   return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString();
 }
 
-export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete, selectedDate, originAddressOverride }: OrderCardListProps) {
+export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete, selectedDate, originAddressOverride, isTvMode = false }: OrderCardListProps) {
   const [filter, setFilter] = useState<'all' | 'undispatched' | 'unfulfilled' | 'fulfilled'>('undispatched')
   const [isUpdatingTravelTimes, setIsUpdatingTravelTimes] = useState(false)
   const [products, setProducts] = useState<Record<string, any>>({})
@@ -46,6 +48,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   // Audio state
   const { isAudioEnabled, setIsAudioEnabled } = useAudioState()
   const [isRunsheetOpen, setIsRunsheetOpen] = useState(false)
+  const [isTextModalOpen, setIsTextModalOpen] = useState(false)
 
   // Function to refresh products data
   const refreshProducts = async () => {
@@ -84,7 +87,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       
       if (uniqueVariantIds.size > 0) {
         const variantIdsArray = Array.from(uniqueVariantIds)
-        const fetchedProducts = await fetchProducts(variantIdsArray)
+        const { products: fetchedProducts } = await fetchProductsWithBundles(variantIdsArray)
         setProducts(fetchedProducts)
         
         // Show a toast to confirm products were refreshed
@@ -434,7 +437,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         
         if (uniqueVariantIds.size > 0) {
           const variantIdsArray = Array.from(uniqueVariantIds)
-          const fetchedProducts = await fetchProducts(variantIdsArray)
+          const { products: fetchedProducts } = await fetchProductsWithBundles(variantIdsArray)
           
           setProducts(fetchedProducts)
         }
@@ -642,6 +645,15 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
             <ListChecks className="h-4 w-4" />
             Runsheet
           </Button>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setIsTextModalOpen(true)}
+            className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
+            title="Text all clients"
+          >
+            Text all
+          </Button>
         </div>
       </div>
 
@@ -662,7 +674,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
                   : ''
               }`}
             >
-              <OrderCard 
+          <OrderCard 
                 order={order} 
                 onUpdate={memoizedOnUpdateOrder}
                 products={products}
@@ -671,12 +683,20 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
                 updateProductInState={updateProductInState}
                 isAudioEnabled={isAudioEnabled}
                 originAddressOverride={originAddressOverride}
+            isTvMode={isTvMode}
               />
             </div>
           ))}
         </div>
       )}
-      <RunsheetModal isOpen={isRunsheetOpen} onClose={() => setIsRunsheetOpen(false)} date={selectedDate || new Date()} orders={sortedOrders} productsMap={products} />
+      <RunsheetModal isOpen={isRunsheetOpen} onClose={() => setIsRunsheetOpen(false)} date={selectedDate || new Date()} orders={sortedOrders} productsMap={products} isWLG={!!originAddressOverride && originAddressOverride.includes('Wellington')} />
+      <TextOrdersModal
+        isOpen={isTextModalOpen}
+        onClose={() => setIsTextModalOpen(false)}
+        orders={sortedOrders}
+        defaultTemplate="delivery"
+        presetSelection={sortedOrders.map(o => o.id)}
+      />
     </div>
   )
 } 

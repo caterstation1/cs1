@@ -22,7 +22,8 @@ function getAucklandDayString(date: Date): string {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const totalDays = Math.max(1, Math.min(365, Number(searchParams.get('days') || 365)))
+    // Allow up to ~4 years to comfortably support 3.5-year views
+    const totalDays = Math.max(1, Math.min(1500, Number(searchParams.get('days') || 365)))
     const windowDays = Math.max(1, Math.min(60, Number(searchParams.get('window') || 28)))
 
     const todayLocal = getTodayLocal()

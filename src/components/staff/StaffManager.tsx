@@ -49,7 +49,9 @@ export function StaffManager({ title, filterByRoles, allowedRoleOptions, permiss
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedStaff, setSelectedStaff] = useState<StaffRecord | null>(null)
 
-  const role = session?.user?.accessLevel || ''
+  // Support both direct and nested session shapes
+  const sessionUser = (session as any)?.session?.user || (session as any)?.user || null
+  const role = (sessionUser && (sessionUser as any).accessLevel) || ''
 
   const derivedPermissions: Permissions = useMemo(() => {
     // Defaults: owner/admin full control; others read-only

@@ -19,6 +19,7 @@ const PUBLIC_PREFIXES = [
   '/api/auth',
   '/api/health',
   '/api/test',
+  '/api/production-url',
   '/_next',
   '/static',
   '/favicon.ico',
@@ -36,12 +37,13 @@ function isAllowedForPricing(path: string): boolean {
 const WLG_TEAM_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/labels/print', '/login', '/reset-password']
 const WLG_TEAM_API_PREFIXES = ['/api/orders', '/api/staff', '/api/products', '/api/labels', '/api/maps', '/api/health']
 
-const WLG_ADMIN_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/pricing-lab', '/labels/print', '/login', '/reset-password']
+const WLG_ADMIN_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/wlg-comms', '/pricing-lab', '/labels/print', '/login', '/reset-password']
 const WLG_ADMIN_API_PREFIXES = [
   ...PRICING_API_PREFIXES,
   '/api/orders', '/api/labels', '/api/maps',
   '/api/staff',
   '/api/products',
+  '/api/wlg-messages',
   '/api/health',
 ]
 
@@ -77,15 +79,8 @@ export async function middleware(request: NextRequest) {
   const session = await readSession(request)
   const accessLevel = session?.accessLevel
 
-  // Redirect authenticated users away from /login
-  if (session && pathname === '/login') {
-    let dest = '/dashboard'
-    if (accessLevel === 'pricing_lab') dest = '/pricing-lab'
-    else if (accessLevel === 'basic') dest = '/realtime-orders'
-    else if (accessLevel === 'wlg_team' || accessLevel === 'wlg_admin') dest = '/wlg-calendar'
-    const url = new URL(dest, request.url)
-    return NextResponse.redirect(url)
-  }
+  // Do NOT redirect authenticated users away from /login to avoid refresh loops
+  // Users can navigate manually after sign-in
 
   // Require login for all non-public routes
   const isPublic =
@@ -142,21 +137,22 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Admin: block dashboard only
-  if (accessLevel === 'admin') {
-    if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) {
-      if (pathname.startsWith('/api/')) {
-        return new NextResponse(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'content-type': 'application/json' } })
-      }
-      const url = new URL('/orders', request.url)
-      return NextResponse.redirect(url)
-    }
-  }
+  // Admin: allow dashboard (Admin S view is served from /dashboard)
+  // No additional restrictions here for now
 
-  // Basic: allow realtime-orders and calendar only
+  // Basic: allow limited app pages and APIs needed for basic operations (dashboard, roster, timesheet, orders)
   if (accessLevel === 'basic') {
-    const allowedPages = ['/realtime-orders', '/calendar', '/labels/print', '/login', '/reset-password']
-    const allowedApis = ['/api/orders', '/api/calendar', '/api/labels', '/api/maps']
+    const allowedPages = ['/dashboard', '/realtime-orders', '/calendar', '/labels/print', '/login', '/reset-password']
+    const allowedApis = [
+      '/api/orders',
+      '/api/calendar',
+      '/api/labels',
+      '/api/maps',
+      '/api/staff',
+      '/api/timesheet',
+      '/api/roster',
+      '/api/todos',
+    ]
     const isAllowed =
       allowedPages.some(p => pathname === p || pathname.startsWith(p + '/')) ||
       allowedApis.some(p => pathname === p || pathname.startsWith(p + '/')) ||

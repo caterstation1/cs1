@@ -1,13 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
     console.log('⏰ Clocking in...')
-    
-    // Check if there's already an active shift
+    const session = await getServerSession(authOptions)
+    const email = session?.user?.email || null
+    if (!email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const staff = await prisma.staff.findUnique({ where: { email } })
+    if (!staff) {
+      return NextResponse.json({ error: 'Staff not found' }, { status: 404 })
+    }
+
+    // Check if there's already an active shift for this staff
     const activeShift = await prisma.shift.findFirst({
       where: {
+        staffId: staff.id,
         clockOut: null,
         status: 'active'
       }
@@ -23,7 +35,7 @@ export async function POST(request: NextRequest) {
     // Create new shift
     const shift = await prisma.shift.create({
       data: {
-        staffId: 'system', // TODO: Get from auth context
+        staffId: staff.id,
         clockIn: new Date(),
         date: new Date(),
         status: 'active'

@@ -1,12 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, startTransition } from 'react'
+import { AskAIButton } from '@/components/ai/AskAI'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { GilmoursTab } from "./GilmoursTab"
 import { BidfoodTab } from "./BidfoodTab"
 import { OtherTab } from "./OtherTab"
 import { ComponentsTab } from "./ComponentsTab"
 import { ProductsTab } from "./ProductsTab"
+import { VariantsTab } from "./VariantsTab"
+import { OverviewTab } from "./products/OverviewTab"
 import { GilmoursProduct } from "@/lib/types"
 import { BidfoodProduct } from '@/components/BidfoodTab'
 import { OtherProduct } from '@/components/OtherTab'
@@ -43,6 +46,7 @@ interface ShopifyProduct {
 
 const tabs = [
   { id: 'products', label: 'Products' },
+  { id: 'variants', label: 'Variants' },
   { id: 'components', label: 'Components' },
   { id: 'gilmours', label: 'Gilmours' },
   { id: 'bidfood', label: 'Bidfood' },
@@ -68,8 +72,6 @@ export function TabbedLayout() {
     const fetchData = async () => {
       try {
         console.log('Starting to fetch data...')
-        console.log('Initial state - gilmoursProducts:', gilmoursProducts)
-        console.log('Initial state - bidfoodProducts:', bidfoodProducts)
         setIsLoading(true)
         setShopifyError(null)
         setGilmoursError(null)
@@ -109,10 +111,47 @@ export function TabbedLayout() {
         }
         const gilmoursData = await gilmoursResponse.json()
           console.log('Gilmours data received:', gilmoursData?.products?.length || 0, 'products')
-        setGilmoursProducts(Array.isArray(gilmoursData?.products) ? gilmoursData.products : [])
+        // Ensure we always set an array, and validate the data structure
+        const products = Array.isArray(gilmoursData?.products) ? gilmoursData.products : []
+        // Validate and sanitize each product to ensure it's safe for React state
+        // Create completely new plain objects with ONLY the fields we need
+        // Exclude Prisma metadata fields (id, createdAt, updatedAt) that might cause issues
+        const validProducts: GilmoursProduct[] = products
+          .filter((p: any) => p && typeof p === 'object' && p.sku)
+          .map((p: any) => {
+            try {
+              // Create a new object with ONLY the fields from GilmoursProduct interface
+              // This ensures no Prisma metadata or extra fields are included
+              const cleanProduct: GilmoursProduct = {
+                sku: String(p.sku || ''),
+                brand: String(p.brand || ''),
+                description: String(p.description || ''),
+                packSize: String(p.packSize || ''),
+                uom: String(p.uom || ''),
+                price: typeof p.price === 'number' && isFinite(p.price) ? p.price : (typeof p.price === 'string' ? parseFloat(p.price) || 0 : 0),
+                quantity: typeof p.quantity === 'number' && isFinite(p.quantity) ? p.quantity : (typeof p.quantity === 'string' ? parseInt(p.quantity, 10) || 0 : 0),
+              }
+              // Verify the object is serializable (no circular refs, no functions, etc.)
+              JSON.stringify(cleanProduct)
+              return cleanProduct
+            } catch (e) {
+              console.warn('Error sanitizing Gilmours product:', e, p)
+              return null
+            }
+          })
+          .filter((p: GilmoursProduct | null): p is GilmoursProduct => p !== null)
+        // Use startTransition and setTimeout to defer state update and prevent blocking render
+        // This prevents React from trying to process the state update during async operations
+        startTransition(() => {
+          // Use setTimeout to ensure this happens after the current render cycle
+          setTimeout(() => {
+            setGilmoursProducts(validProducts)
+          }, 0)
+        })
       } catch (error) {
         console.error('Error fetching Gilmours products:', error)
         setGilmoursError(error instanceof Error ? error.message : 'Failed to fetch Gilmours products')
+        setGilmoursProducts([]) // Ensure we always have an array even on error
       }
 
       try {
@@ -125,7 +164,38 @@ export function TabbedLayout() {
         }
         const bidfoodData = await bidfoodResponse.json()
           console.log('Bidfood data received:', bidfoodData?.products?.length || 0, 'products')
-        setBidfoodProducts(Array.isArray(bidfoodData?.products) ? bidfoodData.products : [])
+        // Sanitize bidfood products
+        const bidfoodArray = Array.isArray(bidfoodData?.products) ? bidfoodData.products : []
+        const sanitizedBidfood = bidfoodArray
+          .filter((p: any) => p && typeof p === 'object' && p.productCode)
+          .map((p: any) => {
+            try {
+              const clean = {
+                id: String(p.id || ''),
+                productCode: String(p.productCode || ''),
+                brand: String(p.brand || ''),
+                description: String(p.description || ''),
+                packSize: String(p.packSize || ''),
+                ctnQty: String(p.ctnQty || ''),
+                uom: String(p.uom || ''),
+                qty: typeof p.qty === 'number' && isFinite(p.qty) ? p.qty : 0,
+                lastPricePaid: typeof p.lastPricePaid === 'number' && isFinite(p.lastPricePaid) ? p.lastPricePaid : 0,
+                totalExGST: typeof p.totalExGST === 'number' && isFinite(p.totalExGST) ? p.totalExGST : 0,
+                contains: String(p.contains || ''),
+              } as BidfoodProduct
+              JSON.stringify(clean)
+              return clean
+            } catch (e) {
+              console.warn('Error sanitizing Bidfood product:', e, p)
+              return null
+            }
+          })
+          .filter((p: BidfoodProduct | null): p is BidfoodProduct => p !== null)
+        startTransition(() => {
+          setTimeout(() => {
+            setBidfoodProducts(sanitizedBidfood)
+          }, 0)
+        })
       } catch (error) {
         console.error('Error fetching Bidfood products:', error)
         setBidfoodError(error instanceof Error ? error.message : 'Failed to fetch Bidfood products')
@@ -141,7 +211,35 @@ export function TabbedLayout() {
         }
         const otherData = await otherResponse.json()
           console.log('Other data received:', otherData?.products?.length || 0, 'products')
-        setOtherProducts(Array.isArray(otherData?.products) ? otherData.products : [])
+        // Sanitize other products
+        const otherArray = Array.isArray(otherData?.products) ? otherData.products : []
+        const sanitizedOther = otherArray
+          .filter((p: any) => p && typeof p === 'object' && p.name)
+          .map((p: any) => {
+            try {
+              const clean: OtherProduct = {
+                id: String(p.id || ''),
+                name: String(p.name || ''),
+                supplier: String(p.supplier || ''),
+                description: String(p.description || ''),
+                cost: typeof p.cost === 'number' && isFinite(p.cost) ? p.cost : 0,
+                prepCategory: p.prepCategory ? String(p.prepCategory) : undefined,
+                createdAt: String(p.createdAt || ''),
+                updatedAt: String(p.updatedAt || ''),
+              }
+              JSON.stringify(clean)
+              return clean
+            } catch (e) {
+              console.warn('Error sanitizing Other product:', e, p)
+              return null
+            }
+          })
+          .filter((p: OtherProduct | null): p is OtherProduct => p !== null)
+        startTransition(() => {
+          setTimeout(() => {
+            setOtherProducts(sanitizedOther)
+          }, 0)
+        })
       } catch (error) {
         console.error('Error fetching Other products:', error)
         setOtherError(error instanceof Error ? error.message : 'Failed to fetch Other products')
@@ -157,7 +255,70 @@ export function TabbedLayout() {
         }
         const componentsData = await componentsResponse.json()
           console.log('Components data received:', componentsData?.length || 0, 'components')
-        setComponents(Array.isArray(componentsData) ? componentsData : [])
+        // Sanitize components data to ensure it's safe for React state
+        const componentsArray = Array.isArray(componentsData) ? componentsData : []
+        const sanitizedComponents: Component[] = componentsArray
+          .filter((c: any) => c && typeof c === 'object' && c.id)
+          .map((c: any) => {
+            try {
+              // Create clean object with only required fields
+              const cleanComponent: Component = {
+                id: String(c.id || ''),
+                name: String(c.name || ''),
+                description: String(c.description || ''),
+                ingredients: Array.isArray(c.ingredients) ? c.ingredients.map((ing: any) => ({
+                  source: String(ing.source || ''),
+                  id: String(ing.id || ''),
+                  name: String(ing.name || ''),
+                  quantity: typeof ing.quantity === 'number' && isFinite(ing.quantity) ? ing.quantity : 0,
+                  cost: typeof ing.cost === 'number' && isFinite(ing.cost) ? ing.cost : 0,
+                  unit: String(ing.unit || ''),
+                })) : [],
+                totalCost: typeof c.totalCost === 'number' && isFinite(c.totalCost) ? c.totalCost : 0,
+                producedQuantity: typeof c.producedQuantity === 'number' && isFinite(c.producedQuantity) ? c.producedQuantity : undefined,
+                producedUnit: c.producedUnit ? String(c.producedUnit) : undefined,
+                rawWeight: typeof c.rawWeight === 'number' && isFinite(c.rawWeight) ? c.rawWeight : (c.rawWeight === null ? null : undefined),
+                cookedWeight: typeof c.cookedWeight === 'number' && isFinite(c.cookedWeight) ? c.cookedWeight : (c.cookedWeight === null ? null : undefined),
+                trimWasteWeight: typeof c.trimWasteWeight === 'number' && isFinite(c.trimWasteWeight) ? c.trimWasteWeight : (c.trimWasteWeight === null ? null : undefined),
+                weightUnit: c.weightUnit ? String(c.weightUnit) : null,
+                costPerOutputUnit: typeof c.costPerOutputUnit === 'number' && isFinite(c.costPerOutputUnit) ? c.costPerOutputUnit : undefined,
+                normalizedOutputUnit: c.normalizedOutputUnit ? String(c.normalizedOutputUnit) : undefined,
+                hasGluten: Boolean(c.hasGluten),
+                hasDairy: Boolean(c.hasDairy),
+                hasSoy: Boolean(c.hasSoy),
+                hasOnionGarlic: Boolean(c.hasOnionGarlic),
+                hasSesame: Boolean(c.hasSesame),
+                hasNuts: Boolean(c.hasNuts),
+                hasEgg: Boolean(c.hasEgg),
+                isVegetarian: Boolean(c.isVegetarian),
+                isVegan: Boolean(c.isVegan),
+                isHalal: Boolean(c.isHalal),
+                isComponentListItem: Boolean(c.isComponentListItem),
+                createdAt: String(c.createdAt || ''),
+                updatedAt: String(c.updatedAt || ''),
+                images: Array.isArray(c.images) ? c.images.map((img: any) => ({
+                  id: String(img.id || ''),
+                  publicId: String(img.publicId || ''),
+                  url: String(img.url || ''),
+                  alt: img.alt ? String(img.alt) : null,
+                  position: typeof img.position === 'number' && isFinite(img.position) ? img.position : 0,
+                })) : undefined,
+              }
+              // Verify serializability
+              JSON.stringify(cleanComponent)
+              return cleanComponent
+            } catch (e) {
+              console.warn('Error sanitizing Component:', e, c)
+              return null
+            }
+          })
+          .filter((c: Component | null): c is Component => c !== null)
+        // Use startTransition to defer state update
+        startTransition(() => {
+          setTimeout(() => {
+            setComponents(sanitizedComponents)
+          }, 0)
+        })
       } catch (error) {
         console.error('Error fetching components:', error)
         setComponentsError(error instanceof Error ? error.message : 'Failed to fetch components')
@@ -196,17 +357,26 @@ export function TabbedLayout() {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div />
+        <AskAIButton />
+      </div>
       <Tabs defaultValue="products" className="w-full" onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="products">Products</TabsTrigger>
+          <TabsTrigger value="variants">Variants</TabsTrigger>
           <TabsTrigger value="components">Components</TabsTrigger>
           <TabsTrigger value="gilmours">Gilmours</TabsTrigger>
           <TabsTrigger value="bidfood">Bidfood</TabsTrigger>
           <TabsTrigger value="other">Other</TabsTrigger>
           <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
         </TabsList>
         <TabsContent value="products">
           <ProductsTab />
+        </TabsContent>
+        <TabsContent value="variants">
+          <VariantsTab />
         </TabsContent>
         <TabsContent value="components">
           <ComponentsTab 
@@ -242,6 +412,9 @@ export function TabbedLayout() {
         </TabsContent>
         <TabsContent value="suppliers">
           <SuppliersTab />
+        </TabsContent>
+        <TabsContent value="overview">
+          <OverviewTab />
         </TabsContent>
       </Tabs>
     </div>

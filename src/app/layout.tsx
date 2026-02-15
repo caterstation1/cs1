@@ -4,14 +4,20 @@ import './globals.css'
 import { Nav } from '@/components/ui/nav'
 import { Toaster } from '@/components/ui/toaster'
 import { Providers } from './providers'
-import { ShopifySyncProvider } from '@/components/shopify-sync/shopify-sync-provider'
-import { SyncMonitor } from '@/components/shopify-sync/sync-monitor'
+import { ConditionalSyncProvider } from '@/components/shopify-sync/conditional-sync-provider'
+import { MissingOrdersBanner } from '@/components/orders/MissingOrdersBanner'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'CaterStation',
   description: 'Catering management system',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
@@ -22,17 +28,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ShopifySyncProvider>
-          <Providers>
+        <Providers>
+          <ConditionalSyncProvider>
             <Nav />
+            <div className="w-full px-6">
+              <MissingOrdersBanner />
+            </div>
             <main className="w-full px-6 py-6">
               {children}
             </main>
             <Toaster />
-            {/* Temporarily disabled SyncMonitor to fix refresh loop issue */}
-            {/* {typeof window !== 'undefined' && (document.cookie.includes('next-auth.session-token') || document.cookie.includes('__Secure-next-auth.session-token')) ? <SyncMonitor /> : null} */}
-          </Providers>
-        </ShopifySyncProvider>
+          </ConditionalSyncProvider>
+        </Providers>
       </body>
     </html>
   )

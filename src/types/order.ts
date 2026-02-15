@@ -31,6 +31,8 @@ export interface Order {
   leaveTime?: string
   travelTime?: string
   driverId?: string
+  /** Optional assigned delivery vehicle (references Car.id) */
+  carId?: string
   deliveryTime?: string
   deliveryDate?: string
   hasLocalEdits?: boolean

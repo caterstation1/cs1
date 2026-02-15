@@ -16,24 +16,8 @@ export default function LoginPage() {
   const { toast } = useToast()
   const { status, data } = useSession()
 
-  // If we already have a session (e.g., after redirect loop), push user off /login immediately
-  useEffect(() => {
-    if (status === 'authenticated') {
-      const rawParam = (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')) || undefined
-      const callbackUrl = rawParam ? (() => {
-        try {
-          const decoded = decodeURIComponent(rawParam)
-          return decoded.startsWith('/') ? decoded : undefined
-        } catch { return undefined }
-      })() : undefined
-      const accessLevel = (data as any)?.user?.accessLevel
-      const fallback = accessLevel === 'pricing_lab' ? '/pricing-lab' : accessLevel === 'basic' ? '/realtime-orders' : (accessLevel === 'wlg_team' || accessLevel === 'wlg_admin') ? '/wlg-calendar' : '/dashboard'
-      // Hard redirect to ensure middleware gets a fresh request with cookies
-      if (typeof window !== 'undefined') {
-        window.location.replace(callbackUrl && callbackUrl !== '/' ? callbackUrl : fallback)
-      }
-    }
-  }, [status, data])
+  // Don't auto-redirect authenticated users - let them manually navigate or login again
+  // This prevents refresh loops when session is detected
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -156,6 +140,31 @@ export default function LoginPage() {
             {isLoading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
+        <div className="pt-2 text-center">
+          <button
+            type="button"
+            className="text-sm text-blue-600 underline"
+            onClick={async () => {
+              if (!email) {
+                toast({ title: 'Enter your email first', variant: 'destructive' })
+                return
+              }
+              try {
+                const res = await fetch('/api/auth/request-reset', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email }),
+                })
+                if (!res.ok) throw new Error('Failed to send reset')
+                toast({ title: 'Reset sent', description: 'Check your email for reset link' })
+              } catch (e) {
+                toast({ title: 'Error', description: 'Failed to send reset', variant: 'destructive' })
+              }
+            }}
+          >
+            Forgot password?
+          </button>
+        </div>
       </div>
     </div>
   )

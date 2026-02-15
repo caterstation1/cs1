@@ -39,6 +39,12 @@ interface Supplier {
   contactName: string | null
   contactNumber: string | null
   contactEmail: string | null
+  emailSettings?: {
+    bakery?: {
+      enabled: boolean
+      autoSend: boolean
+    }
+  } | null
   createdAt: string
   updatedAt: string
 }
@@ -60,6 +66,7 @@ export function SuppliersTab() {
   const [error, setError] = useState<string | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
+  const [sendingEmails, setSendingEmails] = useState<Record<string, boolean>>({})
 
   // Initialize form
   const form = useForm<FormValues>({
@@ -279,27 +286,98 @@ export function SuppliersTab() {
                 <TableHead>Contact Name</TableHead>
                 <TableHead>Contact Number</TableHead>
                 <TableHead>Contact Email</TableHead>
+                <TableHead>Email Settings</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {suppliers.map((supplier) => (
-                <TableRow key={supplier.id}>
-                  <TableCell className="font-medium">{supplier.name}</TableCell>
-                  <TableCell>{supplier.contactName || "-"}</TableCell>
-                  <TableCell>{supplier.contactNumber || "-"}</TableCell>
-                  <TableCell>{supplier.contactEmail || "-"}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(supplier)}
-                    >
-                      Edit
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {suppliers.map((supplier) => {
+                const emailSettings = supplier.emailSettings || {}
+                const bakeryEnabled = emailSettings.bakery?.enabled || false
+                const isSending = sendingEmails[supplier.id] || false
+                
+                return (
+                  <TableRow key={supplier.id}>
+                    <TableCell className="font-medium">{supplier.name}</TableCell>
+                    <TableCell>{supplier.contactName || "-"}</TableCell>
+                    <TableCell>{supplier.contactNumber || "-"}</TableCell>
+                    <TableCell>{supplier.contactEmail || "-"}</TableCell>
+                    <TableCell>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={bakeryEnabled}
+                            onChange={async (e) => {
+                              try {
+                                const newSettings = {
+                                  ...emailSettings,
+                                  bakery: {
+                                    enabled: e.target.checked,
+                                    autoSend: emailSettings.bakery?.autoSend || false
+                                  }
+                                }
+                                const response = await fetch(`/api/suppliers/${supplier.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ emailSettings: newSettings })
+                                })
+                                if (response.ok) {
+                                  await fetchSuppliers()
+                                } else {
+                                  alert('Failed to update email settings')
+                                }
+                              } catch (error) {
+                                console.error('Error updating email settings:', error)
+                                alert('Error updating email settings')
+                              }
+                            }}
+                            className="h-4 w-4"
+                          />
+                          <span>Bakery</span>
+                        </label>
+                        {bakeryEnabled && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={isSending || !supplier.contactEmail}
+                            onClick={async () => {
+                              setSendingEmails(prev => ({ ...prev, [supplier.id]: true }))
+                              try {
+                                const response = await fetch(`/api/suppliers/${supplier.id}/send-bakery-email`, {
+                                  method: 'POST'
+                                })
+                                if (response.ok) {
+                                  alert('Bakery order email sent successfully')
+                                } else {
+                                  const error = await response.json()
+                                  alert(`Failed to send email: ${error.error || 'Unknown error'}`)
+                                }
+                              } catch (error) {
+                                console.error('Error sending email:', error)
+                                alert('Error sending email')
+                              } finally {
+                                setSendingEmails(prev => ({ ...prev, [supplier.id]: false }))
+                              }
+                            }}
+                          >
+                            {isSending ? 'Sending...' : 'Send Email'}
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(supplier)}
+                      >
+                        Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>

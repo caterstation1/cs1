@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { hashPassword } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -56,7 +57,8 @@ export async function POST(request: Request) {
         accessLevel: body.accessLevel || 'basic',
         isDriver: !!body.isDriver,
         isActive: body.isActive !== false, // Default to true
-        password: body.password || null
+        // Hash password if provided
+        password: body.password ? await hashPassword(body.password) : null
       }
     });
     

@@ -24,8 +24,11 @@ interface GilmoursTabProps {
 export function GilmoursTab({ products, setProducts, isLoading, error }: GilmoursTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   
+  // Ensure products is always an array to prevent React invariant errors
+  const safeProducts = Array.isArray(products) ? products : []
+  
   // Debug logging
-  console.log('GilmoursTab render - products:', products, 'type:', typeof products, 'isArray:', Array.isArray(products))
+  console.log('GilmoursTab render - products:', safeProducts, 'type:', typeof products, 'isArray:', Array.isArray(products))
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -187,7 +190,7 @@ export function GilmoursTab({ products, setProducts, isLoading, error }: Gilmour
                   Loading products...
                 </TableCell>
               </TableRow>
-            ) : (!products || products.length === 0) ? (
+            ) : (!safeProducts || safeProducts.length === 0) ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-4">
                   No products found. Upload a CSV file to get started.
@@ -196,18 +199,25 @@ export function GilmoursTab({ products, setProducts, isLoading, error }: Gilmour
             ) : (
               (() => {
                 try {
-                  const productsArray = Array.isArray(products) ? products : []
-                  return productsArray.map((product) => (
-                    <TableRow key={product.sku}>
-                      <TableCell>{product.sku}</TableCell>
-                      <TableCell>{product.brand}</TableCell>
-                      <TableCell>{product.description}</TableCell>
-                      <TableCell>{product.packSize}</TableCell>
-                      <TableCell>{product.uom}</TableCell>
-                      <TableCell>${product.price.toFixed(2)}</TableCell>
-                      <TableCell>{product.quantity}</TableCell>
-                    </TableRow>
-                  ))
+                  return safeProducts.map((product) => {
+                    // Validate product structure before rendering
+                    if (!product || typeof product !== 'object' || !product.sku) {
+                      return null
+                    }
+                    // Ensure price is a valid number
+                    const price = typeof product.price === 'number' ? product.price : 0
+                    return (
+                      <TableRow key={product.sku}>
+                        <TableCell>{product.sku || ''}</TableCell>
+                        <TableCell>{product.brand || ''}</TableCell>
+                        <TableCell>{product.description || ''}</TableCell>
+                        <TableCell>{product.packSize || ''}</TableCell>
+                        <TableCell>{product.uom || ''}</TableCell>
+                        <TableCell>${price.toFixed(2)}</TableCell>
+                        <TableCell>{product.quantity || 0}</TableCell>
+                      </TableRow>
+                    )
+                  }).filter(Boolean) // Remove any null entries
                 } catch (error) {
                   console.error('Error rendering Gilmours products:', error)
                   return (

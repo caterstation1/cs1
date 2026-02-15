@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { fetchRunsheetData } from '@/lib/runsheet-data';
+import { parseLocalDate } from '@/lib/date-utils';
 
 interface ComponentRequirement {
   id: string
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get('date');
-    const city = (searchParams.get('city') || '').toUpperCase();
+    const city = (searchParams.get('city') || 'AKL').toUpperCase();
     
     if (!dateParam) {
       return NextResponse.json({
@@ -29,171 +30,68 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    console.log('🧩 Fetching daily components for date:', dateParam);
-    
-    // Parse the date and create date range for the entire day
-    const targetDate = new Date(dateParam);
-    const startOfDay = new Date(targetDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    
-    const endOfDay = new Date(targetDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    // Build from runsheet summary (Out-the-Door logic) and exclude dispatched orders
+    const baseDate = parseLocalDate(dateParam) || new Date(dateParam)
+    const isWLG = city === 'WLG'
+    const run = await fetchRunsheetData(baseDate, isWLG, true)
 
-    console.log('📅 Date range:', startOfDay.toISOString(), 'to', endOfDay.toISOString());
-
-    // Fetch orders for the specific date (optionally filter by city)
-    const orders = await prisma.order.findMany({
-      where: {
-        deliveryDate: dateParam,
-      }
-    });
-
-    console.log(`📋 Found ${orders.length} orders for date ${dateParam}`);
-
-    // Extract all product IDs from orders
-    const productIds = new Set<string>();
-    const isOrderCityMatch = (o: any): boolean => {
-      if (!city) return true;
-      // Check note_attributes City
-      const noteProps = Array.isArray((o as any).noteAttributes) ? (o as any).noteAttributes : (Array.isArray((o as any).note_attributes) ? (o as any).note_attributes : [])
-      const cityAttr = noteProps.find((p: any) => (p?.name || '').toLowerCase() === 'city')
-      if (cityAttr && String(cityAttr.value || '').toUpperCase() === city) return true
-      // Fallback: lineItems properties
-      let items: any[] = []
-      if (Array.isArray((o as any).lineItems)) items = (o as any).lineItems
-      else if (typeof (o as any).lineItems === 'string' && (o as any).lineItems) {
-        try { items = JSON.parse((o as any).lineItems as any) } catch { items = [] }
-      }
-      if (items.some(it => Array.isArray(it?.properties) && it.properties.some((p: any) => (p?.name || '').toLowerCase() === 'city' && String(p?.value).toUpperCase() === city))) return true
-      // Fallback: shipping address
-      const ship = (o as any).shippingAddress || (o as any).shipping_address || {}
-      if (String(ship?.city || '').toLowerCase() === 'wellington' && city === 'WLG') return true
-      if (String(ship?.province_code || '').toUpperCase() === 'WGN' && city === 'WLG') return true
-      return false
+    // Flatten categories into a single clickable list, as before
+    const items: ComponentRequirement[] = []
+    const pushCategory = (catName: string, itemsMap?: Record<string, { total: number; am: number }>) => {
+      if (!itemsMap) return
+      Object.entries(itemsMap).forEach(([name, v]) => {
+        items.push({
+          id: `${catName}:${name}`,
+          name: name,
+          quantity: v.total,
+          unit: '',
+          totalCost: 0
+        })
+      })
+    }
+    pushCategory('Cold kitchen', run.tasksByCategory?.['Cold kitchen']?.items)
+    pushCategory('Hot kitchen', run.tasksByCategory?.['Hot kitchen']?.items)
+    pushCategory('Desserts', run.tasksByCategory?.['Desserts']?.items)
+    // Addons
+    for (const a of (run.addonsList || [])) {
+      items.push({
+        id: `Addons:${a.name}`,
+        name: a.name,
+        quantity: a.total,
+        unit: '',
+        totalCost: 0
+      })
+    }
+    // Proteins by initial
+    for (const p of (run.proteinsByInitial || [])) {
+      items.push({
+        id: `Proteins:${p.initial}`,
+        name: `Protein ${p.initial}`,
+        quantity: p.total,
+        unit: '',
+        totalCost: 0
+      })
     }
 
-    orders.filter(isOrderCityMatch).forEach(order => {
-      if (order.lineItems && Array.isArray(order.lineItems)) {
-        order.lineItems.forEach((item: any) => {
-          if (item && item.sku) {
-            // We'll use SKU to find products instead of productId
-            productIds.add(item.sku);
-          }
-        });
-      }
-    });
-
-    console.log(`🛍️ Found ${productIds.size} unique products in orders`);
-
-    // Fetch products with custom data (which contain ingredients)
-    const productsWithIngredients = await prisma.productWithCustomData.findMany({
-      where: {
-        shopifySku: {
-          in: Array.from(productIds)
-        }
-      }
-    });
-
-    console.log(`🧀 Found ${productsWithIngredients.length} products with ingredients`);
-
-    // Recursive function to expand components and get all component list items
-    const expandComponents = async (ingredients: any[], multiplier: number = 1): Promise<Map<string, { quantity: number, cost: number, unit: string }>> => {
-      const expandedIngredients = new Map<string, { quantity: number, cost: number, unit: string }>();
-      
-      for (const ingredient of ingredients) {
-        if (!ingredient || !ingredient.name) continue;
-        
-        const ingredientQuantity = (ingredient.quantity || 1) * multiplier;
-        
-        if (ingredient.source === 'Components') {
-          // This is a component, let's expand it
-          try {
-            const component = await prisma.component.findUnique({
-              where: { id: ingredient.id }
-            });
-            
-            if (component && component.ingredients && Array.isArray(component.ingredients)) {
-              // Recursively expand this component's ingredients
-              const subIngredients = await expandComponents(component.ingredients, ingredientQuantity);
-              
-              // Merge the expanded ingredients
-              subIngredients.forEach((value, key) => {
-                const current = expandedIngredients.get(key) || { quantity: 0, cost: 0, unit: value.unit };
-                current.quantity += value.quantity;
-                current.cost += value.cost;
-                expandedIngredients.set(key, current);
-              });
-            }
-            
-            // Only add the component itself if it's marked as a component list item
-            if (component && component.isComponentListItem) {
-              const key = ingredient.name.toLowerCase().trim();
-              const current = expandedIngredients.get(key) || { quantity: 0, cost: 0, unit: ingredient.unit || 'units' };
-              current.quantity += ingredientQuantity;
-              current.cost += (ingredient.cost || 0) * multiplier;
-              expandedIngredients.set(key, current);
-            }
-          } catch (error) {
-            console.warn(`Failed to expand component ${ingredient.name}:`, error);
-            // If we can't expand, just add the component itself (assuming it's a list item)
-            const key = ingredient.name.toLowerCase().trim();
-            const current = expandedIngredients.get(key) || { quantity: 0, cost: 0, unit: ingredient.unit || 'units' };
-            current.quantity += ingredientQuantity;
-            current.cost += (ingredient.cost || 0) * multiplier;
-            expandedIngredients.set(key, current);
-          }
-        } else {
-          // Skip non-component ingredients (Bidfood, Gilmours, Other, Products)
-          // We only want components marked as component list items
-          continue;
-        }
-      }
-      
-      return expandedIngredients;
-    };
-
-    // Aggregate ingredients from all products with component expansion
-    const ingredientCounts = new Map<string, { quantity: number, cost: number, unit: string }>();
-    
-    for (const product of productsWithIngredients) {
-      if (product.ingredients && Array.isArray(product.ingredients)) {
-        const expandedIngredients = await expandComponents(product.ingredients);
-        
-        // Merge into main ingredient counts
-        expandedIngredients.forEach((value, key) => {
-          const current = ingredientCounts.get(key) || { quantity: 0, cost: 0, unit: value.unit };
-          current.quantity += value.quantity;
-          current.cost += value.cost;
-          ingredientCounts.set(key, current);
-        });
-      }
-    }
-
-    console.log(`📊 Aggregated ${ingredientCounts.size} unique ingredients`);
-
-    // Convert to component requirements format
-    const componentRequirements: ComponentRequirement[] = Array.from(ingredientCounts.entries()).map(([name, data], index) => ({
-      id: `component-${index}`,
-      name: name.charAt(0).toUpperCase() + name.slice(1), // Capitalize first letter
-      quantity: Math.ceil(data.quantity), // Round up to whole numbers
-      unit: data.unit,
-      totalCost: data.cost
-    }));
+    // Sort by quantity desc for initial display; UI will handle completed bottom
+    const componentRequirements: ComponentRequirement[] = items
+      .filter(i => i.quantity > 0)
+      .sort((a, b) => b.quantity - a.quantity)
 
     // Calculate summary
     const summary = {
       totalComponents: componentRequirements.length,
       totalQuantity: componentRequirements.reduce((sum, comp) => sum + comp.quantity, 0),
-      totalCost: componentRequirements.reduce((sum, comp) => sum + comp.totalCost, 0)
+      totalCost: 0
     };
 
-    console.log(`✅ Daily components calculated: ${componentRequirements.length} components, ${summary.totalQuantity} total quantity, $${summary.totalCost.toFixed(2)} total cost`);
+    console.log(`✅ Daily components (runsheet-based): ${componentRequirements.length} items, total qty ${summary.totalQuantity}`);
 
     return NextResponse.json({
-      message: 'Fetched daily components from PostgreSQL.',
+      message: 'Fetched daily components (runsheet-based).',
       components: componentRequirements,
-      totalOrders: orders.length,
-      totalProducts: productIds.size,
+      totalOrders: summary.totalComponents,
+      totalProducts: summary.totalQuantity,
       summary
     });
   } catch (error) {

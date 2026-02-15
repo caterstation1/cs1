@@ -24,8 +24,12 @@ export function formatWLGOutlookEmail(
   dayAfterOrders: OrderEmailData[],
   todayDate: string,
   tomorrowDate: string,
-  dayAfterDate: string
+  dayAfterDate: string,
+  todayDateISO?: string,
+  tomorrowDateISO?: string,
+  dayAfterDateISO?: string
 ): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.PRODUCTION_URL || 'https://caterstation1.vercel.app'
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -220,6 +224,34 @@ export function formatWLGOutlookEmail(
           ? '<div class="no-orders">No orders</div>'
           : dayAfterOrders.map(order => generateOrderHTML(order)).join('')
       }
+    </div>
+
+    <!-- Quick Links Section -->
+    <div style="margin-top: 30px; padding: 20px; background-color: #f0f9ff; border-radius: 8px;">
+      <h3 style="margin-top: 0; color: #0284c7;">📋 Quick Links</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+        ${todayDateISO ? `
+        <div>
+          <strong>${todayDate.split(',')[0]}</strong>
+          <div><a href="${appUrl}/wlg-calendar?date=${todayDateISO}" style="color: #0284c7; text-decoration: none;">📄 Runsheet (WLG Calendar)</a></div>
+          <div><a href="${appUrl}/api/pdf/runsheet?date=${todayDateISO}&isWLG=true" style="color: #0284c7; text-decoration: none;" target="_blank">📄 Runsheet PDF</a></div>
+        </div>
+        ` : ''}
+        ${tomorrowDateISO ? `
+        <div>
+          <strong>${tomorrowDate.split(',')[0]}</strong>
+          <div><a href="${appUrl}/wlg-calendar?date=${tomorrowDateISO}" style="color: #0284c7; text-decoration: none;">📄 Runsheet (WLG Calendar)</a></div>
+          <div><a href="${appUrl}/api/pdf/runsheet?date=${tomorrowDateISO}&isWLG=true" style="color: #0284c7; text-decoration: none;" target="_blank">📄 Runsheet PDF</a></div>
+        </div>
+        ` : ''}
+        ${dayAfterDateISO ? `
+        <div>
+          <strong>${dayAfterDate.split(',')[0]}</strong>
+          <div><a href="${appUrl}/wlg-calendar?date=${dayAfterDateISO}" style="color: #0284c7; text-decoration: none;">📄 Runsheet (WLG Calendar)</a></div>
+          <div><a href="${appUrl}/api/pdf/runsheet?date=${dayAfterDateISO}&isWLG=true" style="color: #0284c7; text-decoration: none;" target="_blank">📄 Runsheet PDF</a></div>
+        </div>
+        ` : ''}
+      </div>
     </div>
 
     <div class="footer">

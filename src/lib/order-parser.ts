@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver';
 import { ShopifyOrder as ShopifyClientOrder } from './shopify-client';
 import { formatLocalDate, parseLocalDate } from './date-utils';
 
@@ -32,11 +33,11 @@ export async function parseShopifyOrder(shopifyOrder: ShopifyOrder) {
       id: shopifyOrder.id.toString(),
       orderNumber: shopifyOrder.order_number.toString(),
       name: `#${shopifyOrder.order_number}`, // Generate name from order number
-      customerFirstName: shopifyOrder.customer.first_name,
-      customerLastName: shopifyOrder.customer.last_name,
+    customerFirstName: shopifyOrder.customer?.first_name || '',
+    customerLastName: shopifyOrder.customer?.last_name || '',
       customerCompany: shopifyOrder.shipping_address?.company,
-      customerPhone: shopifyOrder.customer.phone,
-      customerEmail: shopifyOrder.customer.email,
+    customerPhone: shopifyOrder.customer?.phone || shopifyOrder.shipping_address?.phone || '',
+    customerEmail: shopifyOrder.customer?.email || '',
       shippingAddress: {
         address1: shopifyOrder.shipping_address?.address1,
         address2: shopifyOrder.shipping_address?.address2,
@@ -178,9 +179,25 @@ function extractDeliveryInfo(note_attributes?: Array<{ name: string; value: stri
 
 export async function updateParsedOrder(orderId: string, updates: any) {
   try {
+    // Recompute resolved delivery day when deliveryDate/tags/noteAttributes change
+    const existing = await prisma.order.findUnique({ where: { id: orderId } })
+    const candidate = {
+      deliveryDate: updates?.deliveryDate ?? existing?.deliveryDate,
+      noteAttributes: updates?.noteAttributes ?? existing?.noteAttributes,
+      tags: updates?.tags ?? existing?.tags,
+      createdAt: existing?.createdAt,
+    }
+    const resolved = resolveDeliveryDateResolved(candidate)
+
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
-      data: updates
+      data: {
+        ...updates,
+        hasLocalEdits: true,
+        deliveryDateResolved: resolved.date,
+        deliveryDateResolvedSource: resolved.source,
+        deliveryDateResolvedAt: new Date(),
+      }
     });
     return updatedOrder;
   } catch (error) {

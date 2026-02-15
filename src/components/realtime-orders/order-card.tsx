@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Search, Car, MessageSquare, Settings, Phone, StickyNote } from 'lucide-react'
+import { TextOrdersModal } from '@/components/TextOrdersModal'
+import { resolveBundleItems } from '@/lib/product-service'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -32,6 +34,7 @@ import { Label } from '@/components/ui/label';
 interface Product {
   id: string
   variantId: string
+  productId?: string  // New field from ProductVariant
   createdAt: string
   updatedAt: string
   
@@ -42,6 +45,9 @@ interface Product {
   shopifyTitle: string
   shopifyPrice: string
   shopifyInventory: number
+  shopifyVendor?: string
+  shopifyMarket?: string
+  heroImageUrl?: string
   
   // Custom operational data (editable)
   displayName?: string
@@ -53,6 +59,10 @@ interface Product {
   option2?: string
   serveware: boolean
   isDraft: boolean
+  
+  // Component/costing data
+  ingredients?: any
+  totalCost?: number
   
   // Legacy fields for backward compatibility
   name?: string
@@ -71,9 +81,10 @@ interface OrderCardProps {
   updateProductInState?: (variantId: string, updatedProduct: any) => void
   isAudioEnabled?: boolean
   originAddressOverride?: string
+  isTvMode?: boolean
 }
 
-export default function OrderCard({ order, onUpdate, products, refreshProducts, onBulkUpdateComplete, updateProductInState, isAudioEnabled = true, originAddressOverride }: OrderCardProps) {
+export default function OrderCard({ order, onUpdate, products, refreshProducts, onBulkUpdateComplete, updateProductInState, isAudioEnabled = true, originAddressOverride, isTvMode = false }: OrderCardProps) {
   // Debug logging disabled in production for performance and clarity
   const [isExpanded, setIsExpanded] = useState(false)
   const [deliveryTime, setDeliveryTime] = useState(order.deliveryTime || '')
@@ -81,12 +92,22 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [travelTime, setTravelTime] = useState<number>(parseInt(order.travelTime || '0'))
   const [driverId, setDriverId] = useState<string>('')
   const [drivers, setDrivers] = useState<Staff[]>([])
+  const [carId, setCarId] = useState<string>('')
+  const [cars, setCars] = useState<Array<{ id: string; name: string; rego?: string }>>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isMapModalOpen, setIsMapModalOpen] = useState(false)
   const [hasManualTravelTime, setHasManualTravelTime] = useState(false)
   const [isLoadingDrivers, setIsLoadingDrivers] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isInternalNoteModalOpen, setIsInternalNoteModalOpen] = useState(false)
+  const [isClientTextOpen, setIsClientTextOpen] = useState(false)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [isDDModalOpen, setIsDDModalOpen] = useState(false)
+  const [ddKm, setDdKm] = useState<number>(0)
+  const [ddRate, setDdRate] = useState<number>(2)
+  const [ddBase, setDdBase] = useState<number>(10)
+  const [ddPayout, setDdPayout] = useState<number>(0)
+  const [ddDispatchTime, setDdDispatchTime] = useState<string>(leaveTime || '')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Product[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -137,6 +158,36 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       lineItems = [];
     }
   }
+  // Expand party packs into child display (UI only; DB stays unchanged until saved via Edit Order)
+  const expandedDisplayLineItems: any[] = useMemo(() => {
+    const out: any[] = []
+    for (const it of lineItems) {
+      const variantId = it.variant_id?.toString() || it.variantId?.toString();
+      const product = variantId ? (products as any)[variantId] : null;
+      const qty = Number(it.quantity || 0)
+      const children = product ? resolveBundleItems(product) : []
+      if (product && children.length > 0) {
+        // header row for the pack
+        out.push({ ...it, _isPack: true })
+        for (const child of children) {
+          const childProduct = (products as any)[child.variantId]
+          out.push({
+            ...it,
+            _isPackChild: true,
+            variant_id: child.variantId,
+            variantId: child.variantId,
+            // ensure SKU/title reflect the child for proper addon detection and display
+            sku: childProduct?.shopifySku || it.sku,
+            title: (childProduct?.shopifyName && childProduct.shopifyName !== 'Default Title') ? childProduct.shopifyName : (childProduct?.shopifyTitle || it.title),
+            quantity: qty * Math.max(1, parseInt(String(child.quantity || '1'), 10)),
+          })
+        }
+      } else {
+        out.push(it)
+      }
+    }
+    return out
+  }, [lineItems, products])
   
   // Get status badge color
   const statusBadgeColor = getStatusColor(order.fulfillmentStatus)
@@ -204,15 +255,19 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     return '';
   }
 
-  // Update the useEffect for delivery time
+  // Initialize deliveryTime from explicit field first; fallback to tags
   useEffect(() => {
+    if (order.deliveryTime) {
+      setDeliveryTime(sanitizeTimeInput(order.deliveryTime as any));
+      return;
+    }
     if (order.tags) {
       const extractedTime = extractDeliveryTime(order.tags);
       if (extractedTime) {
         setDeliveryTime(extractFirstTimeTo24Hour(extractedTime));
       }
     }
-  }, [order.tags]);
+  }, [order.deliveryTime, order.tags]);
 
   // Update the input fields to handle time format conversion
   const handleTimeChange = (time: string, field: 'deliveryTime' | 'leaveTime') => {
@@ -261,45 +316,46 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     if (order.driverId) {
       setDriverId(order.driverId)
     }
+    if ((order as any)?.carId) {
+      setCarId((order as any).carId as string)
+    }
   }, [order.travelTime, order.leaveTime, order.driverId])
   
-  // Update leave time when delivery inputs change
+  // Update leave time when delivery inputs change; prefer explicit/edited time over tags
   useEffect(() => {
     // Determine an effective delivery time in HH:mm from tags → state → order field
     const fromTags = extractDeliveryTime(order.tags);
-    const eff = fromTags
-      ? extractFirstTimeTo24Hour(fromTags)
-      : (deliveryTime
-          ? sanitizeTimeInput(deliveryTime)
-          : (order.deliveryTime ? sanitizeTimeInput(order.deliveryTime as any) : ''));
+    const eff = deliveryTime
+      ? sanitizeTimeInput(deliveryTime)
+      : (order.deliveryTime
+          ? sanitizeTimeInput(order.deliveryTime as any)
+          : (fromTags ? extractFirstTimeTo24Hour(fromTags) : ''));
 
+    // Compute desired leave time locally
+    let computedLeave = '';
     if (eff && travelTime > 0) {
       const [hours, minutes] = eff.split(':').map(Number);
       const deliveryDate = new Date();
       deliveryDate.setHours(hours, minutes, 0, 0);
-
-      // Subtract travel time from delivery time
       const leaveDate = new Date(deliveryDate.getTime() - (travelTime * 60 * 1000));
       const leaveHours = leaveDate.getHours().toString().padStart(2, '0');
       const leaveMinutes = leaveDate.getMinutes().toString().padStart(2, '0');
-      const newLeaveTime = `${leaveHours}:${leaveMinutes}`;
-
-      if (newLeaveTime !== leaveTime) {
-        setLeaveTime(newLeaveTime);
-        handleUpdate({ leaveTime: newLeaveTime });
-      }
+      computedLeave = `${leaveHours}:${leaveMinutes}`;
     } else if (eff) {
-      if (eff !== leaveTime) {
-        setLeaveTime(eff);
-        handleUpdate({ leaveTime: eff });
-      }
+      computedLeave = eff;
     } else {
-      if (leaveTime !== '') {
-        setLeaveTime('');
-        handleUpdate({ leaveTime: '' });
+      computedLeave = '';
+    }
+
+    // Update local state
+    if (computedLeave !== leaveTime) {
+      setLeaveTime(computedLeave);
+      // Persist only when not editing to avoid race conditions from the modal
+      if (!isEditModalOpen) {
+        handleUpdate({ leaveTime: computedLeave });
       }
     }
-  }, [order.tags, order.deliveryTime, deliveryTime, travelTime]);
+  }, [order.tags, order.deliveryTime, deliveryTime, travelTime, isEditModalOpen]);
   
   // Fetch staff for driver dropdown
   useEffect(() => {
@@ -326,6 +382,22 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     fetchStaff()
   }, [drivers.length]) // Only depend on drivers.length
   
+  // Fetch cars for car dropdown
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const res = await fetch('/api/cars', { cache: 'no-store' })
+        if (!res.ok) return
+        const data = await res.json()
+        const list = Array.isArray(data) ? data : []
+        setCars(list.map((c: any) => ({ id: c.id, name: c.name, rego: c.rego })))
+      } catch (e) {
+        console.error('Error fetching cars:', e)
+      }
+    }
+    fetchCars()
+  }, [])
+  
   // Save state to localStorage when it changes
   useEffect(() => {
     if (!isFirstRender.current) {
@@ -333,10 +405,12 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       localStorage.setItem(key, JSON.stringify({
         leaveTime,
         travelTime,
-        driverId
+        driverId,
+        carId,
+        hasManualTravelTime
       }))
     }
-  }, [order.id, leaveTime, travelTime, driverId])
+  }, [order.id, leaveTime, travelTime, driverId, carId, hasManualTravelTime])
   
   // Load state from localStorage on first render
   useEffect(() => {
@@ -345,7 +419,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       const saved = localStorage.getItem(key)
       if (saved) {
         try {
-          const { leaveTime: savedLeaveTime, travelTime: savedTravelTime, driverId: savedDriverId } = JSON.parse(saved)
+          const { leaveTime: savedLeaveTime, travelTime: savedTravelTime, driverId: savedDriverId, carId: savedCarId, hasManualTravelTime: savedManual } = JSON.parse(saved)
           
           // Set the values from localStorage
           if (savedLeaveTime) setLeaveTime(savedLeaveTime)
@@ -355,6 +429,8 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             handleUpdate({ travelTime: savedTravelTime.toString() })
           }
           if (savedDriverId) setDriverId(savedDriverId)
+          if (savedCarId) setCarId(savedCarId)
+          if (typeof savedManual === 'boolean') setHasManualTravelTime(savedManual)
         } catch (error) {
           console.error('Error parsing saved state:', error)
         }
@@ -499,32 +575,32 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   };
 
   // Helper function to calculate timer times
-  const calculateTimerTimes = (leaveTime: string, timer1?: number | null, timer2?: number | null): string[] => {
-    if (!leaveTime) return [];
+  const calculateTimerTimes = (leaveTime: string, timer1?: number | null, timer2?: number | null): (string | null)[] => {
+    if (!leaveTime) return [null, null];
     
     // Skip calculation if both timers are null/undefined
-    if (timer1 === null && timer2 === null) return [];
-    if (timer1 === undefined && timer2 === undefined) return [];
+    if (timer1 === null && timer2 === null) return [null, null];
+    if (timer1 === undefined && timer2 === undefined) return [null, null];
     
     const [hours, minutes] = leaveTime.split(':').map(Number);
     const leaveTimeInMinutes = hours * 60 + minutes;
     
-    const timerTimes: string[] = [];
+    const timerTimes: (string | null)[] = [null, null];
     
-    if (timer1) {
+    if (typeof timer1 === 'number' && !Number.isNaN(timer1)) {
       const timer1TimeInMinutes = leaveTimeInMinutes - timer1;
       const timer1Hours = Math.floor(timer1TimeInMinutes / 60);
       const timer1Minutes = timer1TimeInMinutes % 60;
       const timer1Time = `${timer1Hours.toString().padStart(2, '0')}:${timer1Minutes.toString().padStart(2, '0')}`;
-      timerTimes.push(timer1Time);
+      timerTimes[0] = timer1Time;
     }
     
-    if (timer2) {
+    if (typeof timer2 === 'number' && !Number.isNaN(timer2)) {
       const timer2TimeInMinutes = leaveTimeInMinutes - timer2;
       const timer2Hours = Math.floor(timer2TimeInMinutes / 60);
       const timer2Minutes = timer2TimeInMinutes % 60;
       const timer2Time = `${timer2Hours.toString().padStart(2, '0')}:${timer2Minutes.toString().padStart(2, '0')}`;
-      timerTimes.push(timer2Time);
+      timerTimes[1] = timer2Time;
     }
     
     return timerTimes;
@@ -742,7 +818,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     // Fetch the latest product data from the database to ensure we have the most up-to-date information
     let latestProduct = product;
     try {
-      const response = await fetch(`/api/products/${variantId}`);
+      const response = await fetch(`/api/products/variant/${variantId}`);
       if (response.ok) {
         latestProduct = await response.json();
         console.log('Fetched latest product data:', latestProduct);
@@ -797,7 +873,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
 
   const handleProductEditSave = async (data: any) => {
     try {
-      const response = await fetch(`/api/products/${data.variantId}`, {
+      const response = await fetch(`/api/products/variant/${data.variantId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -849,9 +925,22 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
 
     try {
       console.log('📡 Frontend: Making API call to send SMS...');
-      const requestBody = {
-        driverPhone: phoneNumber.trim()
-      };
+      // Build Google Maps link
+      const addrObj: any = typeof order.shippingAddress === 'string' ? (()=>{ try { return JSON.parse(order.shippingAddress) } catch { return {} } })() : (order.shippingAddress || {})
+      const mapsQuery = encodeURIComponent([addrObj.company, addrObj.address1, addrObj.address2, addrObj.zip].filter(Boolean).join(', '))
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`
+      // Build items summary with SW tag (no qty)
+      const itemsSummary = lineItems.map((li: any) => {
+        const title = li.title || li.name || ''
+        const hasSW = (li.variant_title || li.variantTitle || '').toLowerCase().includes('yes serveware')
+        return `- ${title}${hasSW ? ' (SW)' : ''}`
+      }).join('\n')
+      // Vehicle label after order number
+      const effectiveCarId = (carId || (order as any)?.carId) as string | undefined
+      const selectedCar = effectiveCarId ? cars.find(c => c.id === effectiveCarId) : undefined
+      const vehicleLabel = selectedCar ? ` (${selectedCar.name}${selectedCar.rego ? ` ${selectedCar.rego}` : ''})` : ''
+      const smsBody = `Order #${order.orderNumber}${vehicleLabel}\nTags: ${order.tags || ''}\nCustomer: ${order.customerFirstName || ''} (${order.customerPhone || ''})\nAddress: ${[addrObj.company, addrObj.address1, addrObj.address2, addrObj.zip].filter(Boolean).join(' ')} — ${mapsUrl}\nItems:\n${itemsSummary}`
+      const requestBody = { driverPhone: phoneNumber.trim(), message: smsBody };
       console.log('📡 Frontend: Request body:', requestBody);
       
       const response = await fetch(`/api/orders/${order.id}/send-sms`, {
@@ -1017,40 +1106,93 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   return (
     <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden">
       {/* Order Details Section - Light Blue Background */}
-      <div className="bg-blue-100 text-black p-1">
+      <div className={`${isTvMode ? 'bg-blue-50' : 'bg-blue-100'} text-black p-1`}>
         {/* Single row with all order details */}
-        <div className="flex items-center space-x-3 text-base">
-          <div className="w-20">
-            <input
-              type="time"
-              value={leaveTime}
-              onChange={(e) => {
-                setLeaveTime(e.target.value);
-                handleUpdate({ leaveTime: e.target.value });
-              }}
-              className="w-full px-1 py-0.5 rounded bg-blue-200 text-black border border-blue-300 text-xs"
-              title="Leave Time"
-            />
-          </div>
-          <div className="w-20">
-            <div className="flex items-center">
+        <div className={`flex flex-wrap items-center gap-2 sm:space-x-3 ${isTvMode ? 'text-4xl' : 'text-base'}`}>
+          {/* Dispatch time (Leave Time) - simplified in TV mode: no icon, no box, same text size style as travel time */}
+          <div className={`${isTvMode ? 'w-36' : 'w-16 sm:w-20'}`}>
+            {isTvMode ? (
               <input
                 type="text"
                 inputMode="numeric"
-                pattern="[0-9]*"
-                value={travelTime === 0 ? '' : travelTime}
+                pattern="[0-9: ]*"
+                value={leaveTime}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  const numericValue = parseInt(value || '0');
-                  handleTravelTimeChange(isNaN(numericValue) ? 0 : numericValue);
+                  setLeaveTime(e.target.value)
+                  handleUpdate({ leaveTime: e.target.value })
                 }}
-                className="w-12 text-center font-medium border rounded px-1 text-black appearance-none"
-                placeholder="min"
+                className="w-full text-center font-medium text-black bg-transparent border-0 px-0 py-0 focus:outline-none focus:ring-0 appearance-none"
+                title="Leave Time"
               />
-              <span className="ml-1 text-xs">min</span>
+            ) : (
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9: ]*"
+                value={leaveTime}
+                onChange={(e) => {
+                  setLeaveTime(e.target.value);
+                  handleUpdate({ leaveTime: e.target.value });
+                }}
+                className="w-full text-center font-bold text-black bg-transparent border-0 px-0 py-0 focus:outline-none focus:ring-0 appearance-none text-lg sm:text-xl"
+                title="Leave Time"
+              />
+            )}
+          </div>
+          <div className={`${isTvMode ? 'w-36' : 'w-24 sm:w-28'}`}>
+            <div className="flex items-center">
+              <input
+                type="number"
+                step="1"
+                value={Number.isNaN(travelTime) ? 0 : travelTime}
+                onChange={(e) => {
+                  const numericValue = parseInt(e.target.value || '0', 10);
+                  handleTravelTimeChange(Number.isNaN(numericValue) ? 0 : numericValue);
+                }}
+                onBlur={() => {
+                  // Persist to server on blur to avoid mid-typing flicker
+                  let leave = deliveryTime;
+                  if (deliveryTime && travelTime > 0) {
+                    const [hours, minutes] = deliveryTime.split(':').map(Number);
+                    const deliveryDate = new Date();
+                    deliveryDate.setHours(hours, minutes, 0, 0);
+                    const leaveDate = new Date(deliveryDate.getTime() - (travelTime * 60 * 1000));
+                    const leaveHours = leaveDate.getHours().toString().padStart(2, '0');
+                    const leaveMinutes = leaveDate.getMinutes().toString().padStart(2, '0');
+                    leave = `${leaveHours}:${leaveMinutes}`;
+                  }
+                  handleUpdate({ travelTime: String(travelTime), leaveTime: leave });
+                }}
+                className="w-16 text-center font-medium border rounded px-1 text-black appearance-none"
+                placeholder="0"
+              />
             </div>
           </div>
-          <div className="w-32">
+          {/* Vehicle selection (left of Driver) */}
+          <div className={`${isTvMode ? 'w-40' : 'w-24 sm:w-28'}`}>
+            <div className="flex items-center gap-1">
+              <Car className="w-4 h-4 text-gray-500" />
+              <select
+                value={carId}
+                onChange={(e) => {
+                  const v = e.target.value
+                  setCarId(v)
+                  handleUpdate({ carId: v as any })
+                }}
+                className="w-full px-1 py-0.5 rounded bg-amber-100 text-black border border-amber-300 text-xs"
+                title="Vehicle"
+              >
+                <option value="">No Car</option>
+                {cars.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}{c.rego ? ` • ${c.rego}` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {/* Driver selection */}
+          <div className={`${isTvMode ? 'w-56' : 'w-28 sm:w-36'}`}>
             <select
               value={driverId}
               onChange={(e) => {
@@ -1074,15 +1216,29 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             title={deliveryAddress || 'No address available'}
             onClick={() => setIsMapModalOpen(true)}
           >
+            {/* Order number and customer before address */}
+            <span className="mr-3">{`#${order.orderNumber || ''}`}</span>
+            <span className="mr-3">{`${order.customerFirstName || ''} ${order.customerLastName || ''}`.trim()}</span>
             {deliveryAddress || 'No address'}
           </div>
-          <div className="w-24 ml-2">
+          <div className={`${isTvMode ? 'w-48' : 'w-20 sm:w-24'} ml-2 text-right`}>
             {deliveryTime || 'Not set'}
           </div>
-          <div className="w-24 text-center">
-            {deliveryPhone || 'No phone'}
+          <div className={`${isTvMode ? 'w-40' : 'w-20 sm:w-24'} text-center`}>
+            {deliveryPhone ? (
+              <button
+                type="button"
+                onClick={() => setIsDetailsModalOpen(true)}
+                className="underline underline-offset-2 decoration-dotted hover:text-blue-700"
+                title="View order details"
+              >
+                {deliveryPhone}
+              </button>
+            ) : (
+              'No phone'
+            )}
           </div>
-          <div className="flex-1 truncate relative ml-3">
+          <div className="flex-1 truncate relative ml-3 text-right pr-2">
             <div
               className="cursor-pointer hover:underline"
               onClick={(e) => {
@@ -1104,7 +1260,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                 document.body.appendChild(tooltip)
               }}
             >
-              {order.note || 'No notes'}
+              {sanitizeOrderNote(order.note) || 'No notes'}
             </div>
           </div>
           {/* Dispatch Status Badge */}
@@ -1130,15 +1286,13 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       {/* Item Details Section - White Background */}
       <div className="p-1 bg-white">
         <div className="relative">
-          {/* Addon products - horizontal list, positioned absolutely */}
-          <div className="absolute left-[42%] top-0 flex items-center space-x-2 text-[1.75rem] text-red-600 z-10 leading-tight">
-            {lineItems.map((item: any, index: number) => {
-              // Use variantId for product lookup instead of SKU
+          {/* Addon products - center area, includes pack children that are addons */}
+          <div className={`hidden lg:flex absolute left-1/2 top-0 items-center space-x-2 ${isTvMode ? 'text-[2.5rem]' : 'text-[1.75rem]'} text-red-600 z-10 leading-tight`}>
+            {expandedDisplayLineItems.map((item: any, index: number) => {
               const variantId = item.variant_id?.toString() || item.variantId?.toString();
               const product = variantId ? products[variantId] : null;
-              
-              // Only show addon products (SKUs starting with ADD or AA)
-              if (!item.sku?.startsWith('ADD') && !item.sku?.startsWith('AA')) return null
+              const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
+              if (!isAddon(item.sku) && !isAddon(product?.shopifySku)) return null
               return (
                 <ContextMenu key={index}>
                   <ContextMenuTrigger asChild>
@@ -1148,9 +1302,11 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                     <span className="text-xs font-black text-black mr-2 align-middle">SW</span>
                   )}
                   <span>{(() => {
-                    const name = product ? (product.displayName?.trim() ? product.displayName : (product.shopifyName || product.name)) : item.title
-                    const qty = Number(item.quantity || 0)
-                    return qty > 1 ? `${qty}x ${name}` : name
+                    const parentDisplay = product ? (product as any).productDisplayName : undefined;
+                    const fallbackName = product ? (product.shopifyName || product.shopifyTitle || product.name) : item.title;
+                    const name = (parentDisplay?.trim() || '') || (fallbackName || '');
+                    const qty = Number(item.quantity || 0);
+                    return qty > 1 ? `${qty}x ${name}` : name;
                   })()}</span>
                 </div>
                   </ContextMenuTrigger>
@@ -1173,8 +1329,8 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             })}
           </div>
             
-          {/* Action Buttons - Moved to right side */}
-          <div className="absolute right-2 top-0 flex items-center gap-2 z-10">
+          {/* Action Buttons - right side on desktop; hidden on mobile */}
+          <div className="hidden lg:flex absolute right-2 top-0 items-center gap-2 z-10">
             <Button
               variant="outline"
               size="sm"
@@ -1191,25 +1347,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                   await handleUpdate({ isDispatched: newDispatchState });
                   console.log('🚀 Frontend: Order updated successfully');
                   
-                  // If dispatching and a driver is selected, send SMS automatically
-                  if (newDispatchState && driverId) {
-                    console.log('🚀 Frontend: Dispatching and driver selected, looking for driver...');
-                    const selectedDriver = drivers.find(d => d.id === driverId);
-                    console.log('🚀 Frontend: Selected driver:', selectedDriver);
-                    
-                    if (selectedDriver && selectedDriver.phone) {
-                      console.log('🚀 Frontend: Driver found with phone, sending SMS...');
-                      await handleSendSMS(selectedDriver.phone);
-                    } else {
-                      console.log('❌ Frontend: No driver found or no phone number');
-                      console.log('❌ Frontend: selectedDriver:', selectedDriver);
-                      console.log('❌ Frontend: selectedDriver.phone:', selectedDriver?.phone);
-                    }
-                  } else {
-                    console.log('🚀 Frontend: Not dispatching or no driver selected');
-                    console.log('🚀 Frontend: newDispatchState:', newDispatchState);
-                    console.log('🚀 Frontend: driverId:', driverId);
-                  }
+                  // No automatic SMS on dispatch anymore
                 } catch (error) {
                   console.error('❌ Frontend: Error updating dispatch status:', error);
                 }
@@ -1240,14 +1378,30 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             >
               Edit
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsClientTextOpen(true)}
+              className="bg-white border-gray-200 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+              title="Text client"
+            >
+              <MessageSquare className="h-4 w-4" />
+            </Button>
             
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleSendSMS(order.customerPhone)}
-              disabled={!order.customerPhone}
+              onClick={async () => {
+                const selectedDriver = drivers.find(d => d.id === driverId)
+                if (!selectedDriver || !selectedDriver.phone) {
+                  alert('Select a driver with a phone number first')
+                  return
+                }
+                await handleSendSMS(selectedDriver.phone)
+              }}
+              disabled={!driverId}
               className="bg-white border-gray-200 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-              title={order.customerPhone ? 'Send SMS to customer' : 'No phone number available'}
+              title={driverId ? 'Send SMS to driver' : 'Select a driver first'}
             >
               <Phone className="h-4 w-4" />
             </Button>
@@ -1261,67 +1415,140 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             >
               <StickyNote className="h-4 w-4" />
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  setIsDDModalOpen(true)
+                  // Preload quote
+                  const addrObj: any = typeof order.shippingAddress === 'string' ? (()=>{ try { return JSON.parse(order.shippingAddress) } catch { return {} } })() : (order.shippingAddress || {})
+                  const drop = [addrObj.address1, addrObj.address2, addrObj.city, addrObj.province, addrObj.zip, 'New Zealand'].filter(Boolean).join(', ')
+                  const res = await fetch('/api/dispatch/quote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pickupAddress: originAddressOverride || undefined, dropoffAddress: drop, perKmRate: ddRate }),
+                  })
+                  if (res.ok) {
+                    const data = await res.json()
+                    const km = Number(data.km || 0)
+                    setDdKm(km)
+                    setDdPayout(Number((ddBase + km * ddRate).toFixed(2)))
+                  }
+                } catch (e) {
+                  console.error('quote failed', e)
+                }
+              }}
+              className="bg-white border-gray-200 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+              title="DataDriver dispatch"
+            >
+              DD
+            </Button>
           </div>
 
-          {/* Regular products */}
-          <div className="space-y-0 max-w-[40%]">
-            {lineItems.map((item: any, index: number) => {
+          {/* Internal note under action buttons (desktop) */}
+          {order.internalNote && (
+            <div className="hidden lg:block absolute right-2 top-10 w-[340px]">
+              <div className="mt-1 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                <div className="text-sm text-blue-700 whitespace-pre-wrap">
+                  {order.internalNote}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Regular products (with pack expansion for display) - left column */}
+          <div className="space-y-0 w-full lg:max-w-[38%]">
+            {expandedDisplayLineItems.map((item: any, index: number) => {
               // Use variantId for product lookup instead of SKU
               const variantId = item.variant_id?.toString() || item.variantId?.toString();
               const product = variantId ? products[variantId] : null;
-              
-              // Skip addon products (SKUs starting with ADD or AA)
-              if (item.sku?.startsWith('ADD') || item.sku?.startsWith('AA')) return null
-              // Create an array of items based on quantity
+              const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
+              // Skip addon products (child addons will now be excluded too)
+              if (isAddon(item.sku) || isAddon(product?.shopifySku)) return null
+              // Create an array of items based on quantity (pack children already multiplied)
               return Array(item.quantity).fill(null).map((_, itemIndex) => {
                 // Only calculate timer times if we have a valid product with timers
-                const hasTimers = product && (product.timer1 || product.timer2);
-                const timerTimes = hasTimers ? calculateTimerTimes(leaveTime, product?.timer1, product?.timer2) : [];
+                const vAny = product as any;
+                const timersArr: (number | null)[] = Array.isArray(vAny?.timers) ? vAny.timers : [product?.timer1 ?? null, product?.timer2 ?? null];
+                const hasTimers = timersArr.some(t => t != null);
+                const timerTimes = hasTimers ? calculateTimerTimes(leaveTime, timersArr[0] ?? null, timersArr[1] ?? null) : [];
                 return (
                   <ContextMenu key={`${index}-${itemIndex}`}>
                     <ContextMenuTrigger asChild>
-                      <div className="text-[2.25rem] relative cursor-context-menu hover:bg-gray-50 p-0.5 rounded leading-tight">
+                      <div className={`${isTvMode ? 'text-[3.5rem]' : 'text-[2.25rem]'} relative cursor-context-menu hover:bg-gray-50 p-0.5 rounded leading-tight`}>
                         <div className="flex items-center relative">
-                          <span className="flex-shrink-0 w-8 text-xs font-black text-black">
+                          {/* Pack pill */}
+                          {item._isPack && (
+                            <span className="mr-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-200">
+                              {(product as any)?.productDisplayName || product?.displayName || product?.shopifyName || 'Pack'}
+                            </span>
+                          )}
+                          <span className="flex-shrink-0 w-10 text-sm font-black text-red-600">
                             {product?.serveware ? 'SW' : ''}
                           </span>
-                          <span className="flex-1">{product ? (product.displayName?.trim() ? product.displayName : (product.shopifyName || product.name)) : item.title}</span>
+                          <span className="flex-1">{(() => {
+                            if (!product) return item.title;
+                            const parentDisplay = (product as any).productDisplayName;
+                            const name = parentDisplay?.trim() || product.shopifyName || product.shopifyTitle || product.name || '';
+                            return name;
+                          })()}</span>
                         </div>
-                    {(product?.meat1 || product?.meat2) && (
+                    {(() => {
+                      const has = Array.isArray((product as any)?.meats)
+                        ? ((product as any).meats as any[]).some(m => (m ?? '').toString().trim() !== '')
+                        : [product?.meat1, product?.meat2].some(m => (m ?? '').toString().trim() !== '');
+                      return has;
+                    })() && (
                           <span className="absolute left-[45%] top-0 text-black align-middle">
-                        {product.meat1 && (
-                          <span className={timerTimes[0] && isTimerPassed(variantId, 0, timerTimes[0]) ? 'text-red-600 font-bold' : ''}>
-                            {product.meat1}
-                          </span>
-                        )}
-                        {product.meat1 && product.meat2 && <span className="mx-1">•</span>}
-                        {product.meat2 && (
-                          <span className={timerTimes[1] && isTimerPassed(variantId, 1, timerTimes[1]) ? 'text-red-600 font-bold' : ''}>
-                            {product.meat2}
-                          </span>
-                        )}
+                        {(() => {
+                          const rawMeats = Array.isArray((product as any)?.meats)
+                            ? ((product as any).meats as (string | null)[])
+                            : [product?.meat1 ?? null, product?.meat2 ?? null];
+                          const items = rawMeats
+                            .map((m, idx) => ({ text: (m ?? '').toString().trim(), idx }))
+                            .filter(x => x.text.length > 0);
+                          return items.map((item, j) => {
+                            const t = timerTimes[item.idx]
+                            const overdue = typeof t === 'string' && isTimerPassed(variantId, item.idx, t)
+                            return (
+                            <span key={item.idx} className={overdue ? 'text-red-600 font-bold' : ''}>
+                              {j > 0 && <span className="mx-1">•</span>}
+                              {item.text}
+                            </span>
+                          )});
+                        })()}
                       </span>
                     )}
-                    {timerTimes.length > 0 && (
-                           <span className="absolute left-[60%] top-0 text-blue-500 text-[1.4rem] font-medium align-middle whitespace-nowrap">
-                        {timerTimes.map((time, i) => (
-                          <span key={i} className={isTimerPassed(variantId, i, time) ? 'text-red-600 font-bold' : ''}>
-                            {i > 0 && <span className="mx-1">•</span>}
-                            {time}
-                          </span>
-                        ))}
-                      </span>
-                    )}
+                    {(() => {
+                      const anyTimer = timerTimes.some(t => t)
+                      if (!anyTimer) return null
+                      return (
+                        <span className={`absolute left-[62%] top-0 text-blue-500 ${isTvMode ? 'text-[2rem]' : 'text-[1.4rem]'} font-medium align-middle whitespace-nowrap`}>
+                          {timerTimes.map((time, i) => (
+                            <span key={i} className={time && isTimerPassed(variantId, i, time) ? 'text-red-600 font-bold' : ''}>
+                              {i > 0 && <span className="mx-1">•</span>}
+                              {time || ''}
+                            </span>
+                          ))}
+                        </span>
+                      )
+                    })()}
                     {/* Options inline with product */}
-                    {(product?.option1 || product?.option2) && (
-                      <span className="absolute left-[75%] top-0 text-blue-500 text-[1.4rem] align-middle whitespace-nowrap">
-                        {product.option1 && (
-                          <span>{product.option1}</span>
-                        )}
-                        {product.option1 && product.option2 && <span className="mx-1">•</span>}
-                        {product.option2 && (
-                          <span>{product.option2}</span>
-                        )}
+                    {(() => {
+                      const optionsArr = Array.isArray((product as any)?.options) ? (product as any).options as string[] : [product?.option1, product?.option2].filter(Boolean) as string[];
+                      return optionsArr.length > 0;
+                    })() && (
+                      <span className={`absolute left-[78%] top-0 text-blue-500 ${isTvMode ? 'text-[2rem]' : 'text-[1.4rem]'} align-middle whitespace-nowrap`}>
+                        {(() => {
+                          const optionsArr = Array.isArray((product as any)?.options) ? (product as any).options as string[] : [product?.option1, product?.option2].filter(Boolean) as string[];
+                          return optionsArr.map((o, i) => (
+                            <span key={i}>
+                              {i > 0 && <span className="mx-1">•</span>}
+                              {o}
+                            </span>
+                          ));
+                        })()}
                       </span>
                     )}
                   </div>
@@ -1357,35 +1584,58 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             })}
           </div>
           
-          {/* Internal Note Display */}
-          {(() => {
-            console.log('🔍 Internal note display check - order.internalNote:', order.internalNote);
-            console.log('🔍 Internal note display check - condition result:', !!order.internalNote);
-            
-            // Check if there are addons
-            const hasAddons = lineItems.some((item: any) => item.sku?.startsWith('ADD'));
-            console.log('🔍 Has addons:', hasAddons);
-            
-            return order.internalNote && (
-              <div className={`absolute left-[42%] p-2 bg-blue-50 border border-blue-200 rounded-md max-w-[40%] z-20 ${
-                hasAddons ? 'top-16' : 'top-2'
-              }`}>
-                <div className="flex items-center gap-2">
-                  <StickyNote className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">Internal Note:</span>
-                </div>
-                <div className="mt-1 text-sm text-blue-700">
+          {/* Mobile actions row (shown when desktop actions are hidden) */}
+          <div className="mt-2 flex lg:hidden items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  const newDispatchState = !order.isDispatched;
+                  await handleUpdate({ isDispatched: newDispatchState });
+                } catch (error) {
+                  console.error('Error updating dispatch status:', error);
+                }
+              }}
+              disabled={isSendingSms}
+            >
+              <Car className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>Edit</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                const selectedDriver = drivers.find(d => d.id === driverId)
+                if (!selectedDriver || !selectedDriver.phone) {
+                  alert('Select a driver with a phone number first')
+                  return
+                }
+                await handleSendSMS(selectedDriver.phone)
+              }}
+              disabled={!driverId}
+              title={driverId ? 'Send SMS to driver' : 'Select a driver first'}
+            >
+              <Phone className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          {/* Internal note under buttons (mobile) */}
+          {order.internalNote && (
+            <div className="lg:hidden mt-2 w-full">
+              <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
+                <div className="text-sm text-blue-700 whitespace-pre-wrap">
                   {order.internalNote}
                 </div>
               </div>
-            );
-          })()}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Edit Order Modal */}
       <Dialog modal open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="w-full max-w-3xl" aria-describedby="edit-order-description">
+        <DialogContent className="w-full max-w-3xl max-h-[85vh] overflow-y-auto" aria-describedby="edit-order-description">
           <DialogHeader>
             <DialogTitle>Edit Order #{order.orderNumber}</DialogTitle>
             <DialogDescription id="edit-order-description">
@@ -1443,9 +1693,18 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
               </div>
             </div>
 
-            {/* Delivery Address */}
+            {/* Delivery Address & Company */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Delivery Address</label>
+              <Input
+                placeholder="Company (optional)"
+                value={(typeof order.shippingAddress === 'string' ? (()=>{ try { return (JSON.parse(order.shippingAddress) as any).company || '' } catch { return '' } })() : (order.shippingAddress as any)?.company) || ''}
+                onChange={(e) => {
+                  const companyVal = e.target.value
+                  const addrObj: any = typeof order.shippingAddress === 'string' ? (()=>{ try { return JSON.parse(order.shippingAddress) } catch { return {} } })() : (order.shippingAddress || {})
+                  handleUpdate({ shippingAddress: { ...addrObj, company: companyVal } as any })
+                }}
+              />
               <Input
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
@@ -1643,7 +1902,260 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
         onUpdateTravelTime={handleTravelTimeUpdate}
         hasManualTravelTime={hasManualTravelTime}
         originAddressOverride={originAddressOverride}
+        driverId={order.driverId || undefined}
+        deliveryDate={order.deliveryDate || undefined}
+        deliveryTime={order.deliveryTime || undefined}
+        leaveTime={order.leaveTime || undefined}
+        orderNumber={order.orderNumber ? Number(order.orderNumber) : undefined}
+        customerName={`${order.customerFirstName || ''} ${order.customerLastName || ''}`.trim() || undefined}
       />
+      <TextOrdersModal
+        isOpen={isClientTextOpen}
+        onClose={() => setIsClientTextOpen(false)}
+        orders={[order]}
+        defaultTemplate="delivery"
+        presetSelection={[order.id]}
+      />
+
+      {/* DataDriver Dispatch Modal */}
+      <Dialog modal open={isDDModalOpen} onOpenChange={setIsDDModalOpen}>
+        <DialogContent className="w-full max-w-xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Dispatch to DataDrivers — #{order.orderNumber}</DialogTitle>
+            <DialogDescription>Review dispatch time and payrate, then send offer to available drivers.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="dd-dispatch" className="text-sm font-medium">Dispatch time</Label>
+                <Input
+                  id="dd-dispatch"
+                  type="time"
+                  value={ddDispatchTime}
+                  onChange={(e) => setDdDispatchTime(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="dd-rate" className="text-sm font-medium">$ per km</Label>
+                <Input
+                  id="dd-rate"
+                  type="number"
+                  step="0.1"
+                  value={ddRate}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value || '0') || 0
+                    setDdRate(v)
+                    setDdPayout(Number((ddBase + ddKm * v).toFixed(2)))
+                  }}
+                />
+              </div>
+              <div>
+                <Label htmlFor="dd-base" className="text-sm font-medium">Base pay</Label>
+                <Input
+                  id="dd-base"
+                  type="number"
+                  step="0.5"
+                  value={ddBase}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value || '0') || 0
+                    setDdBase(v)
+                    setDdPayout(Number((v + ddKm * ddRate).toFixed(2)))
+                  }}
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Estimated distance</Label>
+                <div className="mt-2 text-sm">{ddKm.toFixed(1)} km</div>
+              </div>
+              <div>
+                <Label htmlFor="dd-payout" className="text-sm font-medium">Payrate</Label>
+                <Input
+                  id="dd-payout"
+                  type="number"
+                  step="0.1"
+                  value={ddPayout}
+                  onChange={(e) => setDdPayout(parseFloat(e.target.value || '0') || 0)}
+                />
+              </div>
+            </div>
+            {/* Basic order details summary */}
+            {(() => {
+              const addrObj: any =
+                typeof order.shippingAddress === 'string'
+                  ? (() => { try { return JSON.parse(order.shippingAddress) } catch { return {} } })()
+                  : (order.shippingAddress || {})
+              const company = addrObj.company || ''
+              const itemsCount = Array.isArray(order.lineItems)
+                ? order.lineItems.reduce((a: number, li: any) => a + Number(li.quantity || 0), 0)
+                : 0
+              return (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <div className="text-xs text-gray-500">Item count</div>
+                    <div className="font-medium">{itemsCount}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Delivery suburb</div>
+                    <div className="font-medium">{addrObj.city || addrObj.province || '—'}</div>
+                  </div>
+                  <div className="col-span-2">
+                    <div className="text-xs text-gray-500">Company</div>
+                    <div className="font-medium">{company || '—'}</div>
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDDModalOpen(false)}>Cancel</Button>
+            <Button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/dispatch/jobs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId: order.id, payout: ddPayout, dispatchTime: ddDispatchTime }),
+                  })
+                  if (!res.ok) {
+                    const t = await res.text().catch(()=> '')
+                    alert(`Failed to send offers: ${t}`)
+                    return
+                  }
+                  setIsDDModalOpen(false)
+                } catch (e) {
+                  console.error('send offers failed', e)
+                  alert('Failed to send offers.')
+                }
+              }}
+            >
+              Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Order Details Modal (opens when clicking phone number) */}
+      <Dialog modal open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
+        <DialogContent className="w-full max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Order Details #{order.orderNumber}</DialogTitle>
+            <DialogDescription>
+              Quick view of customer and delivery details.
+            </DialogDescription>
+          </DialogHeader>
+
+          {(() => {
+            const addrObj: any =
+              typeof order.shippingAddress === 'string'
+                ? (() => {
+                    try { return JSON.parse(order.shippingAddress) }
+                    catch { return {} }
+                  })()
+                : (order.shippingAddress || {})
+            const company = addrObj.company || ''
+            const address1 = addrObj.address1 || ''
+            const address2 = addrObj.address2 || ''
+            const displayTime = formatTimeForDisplay(deliveryTime || order.deliveryTime || '')
+            const items: Array<{ key: string; qty: number; name: string; hasSW: boolean }> = (() => {
+              let base: any[] = []
+              if (Array.isArray(order.lineItems)) base = order.lineItems
+              else if (typeof order.lineItems === 'string' && order.lineItems) {
+                try { base = JSON.parse(order.lineItems) } catch { base = [] }
+              }
+              return base.map((it: any, idx: number) => {
+                const variantId = it.variant_id?.toString() || it.variantId?.toString()
+                const product = variantId ? (products as any)[variantId] : null
+                const productName = (() => {
+                  if (product?.displayName?.trim()) return product.displayName
+                  const n = product?.shopifyName
+                  if (n && n !== 'Default Title') return n
+                  return product?.shopifyTitle || product?.name || it.title || ''
+                })()
+                const qty = Number(it.quantity || 1)
+                const hasSW = !!(product?.serveware) || ((it.variant_title || it.variantTitle || '').toLowerCase().includes('yes serveware'))
+                return { key: `${variantId || it.id || idx}`, qty, name: productName, hasSW }
+              })
+            })()
+            return (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <div className="text-xs text-gray-500">Customer first name</div>
+                    <div className="font-medium">{order.customerFirstName || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Customer last name</div>
+                    <div className="font-medium">{order.customerLastName || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Phone</div>
+                    <div className="font-medium">
+                      {order.customerPhone ? (
+                        <a href={`tel:${order.customerPhone}`} className="text-blue-700 hover:underline">
+                          {order.customerPhone}
+                        </a>
+                      ) : (
+                        '-'
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Delivery time</div>
+                    <div className="font-medium">{displayTime || 'N/A'}</div>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <div className="text-xs text-gray-500">Delivery instructions</div>
+                    <div className="font-medium whitespace-pre-wrap">{(order as any).deliveryInstructions || '—'}</div>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <div className="text-xs text-gray-500">Order note</div>
+                    <div className="font-medium whitespace-pre-wrap">{order.note || '—'}</div>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="text-xs text-gray-500">Company</div>
+                  <div className="font-medium">{company || '—'}</div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <div className="text-xs text-gray-500">Address line 1</div>
+                    <div className="font-medium">{address1 || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500">Address line 2</div>
+                    <div className="font-medium">{address2 || '—'}</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-xs text-gray-500 mb-2">Items</div>
+                  {items.length === 0 ? (
+                    <div className="text-sm text-gray-600">No items</div>
+                  ) : (
+                    <ul className="divide-y rounded-md border">
+                      {items.map((it) => (
+                        <li key={it.key} className="flex items-center justify-between px-3 py-2">
+                          <div className="flex items-center min-w-0">
+                            <span className="flex-shrink-0 w-10 text-sm font-black text-red-600">{it.hasSW ? 'SW' : ''}</span>
+                            <span className="truncate">{it.name}</span>
+                          </div>
+                          <span className="ml-3 text-sm text-gray-600">x{it.qty}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )
+          })()}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDetailsModalOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Product Edit Modal */}
       <Dialog open={isProductEditModalOpen} onOpenChange={setIsProductEditModalOpen}>
@@ -1802,6 +2314,16 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   )
 }
 
+// Remove delivery date/time tokens from public order notes
+function sanitizeOrderNote(raw?: string | null): string {
+  if (!raw) return ''
+  let s = raw
+  s = s.replace(/\|\s*Delivery Date:[^|\n]+/gi, '')
+  s = s.replace(/\|\s*Delivery Time:[^|\n]+/gi, '')
+  s = s.replace(/\s{2,}/g, ' ').trim()
+  return s
+}
+
 // Helper function to get time since order
 function getTimeSinceOrder(dateString: string): string {
   const orderDate = new Date(dateString);
@@ -1858,14 +2380,15 @@ function extractDeliveryAddress(address: any): string {
   
   try {
     const addr = typeof address === 'string' ? JSON.parse(address) : address
-    
-    // Prioritize company name if available
-    const company = addr.company ? `${addr.company}, ` : ''
-    
-    if (addr.address1 && addr.city) {
-      return `${company}${addr.address1}, ${addr.city}, ${addr.province || ''} ${addr.zip || ''}`
-    }
-    
+    const parts = [
+      addr.address1,
+      addr.address2,
+      addr.city,
+      addr.province,
+      addr.zip,
+      'New Zealand'
+    ].filter((p: string) => !!p && String(p).trim().length > 0)
+    if (parts.length > 0) return parts.join(', ')
     return JSON.stringify(addr)
   } catch (error) {
     console.error('Error parsing address:', error)

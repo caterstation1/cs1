@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
-type ProductWithCustomData = {
+type ProductVariant = {
   id: string
   variantId: string
+  productId: string
   shopifyProductId: string
   shopifySku?: string | null
   shopifyName: string
@@ -24,7 +25,7 @@ type Station = {
   id: string
   title: string
   imageUrl?: string
-  variants: ProductWithCustomData[]
+  variants: ProductVariant[]
 }
 
 type IngredientKey = { source?: string; code?: string; unit?: string }
@@ -50,13 +51,40 @@ export default function PricingLabPage() {
     const load = async () => {
       try {
         setLoading(true)
-        const res = await fetch('/api/products-with-custom-data')
+        const res = await fetch('/api/products')
         if (!res.ok) throw new Error('Failed to load products')
-        const products: ProductWithCustomData[] = await res.json()
+        const productsData = await res.json()
+        
+        // Transform the new format (products with variants) to flat array of variants
+        const allVariants: ProductVariant[] = []
+        for (const product of productsData) {
+          if (product.variants && Array.isArray(product.variants)) {
+            for (const variant of product.variants) {
+              // Transform variant to match expected interface
+              allVariants.push({
+                id: variant.id,
+                variantId: variant.variantId,
+                productId: variant.productId,
+                shopifyProductId: product.shopifyProductId,
+                shopifySku: variant.shopifySku,
+                shopifyName: variant.shopifyName,
+                shopifyTitle: variant.shopifyTitle,
+                shopifyPrice: parseFloat(variant.shopifyPrice.toString()),
+                displayName: variant.displayName,
+                shopifyVendor: product.shopifyVendor,
+                shopifyMarket: product.shopifyMarket,
+                heroImageUrl: product.heroImageUrl,
+                ingredients: variant.ingredients,
+                totalCost: variant.totalCost
+              })
+            }
+          }
+        }
+        
         // Group by shopifyTitle (family). Variants are shopifyName.
         const map = new Map<string, Station>()
         const tagSet = new Set<string>()
-        for (const p of products) {
+        for (const p of allVariants) {
           const key = p.shopifyTitle || 'Unknown'
           if (!map.has(key)) map.set(key, { id: key, title: key, variants: [] })
           map.get(key)!.variants.push(p)

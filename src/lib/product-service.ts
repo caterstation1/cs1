@@ -40,10 +40,30 @@ export const fetchProducts = async (variantIds: string[]): Promise<Record<string
   const uncachedIds = variantIds.filter(id => !productCache.has(id));
   
   if (uncachedIds.length === 0) {
-    // Return cached products if we have all variantIds
-    return Object.fromEntries(
-      variantIds.map(id => [id, productCache.get(id)])
-    );
+    // All cached; still verify staleness and refresh if needed
+    const staleIds = variantIds.filter(id => {
+      const p = productCache.get(id);
+      if (!p) return true;
+      const missingDisplay = p.productDisplayName === undefined && p.displayName === undefined;
+      const meatsEmpty = !Array.isArray(p.meats) || (Array.isArray(p.meats) && p.meats.every((m:any)=> (m ?? '').toString().trim()===''));
+      const timersMaybeMissing = p.timers !== undefined && Array.isArray(p.timers) && p.timers.length>0 && p.timers.every((t:any)=> t==null);
+      return missingDisplay || meatsEmpty || timersMaybeMissing;
+    });
+    if (staleIds.length > 0) {
+      try {
+        const staleParams = staleIds.map(id => `variantId=${encodeURIComponent(id)}`).join('&');
+        const staleUrl = `/api/products/by-sku?${staleParams}`;
+        console.log('🔄 Refreshing stale product cache (all-cached path):', staleUrl);
+        const staleRes = await fetch(staleUrl);
+        if (staleRes.ok) {
+          const staleMap = await staleRes.json();
+          Object.entries(staleMap).forEach(([id, product]) => productCache.set(id, product));
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to refresh stale product cache entries (all-cached):', e);
+      }
+    }
+    return Object.fromEntries(variantIds.map(id => [id, productCache.get(id)]));
   }
 
   // Fetch only uncached variantIds
@@ -58,11 +78,73 @@ export const fetchProducts = async (variantIds: string[]): Promise<Record<string
     productCache.set(id, product);
   });
   setupCacheTimeout();
-  // Return all products (both cached and newly fetched)
-  return Object.fromEntries(
-    variantIds.map(id => [id, productCache.get(id)])
-  );
+  // Identify stale cache entries (missing parent display name added in later API)
+  const staleIds = variantIds.filter(id => {
+    const p = productCache.get(id);
+    if (!p) return true;
+    const missingDisplay = p.productDisplayName === undefined && p.displayName === undefined;
+    const meatsEmpty = !Array.isArray(p.meats) || (Array.isArray(p.meats) && p.meats.every((m:any)=> (m ?? '').toString().trim()===''));
+    const timersMaybeMissing = p.timers !== undefined && Array.isArray(p.timers) && p.timers.length>0 && p.timers.every((t:any)=> t==null);
+    return missingDisplay || meatsEmpty || timersMaybeMissing;
+  });
+  if (staleIds.length > 0) {
+    try {
+      const staleParams = staleIds.map(id => `variantId=${encodeURIComponent(id)}`).join('&');
+      const staleUrl = `/api/products/by-sku?${staleParams}`;
+      console.log('🔄 Refreshing stale product cache from:', staleUrl);
+      const staleRes = await fetch(staleUrl);
+      if (staleRes.ok) {
+        const staleMap = await staleRes.json();
+        Object.entries(staleMap).forEach(([id, product]) => productCache.set(id, product));
+      }
+    } catch (e) {
+      console.warn('⚠️ Failed to refresh stale product cache entries:', e);
+    }
+  }
+  // Return all products (both cached and newly fetched, after stale refresh)
+  return Object.fromEntries(variantIds.map(id => [id, productCache.get(id)]));
 };
+
+// 🔹 Bundle resolution helpers
+export function resolveBundleItems(variant: any): Array<{ variantId: string; quantity: number }> {
+  // Prefer variant-level override
+  const vIsPack = !!variant?.isPartyPack
+  const vItems = variant?.bundleItems
+  if (vIsPack && vItems) {
+    try {
+      const arr = Array.isArray(vItems) ? vItems : JSON.parse(vItems)
+      return arr
+        .map((it: any) => ({ variantId: String(it.variantId), quantity: Math.max(1, parseInt(String(it.quantity || '1'), 10)) }))
+        .filter((it: any) => it.variantId && it.variantId !== variant.variantId)
+    } catch {}
+  }
+  // Fallback to product-level defaults
+  const pIsPack = !!variant?.productIsPartyPackDefault
+  const pItems = variant?.productBundleDefaultItems
+  if (pIsPack && pItems) {
+    try {
+      const arr = Array.isArray(pItems) ? pItems : JSON.parse(pItems)
+      return arr
+        .map((it: any) => ({ variantId: String(it.variantId), quantity: Math.max(1, parseInt(String(it.quantity || '1'), 10)) }))
+        .filter((it: any) => it.variantId && it.variantId !== variant.variantId)
+    } catch {}
+  }
+  return []
+}
+
+export async function fetchProductsWithBundles(variantIds: string[]): Promise<{ products: Record<string, any>; neededChildren: string[] }> {
+  const products = await fetchProducts(variantIds)
+  const childIds = new Set<string>()
+  Object.values(products).forEach((v: any) => {
+    resolveBundleItems(v).forEach((it) => childIds.add(it.variantId))
+  })
+  const missing = Array.from(childIds).filter(id => !products[id])
+  if (missing.length) {
+    const more = await fetchProducts(missing)
+    return { products: { ...products, ...more }, neededChildren: missing }
+  }
+  return { products, neededChildren: [] }
+}
 
 // 🔹 Clear in-memory + localStorage cache
 export const clearProductCache = () => {

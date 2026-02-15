@@ -15,14 +15,24 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if product exists
-    const existingProduct = await prisma.productWithCustomData.findUnique({
-      where: { variantId }
+    // Check if product variant exists
+    const existingVariant = await prisma.productVariant.findUnique({
+      where: { variantId },
+      include: {
+        product: {
+          select: {
+            shopifyProductId: true,
+            productTitle: true,
+            displayName: true,
+            heroImageUrl: true
+          }
+        }
+      }
     });
 
-    if (existingProduct) {
-      // Update existing product
-      const updatedProduct = await prisma.productWithCustomData.update({
+    if (existingVariant) {
+      // Update existing variant
+      const updatedVariant = await prisma.productVariant.update({
         where: { variantId },
         data: {
           displayName: customData.displayName,
@@ -36,40 +46,57 @@ export async function POST(request: Request) {
           ingredients: customData.ingredients,
           totalCost: customData.totalCost || 0,
           updatedAt: new Date()
+        },
+        include: {
+          product: {
+            select: {
+              shopifyProductId: true,
+              productTitle: true,
+              displayName: true,
+              heroImageUrl: true,
+              shopifyVendor: true,
+              shopifyMarket: true
+            }
+          }
         }
       });
 
-      console.log('✅ Updated product custom data:', updatedProduct.shopifyName);
-      return NextResponse.json(updatedProduct);
+      // Transform to match expected format
+      const transformedProduct = {
+        id: updatedVariant.id,
+        variantId: updatedVariant.variantId,
+        createdAt: updatedVariant.createdAt,
+        updatedAt: updatedVariant.updatedAt,
+        shopifyProductId: updatedVariant.product.shopifyProductId,
+        shopifySku: updatedVariant.shopifySku,
+        shopifyName: updatedVariant.shopifyName,
+        shopifyTitle: updatedVariant.shopifyTitle,
+        shopifyPrice: updatedVariant.shopifyPrice.toString(),
+        shopifyInventory: updatedVariant.shopifyInventory,
+        shopifyVendor: updatedVariant.product.shopifyVendor,
+        shopifyMarket: updatedVariant.product.shopifyMarket,
+        heroImageUrl: updatedVariant.product.heroImageUrl,
+        displayName: updatedVariant.displayName,
+        meat1: updatedVariant.meat1,
+        meat2: updatedVariant.meat2,
+        timer1: updatedVariant.timer1,
+        timer2: updatedVariant.timer2,
+        option1: updatedVariant.option1,
+        option2: updatedVariant.option2,
+        serveware: updatedVariant.serveware,
+        isDraft: updatedVariant.isDraft,
+        ingredients: updatedVariant.ingredients,
+        totalCost: updatedVariant.totalCost
+      };
+
+      console.log('✅ Updated product variant custom data:', updatedVariant.shopifyName);
+      return NextResponse.json(transformedProduct);
     } else {
-      // Create new product (this shouldn't happen often as products are synced from Shopify)
-      console.warn('⚠️ Product not found, creating new record for variant:', variantId);
-      
-      // We need to get the Shopify data first - this is a fallback
-      const newProduct = await prisma.productWithCustomData.create({
-        data: {
-          variantId,
-          shopifyProductId: 'unknown', // This would need to be fetched from Shopify
-          shopifySku: 'unknown',
-          shopifyName: 'Unknown Product',
-          shopifyTitle: 'Unknown Product',
-          shopifyPrice: '0',
-          shopifyInventory: 0,
-          displayName: customData.displayName,
-          meat1: customData.meat1,
-          meat2: customData.meat2,
-          timer1: customData.timer1,
-          timer2: customData.timer2,
-          option1: customData.option1,
-          option2: customData.option2,
-          serveware: customData.serveware,
-          ingredients: customData.ingredients,
-          totalCost: customData.totalCost || 0
-        }
-      });
-
-      console.log('✅ Created new product custom data:', newProduct.shopifyName);
-      return NextResponse.json(newProduct);
+      console.warn('⚠️ Product variant not found:', variantId);
+      return NextResponse.json(
+        { error: 'Product variant not found' },
+        { status: 404 }
+      );
     }
   } catch (error) {
     console.error('❌ Error saving custom data:', error);

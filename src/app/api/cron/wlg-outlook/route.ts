@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import nodemailer from 'nodemailer'
 import { formatWLGOutlookEmail } from '@/lib/email-formatter'
 import { format, addDays } from 'date-fns'
+import { isWellingtonOrder } from '@/lib/region'
 
 // Create email transporter
 const transporter = nodemailer.createTransport({
@@ -12,51 +13,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_APP_PASSWORD,
   },
 })
-
-// Helper function to check if order is WLG
-function isWLGOrder(order: any): boolean {
-  // 1) Check note_attributes City
-  const noteProps = Array.isArray(order.noteAttributes)
-    ? order.noteAttributes
-    : Array.isArray(order.note_attributes)
-    ? order.note_attributes
-    : []
-  const cityAttr = noteProps.find((p: any) => (p?.name || '').toLowerCase() === 'city')
-  if (cityAttr && String(cityAttr.value || '').toUpperCase() === 'WLG') return true
-
-  // 2) Fallback: line items properties
-  let items: any[] = []
-  if (Array.isArray(order.lineItems)) items = order.lineItems
-  else if (typeof order.lineItems === 'string' && order.lineItems) {
-    try {
-      items = JSON.parse(order.lineItems)
-    } catch {
-      items = []
-    }
-  }
-  if (
-    items.some(
-      it =>
-        Array.isArray(it?.properties) &&
-        it.properties.some(
-          (p: any) =>
-            (p?.name || '').toLowerCase() === 'city' && String(p?.value).toUpperCase() === 'WLG'
-        )
-    )
-  )
-    return true
-
-  // 3) Fallback: shipping address
-  const ship = order.shippingAddress || order.shipping_address || {}
-  const shipCity = String(ship?.city || '').toLowerCase()
-  const shipProvince = String(ship?.province || '').toLowerCase()
-  const provinceCode = String(ship?.province_code || '').toUpperCase()
-
-  if (shipCity.includes('wellington') || shipProvince === 'wellington' || provinceCode === 'WGN')
-    return true
-
-  return false
-}
 
 // Helper function to check if SKU is an addon
 function isAddon(sku?: string): boolean {
@@ -152,9 +108,9 @@ export async function GET(request: NextRequest) {
     ])
 
     // Filter for WLG orders
-    const todayOrders = todayOrdersRaw.filter(isWLGOrder)
-    const tomorrowOrders = tomorrowOrdersRaw.filter(isWLGOrder)
-    const dayAfterOrders = dayAfterOrdersRaw.filter(isWLGOrder)
+    const todayOrders = todayOrdersRaw.filter(isWellingtonOrder)
+    const tomorrowOrders = tomorrowOrdersRaw.filter(isWellingtonOrder)
+    const dayAfterOrders = dayAfterOrdersRaw.filter(isWellingtonOrder)
 
     // Fetch all products for display names (get unique SKUs)
     const allOrders = [...todayOrders, ...tomorrowOrders, ...dayAfterOrders]
@@ -236,6 +192,11 @@ export async function GET(request: NextRequest) {
     const tomorrowDateStr = format(tomorrow, 'EEEE, MMMM d, yyyy')
     const dayAfterDateStr = format(dayAfter, 'EEEE, MMMM d, yyyy')
 
+    // ISO dates for links
+    const todayISO = format(today, 'yyyy-MM-dd')
+    const tomorrowISO = format(tomorrow, 'yyyy-MM-dd')
+    const dayAfterISO = format(dayAfter, 'yyyy-MM-dd')
+
     // Generate email HTML
     const emailHTML = formatWLGOutlookEmail(
       todayEmailData,
@@ -243,20 +204,77 @@ export async function GET(request: NextRequest) {
       dayAfterEmailData,
       todayDateStr,
       tomorrowDateStr,
-      dayAfterDateStr
+      dayAfterDateStr,
+      todayISO,
+      tomorrowISO,
+      dayAfterISO
     )
 
     // Send email to recipient from database
     const recipient = emailSetting.recipientEmail
 
+    // Generate PDFs for today's runsheet and labels
+    let runsheetPDF: Buffer | null = null
+    let labelsPDF: Buffer | null = null
+    
+    try {
+      console.log('📄 Starting runsheet PDF generation...')
+      const React = await import('react')
+      const { renderToBuffer } = await import('@react-pdf/renderer')
+      const { RunsheetDocument } = await import('@/lib/pdf/runsheet-document')
+      const { fetchRunsheetData } = await import('@/lib/runsheet-data')
+      
+      console.log('📄 Fetching runsheet data for today...')
+      // Generate runsheet PDF for today
+      const runsheetData = await fetchRunsheetData(today, true) // isWLG = true
+      console.log('📄 Runsheet data fetched:', {
+        orderCount: runsheetData.orderCount,
+        boxesCount: runsheetData.boxesCount,
+        productsCount: runsheetData.productsList.length
+      })
+      
+      console.log('📄 Creating PDF document...')
+      const doc = React.createElement(RunsheetDocument, { data: runsheetData })
+      runsheetPDF = await renderToBuffer(doc as any)
+      console.log('✅ Generated runsheet PDF, size:', runsheetPDF.length, 'bytes')
+    } catch (pdfError: any) {
+      console.error('❌ Failed to generate runsheet PDF:', pdfError)
+      console.error('❌ Error stack:', pdfError?.stack)
+    }
+
+    // Note: Labels PDF generation requires order data - simplified for now
+    // You can add labels PDF generation here if needed
+
+    const attachments: any[] = []
+    if (runsheetPDF) {
+      console.log('📎 Adding runsheet PDF attachment')
+      attachments.push({
+        filename: `runsheet-${format(today, 'yyyy-MM-dd')}.pdf`,
+        content: runsheetPDF,
+        contentType: 'application/pdf'
+      })
+    } else {
+      console.log('⚠️ No runsheet PDF generated, skipping attachment')
+    }
+    // if (labelsPDF) {
+    //   attachments.push({
+    //     filename: `labels-${format(today, 'yyyy-MM-dd')}.pdf`,
+    //     content: labelsPDF,
+    //     contentType: 'application/pdf'
+    //   })
+    // }
+
+    console.log(`📧 Sending email to ${recipient} with ${attachments.length} attachments`)
+    
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: recipient,
       subject: `WLG 3-Day Outlook - ${format(today, 'MMM d')}, ${format(tomorrow, 'MMM d')} & ${format(dayAfter, 'MMM d')}`,
       html: emailHTML,
+      attachments
     })
 
-    console.log(`✅ WLG Outlook email sent to ${recipient}`)
+    console.log(`✅ WLG Outlook email sent to ${recipient} with ${attachments.length} attachments`)
     console.log(`   Today (${todayDateStr}): ${todayOrders.length} orders`)
     console.log(`   Tomorrow (${tomorrowDateStr}): ${tomorrowOrders.length} orders`)
     console.log(`   Day After (${dayAfterDateStr}): ${dayAfterOrders.length} orders`)

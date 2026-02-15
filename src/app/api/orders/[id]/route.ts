@@ -7,6 +7,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Best-effort ensure carId column exists
+    try {
+      await prisma.$executeRawUnsafe('ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "carId" TEXT');
+    } catch {}
     const { id } = await params;
     
     console.log(`🔍 Fetching order ${id} from PostgreSQL...`);
@@ -38,6 +42,10 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Best-effort ensure carId column exists
+    try {
+      await prisma.$executeRawUnsafe('ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "carId" TEXT');
+    } catch {}
     const { id } = await params;
     const body = await request.json();
     
@@ -57,6 +65,7 @@ export async function PUT(
       where: { id },
       data: {
         ...body,
+        hasLocalEdits: true,
         deliveryDateResolved: resolved.date,
         deliveryDateResolvedSource: resolved.source,
         deliveryDateResolvedAt: new Date(),
@@ -79,6 +88,10 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Best-effort ensure carId column exists
+    try {
+      await prisma.$executeRawUnsafe('ALTER TABLE \"Order\" ADD COLUMN IF NOT EXISTS \"carId\" TEXT');
+    } catch {}
     const { id } = await params;
     const body = await request.json();
     
@@ -97,6 +110,7 @@ export async function PATCH(
       where: { id },
       data: {
         ...body,
+        hasLocalEdits: true,
         deliveryDateResolved: resolved.date,
         deliveryDateResolvedSource: resolved.source,
         deliveryDateResolvedAt: new Date(),

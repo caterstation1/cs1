@@ -25,7 +25,7 @@ export async function POST(
   
   try {
     const { id } = await params
-    const { driverPhone } = await request.json()
+    const { driverPhone, message: overrideMessage } = await request.json()
 
     console.log('📱 SMS Request Details:', {
       orderId: id,
@@ -61,9 +61,11 @@ export async function POST(
       deliveryTime: order.deliveryTime,
     })
 
-    // Format the SMS message
+    // Format the SMS message (prefer client-provided override)
     console.log('📝 Formatting SMS message...')
-    const message = formatOrderSMS(order)
+    const message = typeof overrideMessage === 'string' && overrideMessage.trim().length > 0
+      ? overrideMessage
+      : formatOrderSMS(order)
     console.log('📨 SMS Message content:', message)
 
     // Send SMS via Clicksend
