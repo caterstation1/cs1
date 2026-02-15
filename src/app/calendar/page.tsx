@@ -47,7 +47,7 @@ export default function CalendarPage() {
   
   // Filter to AKL-only (exclude WLG orders)
   const aklOrders = useMemo(() => {
-    return orders.filter(o => !isWellingtonOrder(o))
+    return orders.filter((o: Order) => !isWellingtonOrder(o))
   }, [orders])
   const [selectedDate, setSelectedDate] = useState<Date>(() => {
     // Create a local midnight date for today
