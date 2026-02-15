@@ -441,7 +441,11 @@ exports.Prisma.OrderScalarFieldEnum = {
   internalNote: 'internalNote',
   deliveryDateResolved: 'deliveryDateResolved',
   deliveryDateResolvedSource: 'deliveryDateResolvedSource',
-  deliveryDateResolvedAt: 'deliveryDateResolvedAt'
+  deliveryDateResolvedAt: 'deliveryDateResolvedAt',
+  deliveryDateTime: 'deliveryDateTime',
+  deliveryDateSource: 'deliveryDateSource',
+  needsSchedulingReview: 'needsSchedulingReview',
+  region: 'region'
 };
 
 exports.Prisma.ShopifyOrderScalarFieldEnum = {

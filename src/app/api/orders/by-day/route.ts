@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
     
     // Parse date (half-open range: [date 00:00 Auckland, date+1 00:00 Auckland))
     // Use proper Auckland timezone handling
+    const { getNZDateRangeForYmd, addDaysNZ } = await import('@/lib/date-utils')
     const { start: dateObj } = getNZDateRangeForYmd(date)
     const nextDayStr = addDaysNZ(date, 1)
     const { start: nextDate } = getNZDateRangeForYmd(nextDayStr)

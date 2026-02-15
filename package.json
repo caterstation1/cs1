@@ -8,7 +8,7 @@
     "start": "next start -p 3000",
     "lint": "next lint",
     "postinstall": "prisma generate && node scripts/fix-prisma-enum.js",
-    "backfill:scheduling": "tsx scripts/backfill-order-scheduling.ts"
+    "backfill:scheduling": "node scripts/backfill-order-scheduling.js"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",

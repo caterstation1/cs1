@@ -204,19 +204,27 @@ export type JobEvent = $Result.DefaultSelection<Prisma.$JobEventPayload>
  */
 export namespace $Enums {
   export const SmsTemplateType: {
-  delivery: 'delivery',
-  pickup: 'pickup'
-};
+    delivery: 'delivery',
+    pickup: 'pickup'
+  } = {
+    delivery: 'delivery',
+    pickup: 'pickup'
+  };
 
 export type SmsTemplateType = (typeof SmsTemplateType)[keyof typeof SmsTemplateType]
 
 
 export const DeliveryDateResolvedSource: {
-  FIELD: 'FIELD',
-  NOTE: 'NOTE',
-  TAG: 'TAG',
-  CREATED_AT: 'CREATED_AT'
-};
+    FIELD: 'FIELD',
+    NOTE: 'NOTE',
+    TAG: 'TAG',
+    CREATED_AT: 'CREATED_AT'
+  } = {
+    FIELD: 'FIELD',
+    NOTE: 'NOTE',
+    TAG: 'TAG',
+    CREATED_AT: 'CREATED_AT'
+  };
 
 export type DeliveryDateResolvedSource = (typeof DeliveryDateResolvedSource)[keyof typeof DeliveryDateResolvedSource]
 
@@ -224,12 +232,10 @@ export type DeliveryDateResolvedSource = (typeof DeliveryDateResolvedSource)[key
 
 export type SmsTemplateType = $Enums.SmsTemplateType
 
-export const SmsTemplateType: typeof $Enums.SmsTemplateType
-
+export const SmsTemplateType: typeof $Enums.SmsTemplateType = $Enums.SmsTemplateType;
 export type DeliveryDateResolvedSource = $Enums.DeliveryDateResolvedSource
 
-export const DeliveryDateResolvedSource: typeof $Enums.DeliveryDateResolvedSource
-
+export const DeliveryDateResolvedSource: typeof $Enums.DeliveryDateResolvedSource = $Enums.DeliveryDateResolvedSource;
 /**
  * ##  Prisma Client ʲˢ
  *
@@ -1164,6 +1170,44 @@ export namespace Prisma {
 
 
   export const ModelName: {
+    SmsTemplate: 'SmsTemplate',
+    GilmoursProduct: 'GilmoursProduct',
+    BidfoodProduct: 'BidfoodProduct',
+    OtherProduct: 'OtherProduct',
+    Supplier: 'Supplier',
+    Component: 'Component',
+    ComponentImage: 'ComponentImage',
+    Product: 'Product',
+    ProductCustomData: 'ProductCustomData',
+    ProductWithCustomData: 'ProductWithCustomData',
+    ProductRule: 'ProductRule',
+    Staff: 'Staff',
+    ShiftType: 'ShiftType',
+    Shift: 'Shift',
+    ShiftTask: 'ShiftTask',
+    RosterAssignment: 'RosterAssignment',
+    RosterAssignmentTask: 'RosterAssignmentTask',
+    Reimbursement: 'Reimbursement',
+    Order: 'Order',
+    ShopifyOrder: 'ShopifyOrder',
+    ParsedOrder: 'ParsedOrder',
+    ParsedLineItem: 'ParsedLineItem',
+    ShopifyProduct: 'ShopifyProduct',
+    ProductVariant: 'ProductVariant',
+    EmailSetting: 'EmailSetting',
+    WLGMessage: 'WLGMessage',
+    CartItem: 'CartItem',
+    StockItem: 'StockItem',
+    StockOrder: 'StockOrder',
+    StockOrderItem: 'StockOrderItem',
+    Car: 'Car',
+    DashboardTodo: 'DashboardTodo',
+    DataDriver: 'DataDriver',
+    DataDriverApplication: 'DataDriverApplication',
+    DeliveryJob: 'DeliveryJob',
+    JobOffer: 'JobOffer',
+    JobEvent: 'JobEvent'
+  } = {
     SmsTemplate: 'SmsTemplate',
     GilmoursProduct: 'GilmoursProduct',
     BidfoodProduct: 'BidfoodProduct',
@@ -25580,6 +25624,10 @@ export namespace Prisma {
     deliveryDateResolved: Date | null
     deliveryDateResolvedSource: $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt: Date | null
+    deliveryDateTime: Date | null
+    deliveryDateSource: string | null
+    needsSchedulingReview: boolean | null
+    region: string | null
   }
 
   export type OrderMaxAggregateOutputType = {
@@ -25623,6 +25671,10 @@ export namespace Prisma {
     deliveryDateResolved: Date | null
     deliveryDateResolvedSource: $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt: Date | null
+    deliveryDateTime: Date | null
+    deliveryDateSource: string | null
+    needsSchedulingReview: boolean | null
+    region: string | null
   }
 
   export type OrderCountAggregateOutputType = {
@@ -25671,6 +25723,10 @@ export namespace Prisma {
     deliveryDateResolved: number
     deliveryDateResolvedSource: number
     deliveryDateResolvedAt: number
+    deliveryDateTime: number
+    deliveryDateSource: number
+    needsSchedulingReview: number
+    region: number
     _all: number
   }
 
@@ -25730,6 +25786,10 @@ export namespace Prisma {
     deliveryDateResolved?: true
     deliveryDateResolvedSource?: true
     deliveryDateResolvedAt?: true
+    deliveryDateTime?: true
+    deliveryDateSource?: true
+    needsSchedulingReview?: true
+    region?: true
   }
 
   export type OrderMaxAggregateInputType = {
@@ -25773,6 +25833,10 @@ export namespace Prisma {
     deliveryDateResolved?: true
     deliveryDateResolvedSource?: true
     deliveryDateResolvedAt?: true
+    deliveryDateTime?: true
+    deliveryDateSource?: true
+    needsSchedulingReview?: true
+    region?: true
   }
 
   export type OrderCountAggregateInputType = {
@@ -25821,6 +25885,10 @@ export namespace Prisma {
     deliveryDateResolved?: true
     deliveryDateResolvedSource?: true
     deliveryDateResolvedAt?: true
+    deliveryDateTime?: true
+    deliveryDateSource?: true
+    needsSchedulingReview?: true
+    region?: true
     _all?: true
   }
 
@@ -25956,6 +26024,10 @@ export namespace Prisma {
     deliveryDateResolved: Date | null
     deliveryDateResolvedSource: $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt: Date | null
+    deliveryDateTime: Date | null
+    deliveryDateSource: string | null
+    needsSchedulingReview: boolean
+    region: string | null
     _count: OrderCountAggregateOutputType | null
     _avg: OrderAvgAggregateOutputType | null
     _sum: OrderSumAggregateOutputType | null
@@ -26023,6 +26095,10 @@ export namespace Prisma {
     deliveryDateResolved?: boolean
     deliveryDateResolvedSource?: boolean
     deliveryDateResolvedAt?: boolean
+    deliveryDateTime?: boolean
+    deliveryDateSource?: boolean
+    needsSchedulingReview?: boolean
+    region?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -26071,6 +26147,10 @@ export namespace Prisma {
     deliveryDateResolved?: boolean
     deliveryDateResolvedSource?: boolean
     deliveryDateResolvedAt?: boolean
+    deliveryDateTime?: boolean
+    deliveryDateSource?: boolean
+    needsSchedulingReview?: boolean
+    region?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -26119,6 +26199,10 @@ export namespace Prisma {
     deliveryDateResolved?: boolean
     deliveryDateResolvedSource?: boolean
     deliveryDateResolvedAt?: boolean
+    deliveryDateTime?: boolean
+    deliveryDateSource?: boolean
+    needsSchedulingReview?: boolean
+    region?: boolean
   }, ExtArgs["result"]["order"]>
 
   export type OrderSelectScalar = {
@@ -26167,9 +26251,13 @@ export namespace Prisma {
     deliveryDateResolved?: boolean
     deliveryDateResolvedSource?: boolean
     deliveryDateResolvedAt?: boolean
+    deliveryDateTime?: boolean
+    deliveryDateSource?: boolean
+    needsSchedulingReview?: boolean
+    region?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "orderNumber" | "createdAt" | "updatedAt" | "processedAt" | "cancelledAt" | "closedAt" | "totalPrice" | "subtotalPrice" | "totalTax" | "currency" | "financialStatus" | "fulfillmentStatus" | "tags" | "note" | "customerEmail" | "customerFirstName" | "customerLastName" | "customerPhone" | "shippingAddress" | "billingAddress" | "lineItems" | "source" | "hasLocalEdits" | "syncedAt" | "dbCreatedAt" | "dbUpdatedAt" | "noteAttributes" | "deliveryDate" | "deliveryTime" | "pickupDate" | "pickupTime" | "deliveryInstructions" | "travelTime" | "leaveTime" | "driverId" | "carId" | "isDispatched" | "lastSmsSent" | "smsHistory" | "internalNote" | "deliveryDateResolved" | "deliveryDateResolvedSource" | "deliveryDateResolvedAt", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shopifyId" | "orderNumber" | "createdAt" | "updatedAt" | "processedAt" | "cancelledAt" | "closedAt" | "totalPrice" | "subtotalPrice" | "totalTax" | "currency" | "financialStatus" | "fulfillmentStatus" | "tags" | "note" | "customerEmail" | "customerFirstName" | "customerLastName" | "customerPhone" | "shippingAddress" | "billingAddress" | "lineItems" | "source" | "hasLocalEdits" | "syncedAt" | "dbCreatedAt" | "dbUpdatedAt" | "noteAttributes" | "deliveryDate" | "deliveryTime" | "pickupDate" | "pickupTime" | "deliveryInstructions" | "travelTime" | "leaveTime" | "driverId" | "carId" | "isDispatched" | "lastSmsSent" | "smsHistory" | "internalNote" | "deliveryDateResolved" | "deliveryDateResolvedSource" | "deliveryDateResolvedAt" | "deliveryDateTime" | "deliveryDateSource" | "needsSchedulingReview" | "region", ExtArgs["result"]["order"]>
 
   export type $OrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Order"
@@ -26223,6 +26311,10 @@ export namespace Prisma {
       deliveryDateResolved: Date | null
       deliveryDateResolvedSource: $Enums.DeliveryDateResolvedSource | null
       deliveryDateResolvedAt: Date | null
+      deliveryDateTime: Date | null
+      deliveryDateSource: string | null
+      needsSchedulingReview: boolean
+      region: string | null
     }, ExtArgs["result"]["order"]>
     composites: {}
   }
@@ -26691,6 +26783,10 @@ export namespace Prisma {
     readonly deliveryDateResolved: FieldRef<"Order", 'DateTime'>
     readonly deliveryDateResolvedSource: FieldRef<"Order", 'DeliveryDateResolvedSource'>
     readonly deliveryDateResolvedAt: FieldRef<"Order", 'DateTime'>
+    readonly deliveryDateTime: FieldRef<"Order", 'DateTime'>
+    readonly deliveryDateSource: FieldRef<"Order", 'String'>
+    readonly needsSchedulingReview: FieldRef<"Order", 'Boolean'>
+    readonly region: FieldRef<"Order", 'String'>
   }
     
 
@@ -47533,6 +47629,11 @@ export namespace Prisma {
     ReadCommitted: 'ReadCommitted',
     RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
+  } = {
+    ReadUncommitted: 'ReadUncommitted',
+    ReadCommitted: 'ReadCommitted',
+    RepeatableRead: 'RepeatableRead',
+    Serializable: 'Serializable'
   };
 
   export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
@@ -47544,12 +47645,29 @@ export namespace Prisma {
     content: 'content',
     updatedAt: 'updatedAt',
     createdAt: 'createdAt'
+  } = {
+    id: 'id',
+    type: 'type',
+    content: 'content',
+    updatedAt: 'updatedAt',
+    createdAt: 'createdAt'
   };
 
   export type SmsTemplateScalarFieldEnum = (typeof SmsTemplateScalarFieldEnum)[keyof typeof SmsTemplateScalarFieldEnum]
 
 
   export const GilmoursProductScalarFieldEnum: {
+    id: 'id',
+    sku: 'sku',
+    brand: 'brand',
+    description: 'description',
+    packSize: 'packSize',
+    uom: 'uom',
+    price: 'price',
+    quantity: 'quantity',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     sku: 'sku',
     brand: 'brand',
@@ -47579,6 +47697,20 @@ export namespace Prisma {
     contains: 'contains',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    productCode: 'productCode',
+    brand: 'brand',
+    description: 'description',
+    packSize: 'packSize',
+    ctnQty: 'ctnQty',
+    uom: 'uom',
+    qty: 'qty',
+    lastPricePaid: 'lastPricePaid',
+    totalExGST: 'totalExGST',
+    contains: 'contains',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type BidfoodProductScalarFieldEnum = (typeof BidfoodProductScalarFieldEnum)[keyof typeof BidfoodProductScalarFieldEnum]
@@ -47594,12 +47726,31 @@ export namespace Prisma {
     prepCategories: 'prepCategories',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    name: 'name',
+    supplier: 'supplier',
+    description: 'description',
+    cost: 'cost',
+    prepCategory: 'prepCategory',
+    prepCategories: 'prepCategories',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type OtherProductScalarFieldEnum = (typeof OtherProductScalarFieldEnum)[keyof typeof OtherProductScalarFieldEnum]
 
 
   export const SupplierScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    contactName: 'contactName',
+    contactNumber: 'contactNumber',
+    contactEmail: 'contactEmail',
+    emailSettings: 'emailSettings',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     name: 'name',
     contactName: 'contactName',
@@ -47642,6 +47793,35 @@ export namespace Prisma {
     isComponentListItem: 'isComponentListItem',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    ingredients: 'ingredients',
+    totalCost: 'totalCost',
+    prepCategory: 'prepCategory',
+    prepCategories: 'prepCategories',
+    producedQuantity: 'producedQuantity',
+    producedUnit: 'producedUnit',
+    rawWeight: 'rawWeight',
+    cookedWeight: 'cookedWeight',
+    trimWasteWeight: 'trimWasteWeight',
+    weightUnit: 'weightUnit',
+    costPerOutputUnit: 'costPerOutputUnit',
+    normalizedOutputUnit: 'normalizedOutputUnit',
+    hasGluten: 'hasGluten',
+    hasDairy: 'hasDairy',
+    hasSoy: 'hasSoy',
+    hasOnionGarlic: 'hasOnionGarlic',
+    hasSesame: 'hasSesame',
+    hasNuts: 'hasNuts',
+    hasEgg: 'hasEgg',
+    isVegetarian: 'isVegetarian',
+    isVegan: 'isVegan',
+    isHalal: 'isHalal',
+    isComponentListItem: 'isComponentListItem',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
@@ -47656,12 +47836,43 @@ export namespace Prisma {
     position: 'position',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    componentId: 'componentId',
+    publicId: 'publicId',
+    url: 'url',
+    alt: 'alt',
+    position: 'position',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ComponentImageScalarFieldEnum = (typeof ComponentImageScalarFieldEnum)[keyof typeof ComponentImageScalarFieldEnum]
 
 
   export const ProductScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    addon: 'addon',
+    handle: 'handle',
+    meat1: 'meat1',
+    meat2: 'meat2',
+    option1: 'option1',
+    option2: 'option2',
+    serveware: 'serveware',
+    timerA: 'timerA',
+    timerB: 'timerB',
+    skuSearch: 'skuSearch',
+    variantSku: 'variantSku',
+    variant_title: 'variant_title',
+    ingredients: 'ingredients',
+    totalCost: 'totalCost',
+    sellingPrice: 'sellingPrice',
+    realizedMargin: 'realizedMargin',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     name: 'name',
     description: 'description',
@@ -47702,12 +47913,51 @@ export namespace Prisma {
     totalCost: 'totalCost',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    variantId: 'variantId',
+    meat1: 'meat1',
+    meat2: 'meat2',
+    option1: 'option1',
+    option2: 'option2',
+    serveware: 'serveware',
+    timerA: 'timerA',
+    timerB: 'timerB',
+    ingredients: 'ingredients',
+    totalCost: 'totalCost',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ProductCustomDataScalarFieldEnum = (typeof ProductCustomDataScalarFieldEnum)[keyof typeof ProductCustomDataScalarFieldEnum]
 
 
   export const ProductWithCustomDataScalarFieldEnum: {
+    id: 'id',
+    variantId: 'variantId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    shopifyProductId: 'shopifyProductId',
+    shopifySku: 'shopifySku',
+    shopifyName: 'shopifyName',
+    shopifyTitle: 'shopifyTitle',
+    shopifyPrice: 'shopifyPrice',
+    shopifyInventory: 'shopifyInventory',
+    shopifyVendor: 'shopifyVendor',
+    shopifyMarket: 'shopifyMarket',
+    heroImageUrl: 'heroImageUrl',
+    displayName: 'displayName',
+    meat1: 'meat1',
+    meat2: 'meat2',
+    timer1: 'timer1',
+    timer2: 'timer2',
+    option1: 'option1',
+    option2: 'option2',
+    serveware: 'serveware',
+    isDraft: 'isDraft',
+    ingredients: 'ingredients',
+    totalCost: 'totalCost'
+  } = {
     id: 'id',
     variantId: 'variantId',
     createdAt: 'createdAt',
@@ -47757,12 +48007,48 @@ export namespace Prisma {
     setTotalCost: 'setTotalCost',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    isActive: 'isActive',
+    priority: 'priority',
+    matchPattern: 'matchPattern',
+    matchType: 'matchType',
+    setDisplayName: 'setDisplayName',
+    setMeat1: 'setMeat1',
+    setMeat2: 'setMeat2',
+    setTimer1: 'setTimer1',
+    setTimer2: 'setTimer2',
+    setOption1: 'setOption1',
+    setOption2: 'setOption2',
+    setServeware: 'setServeware',
+    setIngredients: 'setIngredients',
+    setTotalCost: 'setTotalCost',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ProductRuleScalarFieldEnum = (typeof ProductRuleScalarFieldEnum)[keyof typeof ProductRuleScalarFieldEnum]
 
 
   export const StaffScalarFieldEnum: {
+    id: 'id',
+    firstName: 'firstName',
+    lastName: 'lastName',
+    phone: 'phone',
+    email: 'email',
+    payRate: 'payRate',
+    accessLevel: 'accessLevel',
+    isDriver: 'isDriver',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    lastLogin: 'lastLogin',
+    password: 'password',
+    resetToken: 'resetToken',
+    resetTokenExpiry: 'resetTokenExpiry'
+  } = {
     id: 'id',
     firstName: 'firstName',
     lastName: 'lastName',
@@ -47792,12 +48078,33 @@ export namespace Prisma {
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    name: 'name',
+    startTime: 'startTime',
+    endTime: 'endTime',
+    color: 'color',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ShiftTypeScalarFieldEnum = (typeof ShiftTypeScalarFieldEnum)[keyof typeof ShiftTypeScalarFieldEnum]
 
 
   export const ShiftScalarFieldEnum: {
+    id: 'id',
+    staffId: 'staffId',
+    clockIn: 'clockIn',
+    clockOut: 'clockOut',
+    totalHours: 'totalHours',
+    date: 'date',
+    mileage: 'mileage',
+    notes: 'notes',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     staffId: 'staffId',
     clockIn: 'clockIn',
@@ -47823,12 +48130,32 @@ export namespace Prisma {
     completedAt: 'completedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    shiftId: 'shiftId',
+    title: 'title',
+    description: 'description',
+    isCompleted: 'isCompleted',
+    completedAt: 'completedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ShiftTaskScalarFieldEnum = (typeof ShiftTaskScalarFieldEnum)[keyof typeof ShiftTaskScalarFieldEnum]
 
 
   export const RosterAssignmentScalarFieldEnum: {
+    id: 'id',
+    staffId: 'staffId',
+    shiftTypeId: 'shiftTypeId',
+    startTime: 'startTime',
+    endTime: 'endTime',
+    date: 'date',
+    notes: 'notes',
+    assignedBy: 'assignedBy',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     staffId: 'staffId',
     shiftTypeId: 'shiftTypeId',
@@ -47851,12 +48178,26 @@ export namespace Prisma {
     description: 'description',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    rosterAssignmentId: 'rosterAssignmentId',
+    title: 'title',
+    description: 'description',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type RosterAssignmentTaskScalarFieldEnum = (typeof RosterAssignmentTaskScalarFieldEnum)[keyof typeof RosterAssignmentTaskScalarFieldEnum]
 
 
   export const ReimbursementScalarFieldEnum: {
+    id: 'id',
+    shiftId: 'shiftId',
+    amount: 'amount',
+    description: 'description',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     shiftId: 'shiftId',
     amount: 'amount',
@@ -47913,7 +48254,61 @@ export namespace Prisma {
     internalNote: 'internalNote',
     deliveryDateResolved: 'deliveryDateResolved',
     deliveryDateResolvedSource: 'deliveryDateResolvedSource',
-    deliveryDateResolvedAt: 'deliveryDateResolvedAt'
+    deliveryDateResolvedAt: 'deliveryDateResolvedAt',
+    deliveryDateTime: 'deliveryDateTime',
+    deliveryDateSource: 'deliveryDateSource',
+    needsSchedulingReview: 'needsSchedulingReview',
+    region: 'region'
+  } = {
+    id: 'id',
+    shopifyId: 'shopifyId',
+    orderNumber: 'orderNumber',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    processedAt: 'processedAt',
+    cancelledAt: 'cancelledAt',
+    closedAt: 'closedAt',
+    totalPrice: 'totalPrice',
+    subtotalPrice: 'subtotalPrice',
+    totalTax: 'totalTax',
+    currency: 'currency',
+    financialStatus: 'financialStatus',
+    fulfillmentStatus: 'fulfillmentStatus',
+    tags: 'tags',
+    note: 'note',
+    customerEmail: 'customerEmail',
+    customerFirstName: 'customerFirstName',
+    customerLastName: 'customerLastName',
+    customerPhone: 'customerPhone',
+    shippingAddress: 'shippingAddress',
+    billingAddress: 'billingAddress',
+    lineItems: 'lineItems',
+    source: 'source',
+    hasLocalEdits: 'hasLocalEdits',
+    syncedAt: 'syncedAt',
+    dbCreatedAt: 'dbCreatedAt',
+    dbUpdatedAt: 'dbUpdatedAt',
+    noteAttributes: 'noteAttributes',
+    deliveryDate: 'deliveryDate',
+    deliveryTime: 'deliveryTime',
+    pickupDate: 'pickupDate',
+    pickupTime: 'pickupTime',
+    deliveryInstructions: 'deliveryInstructions',
+    travelTime: 'travelTime',
+    leaveTime: 'leaveTime',
+    driverId: 'driverId',
+    carId: 'carId',
+    isDispatched: 'isDispatched',
+    lastSmsSent: 'lastSmsSent',
+    smsHistory: 'smsHistory',
+    internalNote: 'internalNote',
+    deliveryDateResolved: 'deliveryDateResolved',
+    deliveryDateResolvedSource: 'deliveryDateResolvedSource',
+    deliveryDateResolvedAt: 'deliveryDateResolvedAt',
+    deliveryDateTime: 'deliveryDateTime',
+    deliveryDateSource: 'deliveryDateSource',
+    needsSchedulingReview: 'needsSchedulingReview',
+    region: 'region'
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
@@ -47926,12 +48321,36 @@ export namespace Prisma {
     parsedOrderId: 'parsedOrderId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    rawData: 'rawData',
+    syncedAt: 'syncedAt',
+    parsedOrderId: 'parsedOrderId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ShopifyOrderScalarFieldEnum = (typeof ShopifyOrderScalarFieldEnum)[keyof typeof ShopifyOrderScalarFieldEnum]
 
 
   export const ParsedOrderScalarFieldEnum: {
+    id: 'id',
+    shopifyOrderId: 'shopifyOrderId',
+    orderNumber: 'orderNumber',
+    deliveryTime: 'deliveryTime',
+    deliveryDate: 'deliveryDate',
+    deliveryAddress: 'deliveryAddress',
+    customerName: 'customerName',
+    customerCompany: 'customerCompany',
+    customerPhone: 'customerPhone',
+    orderNotes: 'orderNotes',
+    travelTime: 'travelTime',
+    leaveTime: 'leaveTime',
+    driverId: 'driverId',
+    isDispatched: 'isDispatched',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     shopifyOrderId: 'shopifyOrderId',
     orderNumber: 'orderNumber',
@@ -47970,12 +48389,44 @@ export namespace Prisma {
     option2: 'option2',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    parsedOrderId: 'parsedOrderId',
+    sku: 'sku',
+    title: 'title',
+    quantity: 'quantity',
+    price: 'price',
+    handle: 'handle',
+    meat1: 'meat1',
+    meat2: 'meat2',
+    serveware: 'serveware',
+    ovenTimer1: 'ovenTimer1',
+    ovenTimer2: 'ovenTimer2',
+    option1: 'option1',
+    option2: 'option2',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ParsedLineItemScalarFieldEnum = (typeof ParsedLineItemScalarFieldEnum)[keyof typeof ParsedLineItemScalarFieldEnum]
 
 
   export const ShopifyProductScalarFieldEnum: {
+    id: 'id',
+    shopifyProductId: 'shopifyProductId',
+    productTitle: 'productTitle',
+    displayName: 'displayName',
+    heroImageUrl: 'heroImageUrl',
+    shopifyVendor: 'shopifyVendor',
+    shopifyMarket: 'shopifyMarket',
+    isActive: 'isActive',
+    baseIngredients: 'baseIngredients',
+    isPartyPackDefault: 'isPartyPackDefault',
+    bundleDefaultItems: 'bundleDefaultItems',
+    bakery: 'bakery',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     shopifyProductId: 'shopifyProductId',
     productTitle: 'productTitle',
@@ -48022,6 +48473,33 @@ export namespace Prisma {
     totalCost: 'totalCost',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    productId: 'productId',
+    variantId: 'variantId',
+    shopifySku: 'shopifySku',
+    shopifyName: 'shopifyName',
+    shopifyTitle: 'shopifyTitle',
+    shopifyPrice: 'shopifyPrice',
+    shopifyInventory: 'shopifyInventory',
+    displayName: 'displayName',
+    meat1: 'meat1',
+    meat2: 'meat2',
+    timer1: 'timer1',
+    timer2: 'timer2',
+    option1: 'option1',
+    option2: 'option2',
+    meats: 'meats',
+    timers: 'timers',
+    options: 'options',
+    serveware: 'serveware',
+    isDraft: 'isDraft',
+    isPartyPack: 'isPartyPack',
+    bundleItems: 'bundleItems',
+    ingredients: 'ingredients',
+    totalCost: 'totalCost',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ProductVariantScalarFieldEnum = (typeof ProductVariantScalarFieldEnum)[keyof typeof ProductVariantScalarFieldEnum]
@@ -48036,12 +48514,33 @@ export namespace Prisma {
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    name: 'name',
+    title: 'title',
+    description: 'description',
+    recipientEmail: 'recipientEmail',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type EmailSettingScalarFieldEnum = (typeof EmailSettingScalarFieldEnum)[keyof typeof EmailSettingScalarFieldEnum]
 
 
   export const WLGMessageScalarFieldEnum: {
+    id: 'id',
+    content: 'content',
+    createdBy: 'createdBy',
+    createdByName: 'createdByName',
+    createdAt: 'createdAt',
+    status: 'status',
+    statusChangedAt: 'statusChangedAt',
+    mentionedStaffIds: 'mentionedStaffIds',
+    mentionedOrders: 'mentionedOrders',
+    parentId: 'parentId',
+    stockOrderId: 'stockOrderId'
+  } = {
     id: 'id',
     content: 'content',
     createdBy: 'createdBy',
@@ -48068,12 +48567,32 @@ export namespace Prisma {
     notes: 'notes',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    city: 'city',
+    name: 'name',
+    sku: 'sku',
+    supplier: 'supplier',
+    qty: 'qty',
+    notes: 'notes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type CartItemScalarFieldEnum = (typeof CartItemScalarFieldEnum)[keyof typeof CartItemScalarFieldEnum]
 
 
   export const StockItemScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    supplierId: 'supplierId',
+    sku: 'sku',
+    priceExGst: 'priceExGst',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     name: 'name',
     description: 'description',
@@ -48098,12 +48617,31 @@ export namespace Prisma {
     totalIncGst: 'totalIncGst',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    createdBy: 'createdBy',
+    createdByName: 'createdByName',
+    status: 'status',
+    subtotalExGst: 'subtotalExGst',
+    gst15: 'gst15',
+    totalIncGst: 'totalIncGst',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type StockOrderScalarFieldEnum = (typeof StockOrderScalarFieldEnum)[keyof typeof StockOrderScalarFieldEnum]
 
 
   export const StockOrderItemScalarFieldEnum: {
+    id: 'id',
+    orderId: 'orderId',
+    stockItemId: 'stockItemId',
+    nameSnapshot: 'nameSnapshot',
+    supplierNameSnapshot: 'supplierNameSnapshot',
+    unitPriceExGst: 'unitPriceExGst',
+    qty: 'qty',
+    lineTotalExGst: 'lineTotalExGst'
+  } = {
     id: 'id',
     orderId: 'orderId',
     stockItemId: 'stockItemId',
@@ -48125,6 +48663,14 @@ export namespace Prisma {
     regoExpiry: 'regoExpiry',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    name: 'name',
+    rego: 'rego',
+    wofExpiry: 'wofExpiry',
+    regoExpiry: 'regoExpiry',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type CarScalarFieldEnum = (typeof CarScalarFieldEnum)[keyof typeof CarScalarFieldEnum]
@@ -48137,12 +48683,36 @@ export namespace Prisma {
     isCompleted: 'isCompleted',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+  } = {
+    id: 'id',
+    userId: 'userId',
+    content: 'content',
+    isCompleted: 'isCompleted',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type DashboardTodoScalarFieldEnum = (typeof DashboardTodoScalarFieldEnum)[keyof typeof DashboardTodoScalarFieldEnum]
 
 
   export const DataDriverScalarFieldEnum: {
+    id: 'id',
+    fullName: 'fullName',
+    phone: 'phone',
+    email: 'email',
+    status: 'status',
+    availability: 'availability',
+    vehicleMake: 'vehicleMake',
+    vehicleModel: 'vehicleModel',
+    vehiclePlate: 'vehiclePlate',
+    vehiclePhotoUrl: 'vehiclePhotoUrl',
+    licencePhotoUrl: 'licencePhotoUrl',
+    bankAccountEnc: 'bankAccountEnc',
+    baseSuburb: 'baseSuburb',
+    internalNotes: 'internalNotes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     fullName: 'fullName',
     phone: 'phone',
@@ -48172,12 +48742,36 @@ export namespace Prisma {
     reviewerId: 'reviewerId',
     decision: 'decision',
     adminNotes: 'adminNotes'
+  } = {
+    id: 'id',
+    driverId: 'driverId',
+    submittedAt: 'submittedAt',
+    reviewedAt: 'reviewedAt',
+    reviewerId: 'reviewerId',
+    decision: 'decision',
+    adminNotes: 'adminNotes'
   };
 
   export type DataDriverApplicationScalarFieldEnum = (typeof DataDriverApplicationScalarFieldEnum)[keyof typeof DataDriverApplicationScalarFieldEnum]
 
 
   export const DeliveryJobScalarFieldEnum: {
+    id: 'id',
+    orderId: 'orderId',
+    pickupAddress: 'pickupAddress',
+    dropoffAddress: 'dropoffAddress',
+    deliveryWindowStart: 'deliveryWindowStart',
+    deliveryWindowEnd: 'deliveryWindowEnd',
+    payout: 'payout',
+    notes: 'notes',
+    status: 'status',
+    assignedDriverId: 'assignedDriverId',
+    deliveredAt: 'deliveredAt',
+    deliveredNote: 'deliveredNote',
+    deliveredProofUrl: 'deliveredProofUrl',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  } = {
     id: 'id',
     orderId: 'orderId',
     pickupAddress: 'pickupAddress',
@@ -48205,12 +48799,26 @@ export namespace Prisma {
     status: 'status',
     offeredAt: 'offeredAt',
     respondedAt: 'respondedAt'
+  } = {
+    id: 'id',
+    jobId: 'jobId',
+    driverId: 'driverId',
+    status: 'status',
+    offeredAt: 'offeredAt',
+    respondedAt: 'respondedAt'
   };
 
   export type JobOfferScalarFieldEnum = (typeof JobOfferScalarFieldEnum)[keyof typeof JobOfferScalarFieldEnum]
 
 
   export const JobEventScalarFieldEnum: {
+    id: 'id',
+    jobId: 'jobId',
+    eventType: 'eventType',
+    actor: 'actor',
+    data: 'data',
+    timestamp: 'timestamp'
+  } = {
     id: 'id',
     jobId: 'jobId',
     eventType: 'eventType',
@@ -48225,12 +48833,18 @@ export namespace Prisma {
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
+  } = {
+    asc: 'asc',
+    desc: 'desc'
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
   export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  } = {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull
   };
@@ -48240,12 +48854,17 @@ export namespace Prisma {
 
   export const JsonNullValueInput: {
     JsonNull: typeof JsonNull
+  } = {
+    JsonNull: typeof JsonNull
   };
 
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  } = {
     default: 'default',
     insensitive: 'insensitive'
   };
@@ -48257,12 +48876,19 @@ export namespace Prisma {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull,
     AnyNull: typeof AnyNull
+  } = {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
   };
 
   export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  } = {
     first: 'first',
     last: 'last'
   };
@@ -50114,6 +50740,10 @@ export namespace Prisma {
     deliveryDateResolved?: DateTimeNullableFilter<"Order"> | Date | string | null
     deliveryDateResolvedSource?: EnumDeliveryDateResolvedSourceNullableFilter<"Order"> | $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    deliveryDateTime?: DateTimeNullableFilter<"Order"> | Date | string | null
+    deliveryDateSource?: StringNullableFilter<"Order"> | string | null
+    needsSchedulingReview?: BoolFilter<"Order"> | boolean
+    region?: StringNullableFilter<"Order"> | string | null
   }
 
   export type OrderOrderByWithRelationInput = {
@@ -50162,6 +50792,10 @@ export namespace Prisma {
     deliveryDateResolved?: SortOrderInput | SortOrder
     deliveryDateResolvedSource?: SortOrderInput | SortOrder
     deliveryDateResolvedAt?: SortOrderInput | SortOrder
+    deliveryDateTime?: SortOrderInput | SortOrder
+    deliveryDateSource?: SortOrderInput | SortOrder
+    needsSchedulingReview?: SortOrder
+    region?: SortOrderInput | SortOrder
   }
 
   export type OrderWhereUniqueInput = Prisma.AtLeast<{
@@ -50213,6 +50847,10 @@ export namespace Prisma {
     deliveryDateResolved?: DateTimeNullableFilter<"Order"> | Date | string | null
     deliveryDateResolvedSource?: EnumDeliveryDateResolvedSourceNullableFilter<"Order"> | $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    deliveryDateTime?: DateTimeNullableFilter<"Order"> | Date | string | null
+    deliveryDateSource?: StringNullableFilter<"Order"> | string | null
+    needsSchedulingReview?: BoolFilter<"Order"> | boolean
+    region?: StringNullableFilter<"Order"> | string | null
   }, "id" | "shopifyId">
 
   export type OrderOrderByWithAggregationInput = {
@@ -50261,6 +50899,10 @@ export namespace Prisma {
     deliveryDateResolved?: SortOrderInput | SortOrder
     deliveryDateResolvedSource?: SortOrderInput | SortOrder
     deliveryDateResolvedAt?: SortOrderInput | SortOrder
+    deliveryDateTime?: SortOrderInput | SortOrder
+    deliveryDateSource?: SortOrderInput | SortOrder
+    needsSchedulingReview?: SortOrder
+    region?: SortOrderInput | SortOrder
     _count?: OrderCountOrderByAggregateInput
     _avg?: OrderAvgOrderByAggregateInput
     _max?: OrderMaxOrderByAggregateInput
@@ -50317,6 +50959,10 @@ export namespace Prisma {
     deliveryDateResolved?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     deliveryDateResolvedSource?: EnumDeliveryDateResolvedSourceNullableWithAggregatesFilter<"Order"> | $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    deliveryDateTime?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    deliveryDateSource?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    needsSchedulingReview?: BoolWithAggregatesFilter<"Order"> | boolean
+    region?: StringNullableWithAggregatesFilter<"Order"> | string | null
   }
 
   export type ShopifyOrderWhereInput = {
@@ -53857,6 +54503,10 @@ export namespace Prisma {
     deliveryDateResolved?: Date | string | null
     deliveryDateResolvedSource?: $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: Date | string | null
+    deliveryDateTime?: Date | string | null
+    deliveryDateSource?: string | null
+    needsSchedulingReview?: boolean
+    region?: string | null
   }
 
   export type OrderUncheckedCreateInput = {
@@ -53905,6 +54555,10 @@ export namespace Prisma {
     deliveryDateResolved?: Date | string | null
     deliveryDateResolvedSource?: $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: Date | string | null
+    deliveryDateTime?: Date | string | null
+    deliveryDateSource?: string | null
+    needsSchedulingReview?: boolean
+    region?: string | null
   }
 
   export type OrderUpdateInput = {
@@ -53953,6 +54607,10 @@ export namespace Prisma {
     deliveryDateResolved?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryDateResolvedSource?: NullableEnumDeliveryDateResolvedSourceFieldUpdateOperationsInput | $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateSource?: NullableStringFieldUpdateOperationsInput | string | null
+    needsSchedulingReview?: BoolFieldUpdateOperationsInput | boolean
+    region?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderUncheckedUpdateInput = {
@@ -54001,6 +54659,10 @@ export namespace Prisma {
     deliveryDateResolved?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryDateResolvedSource?: NullableEnumDeliveryDateResolvedSourceFieldUpdateOperationsInput | $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateSource?: NullableStringFieldUpdateOperationsInput | string | null
+    needsSchedulingReview?: BoolFieldUpdateOperationsInput | boolean
+    region?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderCreateManyInput = {
@@ -54049,6 +54711,10 @@ export namespace Prisma {
     deliveryDateResolved?: Date | string | null
     deliveryDateResolvedSource?: $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: Date | string | null
+    deliveryDateTime?: Date | string | null
+    deliveryDateSource?: string | null
+    needsSchedulingReview?: boolean
+    region?: string | null
   }
 
   export type OrderUpdateManyMutationInput = {
@@ -54097,6 +54763,10 @@ export namespace Prisma {
     deliveryDateResolved?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryDateResolvedSource?: NullableEnumDeliveryDateResolvedSourceFieldUpdateOperationsInput | $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateSource?: NullableStringFieldUpdateOperationsInput | string | null
+    needsSchedulingReview?: BoolFieldUpdateOperationsInput | boolean
+    region?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderUncheckedUpdateManyInput = {
@@ -54145,6 +54815,10 @@ export namespace Prisma {
     deliveryDateResolved?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deliveryDateResolvedSource?: NullableEnumDeliveryDateResolvedSourceFieldUpdateOperationsInput | $Enums.DeliveryDateResolvedSource | null
     deliveryDateResolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deliveryDateSource?: NullableStringFieldUpdateOperationsInput | string | null
+    needsSchedulingReview?: BoolFieldUpdateOperationsInput | boolean
+    region?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ShopifyOrderCreateInput = {
@@ -57419,6 +58093,10 @@ export namespace Prisma {
     deliveryDateResolved?: SortOrder
     deliveryDateResolvedSource?: SortOrder
     deliveryDateResolvedAt?: SortOrder
+    deliveryDateTime?: SortOrder
+    deliveryDateSource?: SortOrder
+    needsSchedulingReview?: SortOrder
+    region?: SortOrder
   }
 
   export type OrderAvgOrderByAggregateInput = {
@@ -57469,6 +58147,10 @@ export namespace Prisma {
     deliveryDateResolved?: SortOrder
     deliveryDateResolvedSource?: SortOrder
     deliveryDateResolvedAt?: SortOrder
+    deliveryDateTime?: SortOrder
+    deliveryDateSource?: SortOrder
+    needsSchedulingReview?: SortOrder
+    region?: SortOrder
   }
 
   export type OrderMinOrderByAggregateInput = {
@@ -57512,6 +58194,10 @@ export namespace Prisma {
     deliveryDateResolved?: SortOrder
     deliveryDateResolvedSource?: SortOrder
     deliveryDateResolvedAt?: SortOrder
+    deliveryDateTime?: SortOrder
+    deliveryDateSource?: SortOrder
+    needsSchedulingReview?: SortOrder
+    region?: SortOrder
   }
 
   export type OrderSumOrderByAggregateInput = {

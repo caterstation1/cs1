@@ -48,10 +48,16 @@ export async function POST() {
           });
           
           // Apply canonical scheduling fields
+          // Note: transformed doesn't have noteAttributes, but we can get it from the raw order
           const scheduling = canonicalizeOrderScheduling({
-            ...transformed,
+            deliveryDate: transformed.deliveryDate,
+            deliveryTime: transformed.deliveryTime,
+            tags: transformed.tags,
+            createdAt: transformed.createdAt,
             shippingAddress: transformed.shippingAddress,
-            noteAttributes: transformed.noteAttributes,
+            lineItems: transformed.lineItems,
+            noteAttributes: order.note_attributes, // Use raw Shopify order
+            note_attributes: order.note_attributes,
           });
           
           await prisma.order.create({
