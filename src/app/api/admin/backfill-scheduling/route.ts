@@ -84,74 +84,54 @@ export async function POST(request: Request) {
     
     // Process this batch
     for (const order of batch) {
-      const batch = await prisma.order.findMany({
-        where: {
-          OR: [
-            { deliveryDateTime: null },
-            { region: null },
-            { deliveryDateSource: null },
-          ]
-        },
-        take: BATCH_SIZE,
-        skip,
-        orderBy: { createdAt: 'desc' }
-      })
-      
-      if (batch.length === 0) {
-        break
-      }
-      
-      console.log(`📦 Processing batch ${Math.floor(skip / BATCH_SIZE) + 1} (${batch.length} orders)...`)
-      
-      for (const order of batch) {
-        try {
-          // Only update fields that are missing (don't overwrite existing good values)
-          const updateData: any = {}
-          
-          // Apply canonicalization
-          const scheduling = canonicalizeOrderScheduling({
-            deliveryDate: order.deliveryDate,
-            deliveryTime: order.deliveryTime,
-            noteAttributes: order.noteAttributes as any,
-            tags: order.tags,
-            createdAt: order.createdAt,
-            shippingAddress: order.shippingAddress as any,
-            lineItems: order.lineItems as any,
-          })
-          
-          // Only set fields that are currently null
-          if (order.region === null) {
-            updateData.region = scheduling.region
-          }
-          if (order.deliveryDateTime === null) {
-            updateData.deliveryDateTime = scheduling.deliveryDateTime
-          }
-          if (order.deliveryDateSource === null) {
-            updateData.deliveryDateSource = scheduling.deliveryDateSource
-          }
-          // Always update needsSchedulingReview if deliveryDateTime is null (safety check)
-          if (order.deliveryDateTime === null || scheduling.needsSchedulingReview) {
-            updateData.needsSchedulingReview = scheduling.needsSchedulingReview
-          }
-          
-          // Only update if there's something to update
-          if (Object.keys(updateData).length > 0) {
-            await prisma.order.update({
-              where: { id: order.id },
-              data: updateData
-            })
-            updated++
-            if (scheduling.needsSchedulingReview) {
-              needsReviewCount++
-            }
-          }
-        } catch (error) {
-          console.error(`❌ Error processing order ${order.id}:`, error)
-          errors++
+      try {
+        // Only update fields that are missing (don't overwrite existing good values)
+        const updateData: any = {}
+        
+        // Apply canonicalization
+        const scheduling = canonicalizeOrderScheduling({
+          deliveryDate: order.deliveryDate,
+          deliveryTime: order.deliveryTime,
+          noteAttributes: order.noteAttributes as any,
+          tags: order.tags,
+          createdAt: order.createdAt,
+          shippingAddress: order.shippingAddress as any,
+          lineItems: order.lineItems as any,
+        })
+        
+        // Only set fields that are currently null
+        if (order.region === null) {
+          updateData.region = scheduling.region
+        }
+        if (order.deliveryDateTime === null) {
+          updateData.deliveryDateTime = scheduling.deliveryDateTime
+        }
+        if (order.deliveryDateSource === null) {
+          updateData.deliveryDateSource = scheduling.deliveryDateSource
+        }
+        // Always update needsSchedulingReview if deliveryDateTime is null (safety check)
+        if (order.deliveryDateTime === null || scheduling.needsSchedulingReview) {
+          updateData.needsSchedulingReview = scheduling.needsSchedulingReview
         }
         
-        processed++
+        // Only update if there's something to update
+        if (Object.keys(updateData).length > 0) {
+          await prisma.order.update({
+            where: { id: order.id },
+            data: updateData
+          })
+          updated++
+          if (scheduling.needsSchedulingReview) {
+            needsReviewCount++
+          }
+        }
+      } catch (error) {
+        console.error(`❌ Error processing order ${order.id}:`, error)
+        errors++
       }
+      
+      processed++
+    }
       
     const totalRemaining = Math.max(0, totalToProcess - (skip + batch.length))
     const hasMore = totalRemaining > 0
