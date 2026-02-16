@@ -30,24 +30,20 @@ async function sendBakeryEmailForSupplier(supplierId: string) {
 export async function GET(request: NextRequest) {
   try {
     // Verify authorization
-    // Vercel cron jobs can send Authorization header, but we also check for Vercel's cron secret header
+    // Vercel cron jobs need to be configured with Authorization header in vercel.json
+    // For now, we'll allow cron endpoints if CRON_SECRET is not set (for testing)
+    // or if the Authorization header matches
     const authHeader = request.headers.get('authorization');
-    const vercelCronSecret = request.headers.get('x-vercel-cron-secret'); // Vercel's built-in header
     const cronSecret = process.env.CRON_SECRET;
     
-    // Allow if either Authorization header matches OR Vercel's cron secret matches
-    const isAuthorized = 
-      (authHeader === `Bearer ${cronSecret}`) ||
-      (vercelCronSecret === cronSecret) ||
-      (process.env.VERCEL === '1' && !cronSecret); // In Vercel, if no CRON_SECRET set, allow (for testing)
-    
-    if (!isAuthorized && cronSecret) {
-      console.log('❌ Unauthorized cron request:', {
-        hasAuthHeader: !!authHeader,
-        hasVercelCronSecret: !!vercelCronSecret,
-        cronSecretSet: !!cronSecret
-      });
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // If CRON_SECRET is set, require it. If not set, allow (for testing/Vercel built-in)
+    if (cronSecret) {
+      if (authHeader !== `Bearer ${cronSecret}`) {
+        console.log('❌ Unauthorized cron request - CRON_SECRET required but header does not match');
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    } else {
+      console.log('⚠️ CRON_SECRET not set - allowing cron request (testing mode)');
     }
 
     // Get current time in NZ
