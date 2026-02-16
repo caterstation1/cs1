@@ -58,28 +58,23 @@ export async function GET(request: NextRequest) {
     const [hours, minutes] = nzTime.split(':').map(Number);
     const currentMinutes = hours * 60 + minutes;
     
-    // TESTING MODE: Check if it's every 10 minutes (:10, :20, :30, :40, :50, :00)
-    // This allows testing at 1:10pm, 1:20pm, 1:30pm, etc.
-    const isTestTime = minutes % 10 === 0;
-    
     // Production times: 9:00 AM (540 minutes) or 3:15 PM (915 minutes)
     const is9AM = currentMinutes >= 540 && currentMinutes < 545; // 5 minute window
     const is315PM = currentMinutes >= 915 && currentMinutes < 920; // 5 minute window
     
-    // Allow either test time OR production times
-    if (!isTestTime && !is9AM && !is315PM) {
+    // Only allow production times
+    if (!is9AM && !is315PM) {
       console.log(`⏰ Supplier email cron called but not scheduled time. Current NZ time: ${nzTime} (${currentMinutes} minutes)`);
       return NextResponse.json({ 
         message: 'Not scheduled time for supplier emails',
         currentTime: nzTime,
         currentMinutes,
-        isTestTime,
         is9AM,
         is315PM
       });
     }
     
-    console.log(`✅ Supplier email cron triggered at ${nzTime} (${currentMinutes} minutes) - Test mode: ${isTestTime}, Production: ${is9AM || is315PM}`);
+    console.log(`✅ Supplier email cron triggered at ${nzTime} (${currentMinutes} minutes) - ${is9AM ? '9:00 AM' : '3:15 PM'}`);
     
     // Get all suppliers with bakery emails enabled
     const allSuppliers = await prisma.supplier.findMany({
