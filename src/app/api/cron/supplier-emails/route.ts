@@ -3,7 +3,13 @@ import { prisma } from '@/lib/prisma';
 
 // Call the send-bakery-email endpoint internally
 async function sendBakeryEmailForSupplier(supplierId: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.PRODUCTION_URL || 'http://localhost:3000';
+  // Use VERCEL_URL in production, or construct from environment variables
+  const baseUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}`
+    : (process.env.NEXT_PUBLIC_APP_URL || process.env.PRODUCTION_URL || 'https://caterstation1.vercel.app');
+  
+  console.log(`🔗 Calling send-bakery-email for supplier ${supplierId} via ${baseUrl}`);
+  
   const response = await fetch(`${baseUrl}/api/suppliers/${supplierId}/send-bakery-email`, {
     method: 'POST',
     headers: {
@@ -14,7 +20,8 @@ async function sendBakeryEmailForSupplier(supplierId: string) {
   
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(error.error || 'Failed to send email');
+    console.error(`❌ HTTP error ${response.status} calling send-bakery-email:`, error);
+    throw new Error(error.error || `Failed to send email (HTTP ${response.status})`);
   }
   
   return await response.json();
