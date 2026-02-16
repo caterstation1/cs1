@@ -314,7 +314,7 @@ export function SuppliersTab() {
                                   ...emailSettings,
                                   bakery: {
                                     enabled: e.target.checked,
-                                    autoSend: e.target.checked ? (emailSettings.bakery?.autoSend ?? true) : false
+                                    autoSend: emailSettings.bakery?.autoSend || false
                                   }
                                 }
                                 const response = await fetch(`/api/suppliers/${supplier.id}`, {
@@ -334,42 +334,8 @@ export function SuppliersTab() {
                             }}
                             className="h-4 w-4"
                           />
-                          <span>Bakery Enabled</span>
+                          <span>Bakery</span>
                         </label>
-                        {bakeryEnabled && (
-                          <label className="flex items-center gap-2 text-sm text-muted-foreground ml-6">
-                            <input
-                              type="checkbox"
-                              checked={emailSettings.bakery?.autoSend || false}
-                              onChange={async (e) => {
-                                try {
-                                  const newSettings = {
-                                    ...emailSettings,
-                                    bakery: {
-                                      enabled: true,
-                                      autoSend: e.target.checked
-                                    }
-                                  }
-                                  const response = await fetch(`/api/suppliers/${supplier.id}`, {
-                                    method: 'PATCH',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ emailSettings: newSettings })
-                                  })
-                                  if (response.ok) {
-                                    await fetchSuppliers()
-                                  } else {
-                                    alert('Failed to update email settings')
-                                  }
-                                } catch (error) {
-                                  console.error('Error updating email settings:', error)
-                                  alert('Error updating email settings')
-                                }
-                              }}
-                              className="h-4 w-4"
-                            />
-                            <span>Auto-send (9 AM & 3:15 PM)</span>
-                          </label>
-                        )}
                         {bakeryEnabled && (
                           <Button
                             size="sm"

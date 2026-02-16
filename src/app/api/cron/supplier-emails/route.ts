@@ -83,18 +83,18 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Filter suppliers with bakery enabled AND autoSend enabled (manual check since Prisma JSON filtering is complex)
+    // Filter suppliers with bakery enabled (manual check since Prisma JSON filtering is complex)
     const suppliers = allSuppliers.filter(s => {
       const settings = (s.emailSettings as any) || {};
-      return settings.bakery?.enabled === true && settings.bakery?.autoSend === true;
+      return settings.bakery?.enabled === true;
     });
     
     if (suppliers.length === 0) {
-      console.log('⚠️ No suppliers with bakery emails enabled and auto-send enabled');
-      return NextResponse.json({ message: 'No suppliers with bakery emails enabled and auto-send enabled' });
+      console.log('⚠️ No suppliers with bakery emails enabled');
+      return NextResponse.json({ message: 'No suppliers with bakery emails enabled' });
     }
     
-    console.log(`📧 Found ${suppliers.length} supplier(s) with bakery emails enabled and auto-send enabled:`, suppliers.map(s => s.name));
+    console.log(`📧 Found ${suppliers.length} supplier(s) with bakery emails enabled:`, suppliers.map(s => s.name));
     
     const results = [];
     
