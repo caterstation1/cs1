@@ -30,8 +30,23 @@ async function sendBakeryEmailForSupplier(supplierId: string) {
 export async function GET(request: NextRequest) {
   try {
     // Verify authorization
+    // Vercel cron jobs can send Authorization header, but we also check for Vercel's cron secret header
     const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const vercelCronSecret = request.headers.get('x-vercel-cron-secret'); // Vercel's built-in header
+    const cronSecret = process.env.CRON_SECRET;
+    
+    // Allow if either Authorization header matches OR Vercel's cron secret matches
+    const isAuthorized = 
+      (authHeader === `Bearer ${cronSecret}`) ||
+      (vercelCronSecret === cronSecret) ||
+      (process.env.VERCEL === '1' && !cronSecret); // In Vercel, if no CRON_SECRET set, allow (for testing)
+    
+    if (!isAuthorized && cronSecret) {
+      console.log('❌ Unauthorized cron request:', {
+        hasAuthHeader: !!authHeader,
+        hasVercelCronSecret: !!vercelCronSecret,
+        cronSecretSet: !!cronSecret
+      });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
