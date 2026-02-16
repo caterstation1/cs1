@@ -90,11 +90,11 @@ export async function GET(request: NextRequest) {
     });
     
     if (suppliers.length === 0) {
-      console.log('⚠️ No suppliers with bakery emails enabled');
-      return NextResponse.json({ message: 'No suppliers with bakery emails enabled' });
+      console.log('⚠️ No suppliers with bakery emails enabled and auto-send enabled');
+      return NextResponse.json({ message: 'No suppliers with bakery emails enabled and auto-send enabled' });
     }
     
-    console.log(`📧 Found ${suppliers.length} supplier(s) with bakery emails enabled:`, suppliers.map(s => s.name));
+    console.log(`📧 Found ${suppliers.length} supplier(s) with bakery emails enabled and auto-send enabled:`, suppliers.map(s => s.name));
     
     const results = [];
     
