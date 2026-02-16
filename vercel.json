@@ -31,19 +31,7 @@
     },
     {
       "path": "/api/cron/supplier-emails",
-      "schedule": "0 21 * * *"
-    },
-    {
-      "path": "/api/cron/supplier-emails",
-      "schedule": "0 20 * * *"
-    },
-    {
-      "path": "/api/cron/supplier-emails",
-      "schedule": "15 3 * * *"
-    },
-    {
-      "path": "/api/cron/supplier-emails",
-      "schedule": "15 2 * * *"
+      "schedule": "*/10 * * * *"
     }
   ]
 } 

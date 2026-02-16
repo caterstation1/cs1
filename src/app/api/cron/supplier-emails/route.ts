@@ -40,17 +40,28 @@ export async function GET(request: NextRequest) {
     const [hours, minutes] = nzTime.split(':').map(Number);
     const currentMinutes = hours * 60 + minutes;
     
-    // Check if it's 9:00 AM (540 minutes) or 3:15 PM (915 minutes)
+    // TESTING MODE: Check if it's every 10 minutes (:10, :20, :30, :40, :50, :00)
+    // This allows testing at 1:10pm, 1:20pm, 1:30pm, etc.
+    const isTestTime = minutes % 10 === 0;
+    
+    // Production times: 9:00 AM (540 minutes) or 3:15 PM (915 minutes)
     const is9AM = currentMinutes >= 540 && currentMinutes < 545; // 5 minute window
     const is315PM = currentMinutes >= 915 && currentMinutes < 920; // 5 minute window
     
-    if (!is9AM && !is315PM) {
+    // Allow either test time OR production times
+    if (!isTestTime && !is9AM && !is315PM) {
+      console.log(`⏰ Supplier email cron called but not scheduled time. Current NZ time: ${nzTime} (${currentMinutes} minutes)`);
       return NextResponse.json({ 
         message: 'Not scheduled time for supplier emails',
         currentTime: nzTime,
-        currentMinutes
+        currentMinutes,
+        isTestTime,
+        is9AM,
+        is315PM
       });
     }
+    
+    console.log(`✅ Supplier email cron triggered at ${nzTime} (${currentMinutes} minutes) - Test mode: ${isTestTime}, Production: ${is9AM || is315PM}`);
     
     // Get all suppliers with bakery emails enabled
     const allSuppliers = await prisma.supplier.findMany({
@@ -66,16 +77,22 @@ export async function GET(request: NextRequest) {
     });
     
     if (suppliers.length === 0) {
+      console.log('⚠️ No suppliers with bakery emails enabled');
       return NextResponse.json({ message: 'No suppliers with bakery emails enabled' });
     }
+    
+    console.log(`📧 Found ${suppliers.length} supplier(s) with bakery emails enabled:`, suppliers.map(s => s.name));
     
     const results = [];
     
     for (const supplier of suppliers) {
       try {
+        console.log(`📤 Sending bakery email to ${supplier.name} (${supplier.contactEmail})...`);
         await sendBakeryEmailForSupplier(supplier.id);
+        console.log(`✅ Successfully sent email to ${supplier.name}`);
         results.push({ supplier: supplier.name, status: 'success' });
       } catch (error) {
+        console.error(`❌ Failed to send email to ${supplier.name}:`, error);
         results.push({ 
           supplier: supplier.name, 
           status: 'error', 
@@ -87,7 +104,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       time: nzTime,
-      trigger: is9AM ? '9:00 AM' : '3:15 PM',
+      trigger: isTestTime ? `Test mode (${nzTime})` : (is9AM ? '9:00 AM' : '3:15 PM'),
       suppliersProcessed: results.length,
       results
     });
