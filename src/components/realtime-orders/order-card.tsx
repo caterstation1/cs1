@@ -1495,15 +1495,31 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                           })()}</span>
                         </div>
                     {(() => {
-                      const has = Array.isArray((product as any)?.meats)
-                        ? ((product as any).meats as any[]).some(m => (m ?? '').toString().trim() !== '')
-                        : [product?.meat1, product?.meat2].some(m => (m ?? '').toString().trim() !== '');
+                      // Check if we have any meat values to display
+                      const meatsArr = Array.isArray((product as any)?.meats) ? (product as any).meats : null;
+                      const hasMeatsArray = meatsArr && meatsArr.length > 0 && meatsArr.some((m: any) => (m ?? '').toString().trim() !== '');
+                      const hasMeatFields = (product?.meat1 && product.meat1.trim() !== '') || (product?.meat2 && product.meat2.trim() !== '');
+                      const has = hasMeatsArray || hasMeatFields;
+                      
+                      if (!has && product && variantId === '46104594514175') {
+                        console.log('🔍 Debug variant 46104594514175:', {
+                          product,
+                          meatsArr,
+                          meat1: product.meat1,
+                          meat2: product.meat2,
+                          hasMeatsArray,
+                          hasMeatFields
+                        });
+                      }
+                      
                       return has;
                     })() && (
                           <span className="absolute left-[45%] top-0 text-black align-middle">
                         {(() => {
-                          const rawMeats = Array.isArray((product as any)?.meats)
-                            ? ((product as any).meats as (string | null)[])
+                          // Get meat values - prefer meats array if it has values, otherwise use meat1/meat2
+                          const meatsArr = Array.isArray((product as any)?.meats) ? (product as any).meats : null;
+                          const rawMeats = (meatsArr && meatsArr.length > 0 && meatsArr.some((m: any) => (m ?? '').toString().trim() !== ''))
+                            ? (meatsArr as (string | null)[])
                             : [product?.meat1 ?? null, product?.meat2 ?? null];
                           const items = rawMeats
                             .map((m, idx) => ({ text: (m ?? '').toString().trim(), idx }))

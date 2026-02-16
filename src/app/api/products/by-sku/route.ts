@@ -55,7 +55,15 @@ export async function GET(request: NextRequest) {
         // parent-level pack defaults
         productIsPartyPackDefault: (variant.product as any).isPartyPackDefault ?? false,
         productBundleDefaultItems: (variant.product as any).bundleDefaultItems ?? null,
-        meats: Array.isArray((variant as any).meats) ? (variant as any).meats : [variant.meat1 ?? null, variant.meat2 ?? null],
+        meats: (() => {
+          const meatsArr = Array.isArray((variant as any).meats) ? (variant as any).meats : null;
+          // If meats array exists but is empty, fall back to meat1/meat2
+          if (meatsArr && meatsArr.length > 0) return meatsArr;
+          if (meatsArr && meatsArr.length === 0 && (variant.meat1 || variant.meat2)) {
+            return [variant.meat1 ?? null, variant.meat2 ?? null];
+          }
+          return meatsArr || [variant.meat1 ?? null, variant.meat2 ?? null];
+        })(),
         timers: Array.isArray((variant as any).timers) ? (variant as any).timers : [variant.timer1 ?? null, variant.timer2 ?? null],
         options: Array.isArray((variant as any).options) ? (variant as any).options : [variant.option1 ?? null, variant.option2 ?? null],
         meat1: variant.meat1,
@@ -119,7 +127,15 @@ export async function GET(request: NextRequest) {
           productDisplayName: variant.product.displayName,
           productIsPartyPackDefault: (variant.product as any).isPartyPackDefault ?? false,
           productBundleDefaultItems: (variant.product as any).bundleDefaultItems ?? null,
-          meats: Array.isArray((variant as any).meats) ? (variant as any).meats : [variant.meat1 ?? null, variant.meat2 ?? null],
+          meats: (() => {
+            const meatsArr = Array.isArray((variant as any).meats) ? (variant as any).meats : null;
+            // If meats array exists but is empty, fall back to meat1/meat2
+            if (meatsArr && meatsArr.length > 0) return meatsArr;
+            if (meatsArr && meatsArr.length === 0 && (variant.meat1 || variant.meat2)) {
+              return [variant.meat1 ?? null, variant.meat2 ?? null];
+            }
+            return meatsArr || [variant.meat1 ?? null, variant.meat2 ?? null];
+          })(),
           timers: Array.isArray((variant as any).timers) ? (variant as any).timers : [variant.timer1 ?? null, variant.timer2 ?? null],
           options: Array.isArray((variant as any).options) ? (variant as any).options : [variant.option1 ?? null, variant.option2 ?? null],
           meat1: variant.meat1,
