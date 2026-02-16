@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       time: nzTime,
-      trigger: isTestTime ? `Test mode (${nzTime})` : (is9AM ? '9:00 AM' : '3:15 PM'),
+      trigger: is9AM ? '9:00 AM' : '3:15 PM',
       suppliersProcessed: results.length,
       results
     });
