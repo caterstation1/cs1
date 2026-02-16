@@ -83,10 +83,10 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    // Filter suppliers with bakery enabled (manual check since Prisma JSON filtering is complex)
+    // Filter suppliers with bakery enabled AND autoSend enabled (manual check since Prisma JSON filtering is complex)
     const suppliers = allSuppliers.filter(s => {
       const settings = (s.emailSettings as any) || {};
-      return settings.bakery?.enabled === true;
+      return settings.bakery?.enabled === true && settings.bakery?.autoSend === true;
     });
     
     if (suppliers.length === 0) {
