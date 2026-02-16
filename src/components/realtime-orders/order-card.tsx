@@ -1463,6 +1463,22 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
               // Use variantId for product lookup instead of SKU
               const variantId = item.variant_id?.toString() || item.variantId?.toString();
               const product = variantId ? products[variantId] : null;
+              
+              // Debug logging for the specific variant
+              if (variantId === '46104594514175') {
+                console.log('🔍 Order card - variant 46104594514175:', {
+                  variantId,
+                  hasProduct: !!product,
+                  product: product ? {
+                    meat1: product.meat1,
+                    meat2: product.meat2,
+                    meats: (product as any).meats,
+                    displayName: product.displayName
+                  } : null,
+                  productsMapSize: Object.keys(products).length
+                });
+              }
+              
               const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
               // Skip addon products (child addons will now be excluded too)
               if (isAddon(item.sku) || isAddon(product?.shopifySku)) return null
