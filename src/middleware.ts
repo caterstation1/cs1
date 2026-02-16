@@ -22,6 +22,7 @@ const PUBLIC_PREFIXES = [
   '/api/production-url',
   '/api/admin/backfill-scheduling', // Temporary: allow backfill endpoint
   '/api/cron', // Allow cron jobs (they authenticate via CRON_SECRET in route handler)
+  '/api/suppliers', // Allow supplier endpoints (they authenticate via CRON_SECRET in route handler for internal calls)
   '/_next',
   '/static',
   '/favicon.ico',

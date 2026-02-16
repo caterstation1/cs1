@@ -54,8 +54,18 @@ export async function POST(
   try {
     // Allow internal calls from cron (skip auth check for internal)
     const authHeader = request.headers.get('authorization');
-    const isInternal = authHeader === `Bearer ${process.env.CRON_SECRET || 'internal'}`;
-    // For external calls, could add auth check here if needed
+    const cronSecret = process.env.CRON_SECRET;
+    
+    // If CRON_SECRET is set, require it for internal calls. If not set, allow (for testing)
+    if (cronSecret) {
+      const isInternal = authHeader === `Bearer ${cronSecret}`;
+      if (!isInternal) {
+        console.log('❌ Unauthorized send-bakery-email request - CRON_SECRET required');
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    } else {
+      console.log('⚠️ CRON_SECRET not set - allowing send-bakery-email request (testing mode)');
+    }
     
     const { id } = await params;
     
