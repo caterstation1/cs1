@@ -37,8 +37,9 @@ const formSchema = z.object({
   phone: z.string().min(1, 'Phone number is required'),
   email: z.string().email('Invalid email address'),
   payRate: z.number().min(0, 'Pay rate must be positive'),
-  accessLevel: z.enum(['basic', 'pricing_lab', 'admin', 'owner', 'wlg_team', 'wlg_admin']),
+  accessLevel: z.enum(['basic', 'pricing_lab', 'admin', 'owner', 'wlg_team', 'wlg_admin', 'bakery']),
   isDriver: z.boolean(),
+  includeInOpsLabour: z.boolean(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -73,6 +74,7 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess, allowedR
       payRate: staff.payRate,
       accessLevel: staff.accessLevel as any,
       isDriver: staff.isDriver,
+      includeInOpsLabour: staff.includeInOpsLabour !== false,
     },
   })
 
@@ -220,6 +222,22 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess, allowedR
                     />
                   </FormControl>
                   <FormLabel>Show on delivery dropdown</FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="includeInOpsLabour"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel>Count in operational labour costs (untick for admin/overhead staff)</FormLabel>
                   <FormMessage />
                 </FormItem>
               )}

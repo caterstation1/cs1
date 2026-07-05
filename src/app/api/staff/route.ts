@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     }
 
     // Enforce allowed access levels
-    const allowedAccess = ['basic', 'pricing_lab', 'admin', 'owner', 'wlg_team', 'wlg_admin']
+    const allowedAccess = ['basic', 'pricing_lab', 'admin', 'owner', 'wlg_team', 'wlg_admin', 'bakery']
     if (!allowedAccess.includes(body.accessLevel)) {
       return NextResponse.json({ error: 'Invalid access level' }, { status: 400 })
     }
@@ -57,11 +57,17 @@ export async function POST(request: Request) {
         accessLevel: body.accessLevel || 'basic',
         isDriver: !!body.isDriver,
         isActive: body.isActive !== false, // Default to true
-        // Hash password if provided
-        password: body.password ? await hashPassword(body.password) : null
+        includeInOpsLabour: body.includeInOpsLabour !== false, // Default to true
+        password: body.password ? await hashPassword(body.password) : null,
+        dateOfBirth: body.dateOfBirth ? new Date(body.dateOfBirth) : null,
+        addressLine1: body.addressLine1 ?? null,
+        addressCity: body.addressCity ?? null,
+        addressPostCode: body.addressPostCode ?? null,
+        payMode: body.payMode ?? null,
+        fixedWeeklyHours: body.fixedWeeklyHours != null ? body.fixedWeeklyHours : null,
       }
     });
-    
+
     console.log(`✅ Created staff member: ${staff.firstName} ${staff.lastName}`);
     return NextResponse.json(staff, { status: 201 });
   } catch (error: any) {

@@ -8,8 +8,9 @@ import {
   sumItemsCost,
   bucketKey,
   shouldIncludeOrder,
-  deriveShippingCost,
   groupKeyForOrder,
+  fetchDeliveryPayouts,
+  resolveDeliveryCost,
 } from '@/lib/accounting'
 
 function toBool(v: string | null, def = false): boolean {
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
     const includeCancelled = toBool(searchParams.get('includeCancelled'), false)
     const includeUnpaid = toBool(searchParams.get('includeUnpaid'), false)
     const useBusinessDate = toBool(searchParams.get('useBusinessDate'), true)
-    const groupBy = (searchParams.get('groupBy') || 'suburb') as 'zone' | 'suburb'
+    const groupBy = (searchParams.get('groupBy') || 'suburb') as 'zone' | 'suburb' | 'postcode'
     const sortBy = (searchParams.get('sortBy') || 'revenue') as 'revenue' | 'profit'
 
     const { start, end } = parseRangePreset(rangePreset)
@@ -59,13 +60,8 @@ export async function GET(request: NextRequest) {
     const skus = Array.from(new Set(allLis.map((it: any) => String(it?.sku || '')).filter(Boolean)))
     const maps = await collectVariantCosts(variantIds, skus)
 
-    // Optionally fetch delivery jobs to attach payout if needed in future
-    const orderIds = filtered.map(o => o.id)
-    const jobs = await prisma.deliveryJob.findMany({
-      where: { orderId: { in: orderIds } },
-      select: { orderId: true, payout: true },
-    })
-    const payoutByOrderId = new Map<string, number>(jobs.map(j => [j.orderId, Number(j.payout || 0)]))
+    // Delivery job payouts as fallback delivery cost
+    const payoutByOrderId = await fetchDeliveryPayouts(filtered.map(o => o.id))
 
     const groups = new Map<
       string,
@@ -79,9 +75,7 @@ export async function GET(request: NextRequest) {
       const cogs = sumItemsCost(items, maps)
       const revenue = Number(o.totalPrice || 0)
       // Delivery cost precedence A: shipping diff -> sum(shippingLines) -> DeliveryJob.payout -> not available(0)
-      const ship = deriveShippingCost(o)
-      const payout = payoutByOrderId.get(o.id) || 0
-      const deliveryCost = ship > 0 ? ship : (payout > 0 ? payout : 0)
+      const deliveryCost = resolveDeliveryCost(o, payoutByOrderId)
 
       g.ordersCount += 1
       g.revenue += revenue

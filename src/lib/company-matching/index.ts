@@ -1,0 +1,5 @@
+export * from './types'
+export * from './normalization'
+export * from './scoring'
+export * from './matcher'
+export * from './persistence'

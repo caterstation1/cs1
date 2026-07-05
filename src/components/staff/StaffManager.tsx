@@ -24,6 +24,7 @@ export interface StaffRecord {
   payRate: number
   accessLevel: string
   isDriver: boolean
+  includeInOpsLabour?: boolean
 }
 
 interface Permissions {

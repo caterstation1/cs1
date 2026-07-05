@@ -215,10 +215,72 @@ export function calcCogsCoverage(orders: any[], maps: VariantCostMaps): { covere
   return { coveredRevenue: Number(coveredRevenue.toFixed(2)), totalRevenue: Number(totalRevenue.toFixed(2)), pct }
 }
 
-export function groupKeyForOrder(o: any, groupBy: 'zone' | 'suburb'): string {
+export type ShiftLabourEntry = {
+  date: Date
+  hours: number
+  cost: number
+  includeInOpsLabour: boolean
+}
+
+/**
+ * Loads shifts in [start, end] and computes labour cost per shift as
+ * hours (totalHours, else clock diff) x Staff.payRate.
+ */
+export async function fetchShiftLabour(start: Date, end: Date): Promise<ShiftLabourEntry[]> {
+  const shifts = await prisma.shift.findMany({
+    where: { date: { gte: start, lte: end } },
+    include: { staff: true },
+    orderBy: { date: 'asc' },
+  })
+  return (shifts as any[]).map(s => {
+    let hours: number | null = typeof s.totalHours === 'number' ? s.totalHours : null
+    if (hours == null) {
+      if (s.clockIn && s.clockOut) {
+        const diffMs = new Date(s.clockOut).getTime() - new Date(s.clockIn).getTime()
+        hours = diffMs > 0 ? diffMs / (1000 * 60 * 60) : 0
+      } else {
+        hours = 0
+      }
+    }
+    const pay = Number(s?.staff?.payRate || 0)
+    return {
+      date: new Date(s.date),
+      hours: hours || 0,
+      cost: Number((pay * (hours || 0)).toFixed(2)),
+      includeInOpsLabour: s?.staff?.includeInOpsLabour !== false,
+    }
+  })
+}
+
+/** Fetches DeliveryJob payouts keyed by order id (contract-driver delivery cost fallback). */
+export async function fetchDeliveryPayouts(orderIds: string[]): Promise<Map<string, number>> {
+  if (orderIds.length === 0) return new Map()
+  const jobs = await prisma.deliveryJob.findMany({
+    where: { orderId: { in: orderIds } },
+    select: { orderId: true, payout: true },
+  })
+  return new Map(jobs.map(j => [j.orderId, Number(j.payout || 0)]))
+}
+
+/**
+ * Per-order delivery cost precedence: shipping diff -> sum(shippingLines)
+ * -> DeliveryJob.payout -> 0 (not available).
+ */
+export function resolveDeliveryCost(o: any, payoutByOrderId?: Map<string, number>): number {
+  const ship = deriveShippingCost(o)
+  if (ship > 0) return ship
+  const payout = payoutByOrderId?.get(o?.id) || 0
+  return payout > 0 ? Number(payout.toFixed(2)) : 0
+}
+
+export function groupKeyForOrder(o: any, groupBy: 'zone' | 'suburb' | 'postcode'): string {
   // Fallback grouping by shippingAddress.city
   const ship = (o?.shippingAddress || {}) as any
   const rawCity = String(ship?.city || '').trim()
+  const rawPostcode = String(ship?.zip || ship?.postalCode || ship?.postcode || '').trim()
+  if (groupBy === 'postcode') {
+    return rawPostcode || 'Unknown'
+  }
   if (groupBy === 'zone') {
     // If zones are introduced later, map here; for now use city and WLG/Akl guard
     if (isWellingtonOrder(o)) return rawCity || 'Wellington'

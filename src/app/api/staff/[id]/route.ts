@@ -19,6 +19,10 @@ export async function GET(
         payRate: true,
         accessLevel: true,
         isDriver: true,
+        includeInOpsLabour: true,
+        latestFoodSafetyQuizStatus: true,
+        latestScore: true,
+        latestCompletedAt: true,
         createdAt: true,
         updatedAt: true
       }
@@ -58,6 +62,9 @@ export async function PUT(
       accessLevel: data.accessLevel,
       isDriver: data.isDriver,
     }
+    if (typeof data.includeInOpsLabour === 'boolean') {
+      updateData.includeInOpsLabour = data.includeInOpsLabour
+    }
     if (typeof data.password === 'string' && data.password.trim()) {
       updateData.password = await hashPassword(data.password.trim())
     }
@@ -73,6 +80,10 @@ export async function PUT(
         payRate: true,
         accessLevel: true,
         isDriver: true,
+        includeInOpsLabour: true,
+        latestFoodSafetyQuizStatus: true,
+        latestScore: true,
+        latestCompletedAt: true,
         createdAt: true,
         updatedAt: true
       }

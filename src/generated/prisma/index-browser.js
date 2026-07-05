@@ -133,6 +133,9 @@ exports.Prisma.GilmoursProductScalarFieldEnum = {
   sku: 'sku',
   brand: 'brand',
   description: 'description',
+  isPreferred: 'isPreferred',
+  preferredReference: 'preferredReference',
+  preferredAllergens: 'preferredAllergens',
   packSize: 'packSize',
   uom: 'uom',
   price: 'price',
@@ -146,6 +149,9 @@ exports.Prisma.BidfoodProductScalarFieldEnum = {
   productCode: 'productCode',
   brand: 'brand',
   description: 'description',
+  isPreferred: 'isPreferred',
+  preferredReference: 'preferredReference',
+  preferredAllergens: 'preferredAllergens',
   packSize: 'packSize',
   ctnQty: 'ctnQty',
   uom: 'uom',
@@ -162,9 +168,30 @@ exports.Prisma.OtherProductScalarFieldEnum = {
   name: 'name',
   supplier: 'supplier',
   description: 'description',
+  isPreferred: 'isPreferred',
+  preferredReference: 'preferredReference',
+  preferredAllergens: 'preferredAllergens',
+  listOnLabel: 'listOnLabel',
+  isVegetarian: 'isVegetarian',
+  isVegan: 'isVegan',
+  isHalal: 'isHalal',
   cost: 'cost',
   prepCategory: 'prepCategory',
   prepCategories: 'prepCategories',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProduceCoProductScalarFieldEnum = {
+  id: 'id',
+  productCode: 'productCode',
+  productName: 'productName',
+  totalUnits: 'totalUnits',
+  totalSales: 'totalSales',
+  price: 'price',
+  isPreferred: 'isPreferred',
+  preferredReference: 'preferredReference',
+  preferredAllergens: 'preferredAllergens',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -175,6 +202,10 @@ exports.Prisma.SupplierScalarFieldEnum = {
   contactName: 'contactName',
   contactNumber: 'contactNumber',
   contactEmail: 'contactEmail',
+  mpiNumber: 'mpiNumber',
+  accountNumber: 'accountNumber',
+  loginAccessLevel: 'loginAccessLevel',
+  password: 'password',
   emailSettings: 'emailSettings',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -321,12 +352,23 @@ exports.Prisma.StaffScalarFieldEnum = {
   accessLevel: 'accessLevel',
   isDriver: 'isDriver',
   isActive: 'isActive',
+  includeInOpsLabour: 'includeInOpsLabour',
+  xeroEmployeeId: 'xeroEmployeeId',
+  payMode: 'payMode',
+  fixedWeeklyHours: 'fixedWeeklyHours',
+  dateOfBirth: 'dateOfBirth',
+  addressLine1: 'addressLine1',
+  addressCity: 'addressCity',
+  addressPostCode: 'addressPostCode',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   lastLogin: 'lastLogin',
   password: 'password',
   resetToken: 'resetToken',
-  resetTokenExpiry: 'resetTokenExpiry'
+  resetTokenExpiry: 'resetTokenExpiry',
+  latestFoodSafetyQuizStatus: 'latestFoodSafetyQuizStatus',
+  latestScore: 'latestScore',
+  latestCompletedAt: 'latestCompletedAt'
 };
 
 exports.Prisma.ShiftTypeScalarFieldEnum = {
@@ -350,8 +392,28 @@ exports.Prisma.ShiftScalarFieldEnum = {
   mileage: 'mileage',
   notes: 'notes',
   status: 'status',
+  approved: 'approved',
+  approvedAt: 'approvedAt',
+  approvedBy: 'approvedBy',
+  trackingAllowed: 'trackingAllowed',
+  trackingStartedAt: 'trackingStartedAt',
+  trackingStoppedAt: 'trackingStoppedAt',
+  lastLocationPingAt: 'lastLocationPingAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StaffLocationPingScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  shiftId: 'shiftId',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  accuracy: 'accuracy',
+  speed: 'speed',
+  heading: 'heading',
+  capturedAt: 'capturedAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.ShiftTaskScalarFieldEnum = {
@@ -394,6 +456,39 @@ exports.Prisma.ReimbursementScalarFieldEnum = {
   description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PayrollRunScalarFieldEnum = {
+  id: 'id',
+  payPeriodStart: 'payPeriodStart',
+  payPeriodEnd: 'payPeriodEnd',
+  xeroPayrunId: 'xeroPayrunId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  postedAt: 'postedAt',
+  status: 'status',
+  inputSnapshot: 'inputSnapshot'
+};
+
+exports.Prisma.XeroConnectionScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  tenantName: 'tenantName',
+  tokenSet: 'tokenSet',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.XeroPayrollConfigScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  earningsRateIdOrdinaryHours: 'earningsRateIdOrdinaryHours',
+  earningsRateIdReimbursement: 'earningsRateIdReimbursement',
+  earningsRateIdMileage: 'earningsRateIdMileage',
+  payrollCalendarId: 'payrollCalendarId',
+  defaultMileageRate: 'defaultMileageRate',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.OrderScalarFieldEnum = {
@@ -439,6 +534,8 @@ exports.Prisma.OrderScalarFieldEnum = {
   lastSmsSent: 'lastSmsSent',
   smsHistory: 'smsHistory',
   internalNote: 'internalNote',
+  customerNote: 'customerNote',
+  fulfillmentClientNote: 'fulfillmentClientNote',
   deliveryDateResolved: 'deliveryDateResolved',
   deliveryDateResolvedSource: 'deliveryDateResolvedSource',
   deliveryDateResolvedAt: 'deliveryDateResolvedAt',
@@ -446,6 +543,18 @@ exports.Prisma.OrderScalarFieldEnum = {
   deliveryDateSource: 'deliveryDateSource',
   needsSchedulingReview: 'needsSchedulingReview',
   region: 'region'
+};
+
+exports.Prisma.OrderChangeLogScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  action: 'action',
+  changedAt: 'changedAt',
+  changedByUserId: 'changedByUserId',
+  changedByName: 'changedByName',
+  changedByEmail: 'changedByEmail',
+  changes: 'changes',
+  source: 'source'
 };
 
 exports.Prisma.ShopifyOrderScalarFieldEnum = {
@@ -495,6 +604,179 @@ exports.Prisma.ParsedLineItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.RawShopifyOrderScalarFieldEnum = {
+  id: 'id',
+  shopifyOrderId: 'shopifyOrderId',
+  shopifyOrderName: 'shopifyOrderName',
+  payload: 'payload',
+  fetchedAt: 'fetchedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RawShopifyCustomerScalarFieldEnum = {
+  id: 'id',
+  shopifyCustomerId: 'shopifyCustomerId',
+  email: 'email',
+  payload: 'payload',
+  fetchedAt: 'fetchedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CompanyScalarFieldEnum = {
+  companyId: 'companyId',
+  canonicalCompanyName: 'canonicalCompanyName',
+  companyNameVariants: 'companyNameVariants',
+  primaryDomain: 'primaryDomain',
+  alternateDomains: 'alternateDomains',
+  primaryAddress: 'primaryAddress',
+  city: 'city',
+  region: 'region',
+  country: 'country',
+  confidenceScore: 'confidenceScore',
+  totalOrders: 'totalOrders',
+  totalRevenue: 'totalRevenue',
+  firstOrderDate: 'firstOrderDate',
+  lastOrderDate: 'lastOrderDate',
+  isStrategicOverride: 'isStrategicOverride',
+  isVipOverride: 'isVipOverride',
+  lifecyclePausedUntil: 'lifecyclePausedUntil',
+  lifecycleOverrideNote: 'lifecycleOverrideNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GenericDomainScalarFieldEnum = {
+  domain: 'domain',
+  reason: 'reason',
+  addedBy: 'addedBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CompanyContactScalarFieldEnum = {
+  contactId: 'contactId',
+  companyId: 'companyId',
+  shopifyCustomerId: 'shopifyCustomerId',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  email: 'email',
+  phone: 'phone',
+  role: 'role',
+  firstOrderDate: 'firstOrderDate',
+  lastOrderDate: 'lastOrderDate',
+  totalOrders: 'totalOrders',
+  totalSpend: 'totalSpend',
+  isPrimaryContact: 'isPrimaryContact',
+  lifecycleOptOut: 'lifecycleOptOut',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CompanyOrderScalarFieldEnum = {
+  companyOrderId: 'companyOrderId',
+  companyId: 'companyId',
+  shopifyOrderId: 'shopifyOrderId',
+  shopifyCustomerId: 'shopifyCustomerId',
+  orderDate: 'orderDate',
+  orderTotal: 'orderTotal',
+  orderSubtotal: 'orderSubtotal',
+  discounts: 'discounts',
+  refunds: 'refunds',
+  products: 'products',
+  deliveryAddress: 'deliveryAddress',
+  billingAddress: 'billingAddress',
+  sourceChannel: 'sourceChannel',
+  matchMethod: 'matchMethod',
+  confidenceScore: 'confidenceScore',
+  matchReason: 'matchReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CompanyMatchReviewScalarFieldEnum = {
+  reviewId: 'reviewId',
+  proposedCompanyId: 'proposedCompanyId',
+  proposedCompanyName: 'proposedCompanyName',
+  existingCompanyId: 'existingCompanyId',
+  existingCompanyName: 'existingCompanyName',
+  matchReason: 'matchReason',
+  confidenceScore: 'confidenceScore',
+  orderIds: 'orderIds',
+  status: 'status',
+  createdAt: 'createdAt',
+  reviewedAt: 'reviewedAt'
+};
+
+exports.Prisma.CompanyAssignmentAuditScalarFieldEnum = {
+  auditId: 'auditId',
+  actionType: 'actionType',
+  oldCompanyId: 'oldCompanyId',
+  newCompanyId: 'newCompanyId',
+  shopifyCustomerId: 'shopifyCustomerId',
+  shopifyOrderId: 'shopifyOrderId',
+  oldValue: 'oldValue',
+  newValue: 'newValue',
+  reason: 'reason',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.RecoveryActionOptionScalarFieldEnum = {
+  optionId: 'optionId',
+  label: 'label',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CompanyRecoveryActionScalarFieldEnum = {
+  recoveryActionId: 'recoveryActionId',
+  companyId: 'companyId',
+  actionLabel: 'actionLabel',
+  note: 'note',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CompanyMetricsMonthlyScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  canonicalCompanyName: 'canonicalCompanyName',
+  month: 'month',
+  ordersCount: 'ordersCount',
+  revenue: 'revenue',
+  averageOrderValue: 'averageOrderValue',
+  uniqueContacts: 'uniqueContacts',
+  firstOrderDate: 'firstOrderDate',
+  lastOrderDate: 'lastOrderDate',
+  lifetimeOrders: 'lifetimeOrders',
+  lifetimeRevenue: 'lifetimeRevenue',
+  monthsSinceLastOrder: 'monthsSinceLastOrder',
+  companyStatus: 'companyStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomerMetricsMonthlyScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  shopifyCustomerId: 'shopifyCustomerId',
+  customerEmail: 'customerEmail',
+  customerName: 'customerName',
+  month: 'month',
+  ordersCount: 'ordersCount',
+  revenue: 'revenue',
+  averageOrderValue: 'averageOrderValue',
+  firstOrderDate: 'firstOrderDate',
+  lastOrderDate: 'lastOrderDate',
+  lifetimeOrders: 'lifetimeOrders',
+  lifetimeRevenue: 'lifetimeRevenue',
+  monthsSinceLastOrder: 'monthsSinceLastOrder',
+  customerStatus: 'customerStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.ShopifyProductScalarFieldEnum = {
   id: 'id',
   shopifyProductId: 'shopifyProductId',
@@ -508,6 +790,7 @@ exports.Prisma.ShopifyProductScalarFieldEnum = {
   isPartyPackDefault: 'isPartyPackDefault',
   bundleDefaultItems: 'bundleDefaultItems',
   bakery: 'bakery',
+  dietaryMarker: 'dietaryMarker',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -548,6 +831,180 @@ exports.Prisma.EmailSettingScalarFieldEnum = {
   description: 'description',
   recipientEmail: 'recipientEmail',
   isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FulfillmentCommsSettingScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  title: 'title',
+  enabled: 'enabled',
+  triggerRules: 'triggerRules',
+  recentWindowDays: 'recentWindowDays',
+  selectedSenderKey: 'selectedSenderKey',
+  senderProfiles: 'senderProfiles',
+  emailSubject: 'emailSubject',
+  defaultBodyCopy: 'defaultBodyCopy',
+  testRecipientEmail: 'testRecipientEmail',
+  liveMode: 'liveMode',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DayPriorEmailSettingScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  title: 'title',
+  enabled: 'enabled',
+  sendHourNZ: 'sendHourNZ',
+  sendMinuteNZ: 'sendMinuteNZ',
+  selectedSenderKey: 'selectedSenderKey',
+  senderProfiles: 'senderProfiles',
+  regionalBodyCopy: 'regionalBodyCopy',
+  testRecipientEmail: 'testRecipientEmail',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderNotificationOptOutScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  reason: 'reason',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderNotificationSendLogScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  notificationDate: 'notificationDate',
+  notificationType: 'notificationType',
+  recipientEmail: 'recipientEmail',
+  senderEmail: 'senderEmail',
+  status: 'status',
+  errorMessage: 'errorMessage',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LifecycleCommsSettingScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  title: 'title',
+  enabled: 'enabled',
+  liveMode: 'liveMode',
+  automationEnabled: 'automationEnabled',
+  bulkSendingEnabled: 'bulkSendingEnabled',
+  requireAdminApproval: 'requireAdminApproval',
+  testRecipientEmail: 'testRecipientEmail',
+  selectedSenderKey: 'selectedSenderKey',
+  senderProfiles: 'senderProfiles',
+  emailTypeConfig: 'emailTypeConfig',
+  fallbackHeaderImagePath: 'fallbackHeaderImagePath',
+  rewardRuleConfig: 'rewardRuleConfig',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RewardCatalogScalarFieldEnum = {
+  rewardCatalogId: 'rewardCatalogId',
+  rewardName: 'rewardName',
+  rewardType: 'rewardType',
+  defaultCode: 'defaultCode',
+  codePrefix: 'codePrefix',
+  perceivedValue: 'perceivedValue',
+  estimatedActualCost: 'estimatedActualCost',
+  minimumSpend: 'minimumSpend',
+  expiryDays: 'expiryDays',
+  enabled: 'enabled',
+  eligibleEmailTypes: 'eligibleEmailTypes',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RewardIssueScalarFieldEnum = {
+  rewardIssueId: 'rewardIssueId',
+  companyId: 'companyId',
+  contactId: 'contactId',
+  rewardCatalogId: 'rewardCatalogId',
+  code: 'code',
+  status: 'status',
+  issuedAt: 'issuedAt',
+  expiryDate: 'expiryDate',
+  sourceType: 'sourceType',
+  sourceRuleKey: 'sourceRuleKey',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LifecycleEmailSendLogScalarFieldEnum = {
+  lifecycleEmailSendLogId: 'lifecycleEmailSendLogId',
+  companyId: 'companyId',
+  contactId: 'contactId',
+  orderId: 'orderId',
+  rewardIssueId: 'rewardIssueId',
+  emailType: 'emailType',
+  notificationDate: 'notificationDate',
+  recipientEmail: 'recipientEmail',
+  senderEmail: 'senderEmail',
+  status: 'status',
+  reason: 'reason',
+  metadata: 'metadata',
+  approvedBy: 'approvedBy',
+  approvedAt: 'approvedAt',
+  sendMode: 'sendMode',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PostPurchaseFollowupScalarFieldEnum = {
+  postPurchaseFollowupId: 'postPurchaseFollowupId',
+  orderId: 'orderId',
+  shopifyOrderId: 'shopifyOrderId',
+  companyId: 'companyId',
+  contactId: 'contactId',
+  status: 'status',
+  blockedReason: 'blockedReason',
+  selectedEmailType: 'selectedEmailType',
+  selectedRewardIssueId: 'selectedRewardIssueId',
+  selectedRewardCatalogId: 'selectedRewardCatalogId',
+  selectedVoucherTemplateId: 'selectedVoucherTemplateId',
+  lastActionAt: 'lastActionAt',
+  lastActionBy: 'lastActionBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PostPurchaseFollowupActionScalarFieldEnum = {
+  postPurchaseFollowupActionId: 'postPurchaseFollowupActionId',
+  postPurchaseFollowupId: 'postPurchaseFollowupId',
+  orderId: 'orderId',
+  actionType: 'actionType',
+  actionStatus: 'actionStatus',
+  emailType: 'emailType',
+  rewardIssueId: 'rewardIssueId',
+  rewardCatalogId: 'rewardCatalogId',
+  reason: 'reason',
+  metadata: 'metadata',
+  actedBy: 'actedBy',
+  actedAt: 'actedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DayPriorOrderOverrideScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  notificationDate: 'notificationDate',
+  overrideRecipientEmail: 'overrideRecipientEmail',
+  excluded: 'excluded',
+  reason: 'reason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -697,6 +1154,150 @@ exports.Prisma.JobEventScalarFieldEnum = {
   timestamp: 'timestamp'
 };
 
+exports.Prisma.FcpPlanScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  name: 'name',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FcpCardScalarFieldEnum = {
+  id: 'id',
+  planId: 'planId',
+  code: 'code',
+  title: 'title',
+  colourGroup: 'colourGroup',
+  applies: 'applies',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FcpRuleScalarFieldEnum = {
+  id: 'id',
+  cardId: 'cardId',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  triggerType: 'triggerType',
+  frequency: 'frequency',
+  severity: 'severity',
+  isActive: 'isActive',
+  config: 'config',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FcpAssetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  code: 'code',
+  location: 'location',
+  isActive: 'isActive',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FcpTaskScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  status: 'status',
+  dueAt: 'dueAt',
+  assignedToId: 'assignedToId',
+  orderId: 'orderId',
+  assetId: 'assetId',
+  incidentId: 'incidentId',
+  context: 'context',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FcpRecordTypeScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  schema: 'schema',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FcpRecordScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  recordTypeId: 'recordTypeId',
+  taskId: 'taskId',
+  assetId: 'assetId',
+  orderId: 'orderId',
+  status: 'status',
+  data: 'data',
+  recordedById: 'recordedById',
+  recordedAt: 'recordedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FcpIncidentScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  assetId: 'assetId',
+  orderId: 'orderId',
+  title: 'title',
+  description: 'description',
+  severity: 'severity',
+  status: 'status',
+  openedAt: 'openedAt',
+  resolvedAt: 'resolvedAt',
+  closedAt: 'closedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FcpPeriodicCleaningTaskScalarFieldEnum = {
+  id: 'id',
+  taskName: 'taskName',
+  area: 'area',
+  notes: 'notes',
+  frequency: 'frequency',
+  isActive: 'isActive',
+  applyToCars: 'applyToCars',
+  applyToAssetType: 'applyToAssetType',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  lastGeneratedAt: 'lastGeneratedAt'
+};
+
+exports.Prisma.FcpContactScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  companyName: 'companyName',
+  contactPerson: 'contactPerson',
+  website: 'website',
+  about: 'about',
+  phoneNumber: 'phoneNumber',
+  email: 'email',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CalendarDayAlertScalarFieldEnum = {
+  id: 'id',
+  region: 'region',
+  date: 'date',
+  message: 'message',
+  createdByEmail: 'createdByEmail',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  dismissedAt: 'dismissedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -716,15 +1317,15 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
 };
 exports.SmsTemplateType = exports.$Enums.SmsTemplateType = {
   delivery: 'delivery',
@@ -738,11 +1339,153 @@ exports.DeliveryDateResolvedSource = exports.$Enums.DeliveryDateResolvedSource =
   CREATED_AT: 'CREATED_AT'
 };
 
+exports.CompanyMatchMethod = exports.$Enums.CompanyMatchMethod = {
+  DOMAIN_EXACT: 'DOMAIN_EXACT',
+  NAME_EXACT: 'NAME_EXACT',
+  NAME_AND_ADDRESS: 'NAME_AND_ADDRESS',
+  DOMAIN_AND_ADDRESS: 'DOMAIN_AND_ADDRESS',
+  ADDRESS_EXACT: 'ADDRESS_EXACT',
+  FUZZY: 'FUZZY',
+  MANUAL_OVERRIDE: 'MANUAL_OVERRIDE'
+};
+
+exports.CompanyReviewStatus = exports.$Enums.CompanyReviewStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected'
+};
+
+exports.CompanyAssignmentActionType = exports.$Enums.CompanyAssignmentActionType = {
+  rename_company: 'rename_company',
+  mark_domain_generic: 'mark_domain_generic',
+  reassign_contact: 'reassign_contact',
+  reassign_order: 'reassign_order',
+  merge_company: 'merge_company',
+  split_company: 'split_company',
+  mark_private: 'mark_private'
+};
+
+exports.PostPurchaseFollowupStatus = exports.$Enums.PostPurchaseFollowupStatus = {
+  pending_review: 'pending_review',
+  previewed: 'previewed',
+  test_sent: 'test_sent',
+  sent: 'sent',
+  skipped: 'skipped',
+  no_followup: 'no_followup',
+  completed: 'completed',
+  blocked: 'blocked'
+};
+
+exports.PostPurchaseFollowupActionType = exports.$Enums.PostPurchaseFollowupActionType = {
+  previewed: 'previewed',
+  test_sent: 'test_sent',
+  send_attempted: 'send_attempted',
+  sent: 'sent',
+  skipped: 'skipped',
+  no_followup: 'no_followup',
+  marked_blocked: 'marked_blocked',
+  marked_fulfilled: 'marked_fulfilled',
+  reward_selected: 'reward_selected',
+  reward_issued: 'reward_issued',
+  strategic_marked: 'strategic_marked'
+};
+
+exports.FcpPlanStatus = exports.$Enums.FcpPlanStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  ARCHIVED: 'ARCHIVED'
+};
+
+exports.FcpCardGroup = exports.$Enums.FcpCardGroup = {
+  STARTING: 'STARTING',
+  PREPARING: 'PREPARING',
+  MAKING_COOKING: 'MAKING_COOKING',
+  CLOSING: 'CLOSING',
+  TROUBLESHOOTING: 'TROUBLESHOOTING'
+};
+
+exports.FcpTriggerType = exports.$Enums.FcpTriggerType = {
+  STAFF_BASED: 'STAFF_BASED',
+  EQUIPMENT_BASED: 'EQUIPMENT_BASED',
+  MANUAL: 'MANUAL',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  ORDER_BASED: 'ORDER_BASED',
+  INCIDENT_BASED: 'INCIDENT_BASED'
+};
+
+exports.FcpFrequency = exports.$Enums.FcpFrequency = {
+  DAILY: 'DAILY',
+  CLOSING: 'CLOSING',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  SIX_MONTHLY: 'SIX_MONTHLY',
+  PER_BATCH: 'PER_BATCH',
+  PER_ORDER: 'PER_ORDER',
+  PER_DELIVERY: 'PER_DELIVERY'
+};
+
+exports.FcpSeverity = exports.$Enums.FcpSeverity = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+};
+
+exports.FcpAssetType = exports.$Enums.FcpAssetType = {
+  FRIDGE: 'FRIDGE',
+  FREEZER: 'FREEZER',
+  THERMOMETER: 'THERMOMETER',
+  EQUIPMENT: 'EQUIPMENT',
+  OTHER: 'OTHER'
+};
+
+exports.FcpTaskStatus = exports.$Enums.FcpTaskStatus = {
+  OPEN: 'OPEN',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  SKIPPED: 'SKIPPED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.FcpRecordStatus = exports.$Enums.FcpRecordStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
+exports.FcpIncidentStatus = exports.$Enums.FcpIncidentStatus = {
+  OPEN: 'OPEN',
+  INVESTIGATING: 'INVESTIGATING',
+  RESOLVED: 'RESOLVED',
+  CLOSED: 'CLOSED'
+};
+
+exports.FcpPeriodicFrequency = exports.$Enums.FcpPeriodicFrequency = {
+  WEEKLY: 'WEEKLY',
+  FORTNIGHTLY: 'FORTNIGHTLY',
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY'
+};
+
+exports.FcpContactType = exports.$Enums.FcpContactType = {
+  SUPPLIER: 'SUPPLIER',
+  MAINTENANCE: 'MAINTENANCE',
+  PEST_CONTROL: 'PEST_CONTROL',
+  VERIFIER: 'VERIFIER',
+  COUNCIL: 'COUNCIL',
+  MPI: 'MPI',
+  OTHER: 'OTHER'
+};
+
 exports.Prisma.ModelName = {
   SmsTemplate: 'SmsTemplate',
   GilmoursProduct: 'GilmoursProduct',
   BidfoodProduct: 'BidfoodProduct',
   OtherProduct: 'OtherProduct',
+  ProduceCoProduct: 'ProduceCoProduct',
   Supplier: 'Supplier',
   Component: 'Component',
   ComponentImage: 'ComponentImage',
@@ -753,17 +1496,45 @@ exports.Prisma.ModelName = {
   Staff: 'Staff',
   ShiftType: 'ShiftType',
   Shift: 'Shift',
+  StaffLocationPing: 'StaffLocationPing',
   ShiftTask: 'ShiftTask',
   RosterAssignment: 'RosterAssignment',
   RosterAssignmentTask: 'RosterAssignmentTask',
   Reimbursement: 'Reimbursement',
+  PayrollRun: 'PayrollRun',
+  XeroConnection: 'XeroConnection',
+  XeroPayrollConfig: 'XeroPayrollConfig',
   Order: 'Order',
+  OrderChangeLog: 'OrderChangeLog',
   ShopifyOrder: 'ShopifyOrder',
   ParsedOrder: 'ParsedOrder',
   ParsedLineItem: 'ParsedLineItem',
+  RawShopifyOrder: 'RawShopifyOrder',
+  RawShopifyCustomer: 'RawShopifyCustomer',
+  Company: 'Company',
+  GenericDomain: 'GenericDomain',
+  CompanyContact: 'CompanyContact',
+  CompanyOrder: 'CompanyOrder',
+  CompanyMatchReview: 'CompanyMatchReview',
+  CompanyAssignmentAudit: 'CompanyAssignmentAudit',
+  RecoveryActionOption: 'RecoveryActionOption',
+  CompanyRecoveryAction: 'CompanyRecoveryAction',
+  CompanyMetricsMonthly: 'CompanyMetricsMonthly',
+  CustomerMetricsMonthly: 'CustomerMetricsMonthly',
   ShopifyProduct: 'ShopifyProduct',
   ProductVariant: 'ProductVariant',
   EmailSetting: 'EmailSetting',
+  FulfillmentCommsSetting: 'FulfillmentCommsSetting',
+  DayPriorEmailSetting: 'DayPriorEmailSetting',
+  OrderNotificationOptOut: 'OrderNotificationOptOut',
+  OrderNotificationSendLog: 'OrderNotificationSendLog',
+  LifecycleCommsSetting: 'LifecycleCommsSetting',
+  RewardCatalog: 'RewardCatalog',
+  RewardIssue: 'RewardIssue',
+  LifecycleEmailSendLog: 'LifecycleEmailSendLog',
+  PostPurchaseFollowup: 'PostPurchaseFollowup',
+  PostPurchaseFollowupAction: 'PostPurchaseFollowupAction',
+  DayPriorOrderOverride: 'DayPriorOrderOverride',
   WLGMessage: 'WLGMessage',
   CartItem: 'CartItem',
   StockItem: 'StockItem',
@@ -775,7 +1546,18 @@ exports.Prisma.ModelName = {
   DataDriverApplication: 'DataDriverApplication',
   DeliveryJob: 'DeliveryJob',
   JobOffer: 'JobOffer',
-  JobEvent: 'JobEvent'
+  JobEvent: 'JobEvent',
+  FcpPlan: 'FcpPlan',
+  FcpCard: 'FcpCard',
+  FcpRule: 'FcpRule',
+  FcpAsset: 'FcpAsset',
+  FcpTask: 'FcpTask',
+  FcpRecordType: 'FcpRecordType',
+  FcpRecord: 'FcpRecord',
+  FcpIncident: 'FcpIncident',
+  FcpPeriodicCleaningTask: 'FcpPeriodicCleaningTask',
+  FcpContact: 'FcpContact',
+  CalendarDayAlert: 'CalendarDayAlert'
 };
 
 /**

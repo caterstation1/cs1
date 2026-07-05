@@ -23,57 +23,88 @@ model SmsTemplate {
 }
 
 model GilmoursProduct {
-  id          String   @id @default(cuid())
-  sku         String   @unique
-  brand       String
-  description String
-  packSize    String
-  uom         String
-  price       Float
-  quantity    Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  sku                String   @unique
+  brand              String
+  description        String
+  isPreferred        Boolean  @default(false)
+  preferredReference String?
+  preferredAllergens String[] @default([])
+  packSize           String
+  uom                String
+  price              Float
+  quantity           Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model BidfoodProduct {
-  id            String   @id @default(uuid())
-  productCode   String   @unique
-  brand         String
-  description   String
-  packSize      String
-  ctnQty        String
-  uom           String
-  qty           Int
-  lastPricePaid Float
-  totalExGST    Float
-  contains      String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                 String   @id @default(uuid())
+  productCode        String   @unique
+  brand              String
+  description        String
+  isPreferred        Boolean  @default(false)
+  preferredReference String?
+  preferredAllergens String[] @default([])
+  packSize           String
+  ctnQty             String
+  uom                String
+  qty                Int
+  lastPricePaid      Float
+  totalExGST         Float
+  contains           String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model OtherProduct {
-  id             String   @id @default(uuid())
-  name           String
-  supplier       String
-  description    String
-  cost           Float
+  id                 String   @id @default(uuid())
+  name               String
+  supplier           String
+  description        String
+  isPreferred        Boolean  @default(false)
+  preferredReference String?
+  preferredAllergens String[] @default([])
+  listOnLabel        Boolean  @default(false)
+  isVegetarian       Boolean  @default(false)
+  isVegan            Boolean  @default(false)
+  isHalal            Boolean  @default(false)
+  cost               Float
   // Operational grouping for prep/runsheet (multiple categories supported)
-  prepCategory   String? // Legacy single category field
-  prepCategories Json? // New multiple categories field (array of strings)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  prepCategory       String? // Legacy single category field
+  prepCategories     Json? // New multiple categories field (array of strings)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model ProduceCoProduct {
+  id                 String   @id @default(uuid())
+  productCode        String   @unique
+  productName        String
+  totalUnits         Int
+  totalSales         Float
+  price              Float
+  isPreferred        Boolean  @default(false)
+  preferredReference String?
+  preferredAllergens String[] @default([])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model Supplier {
-  id            String      @id @default(uuid())
-  name          String      @unique
-  contactName   String?
-  contactNumber String?
-  contactEmail  String?
-  emailSettings Json? // Email preferences: { bakery: { enabled: boolean, autoSend: boolean } }
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  stockItems    StockItem[]
+  id               String      @id @default(uuid())
+  name             String      @unique
+  contactName      String?
+  contactNumber    String?
+  contactEmail     String?
+  mpiNumber        String?
+  accountNumber    String?
+  loginAccessLevel String?     @default("bakery")
+  password         String?
+  emailSettings    Json? // Email preferences: { bakery: { enabled: boolean, autoSend: boolean } }
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  stockItems       StockItem[]
 }
 
 model Component {
@@ -236,24 +267,36 @@ model ProductRule {
 }
 
 model Staff {
-  id                String             @id @default(uuid())
-  firstName         String
-  lastName          String
-  phone             String
-  email             String             @unique
-  payRate           Float
-  accessLevel       String // staff, manager, admin, owner
-  isDriver          Boolean            @default(false)
-  isActive          Boolean            @default(true)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  lastLogin         DateTime?
-  password          String?
-  resetToken        String?            @unique
-  resetTokenExpiry  DateTime?
-  shifts            Shift[]
-  rosterAssignments RosterAssignment[]
-  wlgMessages       WLGMessage[]       @relation("MessageCreator")
+  id                         String              @id @default(uuid())
+  firstName                  String
+  lastName                   String
+  phone                      String
+  email                      String              @unique
+  payRate                    Float
+  accessLevel                String // staff, manager, admin, owner
+  isDriver                   Boolean             @default(false)
+  isActive                   Boolean             @default(true)
+  includeInOpsLabour         Boolean             @default(true) // Counted in operational labour costs (off for admin/overhead staff)
+  xeroEmployeeId             String? // Xero Payroll Employee UUID
+  payMode                    String? // CLOCKED | FIXED_WEEKLY_HOURS
+  fixedWeeklyHours           Float? // For FIXED_WEEKLY_HOURS staff
+  dateOfBirth                DateTime? // For Xero payroll (required by Xero)
+  addressLine1               String? // For Xero payroll
+  addressCity                String? // For Xero payroll
+  addressPostCode            String? // For Xero payroll
+  createdAt                  DateTime            @default(now())
+  updatedAt                  DateTime            @updatedAt
+  lastLogin                  DateTime?
+  password                   String?
+  resetToken                 String?             @unique
+  resetTokenExpiry           DateTime?
+  latestFoodSafetyQuizStatus String?
+  latestScore                Int?
+  latestCompletedAt          DateTime?
+  shifts                     Shift[]
+  locationPings              StaffLocationPing[]
+  rosterAssignments          RosterAssignment[]
+  wlgMessages                WLGMessage[]        @relation("MessageCreator")
 }
 
 // New: Shift Types for roster management
@@ -271,23 +314,50 @@ model ShiftType {
 
 // Enhanced: Shift model (existing but with new fields)
 model Shift {
-  id             String          @id @default(uuid())
-  staffId        String
-  clockIn        DateTime
-  clockOut       DateTime?
-  totalHours     Float?
-  date           DateTime
-  mileage        Float? // Kilometers driven
-  notes          String? // Staff notes about the shift
-  status         String          @default("active") // active, completed, edited
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  staff          Staff           @relation(fields: [staffId], references: [id])
-  reimbursements Reimbursement[]
-  tasks          ShiftTask[]
+  id                 String              @id @default(uuid())
+  staffId            String
+  clockIn            DateTime
+  clockOut           DateTime?
+  totalHours         Float?
+  date               DateTime
+  mileage            Float? // Kilometers driven
+  notes              String? // Staff notes about the shift
+  status             String              @default("active") // active, completed, edited
+  approved           Boolean             @default(false) // For payroll: must be approved to include
+  approvedAt         DateTime?
+  approvedBy         String? // Staff ID who approved
+  trackingAllowed    Boolean             @default(false)
+  trackingStartedAt  DateTime?
+  trackingStoppedAt  DateTime?
+  lastLocationPingAt DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  staff              Staff               @relation(fields: [staffId], references: [id])
+  reimbursements     Reimbursement[]
+  tasks              ShiftTask[]
+  locationPings      StaffLocationPing[]
 
   @@index([staffId])
+  @@index([staffId, clockOut, status])
   @@index([date])
+}
+
+model StaffLocationPing {
+  id         String   @id @default(uuid())
+  staffId    String
+  shiftId    String
+  latitude   Float
+  longitude  Float
+  accuracy   Float?
+  speed      Float?
+  heading    Float?
+  capturedAt DateTime
+  createdAt  DateTime @default(now())
+  staff      Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  shift      Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+  @@index([shiftId, capturedAt])
+  @@index([staffId, capturedAt])
 }
 
 // New: Shift Tasks
@@ -352,50 +422,89 @@ model Reimbursement {
   @@index([shiftId])
 }
 
+// Payroll run tracking (for auditing and duplicate prevention)
+model PayrollRun {
+  id             String    @id @default(uuid())
+  payPeriodStart String // YYYY-MM-DD (Monday)
+  payPeriodEnd   String // YYYY-MM-DD (Sunday)
+  xeroPayrunId   String? // After Xero create
+  createdBy      String // Staff ID
+  createdAt      DateTime  @default(now())
+  postedAt       DateTime? // When posted in Xero
+  status         String // draft | posted | failed
+  inputSnapshot  Json // { staffId: { hours, mileage, mileageDollars, reimbursements } }
+}
+
+// Xero OAuth token storage (one row per connected org)
+model XeroConnection {
+  id         String   @id @default(uuid())
+  tenantId   String   @unique // Xero organisation ID
+  tenantName String?
+  tokenSet   Json // { access_token, refresh_token, expires_at, ... }
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+}
+
+// Xero payroll config (single row, tenant + earnings rate mappings)
+model XeroPayrollConfig {
+  id                          String   @id @default(uuid())
+  tenantId                    String   @unique // Xero organisation ID
+  earningsRateIdOrdinaryHours String? // Xero earnings rate for ordinary hours
+  earningsRateIdReimbursement String? // Xero pay item for reimbursements
+  earningsRateIdMileage       String? // Xero pay item for mileage (may be $-only)
+  payrollCalendarId           String? // Xero payrun calendar ID
+  defaultMileageRate          Float    @default(0.80) // $ per km
+  updatedAt                   DateTime @updatedAt
+  createdAt                   DateTime @default(now())
+}
+
 model Order {
-  id                   String    @id @default(uuid())
-  shopifyId            String    @unique
-  orderNumber          Int
-  createdAt            DateTime
-  updatedAt            DateTime
-  processedAt          DateTime?
-  cancelledAt          DateTime?
-  closedAt             DateTime?
-  totalPrice           Float
-  subtotalPrice        Float
-  totalTax             Float
-  currency             String
-  financialStatus      String
-  fulfillmentStatus    String?
-  tags                 String?
-  note                 String?
-  customerEmail        String
-  customerFirstName    String
-  customerLastName     String
-  customerPhone        String?
-  shippingAddress      Json?
-  billingAddress       Json?
-  lineItems            Json
-  source               String    @default("shopify")
-  hasLocalEdits        Boolean   @default(false)
-  syncedAt             DateTime  @default(now())
-  dbCreatedAt          DateTime  @default(now())
-  dbUpdatedAt          DateTime  @updatedAt
-  noteAttributes       Json?
-  deliveryDate         String?
-  deliveryTime         String?
-  pickupDate           String?
-  pickupTime           String?
-  deliveryInstructions String?
-  travelTime           String?
-  leaveTime            String?
-  driverId             String?
+  id                    String    @id @default(uuid())
+  shopifyId             String    @unique
+  orderNumber           Int
+  createdAt             DateTime
+  updatedAt             DateTime
+  processedAt           DateTime?
+  cancelledAt           DateTime?
+  closedAt              DateTime?
+  totalPrice            Float
+  subtotalPrice         Float
+  totalTax              Float
+  currency              String
+  financialStatus       String
+  fulfillmentStatus     String?
+  tags                  String?
+  note                  String?
+  customerEmail         String
+  customerFirstName     String
+  customerLastName      String
+  customerPhone         String?
+  shippingAddress       Json?
+  billingAddress        Json?
+  lineItems             Json
+  source                String    @default("shopify")
+  hasLocalEdits         Boolean   @default(false)
+  syncedAt              DateTime  @default(now())
+  dbCreatedAt           DateTime  @default(now())
+  dbUpdatedAt           DateTime  @updatedAt
+  noteAttributes        Json?
+  deliveryDate          String?
+  deliveryTime          String?
+  pickupDate            String?
+  pickupTime            String?
+  deliveryInstructions  String?
+  travelTime            String?
+  leaveTime             String?
+  driverId              String?
   /// Optional assigned delivery vehicle (references Car.id; no FK to keep writes simple, similar to driverId)
-  carId                String?
-  isDispatched         Boolean   @default(false)
-  lastSmsSent          DateTime?
-  smsHistory           Json?
-  internalNote         String?
+  carId                 String?
+  isDispatched          Boolean   @default(false)
+  lastSmsSent           DateTime?
+  smsHistory            Json?
+  internalNote          String?
+  customerNote          String?
+  /// Staff-authored message included in app-sent fulfillment confirmation email to the customer
+  fulfillmentClientNote String?
 
   // Resolved delivery day in Auckland-local calendar (DATE in DB)
   deliveryDateResolved       DateTime?                   @db.Date
@@ -405,8 +514,10 @@ model Order {
   // New canonical scheduling fields (for fast calendar queries)
   deliveryDateTime      DateTime? // Canonical datetime used for calendar + ops (indexed)
   deliveryDateSource    String? // Source: field|noteAttributes|tags|createdAtFallback|unknown
-  needsSchedulingReview Boolean   @default(false) // True if deliveryDateTime missing/invalid
+  needsSchedulingReview Boolean               @default(false) // True if deliveryDateTime missing/invalid
   region                String? // Canonical region: AKL|WLG|OTHER (indexed)
+  orderChangeLogs       OrderChangeLog[]
+  postPurchaseFollowup  PostPurchaseFollowup?
 
   @@index([orderNumber])
   @@index([createdAt])
@@ -414,6 +525,23 @@ model Order {
   @@index([deliveryDateResolved])
   @@index([region, deliveryDateTime])
   @@index([needsSchedulingReview])
+}
+
+model OrderChangeLog {
+  id              String   @id @default(uuid())
+  orderId         String
+  action          String
+  changedAt       DateTime @default(now())
+  changedByUserId String?
+  changedByName   String?
+  changedByEmail  String?
+  changes         Json
+  source          String?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, changedAt])
+  @@index([changedByUserId, changedAt])
 }
 
 model ShopifyOrder {
@@ -479,6 +607,306 @@ model ParsedLineItem {
   @@index([sku])
 }
 
+enum CompanyMatchMethod {
+  DOMAIN_EXACT
+  NAME_EXACT
+  NAME_AND_ADDRESS
+  DOMAIN_AND_ADDRESS
+  ADDRESS_EXACT
+  FUZZY
+  MANUAL_OVERRIDE
+}
+
+enum CompanyReviewStatus {
+  pending
+  approved
+  rejected
+}
+
+enum CompanyAssignmentActionType {
+  rename_company
+  mark_domain_generic
+  reassign_contact
+  reassign_order
+  merge_company
+  split_company
+  mark_private
+}
+
+model RawShopifyOrder {
+  id               String   @id @default(cuid())
+  shopifyOrderId   String   @unique
+  shopifyOrderName String?
+  payload          Json
+  fetchedAt        DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([fetchedAt])
+  @@map("raw_shopify_orders")
+}
+
+model RawShopifyCustomer {
+  id                String   @id @default(cuid())
+  shopifyCustomerId String   @unique
+  email             String?
+  payload           Json
+  fetchedAt         DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([email])
+  @@index([fetchedAt])
+  @@map("raw_shopify_customers")
+}
+
+model Company {
+  companyId             String                   @id @default(cuid()) @map("company_id")
+  canonicalCompanyName  String                   @map("canonical_company_name")
+  companyNameVariants   String[]                 @default([]) @map("company_name_variants")
+  primaryDomain         String?                  @map("primary_domain")
+  alternateDomains      String[]                 @default([]) @map("alternate_domains")
+  primaryAddress        Json?                    @map("primary_address")
+  city                  String?
+  region                String?
+  country               String?
+  confidenceScore       Int                      @default(0) @map("confidence_score")
+  totalOrders           Int                      @default(0) @map("total_orders")
+  totalRevenue          Float                    @default(0) @map("total_revenue")
+  firstOrderDate        DateTime?                @map("first_order_date")
+  lastOrderDate         DateTime?                @map("last_order_date")
+  isStrategicOverride   Boolean?                 @map("is_strategic_override")
+  isVipOverride         Boolean?                 @map("is_vip_override")
+  lifecyclePausedUntil  DateTime?                @map("lifecycle_paused_until")
+  lifecycleOverrideNote String?                  @map("lifecycle_override_note")
+  createdAt             DateTime                 @default(now()) @map("created_at")
+  updatedAt             DateTime                 @updatedAt @map("updated_at")
+  contacts              CompanyContact[]
+  companyOrders         CompanyOrder[]
+  metricsMonthly        CompanyMetricsMonthly[]
+  reviewProposals       CompanyMatchReview[]     @relation("proposed_company")
+  reviewCandidates      CompanyMatchReview[]     @relation("existing_company")
+  assignmentAuditsOld   CompanyAssignmentAudit[] @relation("audit_old_company")
+  assignmentAuditsNew   CompanyAssignmentAudit[] @relation("audit_new_company")
+  recoveryActions       CompanyRecoveryAction[]
+  lifecycleEmailLogs    LifecycleEmailSendLog[]
+  rewardIssues          RewardIssue[]
+  postPurchaseFollowups PostPurchaseFollowup[]
+
+  @@index([canonicalCompanyName])
+  @@index([primaryDomain])
+  @@index([lastOrderDate])
+  @@map("companies")
+}
+
+model GenericDomain {
+  domain    String   @id
+  reason    String?
+  addedBy   String?  @map("added_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("generic_domains")
+}
+
+model CompanyContact {
+  contactId             String                  @id @default(cuid()) @map("contact_id")
+  companyId             String                  @map("company_id")
+  shopifyCustomerId     String?                 @map("shopify_customer_id")
+  firstName             String?                 @map("first_name")
+  lastName              String?                 @map("last_name")
+  email                 String?
+  phone                 String?
+  role                  String?
+  firstOrderDate        DateTime?               @map("first_order_date")
+  lastOrderDate         DateTime?               @map("last_order_date")
+  totalOrders           Int                     @default(0) @map("total_orders")
+  totalSpend            Float                   @default(0) @map("total_spend")
+  isPrimaryContact      Boolean                 @default(false) @map("is_primary_contact")
+  lifecycleOptOut       Boolean                 @default(false) @map("lifecycle_opt_out")
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @updatedAt @map("updated_at")
+  company               Company                 @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
+  lifecycleEmailLogs    LifecycleEmailSendLog[]
+  rewardIssues          RewardIssue[]
+  postPurchaseFollowups PostPurchaseFollowup[]
+
+  @@unique([companyId, email])
+  @@index([companyId])
+  @@index([shopifyCustomerId])
+  @@index([email])
+  @@map("company_contacts")
+}
+
+enum PostPurchaseFollowupStatus {
+  pending_review
+  previewed
+  test_sent
+  sent
+  skipped
+  no_followup
+  completed
+  blocked
+}
+
+enum PostPurchaseFollowupActionType {
+  previewed
+  test_sent
+  send_attempted
+  sent
+  skipped
+  no_followup
+  marked_blocked
+  marked_fulfilled
+  reward_selected
+  reward_issued
+  strategic_marked
+}
+
+model CompanyOrder {
+  companyOrderId    String             @id @default(cuid()) @map("company_order_id")
+  companyId         String             @map("company_id")
+  shopifyOrderId    String             @map("shopify_order_id")
+  shopifyCustomerId String?            @map("shopify_customer_id")
+  orderDate         DateTime           @map("order_date")
+  orderTotal        Float              @default(0) @map("order_total")
+  orderSubtotal     Float              @default(0) @map("order_subtotal")
+  discounts         Float              @default(0)
+  refunds           Float              @default(0)
+  products          Json?
+  deliveryAddress   Json?              @map("delivery_address")
+  billingAddress    Json?              @map("billing_address")
+  sourceChannel     String?            @map("source_channel")
+  matchMethod       CompanyMatchMethod @map("match_method")
+  confidenceScore   Int                @default(0) @map("confidence_score")
+  matchReason       String?            @map("match_reason")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  company           Company            @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
+
+  @@unique([companyId, shopifyOrderId])
+  @@unique([shopifyOrderId])
+  @@index([companyId, orderDate])
+  @@index([shopifyCustomerId])
+  @@map("company_orders")
+}
+
+model CompanyMatchReview {
+  reviewId            String              @id @default(cuid()) @map("review_id")
+  proposedCompanyId   String?             @map("proposed_company_id")
+  proposedCompanyName String              @map("proposed_company_name")
+  existingCompanyId   String?             @map("existing_company_id")
+  existingCompanyName String?             @map("existing_company_name")
+  matchReason         String              @map("match_reason")
+  confidenceScore     Int                 @map("confidence_score")
+  orderIds            Json                @map("order_ids")
+  status              CompanyReviewStatus @default(pending)
+  createdAt           DateTime            @default(now()) @map("created_at")
+  reviewedAt          DateTime?           @map("reviewed_at")
+  proposedCompany     Company?            @relation("proposed_company", fields: [proposedCompanyId], references: [companyId], onDelete: SetNull)
+  existingCompany     Company?            @relation("existing_company", fields: [existingCompanyId], references: [companyId], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([confidenceScore])
+  @@map("company_match_review")
+}
+
+model CompanyAssignmentAudit {
+  auditId           String                      @id @default(cuid()) @map("audit_id")
+  actionType        CompanyAssignmentActionType @map("action_type")
+  oldCompanyId      String?                     @map("old_company_id")
+  newCompanyId      String?                     @map("new_company_id")
+  shopifyCustomerId String?                     @map("shopify_customer_id")
+  shopifyOrderId    String?                     @map("shopify_order_id")
+  oldValue          Json?                       @map("old_value")
+  newValue          Json?                       @map("new_value")
+  reason            String?
+  createdBy         String?                     @map("created_by")
+  createdAt         DateTime                    @default(now()) @map("created_at")
+  oldCompany        Company?                    @relation("audit_old_company", fields: [oldCompanyId], references: [companyId], onDelete: SetNull)
+  newCompany        Company?                    @relation("audit_new_company", fields: [newCompanyId], references: [companyId], onDelete: SetNull)
+
+  @@index([actionType, createdAt])
+  @@index([oldCompanyId])
+  @@index([newCompanyId])
+  @@index([shopifyCustomerId])
+  @@index([shopifyOrderId])
+  @@map("company_assignment_audit")
+}
+
+model RecoveryActionOption {
+  optionId  String   @id @default(cuid()) @map("option_id")
+  label     String   @unique
+  createdBy String?  @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("recovery_action_options")
+}
+
+model CompanyRecoveryAction {
+  recoveryActionId String   @id @default(cuid()) @map("recovery_action_id")
+  companyId        String   @map("company_id")
+  actionLabel      String   @map("action_label")
+  note             String?
+  createdBy        String?  @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+  company          Company  @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
+
+  @@index([companyId, createdAt])
+  @@index([actionLabel])
+  @@map("company_recovery_actions")
+}
+
+model CompanyMetricsMonthly {
+  id                   String    @id @default(cuid())
+  companyId            String    @map("company_id")
+  canonicalCompanyName String    @map("canonical_company_name")
+  month                DateTime  @db.Date
+  ordersCount          Int       @default(0) @map("orders_count")
+  revenue              Float     @default(0)
+  averageOrderValue    Float     @default(0) @map("average_order_value")
+  uniqueContacts       Int       @default(0) @map("unique_contacts")
+  firstOrderDate       DateTime? @map("first_order_date")
+  lastOrderDate        DateTime? @map("last_order_date")
+  lifetimeOrders       Int       @default(0) @map("lifetime_orders")
+  lifetimeRevenue      Float     @default(0) @map("lifetime_revenue")
+  monthsSinceLastOrder Int?      @map("months_since_last_order")
+  companyStatus        String    @map("company_status")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  company              Company   @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
+
+  @@unique([companyId, month])
+  @@index([month])
+  @@index([companyStatus])
+  @@map("company_metrics_monthly")
+}
+
+model CustomerMetricsMonthly {
+  id                   String    @id @default(cuid())
+  companyId            String?   @map("company_id")
+  shopifyCustomerId    String?   @map("shopify_customer_id")
+  customerEmail        String?   @map("customer_email")
+  customerName         String?   @map("customer_name")
+  month                DateTime  @db.Date
+  ordersCount          Int       @default(0) @map("orders_count")
+  revenue              Float     @default(0)
+  averageOrderValue    Float     @default(0) @map("average_order_value")
+  firstOrderDate       DateTime? @map("first_order_date")
+  lastOrderDate        DateTime? @map("last_order_date")
+  lifetimeOrders       Int       @default(0) @map("lifetime_orders")
+  lifetimeRevenue      Float     @default(0) @map("lifetime_revenue")
+  monthsSinceLastOrder Int?      @map("months_since_last_order")
+  customerStatus       String    @map("customer_status")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  @@unique([shopifyCustomerId, customerEmail, month])
+  @@index([month])
+  @@index([companyId])
+  @@index([customerEmail])
+  @@map("customer_metrics_monthly")
+}
+
 // New Product Architecture
 model ShopifyProduct {
   id                 String   @id @default(cuid())
@@ -494,6 +922,7 @@ model ShopifyProduct {
   isPartyPackDefault Boolean  @default(false)
   bundleDefaultItems Json?
   bakery             Boolean  @default(false) // Bakery product flag
+  dietaryMarker      String? // Internal dietary card marker (B, W, O, Y, Pi, Pu)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -554,6 +983,235 @@ model EmailSetting {
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+// Fulfillment confirmation email + Admin S milestone triggers (single row)
+model FulfillmentCommsSetting {
+  id                 String   @id @default(uuid())
+  key                String   @unique // e.g. FULFILLMENT_COMMS
+  title              String
+  enabled            Boolean  @default(true)
+  /// [{ id, metric: orders|spent, threshold: number, suggestedRebate: string }]
+  triggerRules       Json     @default("[]")
+  recentWindowDays   Int      @default(7)
+  selectedSenderKey  String?
+  senderProfiles     Json?
+  emailSubject       String?
+  /// Newline or JSON array of paragraphs — stored as string; parsed in app
+  defaultBodyCopy    String?
+  testRecipientEmail String?
+  /// When false, fulfillment emails go only to testRecipientEmail
+  liveMode           Boolean  @default(false)
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Day-prior customer order notification settings (single-row style, extensible for future regions)
+model DayPriorEmailSetting {
+  id                 String   @id @default(uuid())
+  key                String   @unique // e.g., "DAY_PRIOR_ORDER_NOTIFICATIONS"
+  title              String
+  enabled            Boolean  @default(false)
+  sendHourNZ         Int      @default(15) // 3 PM NZ local
+  sendMinuteNZ       Int      @default(0)
+  selectedSenderKey  String? // key in senderProfiles json
+  senderProfiles     Json? // [{ key, label, fromName, fromEmail, replyTo }]
+  regionalBodyCopy   Json? // { auckland?: string, wlg?: string } newline-separated paragraphs
+  testRecipientEmail String?
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Global opt-out store for order-notification emails.
+model OrderNotificationOptOut {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  reason    String?
+  source    String? // link_click | admin | import
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Send log used for dedupe/audit of order-notification sends.
+model OrderNotificationSendLog {
+  id               String   @id @default(uuid())
+  orderId          String
+  notificationDate DateTime @db.Date // logical day in NZ (delivery day)
+  notificationType String // day_prior | fulfillment_confirmation
+  recipientEmail   String
+  senderEmail      String?
+  status           String // sent | skipped_opt_out | skipped_missing_email | failed
+  errorMessage     String?
+  sentAt           DateTime @default(now())
+  createdAt        DateTime @default(now())
+
+  @@unique([orderId, notificationDate, notificationType])
+  @@index([notificationDate, notificationType])
+  @@index([recipientEmail])
+}
+
+model LifecycleCommsSetting {
+  id                      String   @id @default(uuid())
+  key                     String   @unique // e.g. LIFECYCLE_COMMS
+  title                   String
+  enabled                 Boolean  @default(false)
+  liveMode                Boolean  @default(false) @map("live_mode")
+  automationEnabled       Boolean  @default(false) @map("automation_enabled")
+  bulkSendingEnabled      Boolean  @default(false) @map("bulk_sending_enabled")
+  requireAdminApproval    Boolean  @default(true) @map("require_admin_approval")
+  testRecipientEmail      String?  @map("test_recipient_email")
+  selectedSenderKey       String?  @map("selected_sender_key")
+  senderProfiles          Json?    @map("sender_profiles")
+  emailTypeConfig         Json     @default("{}") @map("email_type_config")
+  fallbackHeaderImagePath String   @default("/email-headers/default.jpg") @map("fallback_header_image_path")
+  rewardRuleConfig        Json     @default("{}") @map("reward_rule_config")
+  notes                   String?
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  @@map("lifecycle_comms_settings")
+}
+
+model RewardCatalog {
+  rewardCatalogId     String        @id @default(cuid()) @map("reward_catalog_id")
+  rewardName          String        @map("reward_name")
+  rewardType          String        @map("reward_type") // voucher | free_add_on | custom
+  defaultCode         String?       @map("default_code")
+  codePrefix          String?       @map("code_prefix")
+  perceivedValue      Float         @default(0) @map("perceived_value")
+  estimatedActualCost Float         @default(0) @map("estimated_actual_cost")
+  minimumSpend        Float?        @map("minimum_spend")
+  expiryDays          Int           @default(30) @map("expiry_days")
+  enabled             Boolean       @default(true)
+  eligibleEmailTypes  Json          @default("[]") @map("eligible_email_types")
+  sortOrder           Int           @default(0) @map("sort_order")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
+  rewardIssues        RewardIssue[]
+
+  @@index([enabled, sortOrder])
+  @@index([rewardType])
+  @@map("reward_catalog")
+}
+
+model RewardIssue {
+  rewardIssueId      String                  @id @default(cuid()) @map("reward_issue_id")
+  companyId          String                  @map("company_id")
+  contactId          String?                 @map("contact_id")
+  rewardCatalogId    String                  @map("reward_catalog_id")
+  code               String                  @unique
+  status             String                  @default("draft") // draft | issued | sent | redeemed | expired | cancelled
+  issuedAt           DateTime?               @map("issued_at")
+  expiryDate         DateTime?               @map("expiry_date")
+  sourceType         String                  @default("manual") @map("source_type") // rule | manual
+  sourceRuleKey      String?                 @map("source_rule_key")
+  notes              String?
+  createdAt          DateTime                @default(now()) @map("created_at")
+  updatedAt          DateTime                @updatedAt @map("updated_at")
+  company            Company                 @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
+  contact            CompanyContact?         @relation(fields: [contactId], references: [contactId], onDelete: SetNull)
+  rewardCatalog      RewardCatalog           @relation(fields: [rewardCatalogId], references: [rewardCatalogId], onDelete: Restrict)
+  lifecycleEmailLogs LifecycleEmailSendLog[]
+
+  @@index([companyId, status])
+  @@index([contactId])
+  @@index([expiryDate])
+  @@index([sourceType, sourceRuleKey])
+  @@map("reward_issues")
+}
+
+model LifecycleEmailSendLog {
+  lifecycleEmailSendLogId String          @id @default(cuid()) @map("lifecycle_email_send_log_id")
+  companyId               String          @map("company_id")
+  contactId               String?         @map("contact_id")
+  orderId                 String?         @map("order_id")
+  rewardIssueId           String?         @map("reward_issue_id")
+  emailType               String          @map("email_type")
+  notificationDate        DateTime        @map("notification_date") @db.Date
+  recipientEmail          String          @map("recipient_email")
+  senderEmail             String?         @map("sender_email")
+  status                  String
+  reason                  String?
+  metadata                Json?
+  approvedBy              String?         @map("approved_by")
+  approvedAt              DateTime?       @map("approved_at")
+  sendMode                String?         @map("send_mode") // test_single | test_bulk | live_single | live_bulk
+  sentAt                  DateTime?       @map("sent_at")
+  createdAt               DateTime        @default(now()) @map("created_at")
+  company                 Company         @relation(fields: [companyId], references: [companyId], onDelete: Cascade)
+  contact                 CompanyContact? @relation(fields: [contactId], references: [contactId], onDelete: SetNull)
+  rewardIssue             RewardIssue?    @relation(fields: [rewardIssueId], references: [rewardIssueId], onDelete: SetNull)
+
+  @@unique([companyId, emailType, notificationDate])
+  @@index([recipientEmail, notificationDate])
+  @@index([companyId, createdAt])
+  @@index([status, notificationDate])
+  @@map("lifecycle_email_send_logs")
+}
+
+model PostPurchaseFollowup {
+  postPurchaseFollowupId    String                       @id @default(cuid()) @map("post_purchase_followup_id")
+  orderId                   String                       @unique @map("order_id")
+  shopifyOrderId            String                       @map("shopify_order_id")
+  companyId                 String?                      @map("company_id")
+  contactId                 String?                      @map("contact_id")
+  status                    PostPurchaseFollowupStatus   @default(pending_review)
+  blockedReason             String?                      @map("blocked_reason")
+  selectedEmailType         String?                      @map("selected_email_type")
+  selectedRewardIssueId     String?                      @map("selected_reward_issue_id")
+  selectedRewardCatalogId   String?                      @map("selected_reward_catalog_id")
+  selectedVoucherTemplateId String?                      @map("selected_voucher_template_id")
+  lastActionAt              DateTime?                    @map("last_action_at")
+  lastActionBy              String?                      @map("last_action_by")
+  createdAt                 DateTime                     @default(now()) @map("created_at")
+  updatedAt                 DateTime                     @updatedAt @map("updated_at")
+  order                     Order                        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  company                   Company?                     @relation(fields: [companyId], references: [companyId], onDelete: SetNull)
+  contact                   CompanyContact?              @relation(fields: [contactId], references: [contactId], onDelete: SetNull)
+  actions                   PostPurchaseFollowupAction[]
+
+  @@index([status, updatedAt], map: "post_purchase_followups_status_updated_at_idx")
+  @@index([companyId], map: "post_purchase_followups_company_id_idx")
+  @@index([lastActionAt], map: "post_purchase_followups_last_action_at_idx")
+  @@map("post_purchase_followups")
+}
+
+model PostPurchaseFollowupAction {
+  postPurchaseFollowupActionId String                         @id @default(cuid()) @map("post_purchase_followup_action_id")
+  postPurchaseFollowupId       String                         @map("post_purchase_followup_id")
+  orderId                      String                         @map("order_id")
+  actionType                   PostPurchaseFollowupActionType @map("action_type")
+  actionStatus                 String                         @default("ok") @map("action_status")
+  emailType                    String?                        @map("email_type")
+  rewardIssueId                String?                        @map("reward_issue_id")
+  rewardCatalogId              String?                        @map("reward_catalog_id")
+  reason                       String?
+  metadata                     Json?
+  actedBy                      String?                        @map("acted_by")
+  actedAt                      DateTime                       @default(now()) @map("acted_at")
+  createdAt                    DateTime                       @default(now()) @map("created_at")
+  followup                     PostPurchaseFollowup           @relation(fields: [postPurchaseFollowupId], references: [postPurchaseFollowupId], onDelete: Cascade)
+
+  @@index([orderId, actedAt], map: "post_purchase_followup_actions_order_id_acted_at_idx")
+  @@index([postPurchaseFollowupId, actedAt], map: "post_purchase_followup_actions_followup_id_acted_at_idx")
+  @@map("post_purchase_followup_actions")
+}
+
+// Manual controls per order for day-prior queue handling.
+model DayPriorOrderOverride {
+  id                     String   @id @default(uuid())
+  orderId                String
+  notificationDate       DateTime @db.Date // NZ logical date for the notification run
+  overrideRecipientEmail String?
+  excluded               Boolean  @default(false)
+  reason                 String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@unique([orderId, notificationDate])
+  @@index([notificationDate])
 }
 
 // WLG Communications/Message Board
@@ -754,4 +1412,310 @@ model JobEvent {
 
   @@index([jobId])
   @@index([timestamp])
+}
+
+enum FcpPlanStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum FcpCardGroup {
+  STARTING
+  PREPARING
+  MAKING_COOKING
+  CLOSING
+  TROUBLESHOOTING
+}
+
+enum FcpTriggerType {
+  STAFF_BASED
+  EQUIPMENT_BASED
+  MANUAL
+  DAILY
+  WEEKLY
+  MONTHLY
+  ORDER_BASED
+  INCIDENT_BASED
+}
+
+enum FcpFrequency {
+  DAILY
+  CLOSING
+  WEEKLY
+  MONTHLY
+  SIX_MONTHLY
+  PER_BATCH
+  PER_ORDER
+  PER_DELIVERY
+}
+
+enum FcpSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum FcpTaskStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  CANCELLED
+}
+
+enum FcpRecordStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum FcpIncidentStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+enum FcpAssetType {
+  FRIDGE
+  FREEZER
+  THERMOMETER
+  EQUIPMENT
+  OTHER
+}
+
+enum FcpPeriodicFrequency {
+  WEEKLY
+  FORTNIGHTLY
+  MONTHLY
+  QUARTERLY
+}
+
+enum FcpContactType {
+  SUPPLIER
+  MAINTENANCE
+  PEST_CONTROL
+  VERIFIER
+  COUNCIL
+  MPI
+  OTHER
+}
+
+model FcpPlan {
+  id        String        @id @default(cuid())
+  version   String        @unique
+  name      String
+  status    FcpPlanStatus @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  cards FcpCard[]
+
+  @@index([status])
+}
+
+model FcpCard {
+  id          String       @id @default(cuid())
+  planId      String
+  code        String       @unique
+  title       String
+  colourGroup FcpCardGroup
+  applies     Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  plan  FcpPlan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  rules FcpRule[]
+
+  @@index([planId])
+  @@index([colourGroup])
+}
+
+model FcpRule {
+  id          String         @id @default(cuid())
+  cardId      String
+  code        String         @unique
+  name        String
+  description String
+  triggerType FcpTriggerType
+  frequency   FcpFrequency
+  severity    FcpSeverity
+  isActive    Boolean        @default(true)
+  config      Json
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  card        FcpCard         @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  tasks       FcpTask[]
+  records     FcpRecord[]
+  incidents   FcpIncident[]
+  recordTypes FcpRecordType[]
+
+  @@index([cardId])
+  @@index([triggerType, frequency])
+  @@index([isActive, severity])
+}
+
+model FcpAsset {
+  id        String       @id @default(cuid())
+  name      String
+  type      FcpAssetType
+  code      String?
+  location  String?
+  isActive  Boolean      @default(true)
+  metadata  Json?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  tasks     FcpTask[]
+  records   FcpRecord[]
+  incidents FcpIncident[]
+
+  @@unique([type, code])
+  @@index([type, isActive])
+}
+
+model FcpTask {
+  id           String        @id @default(cuid())
+  ruleId       String
+  status       FcpTaskStatus @default(OPEN)
+  dueAt        DateTime?
+  assignedToId String?
+  orderId      String?
+  assetId      String?
+  incidentId   String?
+  context      Json?
+  completedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  rule     FcpRule      @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  asset    FcpAsset?    @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  incident FcpIncident? @relation("IncidentTasks", fields: [incidentId], references: [id], onDelete: SetNull)
+  records  FcpRecord[]
+
+  @@index([ruleId, status])
+  @@index([dueAt])
+  @@index([assetId])
+  @@index([incidentId])
+  @@index([orderId])
+}
+
+model FcpRecordType {
+  id          String   @id @default(cuid())
+  ruleId      String
+  code        String
+  name        String
+  description String?
+  schema      Json?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rule    FcpRule     @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  records FcpRecord[]
+
+  @@unique([ruleId, code])
+  @@index([ruleId, isActive])
+}
+
+model FcpRecord {
+  id           String          @id @default(cuid())
+  ruleId       String
+  recordTypeId String?
+  taskId       String?
+  assetId      String?
+  orderId      String?
+  status       FcpRecordStatus @default(SUBMITTED)
+  data         Json
+  recordedById String?
+  recordedAt   DateTime        @default(now())
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  rule       FcpRule        @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  recordType FcpRecordType? @relation(fields: [recordTypeId], references: [id], onDelete: SetNull)
+  task       FcpTask?       @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  asset      FcpAsset?      @relation(fields: [assetId], references: [id], onDelete: SetNull)
+
+  @@index([ruleId, recordedAt])
+  @@index([recordTypeId])
+  @@index([taskId])
+  @@index([assetId])
+  @@index([orderId])
+}
+
+model FcpIncident {
+  id          String            @id @default(cuid())
+  ruleId      String?
+  assetId     String?
+  orderId     String?
+  title       String
+  description String?
+  severity    FcpSeverity       @default(HIGH)
+  status      FcpIncidentStatus @default(OPEN)
+  openedAt    DateTime          @default(now())
+  resolvedAt  DateTime?
+  closedAt    DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  rule  FcpRule?  @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  asset FcpAsset? @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  tasks FcpTask[] @relation("IncidentTasks")
+
+  @@index([status, severity])
+  @@index([openedAt])
+  @@index([ruleId])
+  @@index([assetId])
+  @@index([orderId])
+}
+
+model FcpPeriodicCleaningTask {
+  id               String               @id @default(cuid())
+  taskName         String
+  area             String
+  notes            String?
+  frequency        FcpPeriodicFrequency
+  isActive         Boolean              @default(true)
+  applyToCars      Boolean              @default(false)
+  applyToAssetType FcpAssetType?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  lastGeneratedAt  DateTime?
+
+  @@index([isActive, frequency])
+}
+
+model FcpContact {
+  id            String         @id @default(cuid())
+  type          FcpContactType @default(OTHER)
+  companyName   String
+  contactPerson String?
+  website       String?
+  about         String?
+  phoneNumber   String?
+  email         String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([type, isActive])
+  @@index([companyName])
+}
+
+model CalendarDayAlert {
+  id             String    @id @default(cuid())
+  region         String
+  date           String
+  message        String
+  createdByEmail String?
+  createdByName  String?
+  createdAt      DateTime  @default(now())
+  dismissedAt    DateTime?
+
+  @@index([region, date, dismissedAt])
 }

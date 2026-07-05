@@ -9,6 +9,7 @@ import {
   bucketKey,
   shouldIncludeOrder,
   calcCogsCoverage,
+  fetchShiftLabour,
 } from '@/lib/accounting'
 
 function toBool(v: string | null, def = false): boolean {
@@ -91,6 +92,34 @@ export async function GET(request: NextRequest) {
 
     const coverage = calcCogsCoverage(filtered, maps)
 
+    // Labour by matching bucket so we can show profit after staffing on the same trend.
+    const shiftLabour = await fetchShiftLabour(start, end)
+    const labourByBucket = new Map<string, number>()
+    let labourTotal = 0
+    for (const entry of shiftLabour) {
+      const key = bucketKey(entry.date, bucket)
+      labourByBucket.set(key, Number(((labourByBucket.get(key) || 0) + entry.cost).toFixed(2)))
+      labourTotal += entry.cost
+    }
+
+    const seriesWithLabour = series.map(point => {
+      const labourCost = Number((labourByBucket.get(point.date) || 0).toFixed(2))
+      const netProfitAfterStaffing = Number((point.grossProfit - labourCost).toFixed(2))
+      const netMarginAfterStaffingPct = point.revenue > 0
+        ? Number(((netProfitAfterStaffing / point.revenue) * 100).toFixed(1))
+        : 0
+      return {
+        ...point,
+        labourCost,
+        netProfitAfterStaffing,
+        netMarginAfterStaffingPct,
+      }
+    })
+    const netProfitAfterStaffingTotal = Number((grossProfit - labourTotal).toFixed(2))
+    const netMarginAfterStaffingPct = revenueTotal > 0
+      ? Number(((netProfitAfterStaffingTotal / revenueTotal) * 100).toFixed(1))
+      : 0
+
     return NextResponse.json({
       params: { rangePreset, includeCancelled, includeUnpaid, useBusinessDate, bucket },
       kpis: {
@@ -98,9 +127,12 @@ export async function GET(request: NextRequest) {
         cogs: Number(cogsTotal.toFixed(2)),
         grossProfit,
         grossMarginPct,
+        labourCost: Number(labourTotal.toFixed(2)),
+        netProfitAfterStaffing: netProfitAfterStaffingTotal,
+        netMarginAfterStaffingPct,
         cogsCoveragePct: coverage.pct,
       },
-      series,
+      series: seriesWithLabour,
     })
   } catch (error) {
     console.error('❌ Error in sales-profit-trend:', error)
