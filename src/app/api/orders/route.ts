@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma, withRetry } from '@/lib/prisma'
 import { parseLocalDate } from '@/lib/date-utils'
 import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize'
+import { attachIsFirstOrderFlag } from '@/lib/first-order'
 
 export async function POST(request: Request) {
   try {
@@ -161,9 +162,12 @@ export async function GET(request: Request) {
       })
     })
     
+    // Flag first-time customers (single batched query for the whole page)
+    const ordersWithFlags = await attachIsFirstOrderFlag(orders)
+
     console.log(`✅ Successfully fetched ${orders.length} orders (${totalCount} total)`)
     return NextResponse.json({
-      orders,
+      orders: ordersWithFlags,
       pagination: {
         total: totalCount,
         limit,

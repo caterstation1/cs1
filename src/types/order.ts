@@ -4,6 +4,7 @@ export interface Order {
   customerFirstName: string
   customerLastName: string
   customerPhone: string
+  customerEmail?: string
   shippingAddress: {
     address1: string
     address2?: string
@@ -20,6 +21,10 @@ export interface Order {
   note: string
   tags: string
   fulfillmentStatus: string
+  /** Shopify financial status (e.g. "pending" = Awaiting payment, "paid") */
+  financialStatus?: string
+  /** Server-computed: true when this is the customer's first order (by email) */
+  isFirstOrder?: boolean
   lineItems: Array<{
     title: string
     quantity: number

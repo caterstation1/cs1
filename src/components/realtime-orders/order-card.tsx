@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Search, Car, MessageSquare, Settings, Phone, StickyNote } from 'lucide-react'
 import { TextOrdersModal } from '@/components/TextOrdersModal'
+import { PaymentAlertBadge } from './payment-alert-badge'
 import { resolveBundleItems } from '@/lib/product-service'
 import {
   ContextMenu,
@@ -1331,6 +1332,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             
           {/* Action Buttons - right side on desktop; hidden on mobile */}
           <div className="hidden lg:flex absolute right-2 top-0 items-center gap-2 z-10">
+            <PaymentAlertBadge order={order} />
             <Button
               variant="outline"
               size="sm"
@@ -1618,6 +1620,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           
           {/* Mobile actions row (shown when desktop actions are hidden) */}
           <div className="mt-2 flex lg:hidden items-center gap-2">
+            <PaymentAlertBadge order={order} />
             <Button
               variant="outline"
               size="sm"

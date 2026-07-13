@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma, withRetry } from '@/lib/prisma'
+import { attachIsFirstOrderFlag } from '@/lib/first-order'
 
 // Returns orders that have changed since a given timestamp, based on `dbUpdatedAt`
 // Query params:
@@ -65,7 +66,10 @@ export async function GET(request: Request) {
       hasMore = countBeyond > take
     }
 
-    return NextResponse.json({ orders: changedOrders, maxUpdatedAt, hasMore })
+    // Flag first-time customers so realtime updates carry the same data as the full fetch
+    const ordersWithFlags = await attachIsFirstOrderFlag(changedOrders)
+
+    return NextResponse.json({ orders: ordersWithFlags, maxUpdatedAt, hasMore })
   } catch (error) {
     console.error('❌ Error fetching order changes:', error)
     return NextResponse.json(
