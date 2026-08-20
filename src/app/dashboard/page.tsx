@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 import { useCachedFetch } from '@/lib/use-cached-fetch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +15,7 @@ import AdminSDashboard from '@/components/dashboard/AdminSDashboard'
 import BasicDashboard from '@/components/dashboard/BasicDashboard'
 import { IngredientSelector } from '@/components/IngredientSelector'
 import HistoricPanel from './_components/HistoricPanel'
+import LiveMapModal from '@/components/live-map/LiveMapModal'
 
 interface DashboardData {
   today: PeriodData
@@ -291,6 +293,7 @@ export default function DashboardPage() {
   const [pendingBaseIngredients, setPendingBaseIngredients] = useState<any[]>([])
   const [pendingVariantIngredients, setPendingVariantIngredients] = useState<any[]>([])
   const [isOrdersModalOpen, setIsOrdersModalOpen] = useState(false)
+  const [isLiveMapOpen, setIsLiveMapOpen] = useState(false)
   const [ordersPeriod, setOrdersPeriod] = useState<'today'|'yesterday'|'week'|'month'|'year'>('yesterday')
   const [ordersList, setOrdersList] = useState<Array<{ orderNumber: number; deliveryTime: string | null; salesExGst: number; gst: number; salesIncGst: number }>>([])
 
@@ -508,7 +511,7 @@ export default function DashboardPage() {
   // For non-admin/owner roles, show Basic dashboard even without analytics data
   if (!dashboardData && !(String(access || '').toLowerCase() === 'owner' || String(access || '').toLowerCase() === 'admin')) {
     return (
-      <div className="min-h-screen bg-slate-900 text-slate-100">
+      <div className="dashboard-page">
         <div className="w-full max-w-none px-4 py-0 space-y-4">
           <BasicDashboard />
         </div>
@@ -519,7 +522,7 @@ export default function DashboardPage() {
   // Show loading state only if we have no cached data and are loading
   if (!dashboardData && loading) {
     return (
-      <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center">
+      <div className="dashboard-page flex items-center justify-center">
         <div className="text-center">
           <div className="text-lg mb-2">Loading dashboard...</div>
           <div className="text-sm text-slate-400">Fetching latest data</div>
@@ -532,12 +535,12 @@ export default function DashboardPage() {
   if (!dashboardData) {
     if (error) {
       return (
-        <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center">
+        <div className="dashboard-page flex items-center justify-center">
           <div className="text-center">
             <div className="text-lg mb-2 text-red-400">{error}</div>
             <button
               onClick={() => refreshDashboard()}
-              className="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700"
+              className="rounded-md border border-slate-500/35 bg-slate-700/50 px-4 py-2 text-white hover:bg-slate-600/50"
             >
               Retry
             </button>
@@ -549,62 +552,79 @@ export default function DashboardPage() {
   }
 
   const OwnerContent = (
-    <div className="w-full max-w-none px-0 space-y-6">
+    <div className="w-full max-w-none space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">CaterStation Dashboard</h1>
-            <p className="text-slate-400 mt-1">Real-time business insights and analytics</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-cyan-400" />
-            <span className="text-sm text-slate-300">
-              {format(new Date(), 'EEEE, MMMM do, yyyy')}
-            </span>
+        <div className="sticky top-0 z-20 -mx-3 border-b border-slate-600/20 bg-[hsl(222,16%,13%)]/95 px-3 py-3 backdrop-blur sm:static sm:mx-0 sm:border-b-0 sm:bg-transparent sm:px-0 sm:py-0">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-2xl font-bold sm:text-3xl">CaterStation Dashboard</h1>
+              <p className="mt-1 text-sm text-slate-400">Real-time business insights and analytics</p>
+            </div>
+            <div className="flex items-center space-x-2 text-slate-400">
+              <Link
+                href="/dashboard/executive"
+                className="rounded-md border border-slate-500/40 px-2 py-1 text-xs text-slate-200 hover:bg-slate-700/50"
+              >
+                Executive dashboard
+              </Link>
+              <Clock className="h-4 w-4 text-slate-500" />
+              <span className="text-xs sm:text-sm">
+                {format(new Date(), 'EEEE, MMMM do, yyyy')}
+              </span>
+            </div>
           </div>
         </div>
 
       {/* Key Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-slate-800 text-slate-100 border border-slate-700">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-6">
+        <Card className="dashboard-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-80">Sales — Today</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">Sales — Today</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{formatCurrency(dashboardData.today.salesValue)}</div>
+            <div className="text-lg font-bold sm:text-2xl lg:text-3xl">{formatCurrency(dashboardData.today.salesValue)}</div>
             <p className="text-xs opacity-70 mt-1">{dashboardData.today.orderCount} orders</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800 text-slate-100 border border-slate-700">
+        <Card className="dashboard-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-80">Sales — Week to Date</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">Sales — Week to Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{formatCurrency(dashboardData.weekToDate.salesValue)}</div>
+            <div className="text-lg font-bold sm:text-2xl lg:text-3xl">{formatCurrency(dashboardData.weekToDate.salesValue)}</div>
             <p className="text-xs opacity-70 mt-1">{dashboardData.weekToDate.orderCount} orders</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800 text-slate-100 border border-slate-700">
+        <Card className="dashboard-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-80">Month to Date</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">Month to Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{formatCurrency(dashboardData.monthToDate.salesValue)}</div>
+            <div className="text-lg font-bold sm:text-2xl lg:text-3xl">{formatCurrency(dashboardData.monthToDate.salesValue)}</div>
             <p className="text-xs opacity-70 mt-1">{dashboardData.monthToDate.orderCount} orders</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800 text-slate-100 border border-slate-700">
+        <Card className="dashboard-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-80">Year to Date</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">Year to Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{formatCurrency(dashboardData.yearToDate.salesValue)}</div>
+            <div className="text-lg font-bold sm:text-2xl lg:text-3xl">{formatCurrency(dashboardData.yearToDate.salesValue)}</div>
             <p className="text-xs opacity-70 mt-1">{dashboardData.yearToDate.orderCount} orders</p>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 sm:hidden">
+        <button onClick={() => fetchOrdersList('yesterday')} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-800 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50">
+          Open yesterday order list
+        </button>
+        <button onClick={() => fetchStaffBreakdown('yesterday')} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-800 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50">
+          View yesterday staff costs
+        </button>
       </div>
 
       {/* Rolling 28-day Sales Trend (hidden on mobile to save space) */}
@@ -614,13 +634,13 @@ export default function DashboardPage() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="today" className="space-y-6">
-        <TabsList className="flex flex-wrap gap-2 bg-transparent">
-          <TabsTrigger value="today" className="px-4 py-1.5 rounded-full text-slate-200 hover:bg-slate-800 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow">Today</TabsTrigger>
-          <TabsTrigger value="yesterday" className="px-4 py-1.5 rounded-full text-slate-200 hover:bg-slate-800 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow">Yesterday</TabsTrigger>
-          <TabsTrigger value="week" className="px-4 py-1.5 rounded-full text-slate-200 hover:bg-slate-800 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow">Week to Date</TabsTrigger>
-          <TabsTrigger value="month" className="px-4 py-1.5 rounded-full text-slate-200 hover:bg-slate-800 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow">Month to Date</TabsTrigger>
-          <TabsTrigger value="year" className="px-4 py-1.5 rounded-full text-slate-200 hover:bg-slate-800 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow">Year to Date</TabsTrigger>
-          <TabsTrigger value="historic" className="px-4 py-1.5 rounded-full text-slate-200 hover:bg-slate-800 data-[state=active]:bg-amber-600 data-[state=active]:text-white data-[state=active]:shadow">Historic</TabsTrigger>
+        <TabsList className="flex w-full flex-nowrap gap-1 overflow-x-auto rounded-lg border border-slate-200 bg-white p-1 pb-1">
+          <TabsTrigger value="today" className="dashboard-tab">Today</TabsTrigger>
+          <TabsTrigger value="yesterday" className="dashboard-tab">Yesterday</TabsTrigger>
+          <TabsTrigger value="week" className="dashboard-tab">Week to Date</TabsTrigger>
+          <TabsTrigger value="month" className="dashboard-tab">Month to Date</TabsTrigger>
+          <TabsTrigger value="year" className="dashboard-tab">Year to Date</TabsTrigger>
+          <TabsTrigger value="historic" className="dashboard-tab">Historic</TabsTrigger>
         </TabsList>
 
         {/* Today Tab */}
@@ -636,7 +656,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-xs text-slate-400">Based on order creation date (Sales)</div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Sales Value</p>
                     <p className="text-xl font-bold text-green-600">
@@ -706,7 +726,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-xs text-slate-400">Based on delivery date (Out‑of‑Door). Staff costs included for the day.</div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                   <div onClick={() => fetchOrdersList('yesterday')} className="cursor-pointer">
                     <p className="text-sm text-gray-600">Out‑of‑Door Value</p>
                     <p className="text-xl font-bold text-green-600">
@@ -733,7 +753,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="border-t pt-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     <div onClick={() => fetchStaffBreakdown('yesterday')} className="cursor-pointer">
                       <p className="text-sm text-gray-600">Staff Costs</p>
                       <p className="text-lg font-bold text-orange-600">
@@ -944,10 +964,15 @@ export default function DashboardPage() {
         {/* Staff Clocked In */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-blue-600" />
-              Staff Clocked In
-            </CardTitle>
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-blue-600" />
+                Staff Clocked In
+              </CardTitle>
+              <button className="dashboard-btn-quiet" onClick={() => setIsLiveMapOpen(true)}>
+                Live Map
+              </button>
+            </div>
           </CardHeader>
           <CardContent>
             {dashboardData.staffClockedIn.length > 0 ? (
@@ -985,11 +1010,11 @@ export default function DashboardPage() {
                 type="date"
                 value={mapDate}
                 onChange={(e)=>setMapDate(e.target.value)}
-                className="bg-slate-800 text-slate-100 border border-slate-700 rounded px-2 py-1 text-xs"
+                className="rounded-md border border-slate-600/30 bg-slate-950/35 px-2 py-1 text-xs text-slate-200"
               />
             </div>
             <button
-              className="text-xs px-2 py-1 rounded bg-slate-700 hover:bg-slate-600"
+              className="dashboard-btn-quiet"
               onClick={()=>setIsMapModalOpen(true)}
             >
               Expand Map
@@ -1021,6 +1046,8 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <LiveMapModal open={isLiveMapOpen} onOpenChange={setIsLiveMapOpen} />
 
       {/* Cost of Sales Breakdown Modal */}
       <Dialog open={isCostsModalOpen} onOpenChange={setIsCostsModalOpen}>
@@ -1126,7 +1153,7 @@ export default function DashboardPage() {
                       await openVariantDetail(variantDetail.variantId)
                     } catch {}
                   }}
-                  className="px-3 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600"
+                  className="dashboard-btn-quiet px-3 py-1"
                 >
                   Recalculate cost (base + variant)
                 </button>
@@ -1220,8 +1247,8 @@ export default function DashboardPage() {
               onIngredientsChange={(ings) => setPendingBaseIngredients(ings)}
             />
             <div className="flex justify-end gap-2">
-              <button onClick={() => setIsAddBaseOpen(false)} className="px-3 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600">Cancel</button>
-              <button onClick={addToBase} className="px-3 py-1 text-xs rounded bg-blue-700 hover:bg-blue-600">Add to Base</button>
+              <button onClick={() => setIsAddBaseOpen(false)} className="dashboard-btn-quiet px-3 py-1">Cancel</button>
+              <button onClick={addToBase} className="rounded-md border border-sky-700/40 bg-sky-950/45 px-3 py-1 text-xs text-sky-100 hover:bg-sky-900/50">Add to Base</button>
             </div>
           </div>
         </DialogContent>
@@ -1239,8 +1266,8 @@ export default function DashboardPage() {
               onIngredientsChange={(ings) => setPendingVariantIngredients(ings)}
             />
             <div className="flex justify-end gap-2">
-              <button onClick={() => setIsAddVariantOpen(false)} className="px-3 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600">Cancel</button>
-              <button onClick={addToVariant} className="px-3 py-1 text-xs rounded bg-emerald-700 hover:bg-emerald-600">Add to Variant</button>
+              <button onClick={() => setIsAddVariantOpen(false)} className="dashboard-btn-quiet px-3 py-1">Cancel</button>
+              <button onClick={addToVariant} className="rounded-md border border-emerald-800/35 bg-emerald-950/40 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-900/45">Add to Variant</button>
             </div>
           </div>
         </DialogContent>
@@ -1292,9 +1319,9 @@ export default function DashboardPage() {
 
       {/* Historic Sales - 3.5 Years */}
       <div className="hidden sm:block mt-6">
-        <Card className="bg-slate-800 text-slate-100 border border-slate-700">
+        <Card className="dashboard-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium opacity-80">Rolling 28-day Sales — Last 3.5 Years</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">Rolling 28-day Sales — Last 3.5 Years</CardTitle>
           </CardHeader>
           <CardContent>
             <Sparkline data={longSeries} />
@@ -1304,21 +1331,21 @@ export default function DashboardPage() {
       </div>
   )
 
-  // Owner can tab through views; Admin sees Admin S; Basic sees Basic
+  // Basic dashboard is the primary view for everyone; owners and admins can
+  // scroll down to their role-specific dashboards below it.
   if (access === 'owner') {
     return (
-      <div className="min-h-screen bg-slate-900 text-slate-100">
-        <div className="w-full max-w-none px-[15vw] space-y-4">
-          <div className="flex items-center gap-2">
-            <Tabs className="w-full" value={ownerView} onValueChange={(v)=>{ setOwnerView(v as any); try{ localStorage.setItem('owner-dashboard-view', v) }catch{}; const u=new URL(window.location.href); u.searchParams.set('view', v); window.history.replaceState({},'',u.toString()) }}>
-              <TabsList>
-                <TabsTrigger value="owner">Owner</TabsTrigger>
-                <TabsTrigger value="adminS">Admin S</TabsTrigger>
-                <TabsTrigger value="basic">Basic</TabsTrigger>
+      <div className="dashboard-page">
+        <div className="mx-auto w-full max-w-7xl space-y-4 px-0 sm:px-2 md:px-6 lg:px-10">
+          <BasicDashboard />
+          <div className="flex items-center gap-2 pt-2">
+            <Tabs className="w-full" value={ownerView === 'basic' ? 'owner' : ownerView} onValueChange={(v)=>{ setOwnerView(v as any); try{ localStorage.setItem('owner-dashboard-view', v) }catch{}; const u=new URL(window.location.href); u.searchParams.set('view', v); window.history.replaceState({},'',u.toString()) }}>
+              <TabsList className="h-auto w-full max-w-fit flex-wrap gap-1 rounded-lg border border-slate-200 bg-white p-1 sm:flex-nowrap">
+                <TabsTrigger value="owner" className="dashboard-tab">Owner</TabsTrigger>
+                <TabsTrigger value="adminS" className="dashboard-tab">Admin S</TabsTrigger>
               </TabsList>
               <TabsContent value="owner" className="w-full">{OwnerContent}</TabsContent>
               <TabsContent value="adminS" className="w-full"><AdminSDashboard /></TabsContent>
-              <TabsContent value="basic" className="w-full"><BasicDashboard /></TabsContent>
             </Tabs>
           </div>
         </div>
@@ -1328,9 +1355,12 @@ export default function DashboardPage() {
 
   if ((access || '').toLowerCase() === 'admin') {
     return (
-      <div className="min-h-screen bg-slate-900 text-slate-100">
-        <div className="w-full max-w-none px-[15vw] space-y-4">
-          <AdminSDashboard />
+      <div className="dashboard-page">
+        <div className="mx-auto w-full max-w-7xl space-y-4 px-0 sm:px-2 md:px-6 lg:px-10">
+          <BasicDashboard />
+          <div className="pt-2">
+            <AdminSDashboard />
+          </div>
         </div>
       </div>
     )
@@ -1338,8 +1368,8 @@ export default function DashboardPage() {
 
   // Default to Basic dashboard for all other roles (e.g., 'basic')
   return (
-      <div className="min-h-screen bg-slate-900 text-slate-100">
-      <div className="w-full max-w-none px-[15vw] space-y-4">
+      <div className="dashboard-page">
+      <div className="mx-auto w-full max-w-7xl space-y-4 px-0 sm:px-2 md:px-6 lg:px-10">
         <BasicDashboard />
       </div>
     </div>

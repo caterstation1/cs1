@@ -15,9 +15,11 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Search, Car, MessageSquare, Settings, Phone, StickyNote } from 'lucide-react'
+import { Search, Car, MessageSquare, Settings, Phone, StickyNote, Plus, Minus } from 'lucide-react'
 import { TextOrdersModal } from '@/components/TextOrdersModal'
+import { DeliveryNotesButton, type DeliveryNoteEntry } from './delivery-notes-modal'
 import { PaymentAlertBadge } from './payment-alert-badge'
+import { requestTrackingStatusSync } from '@/contexts/shift-location-tracking'
 import { resolveBundleItems } from '@/lib/product-service'
 import {
   ContextMenu,
@@ -31,6 +33,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Label } from '@/components/ui/label';
+import {
+  clearLineScopeOverrides,
+  getEffectiveLineProduct,
+  getOverridesForDisplayRow,
+  type LineItemWithOverrides,
+  type OrderProductOverrides,
+} from '@/lib/order-line-overrides';
 
 interface Product {
   id: string
@@ -73,6 +82,31 @@ interface Product {
   timerB?: number | null
 }
 
+interface ProductImagePreview {
+  name: string
+  url: string | null
+}
+
+interface SearchVariant {
+  variantId: string
+  shopifySku?: string
+  shopifyName?: string
+  shopifyTitle?: string
+  displayName?: string
+}
+
+interface SearchProductGroup {
+  product: {
+    id: string
+    productTitle: string
+    displayName?: string | null
+    shopifyMarket?: string | null
+    usageCount?: number
+    isPartyPack?: boolean
+  }
+  variants: SearchVariant[]
+}
+
 interface OrderCardProps {
   order: Order
   onUpdate: (orderId: string, updates: Partial<Order>) => Promise<Order>
@@ -83,14 +117,23 @@ interface OrderCardProps {
   isAudioEnabled?: boolean
   originAddressOverride?: string
   isTvMode?: boolean
+  compactFonts?: boolean
+  deliveryNotes?: DeliveryNoteEntry[]
+  onDeliveryNotesChanged?: (orderId: string, notes: DeliveryNoteEntry[]) => void
 }
 
-export default function OrderCard({ order, onUpdate, products, refreshProducts, onBulkUpdateComplete, updateProductInState, isAudioEnabled = true, originAddressOverride, isTvMode = false }: OrderCardProps) {
+export default function OrderCard({ order, onUpdate, products, refreshProducts, onBulkUpdateComplete, updateProductInState, isAudioEnabled = true, originAddressOverride, isTvMode = false, compactFonts = false, deliveryNotes, onDeliveryNotesChanged }: OrderCardProps) {
   // Debug logging disabled in production for performance and clarity
+  const parseTravelTime = (value: string | number | undefined | null): number => {
+    const parsed = parseInt(String(value ?? ''), 10)
+    return Number.isNaN(parsed) ? 0 : parsed
+  }
   const [isExpanded, setIsExpanded] = useState(false)
   const [deliveryTime, setDeliveryTime] = useState(order.deliveryTime || '')
   const [leaveTime, setLeaveTime] = useState(order.leaveTime || '')
-  const [travelTime, setTravelTime] = useState<number>(parseInt(order.travelTime || '0'))
+  const [travelTime, setTravelTime] = useState<number>(parseTravelTime(order.travelTime))
+  const [travelTimeDraft, setTravelTimeDraft] = useState<string>(String(parseTravelTime(order.travelTime)))
+  const [isTravelTimeEditing, setIsTravelTimeEditing] = useState(false)
   const [driverId, setDriverId] = useState<string>('')
   const [drivers, setDrivers] = useState<Staff[]>([])
   const [carId, setCarId] = useState<string>('')
@@ -101,8 +144,10 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [isLoadingDrivers, setIsLoadingDrivers] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isInternalNoteModalOpen, setIsInternalNoteModalOpen] = useState(false)
+  const [isCustomerNoteModalOpen, setIsCustomerNoteModalOpen] = useState(false)
   const [isClientTextOpen, setIsClientTextOpen] = useState(false)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [productImagePreview, setProductImagePreview] = useState<ProductImagePreview | null>(null)
   const [isDDModalOpen, setIsDDModalOpen] = useState(false)
   const [ddKm, setDdKm] = useState<number>(0)
   const [ddRate, setDdRate] = useState<number>(2)
@@ -110,11 +155,13 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [ddPayout, setDdPayout] = useState<number>(0)
   const [ddDispatchTime, setDdDispatchTime] = useState<string>(leaveTime || '')
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<Product[]>([])
+  const [searchResults, setSearchResults] = useState<SearchProductGroup[]>([])
+  const [expandedProductIds, setExpandedProductIds] = useState<Record<string, boolean>>({})
   const [isSearching, setIsSearching] = useState(false)
   const [editedLineItems, setEditedLineItems] = useState<any[]>([])
   const [note, setNote] = useState(order.note || '')
   const [internalNote, setInternalNote] = useState(order.internalNote || '')
+  const [customerNote, setCustomerNote] = useState(order.customerNote || '')
   const [address, setAddress] = useState(order.shippingAddress?.address1 || '')
   const [deliveryDate, setDeliveryDate] = useState(order.deliveryDate || '')
   
@@ -137,6 +184,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   
   // Use a ref to track if this is the first render
   const isFirstRender = useRef(true)
+  const isCommittingTravelTimeRef = useRef(false)
   
   // Format the order date
   const orderDate = formatDate(order.createdAt)
@@ -159,22 +207,53 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       lineItems = [];
     }
   }
+
+  const getProductImageUrl = (item: any, product: Product | null): string | null => {
+    const fromProduct = [
+      (product as any)?.heroImageUrl,
+      (product as any)?.imageUrl,
+      (product as any)?.image,
+    ]
+      .find((value) => typeof value === 'string' && value.trim().length > 0)
+
+    if (fromProduct) return fromProduct as string
+
+    const itemImage = item?.image
+    if (typeof itemImage === 'string' && itemImage.trim()) return itemImage
+    if (itemImage && typeof itemImage === 'object') {
+      const src = itemImage.src || itemImage.url
+      if (typeof src === 'string' && src.trim()) return src
+    }
+
+    return null
+  }
+
+  const getDisplayProductName = (item: any, product: Product | null) => {
+    if (!product) return item.title || 'Product'
+    const parentDisplay = ((product as any).productDisplayName || '').trim()
+    if (parentDisplay) return parentDisplay
+    return product.shopifyName || product.shopifyTitle || product.name || item.title || 'Product'
+  }
   // Expand party packs into child display (UI only; DB stays unchanged until saved via Edit Order)
   const expandedDisplayLineItems: any[] = useMemo(() => {
     const out: any[] = []
-    for (const it of lineItems) {
+    for (let lineIndex = 0; lineIndex < lineItems.length; lineIndex++) {
+      const it = lineItems[lineIndex]
       const variantId = it.variant_id?.toString() || it.variantId?.toString();
       const product = variantId ? (products as any)[variantId] : null;
       const qty = Number(it.quantity || 0)
       const children = product ? resolveBundleItems(product) : []
       if (product && children.length > 0) {
         // header row for the pack
-        out.push({ ...it, _isPack: true })
+        out.push({ ...it, _isPack: true, _lineIndex: lineIndex })
         for (const child of children) {
-          const childProduct = (products as any)[child.variantId]
+          const childVid = child.variantId?.toString() || ''
+          const childProduct = (products as any)[childVid]
           out.push({
             ...it,
             _isPackChild: true,
+            _lineIndex: lineIndex,
+            _childVariantId: childVid,
             variant_id: child.variantId,
             variantId: child.variantId,
             // ensure SKU/title reflect the child for proper addon detection and display
@@ -184,11 +263,38 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           })
         }
       } else {
-        out.push(it)
+        out.push({ ...it, _lineIndex: lineIndex })
       }
     }
     return out
   }, [lineItems, products])
+
+  const nonAddonDisplayRowCount = useMemo(() => {
+    const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
+    return expandedDisplayLineItems.reduce((count: number, item: any) => {
+      const variantId = item.variant_id?.toString() || item.variantId?.toString()
+      const product = variantId ? (products as any)[variantId] : null
+      if (isAddon(item.sku) || isAddon(product?.shopifySku)) return count
+      return count + Math.max(1, Number(item.quantity || 1))
+    }, 0)
+  }, [expandedDisplayLineItems, products])
+
+  const internalNoteReserveClass = useMemo(() => {
+    const text = [order.customerNote, order.internalNote]
+      .map(t => String(t || '').trim())
+      .filter(Boolean)
+      .join('\n')
+    if (!text) return ''
+    if (nonAddonDisplayRowCount > 1) return ''
+
+    const approxLines = text
+      .split('\n')
+      .reduce((acc, line) => acc + Math.max(1, Math.ceil(String(line || '').length / 40)), 0)
+
+    if (approxLines >= 5) return 'lg:pb-32'
+    if (approxLines >= 3) return 'lg:pb-24'
+    return 'lg:pb-16'
+  }, [order.customerNote, order.internalNote, nonAddonDisplayRowCount])
   
   // Get status badge color
   const statusBadgeColor = getStatusColor(order.fulfillmentStatus)
@@ -266,8 +372,11 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       const extractedTime = extractDeliveryTime(order.tags);
       if (extractedTime) {
         setDeliveryTime(extractFirstTimeTo24Hour(extractedTime));
+        return;
       }
     }
+    // Keep local state in sync when server value is cleared/empty.
+    setDeliveryTime('');
   }, [order.deliveryTime, order.tags]);
 
   // Update the input fields to handle time format conversion
@@ -299,28 +408,33 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   // Use customerPhone directly from the order (populated by sync process)
   const deliveryPhone = order.customerPhone || 'No phone'
   
-  // Extract customer details
-  const customerName = `${order.customerFirstName} ${order.customerLastName}`
-  const customerPhone = order.customerPhone || 'No phone'
-  
   // Extract company name from shipping address
   const companyName = extractCompanyName(order.shippingAddress)
+  
+  // Extract customer details
+  const customerName = `${order.customerFirstName || ''} ${order.customerLastName || ''}`.trim()
+  const customerDisplayName = companyName ? `${customerName} - ${companyName}` : customerName
+  const customerPhone = order.customerPhone || 'No phone'
+  const isOrderCancelled = !!order.cancelledAt
+  const selectedDriver = drivers.find((driver) => driver.id === driverId)
+  const selectedDriverFirstName = selectedDriver?.firstName?.trim() || ''
   
   // Initialize state from order data
   useEffect(() => {
     if (order.travelTime) {
-      setTravelTime(parseInt(order.travelTime))
+      const parsedTravelTime = parseTravelTime(order.travelTime)
+      setTravelTime(parsedTravelTime)
+      if (!isTravelTimeEditing) {
+        setTravelTimeDraft(String(parsedTravelTime))
+      }
+    } else if (!isTravelTimeEditing) {
+      setTravelTime(0)
+      setTravelTimeDraft('0')
     }
-    if (order.leaveTime) {
-      setLeaveTime(order.leaveTime)
-    }
-    if (order.driverId) {
-      setDriverId(order.driverId)
-    }
-    if ((order as any)?.carId) {
-      setCarId((order as any).carId as string)
-    }
-  }, [order.travelTime, order.leaveTime, order.driverId])
+    setLeaveTime(order.leaveTime || '')
+    setDriverId(order.driverId || '')
+    setCarId(((order as any)?.carId as string) || '')
+  }, [order.travelTime, order.leaveTime, order.driverId, (order as any)?.carId, isTravelTimeEditing])
   
   // Update leave time when delivery inputs change; prefer explicit/edited time over tags
   useEffect(() => {
@@ -399,19 +513,16 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     fetchCars()
   }, [])
   
-  // Save state to localStorage when it changes
+  // Save only travel-time local tuning (driver/time are server-authoritative).
   useEffect(() => {
     if (!isFirstRender.current) {
       const key = `order-${order.id}`
       localStorage.setItem(key, JSON.stringify({
-        leaveTime,
         travelTime,
-        driverId,
-        carId,
         hasManualTravelTime
       }))
     }
-  }, [order.id, leaveTime, travelTime, driverId, carId, hasManualTravelTime])
+  }, [order.id, travelTime, hasManualTravelTime])
   
   // Load state from localStorage on first render
   useEffect(() => {
@@ -420,17 +531,19 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       const saved = localStorage.getItem(key)
       if (saved) {
         try {
-          const { leaveTime: savedLeaveTime, travelTime: savedTravelTime, driverId: savedDriverId, carId: savedCarId, hasManualTravelTime: savedManual } = JSON.parse(saved)
+          const { travelTime: savedTravelTime, hasManualTravelTime: savedManual } = JSON.parse(saved)
           
-          // Set the values from localStorage
-          if (savedLeaveTime) setLeaveTime(savedLeaveTime)
-          if (savedTravelTime) {
-            setTravelTime(savedTravelTime)
+          // Restore travel time only when it was manually set on this card.
+          // Otherwise the server value is authoritative — restoring (and
+          // PATCHing back) a stale cached value would clobber edits made
+          // elsewhere, e.g. in the deliveries map modal.
+          if (savedTravelTime && savedManual === true) {
+            const parsedTravelTime = parseTravelTime(savedTravelTime)
+            setTravelTime(parsedTravelTime)
+            setTravelTimeDraft(String(parsedTravelTime))
             // Also update the database with the saved travel time
-            handleUpdate({ travelTime: savedTravelTime.toString() })
+            handleUpdate({ travelTime: parsedTravelTime.toString() })
           }
-          if (savedDriverId) setDriverId(savedDriverId)
-          if (savedCarId) setCarId(savedCarId)
           if (typeof savedManual === 'boolean') setHasManualTravelTime(savedManual)
         } catch (error) {
           console.error('Error parsing saved state:', error)
@@ -463,8 +576,13 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     if (!order.hasLocalEdits) {
       setDeliveryTime(order.deliveryTime || '');
       setLeaveTime(order.leaveTime || '');
-      setTravelTime(parseInt(order.travelTime || '0'));
+      const parsedTravelTime = parseTravelTime(order.travelTime)
+      setTravelTime(parsedTravelTime);
+      if (!isTravelTimeEditing) {
+        setTravelTimeDraft(String(parsedTravelTime));
+      }
       setNote(order.note || '');
+      setCustomerNote(order.customerNote || '');
       setAddress(order.shippingAddress?.address1 || '');
       setDeliveryDate(order.deliveryDate || '');
       
@@ -481,7 +599,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       }
       setEditedLineItems(parsedLineItems);
     }
-  }, [order]);
+  }, [order, isTravelTimeEditing]);
 
   // Add a debounce function to prevent too many rapid updates
   const debounce = (func: Function, wait: number) => {
@@ -557,10 +675,17 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
         setLeaveTime(updates.leaveTime as string);
       }
       if (updates.travelTime) {
-        setTravelTime(parseInt(updates.travelTime as string));
+        const parsedTravelTime = parseTravelTime(updates.travelTime as string);
+        setTravelTime(parsedTravelTime);
+        if (!isTravelTimeEditing) {
+          setTravelTimeDraft(String(parsedTravelTime));
+        }
       }
       if (updates.note) {
         setNote(updates.note as string);
+      }
+      if (updates.customerNote !== undefined) {
+        setCustomerNote(String(updates.customerNote || ''));
       }
       if (updates.shippingAddress?.address1) {
         setAddress(updates.shippingAddress.address1);
@@ -607,24 +732,38 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     return timerTimes;
   };
 
-  // Handle travel time input change
-  const handleTravelTimeChange = (value: number) => {
-    if (value !== travelTime) {
-      setTravelTime(value);
-      setHasManualTravelTime(true);
-      // Always use the latest local deliveryTime for recalculation
-      let leave = deliveryTime;
-      if (deliveryTime && value > 0) {
-        const [hours, minutes] = deliveryTime.split(':').map(Number);
-        const deliveryDate = new Date();
-        deliveryDate.setHours(hours, minutes, 0, 0);
-        const leaveDate = new Date(deliveryDate.getTime() - (value * 60 * 1000));
-        const leaveHours = leaveDate.getHours().toString().padStart(2, '0');
-        const leaveMinutes = leaveDate.getMinutes().toString().padStart(2, '0');
-        leave = `${leaveHours}:${leaveMinutes}`;
+  const commitTravelTime = async () => {
+    if (isCommittingTravelTimeRef.current) return
+    isCommittingTravelTimeRef.current = true
+
+    const parsedTravelTime = parseTravelTime(travelTimeDraft.trim() === '' ? '0' : travelTimeDraft)
+    setIsTravelTimeEditing(false)
+    setTravelTimeDraft(String(parsedTravelTime))
+
+    try {
+      if (parsedTravelTime === travelTime) {
+        return
       }
-      setLeaveTime(leave);
-      handleUpdate({ travelTime: value.toString(), leaveTime: leave });
+
+      setTravelTime(parsedTravelTime)
+      setHasManualTravelTime(true)
+
+      // Recalculate leave time only when the edit is committed.
+      let leave = deliveryTime
+      if (deliveryTime && parsedTravelTime > 0) {
+        const [hours, minutes] = deliveryTime.split(':').map(Number)
+        const deliveryDate = new Date()
+        deliveryDate.setHours(hours, minutes, 0, 0)
+        const leaveDate = new Date(deliveryDate.getTime() - (parsedTravelTime * 60 * 1000))
+        const leaveHours = leaveDate.getHours().toString().padStart(2, '0')
+        const leaveMinutes = leaveDate.getMinutes().toString().padStart(2, '0')
+        leave = `${leaveHours}:${leaveMinutes}`
+      }
+
+      setLeaveTime(leave)
+      await handleUpdate({ travelTime: parsedTravelTime.toString(), leaveTime: leave })
+    } finally {
+      isCommittingTravelTimeRef.current = false
     }
   }
   
@@ -632,6 +771,9 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const handleTravelTimeUpdate = (orderId: string, newTravelTime: number) => {
     if (orderId === order.id && !hasManualTravelTime && newTravelTime !== travelTime) {
       setTravelTime(newTravelTime)
+      if (!isTravelTimeEditing) {
+        setTravelTimeDraft(String(newTravelTime))
+      }
       handleUpdate({ travelTime: newTravelTime.toString() })
     }
   }
@@ -641,11 +783,14 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     setSearchQuery(query);
     if (query.length < 2) {
       setSearchResults([]);
+      setExpandedProductIds({});
       return;
     }
 
     try {
-      const response = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(
+        `/api/products/search?group=1&limitProducts=60&limitVariantsPerProduct=80&q=${encodeURIComponent(query)}`
+      );
       if (!response.ok) throw new Error('Failed to search products');
       const data = await response.json();
       const list = Array.isArray(data)
@@ -653,46 +798,74 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
         : Array.isArray(data?.products)
           ? data.products
           : [];
-      setSearchResults(list as Product[]);
+      setSearchResults(list as SearchProductGroup[]);
+      const firstId = list?.[0]?.product?.id
+      setExpandedProductIds(firstId ? { [firstId]: true } : {})
     } catch (error) {
       console.error('Error searching products:', error);
     }
   };
 
-  // Add handleAddProduct function
-  const handleAddProduct = (product: Product) => {
-    const newLineItem = {
-      id: Date.now().toString(), // Temporary ID for new items
-      sku: product.shopifySku || product.variantSku,
-      title: product.shopifyName || product.name,
-      variant_id: product.variantId, // ensure product lookup works
-      variantId: product.variantId,
+  const getSearchProductName = (group: SearchProductGroup) =>
+    (group.product.productTitle || group.product.displayName || '').trim()
+
+  const getSearchVariantTitle = (group: SearchProductGroup, variant: SearchVariant) => {
+    const productDisplayName = getSearchProductName(group)
+    const productTitle = (group.product.productTitle || '').trim()
+    const rawTitle = (variant.shopifyTitle || '').trim()
+
+    // Prefer extracting variant options from the full Shopify title:
+    // "<parent> - <variant options>" -> "<variant options>"
+    if (rawTitle) {
+      const parentCandidates = [
+        productTitle,
+        productDisplayName,
+      ].filter(Boolean)
+      for (const parent of parentCandidates) {
+        if (rawTitle === parent) continue
+        const prefix = `${parent} - `
+        if (rawTitle.startsWith(prefix)) {
+          return rawTitle.slice(prefix.length).trim()
+        }
+      }
+    }
+
+    // Fallbacks only when they are clearly not the parent item name.
+    const displayFallback = (variant.displayName || '').trim()
+    if (displayFallback && displayFallback !== productDisplayName && displayFallback !== productTitle && displayFallback !== 'Default Title') {
+      return displayFallback
+    }
+    const shopifyNameFallback = (variant.shopifyName || '').trim()
+    if (shopifyNameFallback && shopifyNameFallback !== productDisplayName && shopifyNameFallback !== productTitle && shopifyNameFallback !== 'Default Title') {
+      return shopifyNameFallback
+    }
+
+    return rawTitle && rawTitle !== 'Default Title' ? rawTitle : ''
+  }
+
+  const handleAddVariantFromGroup = (group: SearchProductGroup, variant: SearchVariant) => {
+    const productName = (group.product.productTitle || getSearchProductName(group)).trim()
+    const variantTitle = getSearchVariantTitle(group, variant)
+    const newItem = {
+      sku: variant.shopifySku || '',
+      title: productName,
+      variant_id: variant.variantId,
+      variantId: variant.variantId,
       quantity: 1,
-      price: "0.00", // You might want to fetch the actual price from your backend
-      variant_title: null,
+      price: "0.00",
+      variant_title: variantTitle || null,
       vendor: "Cater Station",
       properties: [],
       taxable: true,
       requires_shipping: true,
       fulfillment_status: null
-    }
-
-    let currentLineItems: any[] = [];
-    if (Array.isArray(order.lineItems)) {
-      currentLineItems = order.lineItems;
-    } else if (typeof order.lineItems === 'string' && order.lineItems) {
-      try {
-        currentLineItems = JSON.parse(order.lineItems);
-      } catch (err) {
-        console.error('Failed to parse lineItems JSON:', err, order.lineItems);
-        currentLineItems = [];
-      }
-    }
-
-    const updatedLineItems = [...currentLineItems, newLineItem];
-    handleUpdate({ lineItems: updatedLineItems })
-    setSearchQuery('')
-    setSearchResults([])
+    } as any;
+    const updatedLineItems = [...editedLineItems, newItem];
+    handleUpdate({ lineItems: updatedLineItems });
+    setIsSearching(false);
+    setSearchQuery('');
+    setSearchResults([]);
+    setExpandedProductIds({});
   }
 
   // Add handleRemoveProduct function
@@ -786,9 +959,61 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [isProductEditModalOpen, setIsProductEditModalOpen] = useState(false);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
+  /** Which order line (and optional pack child) the product edit modal applies to */
+  const productEditLineContextRef = useRef<{ lineIndex: number; childVariantId: string | null } | null>(null);
   const [productEditError, setProductEditError] = useState<string | null>(null);
   const [ruleSuggestions, setRuleSuggestions] = useState<any>(null);
   const [isSetRuleModalOpen, setIsSetRuleModalOpen] = useState(false);
+  const [isCompListModalOpen, setIsCompListModalOpen] = useState(false);
+
+  const componentListRows = useMemo(() => {
+    const parseArray = (value: any): any[] => {
+      if (Array.isArray(value)) return value;
+      if (typeof value === 'string' && value.trim()) {
+        try {
+          const parsed = JSON.parse(value);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+      return [];
+    };
+
+    const base = parseArray(editingProduct?.baseIngredients).map((ing) => ({ ...ing, _layer: 'Base' }));
+    const variant = parseArray(editingProduct?.ingredients).map((ing) => ({ ...ing, _layer: 'Variant' }));
+    return [...base, ...variant].map((ing, idx) => ({
+      key: `${ing.id || ing.name || 'item'}-${idx}`,
+      name: String(ing.name || '').trim() || 'Unnamed',
+      source: String(ing.source || '').trim() || 'Unknown',
+      quantity: Number(ing.quantity || 0),
+      unit: String(ing.unit || '').trim(),
+      cost: Number(ing.cost || 0),
+      layer: ing._layer as 'Base' | 'Variant',
+    }));
+  }, [editingProduct]);
+
+  const componentListTotals = useMemo(() => {
+    const byName = new Map<string, { totalQty: number; layers: Set<string>; sources: Set<string> }>();
+    for (const row of componentListRows) {
+      const key = row.name.toLowerCase().trim();
+      if (!byName.has(key)) {
+        byName.set(key, { totalQty: 0, layers: new Set<string>(), sources: new Set<string>() });
+      }
+      const current = byName.get(key)!;
+      current.totalQty += row.quantity;
+      current.layers.add(row.layer);
+      current.sources.add(row.source);
+    }
+    return Array.from(byName.entries())
+      .map(([k, v]) => ({
+        name: componentListRows.find((r) => r.name.toLowerCase().trim() === k)?.name || k,
+        totalQty: Number(v.totalQty.toFixed(4)),
+        layers: Array.from(v.layers),
+        sources: Array.from(v.sources),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [componentListRows]);
 
   const productForm = useForm({
     resolver: zodResolver(customDataSchema),
@@ -806,13 +1031,17 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     mode: 'onChange',
   });
 
-  const openProductEditModal = async (product: any) => {
+  const openProductEditModal = async (
+    product: any,
+    context: { lineIndex: number; childVariantId: string | null }
+  ) => {
     if (!product || typeof product !== 'object' || !product.variantId || product.variantId === '') {
       console.error('Attempted to open modal with invalid product or missing variantId:', product);
       alert('Cannot edit this product: missing variant ID.');
       return;
     }
     const variantId = product.variantId.toString();
+    productEditLineContextRef.current = context;
     console.log('Opening Product Edit Modal with product:', product);
     console.log('Product keys:', Object.keys(product));
     
@@ -847,18 +1076,26 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     } catch (error) {
       console.error('Error fetching rule suggestions:', error);
     }
+
+    setProductEditError(null);
+    const li = lineItems[context.lineIndex] as LineItemWithOverrides | undefined;
+    const fauxItem = {
+      _isPackChild: !!context.childVariantId,
+      _childVariantId: context.childVariantId || undefined,
+    };
+    const ov = getOverridesForDisplayRow(fauxItem as any, li);
     
-    // Allow timer1 and timer2 to be null
+    // Allow timer1 and timer2 to be null; order-only overrides win when present
     productForm.reset({
       variantId,
-      displayName: latestProduct.displayName || '',
-      meat1: latestProduct.meat1 || '',
-      meat2: latestProduct.meat2 || '',
-      timer1: latestProduct.timer1 ?? null,
-      timer2: latestProduct.timer2 ?? null,
-      option1: latestProduct.option1 || '',
-      option2: latestProduct.option2 || '',
-      serveware: !!latestProduct.serveware,
+      displayName: (ov?.displayName ?? latestProduct.displayName) || '',
+      meat1: (ov?.meat1 ?? latestProduct.meat1) || '',
+      meat2: (ov?.meat2 ?? latestProduct.meat2) || '',
+      timer1: ov?.timer1 !== undefined ? ov.timer1 : (latestProduct.timer1 ?? null),
+      timer2: ov?.timer2 !== undefined ? ov.timer2 : (latestProduct.timer2 ?? null),
+      option1: (ov?.option1 ?? latestProduct.option1) || '',
+      option2: (ov?.option2 ?? latestProduct.option2) || '',
+      serveware: ov?.serveware !== undefined ? !!ov.serveware : !!latestProduct.serveware,
     });
     setEditingProduct(latestProduct);
     setIsProductEditModalOpen(true);
@@ -873,13 +1110,21 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   }, [isProductEditModalOpen, editingProduct]);
 
   const handleProductEditSave = async (data: any) => {
+    setIsSavingProduct(true)
+    setProductEditError(null)
     try {
+      const payload = {
+        ...data,
+        timer1: Number.isFinite(Number(data.timer1)) ? Number(data.timer1) : null,
+        timer2: Number.isFinite(Number(data.timer2)) ? Number(data.timer2) : null,
+      }
+
       const response = await fetch(`/api/products/variant/${data.variantId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
@@ -893,16 +1138,85 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
         updateProductInState(data.variantId, updatedProduct)
       }
 
-      // Close the modal
+      const ctx = productEditLineContextRef.current
+      if (ctx) {
+        try {
+          const parsed: LineItemWithOverrides[] = lineItems.map((row: LineItemWithOverrides) => ({
+            ...row,
+            childOrderOverrides: row.childOrderOverrides
+              ? { ...row.childOrderOverrides }
+              : undefined,
+          }))
+          parsed[ctx.lineIndex] = clearLineScopeOverrides(
+            parsed[ctx.lineIndex] as LineItemWithOverrides,
+            ctx.childVariantId
+          ) as any
+          await handleUpdate({ lineItems: parsed as any })
+        } catch (orderSyncError) {
+          // Product update should still persist even if order-level override cleanup fails.
+          console.warn('Product updated but failed clearing line overrides:', orderSyncError)
+        }
+      }
+
       setIsProductEditModalOpen(false)
+      productEditLineContextRef.current = null
       
-      // Refresh products if callback provided
       if (refreshProducts) {
         await refreshProducts()
       }
 
     } catch (error) {
       console.error('Error updating product:', error)
+      setProductEditError(error instanceof Error ? error.message : 'Failed to update product')
+    } finally {
+      setIsSavingProduct(false)
+    }
+  }
+
+  const handleOrderOnlyProductSave = async (data: any) => {
+    const ctx = productEditLineContextRef.current
+    if (ctx == null || ctx.lineIndex < 0 || ctx.lineIndex >= lineItems.length) {
+      setProductEditError('Missing line context for order-only save.')
+      return
+    }
+    setIsSavingProduct(true)
+    setProductEditError(null)
+    try {
+      const payload: OrderProductOverrides = {
+        displayName: data.displayName,
+        meat1: data.meat1,
+        meat2: data.meat2,
+        timer1: data.timer1,
+        timer2: data.timer2,
+        option1: data.option1,
+        option2: data.option2,
+        serveware: data.serveware,
+      }
+      const parsed: LineItemWithOverrides[] = lineItems.map((row: LineItemWithOverrides) => ({
+        ...row,
+        childOrderOverrides: row.childOrderOverrides
+          ? { ...row.childOrderOverrides }
+          : undefined,
+      }))
+      const idx = ctx.lineIndex
+      const row = { ...parsed[idx] } as LineItemWithOverrides
+      if (ctx.childVariantId) {
+        row.childOrderOverrides = {
+          ...row.childOrderOverrides,
+          [ctx.childVariantId]: payload,
+        }
+      } else {
+        row.orderProductOverrides = payload
+      }
+      parsed[idx] = row
+      await handleUpdate({ lineItems: parsed as any })
+      setIsProductEditModalOpen(false)
+      productEditLineContextRef.current = null
+    } catch (error) {
+      console.error('Error saving order-only product overrides:', error)
+      setProductEditError(error instanceof Error ? error.message : 'Failed to save')
+    } finally {
+      setIsSavingProduct(false)
     }
   }
 
@@ -927,9 +1241,58 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     try {
       console.log('📡 Frontend: Making API call to send SMS...');
       // Build Google Maps link
-      const addrObj: any = typeof order.shippingAddress === 'string' ? (()=>{ try { return JSON.parse(order.shippingAddress) } catch { return {} } })() : (order.shippingAddress || {})
-      const mapsQuery = encodeURIComponent([addrObj.company, addrObj.address1, addrObj.address2, addrObj.zip].filter(Boolean).join(', '))
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`
+      const addrObj: any =
+        typeof order.shippingAddress === 'string'
+          ? (() => {
+              try {
+                return JSON.parse(order.shippingAddress)
+              } catch {
+                return {}
+              }
+            })()
+          : (order.shippingAddress || {})
+      // Build maps query from concrete delivery address fields first (avoid ambiguous company-only matches).
+      const addressParts = [
+        addrObj.address1,
+        addrObj.address2,
+        addrObj.address3,
+        addrObj.suburb,
+        addrObj.city,
+        addrObj.province,
+        addrObj.zip,
+        addrObj.country,
+      ]
+        .map((p: any) => String(p || '').trim())
+        .filter(Boolean)
+      const mapsQuery = encodeURIComponent(
+        addressParts.length > 0
+          ? addressParts.join(', ')
+          : [addrObj.company].map((p: any) => String(p || '').trim()).filter(Boolean).join(', ')
+      )
+      const mapsUrl = `https://maps.google.com/?q=${mapsQuery}`
+      const companyName = String(addrObj.company || '').trim()
+      const customerPhone = String(order.customerPhone || addrObj.phone || '').trim()
+      const deliveryAddress = addressParts.join(', ') || [addrObj.company].filter(Boolean).join(' ')
+      const noteAttributes: any[] = (() => {
+        const raw = (order as any).noteAttributes ?? (order as any).note_attributes
+        if (Array.isArray(raw)) return raw
+        if (typeof raw === 'string' && raw.trim()) {
+          try {
+            const parsed = JSON.parse(raw)
+            return Array.isArray(parsed) ? parsed : []
+          } catch {
+            return []
+          }
+        }
+        return []
+      })()
+      const deliveryNoteFromAttributes = noteAttributes.find((attr: any) => {
+        const name = String(attr?.name || '').toLowerCase()
+        return name.includes('delivery note') || name.includes('delivery instruction')
+      })?.value
+      const customerOrderNotes = String(
+        order.note || deliveryNoteFromAttributes || ''
+      ).trim()
       // Build items summary with SW tag (no qty)
       const itemsSummary = lineItems.map((li: any) => {
         const title = li.title || li.name || ''
@@ -940,7 +1303,14 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       const effectiveCarId = (carId || (order as any)?.carId) as string | undefined
       const selectedCar = effectiveCarId ? cars.find(c => c.id === effectiveCarId) : undefined
       const vehicleLabel = selectedCar ? ` (${selectedCar.name}${selectedCar.rego ? ` ${selectedCar.rego}` : ''})` : ''
-      const smsBody = `Order #${order.orderNumber}${vehicleLabel}\nTags: ${order.tags || ''}\nCustomer: ${order.customerFirstName || ''} (${order.customerPhone || ''})\nAddress: ${[addrObj.company, addrObj.address1, addrObj.address2, addrObj.zip].filter(Boolean).join(' ')} — ${mapsUrl}\nItems:\n${itemsSummary}`
+      const smsBody = `Order #${order.orderNumber}${vehicleLabel}
+Customer: ${order.customerFirstName || ''} ${order.customerLastName || ''}
+Phone: ${customerPhone || 'N/A'}
+${companyName ? `Company: ${companyName}\n` : ''}Address: ${deliveryAddress}
+Map: ${mapsUrl}
+${customerOrderNotes ? `Customer order notes: ${customerOrderNotes}\n` : ''}
+Items:
+${itemsSummary}`
       const requestBody = { driverPhone: phoneNumber.trim(), message: smsBody };
       console.log('📡 Frontend: Request body:', requestBody);
       
@@ -1105,7 +1475,11 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   }
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden">
+    <div className={`w-full bg-white rounded-lg shadow-sm overflow-hidden ${
+      compactFonts
+        ? '[&_.text-xs]:text-[10px] [&_.text-sm]:text-xs [&_.text-base]:text-sm [&_.text-lg]:text-base [&_.text-xl]:text-lg xl:[&_.text-xs]:text-xs xl:[&_.text-sm]:text-sm xl:[&_.text-base]:text-base xl:[&_.text-lg]:text-lg xl:[&_.text-xl]:text-xl'
+        : ''
+    }`}>
       {/* Order Details Section - Light Blue Background */}
       <div className={`${isTvMode ? 'bg-blue-50' : 'bg-blue-100'} text-black p-1`}>
         {/* Single row with all order details */}
@@ -1135,7 +1509,9 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                   setLeaveTime(e.target.value);
                   handleUpdate({ leaveTime: e.target.value });
                 }}
-                className="w-full text-center font-bold text-black bg-transparent border-0 px-0 py-0 focus:outline-none focus:ring-0 appearance-none text-lg sm:text-xl"
+                className={`w-full text-center font-bold text-black bg-transparent border-0 px-0 py-0 focus:outline-none focus:ring-0 appearance-none ${
+                  compactFonts ? 'text-base sm:text-lg xl:text-xl' : 'text-lg sm:text-xl'
+                }`}
                 title="Leave Time"
               />
             )}
@@ -1143,26 +1519,27 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           <div className={`${isTvMode ? 'w-36' : 'w-24 sm:w-28'}`}>
             <div className="flex items-center">
               <input
-                type="number"
-                step="1"
-                value={Number.isNaN(travelTime) ? 0 : travelTime}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={travelTimeDraft}
+                onFocus={() => setIsTravelTimeEditing(true)}
                 onChange={(e) => {
-                  const numericValue = parseInt(e.target.value || '0', 10);
-                  handleTravelTimeChange(Number.isNaN(numericValue) ? 0 : numericValue);
+                  const digitsOnly = e.target.value.replace(/\D/g, '')
+                  setTravelTimeDraft(digitsOnly)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    void commitTravelTime()
+                  }
+                  if (e.key === 'Escape') {
+                    setTravelTimeDraft(String(travelTime))
+                    setIsTravelTimeEditing(false)
+                  }
                 }}
                 onBlur={() => {
-                  // Persist to server on blur to avoid mid-typing flicker
-                  let leave = deliveryTime;
-                  if (deliveryTime && travelTime > 0) {
-                    const [hours, minutes] = deliveryTime.split(':').map(Number);
-                    const deliveryDate = new Date();
-                    deliveryDate.setHours(hours, minutes, 0, 0);
-                    const leaveDate = new Date(deliveryDate.getTime() - (travelTime * 60 * 1000));
-                    const leaveHours = leaveDate.getHours().toString().padStart(2, '0');
-                    const leaveMinutes = leaveDate.getMinutes().toString().padStart(2, '0');
-                    leave = `${leaveHours}:${leaveMinutes}`;
-                  }
-                  handleUpdate({ travelTime: String(travelTime), leaveTime: leave });
+                  void commitTravelTime()
                 }}
                 className="w-16 text-center font-medium border rounded px-1 text-black appearance-none"
                 placeholder="0"
@@ -1192,35 +1569,56 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
               </select>
             </div>
           </div>
-          {/* Driver selection */}
-          <div className={`${isTvMode ? 'w-56' : 'w-28 sm:w-36'}`}>
-            <select
-              value={driverId}
-              onChange={(e) => {
-                setDriverId(e.target.value)
-                handleUpdate({ driverId: e.target.value })
-              }}
-              className="w-full px-1 py-0.5 rounded bg-blue-200 text-black border border-blue-300 text-xs"
-              title="Driver"
-              disabled={isLoadingDrivers}
-            >
-              <option value="">{isLoadingDrivers ? 'Loading drivers...' : 'Select Driver'}</option>
-              {drivers.map(driver => (
-                <option key={driver.id} value={driver.id}>
-                  {driver.firstName} {driver.lastName}
-                </option>
-              ))}
-            </select>
+          {/* Driver selection (hidden on mobile; drivers don't assign themselves from the app) */}
+          <div className={`${isTvMode ? 'w-64' : 'hidden lg:block w-36 sm:w-44'}`}>
+            <div className="relative">
+              <select
+                value={driverId}
+                onChange={(e) => {
+                  setDriverId(e.target.value)
+                  handleUpdate({ driverId: e.target.value })
+                }}
+                className={`w-full px-1 py-0.5 rounded bg-blue-200 border border-blue-300 ${
+                  driverId ? 'text-transparent font-black' : 'text-black text-xs'
+                }`}
+                title="Driver"
+                disabled={isLoadingDrivers}
+              >
+                <option value="">{isLoadingDrivers ? 'Loading drivers...' : 'Select Driver'}</option>
+                {drivers.map(driver => (
+                  <option key={driver.id} value={driver.id}>
+                    {driver.firstName} {driver.lastName}
+                  </option>
+                ))}
+              </select>
+              {driverId && selectedDriverFirstName && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-1 text-lg sm:text-xl font-bold text-black truncate">
+                  {selectedDriverFirstName}
+                </div>
+              )}
+            </div>
           </div>
-          <div 
-            className="flex-1 truncate cursor-pointer hover:underline mr-4" 
-            title={deliveryAddress || 'No address available'}
-            onClick={() => setIsMapModalOpen(true)}
-          >
-            {/* Order number and customer before address */}
-            <span className="mr-3">{`#${order.orderNumber || ''}`}</span>
-            <span className="mr-3">{`${order.customerFirstName || ''} ${order.customerLastName || ''}`.trim()}</span>
-            {deliveryAddress || 'No address'}
+          <div className="flex-1 flex items-center min-w-0 mr-4">
+            <div 
+              className="truncate cursor-pointer hover:underline min-w-0" 
+              title={deliveryAddress || 'No address available'}
+              onClick={() => setIsMapModalOpen(true)}
+            >
+              {/* Order number and customer before address */}
+              <span className="mr-3">{`#${order.orderNumber || ''}`}</span>
+              <span className="mr-3">{customerDisplayName}</span>
+              {deliveryAddress || 'No address'}
+            </div>
+            <DeliveryNotesButton
+              orderId={order.id}
+              shippingAddress={order.shippingAddress}
+              customerEmail={order.customerEmail}
+              addressLabel={deliveryAddress}
+              notes={deliveryNotes}
+              onNotesChanged={onDeliveryNotesChanged}
+              className="ml-1.5"
+              iconClassName={isTvMode ? 'h-7 w-7' : 'h-4 w-4'}
+            />
           </div>
           <div className={`${isTvMode ? 'w-48' : 'w-20 sm:w-24'} ml-2 text-right`}>
             {deliveryTime || 'Not set'}
@@ -1286,36 +1684,66 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
 
       {/* Item Details Section - White Background */}
       <div className="p-1 bg-white">
-        <div className="relative">
+        <div className={`relative ${internalNoteReserveClass}`}>
           {/* Addon products - center area, includes pack children that are addons */}
-          <div className={`hidden lg:flex absolute left-1/2 top-0 items-center space-x-2 ${isTvMode ? 'text-[2.5rem]' : 'text-[1.75rem]'} text-red-600 z-10 leading-tight`}>
+          <div
+            className={`hidden lg:flex absolute left-1/2 -translate-x-1/2 top-0 items-center justify-center flex-wrap gap-x-2 gap-y-0.5 ${isTvMode ? 'text-[2.5rem]' : 'text-[1.75rem]'} text-red-600 z-10 leading-tight max-w-[calc(100%-380px)]`}
+          >
             {expandedDisplayLineItems.map((item: any, index: number) => {
               const variantId = item.variant_id?.toString() || item.variantId?.toString();
-              const product = variantId ? products[variantId] : null;
+              const baseProduct = variantId ? products[variantId] : null;
+              const sourceLine =
+                item._lineIndex !== undefined
+                  ? (lineItems[item._lineIndex] as LineItemWithOverrides)
+                  : undefined;
+              const product = getEffectiveLineProduct(
+                item,
+                products as unknown as Record<string, Record<string, unknown>>,
+                sourceLine
+              ) as Product | null;
               const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
-              if (!isAddon(item.sku) && !isAddon(product?.shopifySku)) return null
+              if (!isAddon(item.sku) && !isAddon(baseProduct?.shopifySku)) return null
               return (
                 <ContextMenu key={index}>
                   <ContextMenuTrigger asChild>
                     <div className="flex items-center cursor-context-menu hover:bg-gray-50 p-0.5 rounded leading-tight">
-                  {index > 0 && <span className="mx-2 text-red-600">•</span>}
+                  {index > 0 && <span className="mx-1 text-red-600">•</span>}
                   {product?.serveware && (
                     <span className="text-xs font-black text-black mr-2 align-middle">SW</span>
                   )}
-                  <span>{(() => {
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      const imageUrl = getProductImageUrl(item, product)
+                      setProductImagePreview({
+                        name: getDisplayProductName(item, product),
+                        url: imageUrl,
+                      })
+                    }}
+                    className="text-left hover:text-blue-700 hover:underline"
+                    title="Open product image"
+                  >
+                    {(() => {
+                    // For addons, prefer variant-level custom displayName over parent product naming.
+                    const variantDisplay = product?.displayName;
                     const parentDisplay = product ? (product as any).productDisplayName : undefined;
                     const fallbackName = product ? (product.shopifyName || product.shopifyTitle || product.name) : item.title;
-                    const name = (parentDisplay?.trim() || '') || (fallbackName || '');
+                    const name = (variantDisplay?.trim() || '') || (parentDisplay?.trim() || '') || (fallbackName || '');
                     const qty = Number(item.quantity || 0);
                     return qty > 1 ? `${qty}x ${name}` : name;
-                  })()}</span>
+                  })()}
+                  </button>
                 </div>
                   </ContextMenuTrigger>
                   <ContextMenuContent>
                     <ContextMenuItem 
                       onClick={() => {
-                        if (product) {
-                          openProductEditModal(product);
+                        if (baseProduct && item._lineIndex !== undefined) {
+                          openProductEditModal(baseProduct, {
+                            lineIndex: item._lineIndex,
+                            childVariantId: item._childVariantId ?? null,
+                          });
                         } else {
                           console.warn('Product data not found for variant ID:', variantId);
                           alert('Product data not found for this item. Please sync products first.');
@@ -1348,6 +1776,11 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                   
                   await handleUpdate({ isDispatched: newDispatchState });
                   console.log('🚀 Frontend: Order updated successfully');
+                  if (newDispatchState) {
+                    // If the dispatcher is also the assigned driver, start
+                    // tracking now instead of waiting for the next poll.
+                    requestTrackingStatusSync();
+                  }
                   
                   // No automatic SMS on dispatch anymore
                 } catch (error) {
@@ -1411,6 +1844,15 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setIsCustomerNoteModalOpen(true)}
+              className="bg-white border-gray-200 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+              title="Add customer note to day-prior email"
+            >
+              CN
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setIsInternalNoteModalOpen(true)}
               className="bg-white border-gray-200 hover:bg-gray-100 active:bg-gray-200 transition-colors"
               title="Add internal note"
@@ -1448,14 +1890,24 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             </Button>
           </div>
 
-          {/* Internal note under action buttons (desktop) */}
-          {order.internalNote && (
-            <div className="hidden lg:block absolute right-2 top-10 w-[340px]">
-              <div className="mt-1 p-2 bg-blue-50 border border-blue-200 rounded-md">
-                <div className="text-sm text-blue-700 whitespace-pre-wrap">
-                  {order.internalNote}
+          {/* Customer + internal notes under action buttons (desktop) */}
+          {(order.customerNote || order.internalNote) && (
+            <div className="hidden lg:block absolute right-2 top-10 w-[340px] space-y-1">
+              {order.customerNote && (
+                <div className="mt-1 p-2 bg-amber-50 border border-amber-200 rounded-md">
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">Customer note</div>
+                  <div className="text-sm text-amber-900 whitespace-pre-wrap">
+                    {order.customerNote}
+                  </div>
                 </div>
-              </div>
+              )}
+              {order.internalNote && (
+                <div className="mt-1 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="text-sm text-blue-700 whitespace-pre-wrap">
+                    {order.internalNote}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1464,7 +1916,16 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             {expandedDisplayLineItems.map((item: any, index: number) => {
               // Use variantId for product lookup instead of SKU
               const variantId = item.variant_id?.toString() || item.variantId?.toString();
-              const product = variantId ? products[variantId] : null;
+              const baseProduct = variantId ? products[variantId] : null;
+              const sourceLine =
+                item._lineIndex !== undefined
+                  ? (lineItems[item._lineIndex] as LineItemWithOverrides)
+                  : undefined;
+              const product = getEffectiveLineProduct(
+                item,
+                products as unknown as Record<string, Record<string, unknown>>,
+                sourceLine
+              ) as Product | null;
               
               // Debug logging for the specific variant
               if (variantId === '46104594514175') {
@@ -1483,7 +1944,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
               
               const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
               // Skip addon products (child addons will now be excluded too)
-              if (isAddon(item.sku) || isAddon(product?.shopifySku)) return null
+              if (isAddon(item.sku) || isAddon(baseProduct?.shopifySku)) return null
               // Create an array of items based on quantity (pack children already multiplied)
               return Array(item.quantity).fill(null).map((_, itemIndex) => {
                 // Only calculate timer times if we have a valid product with timers
@@ -1505,12 +1966,26 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                           <span className="flex-shrink-0 w-10 text-sm font-black text-red-600">
                             {product?.serveware ? 'SW' : ''}
                           </span>
-                          <span className="flex-1">{(() => {
-                            if (!product) return item.title;
-                            const parentDisplay = (product as any).productDisplayName;
-                            const name = parentDisplay?.trim() || product.shopifyName || product.shopifyTitle || product.name || '';
-                            return name;
-                          })()}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              const imageUrl = getProductImageUrl(item, product)
+                              setProductImagePreview({
+                                name: getDisplayProductName(item, product),
+                                url: imageUrl,
+                              })
+                            }}
+                            className="flex-1 text-left hover:text-blue-700 hover:underline"
+                            title="Open product image"
+                          >
+                            {(() => {
+                              if (!product) return item.title;
+                              const parentDisplay = (product as any).productDisplayName;
+                              const name = parentDisplay?.trim() || product.shopifyName || product.shopifyTitle || product.name || '';
+                              return name;
+                            })()}
+                          </button>
                         </div>
                     {(() => {
                       // Check if we have any meat values to display
@@ -1600,8 +2075,11 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                             productsMapKeys: Object.keys(products).slice(0, 5), // Show first 5 keys
                             lookupKey: variantId
                           });
-                          if (product) {
-                            openProductEditModal(product);
+                          if (baseProduct && item._lineIndex !== undefined) {
+                            openProductEditModal(baseProduct, {
+                              lineIndex: item._lineIndex,
+                              childVariantId: item._childVariantId ?? null,
+                            });
                           } else {
                             // Optionally show a toast or alert
                             console.warn('Product data not found for variant ID:', variantId);
@@ -1621,22 +2099,8 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           {/* Mobile actions row (shown when desktop actions are hidden) */}
           <div className="mt-2 flex lg:hidden items-center gap-2">
             <PaymentAlertBadge order={order} />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                try {
-                  const newDispatchState = !order.isDispatched;
-                  await handleUpdate({ isDispatched: newDispatchState });
-                } catch (error) {
-                  console.error('Error updating dispatch status:', error);
-                }
-              }}
-              disabled={isSendingSms}
-            >
-              <Car className="h-4 w-4" />
-            </Button>
             <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>Edit</Button>
+            <Button variant="outline" size="sm" onClick={() => setIsCustomerNoteModalOpen(true)} title="Add customer note to day-prior email">CN</Button>
             <Button
               variant="outline"
               size="sm"
@@ -1655,14 +2119,25 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             </Button>
           </div>
           
-          {/* Internal note under buttons (mobile) */}
-          {order.internalNote && (
-            <div className="lg:hidden mt-2 w-full">
-              <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
-                <div className="text-sm text-blue-700 whitespace-pre-wrap">
-                  {order.internalNote}
+          {/* Customer + internal notes under buttons (mobile) */}
+          {(order.customerNote || order.internalNote) && (
+            <div className="lg:hidden mt-2 w-full space-y-1.5">
+              {order.customerNote && (
+                <div className="p-2 bg-amber-50 border border-amber-200 rounded-md">
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">Customer note</div>
+                  <div className="text-sm text-amber-900 whitespace-pre-wrap">
+                    {order.customerNote}
+                  </div>
                 </div>
-              </div>
+              )}
+              {order.internalNote && (
+                <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-blue-700">Internal note</div>
+                  <div className="text-sm text-blue-700 whitespace-pre-wrap">
+                    {order.internalNote}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1677,6 +2152,12 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
               Edit order details and manage items. Changes will be saved to the database.
             </DialogDescription>
           </DialogHeader>
+
+          {isOrderCancelled && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              This order is currently cancelled.
+            </div>
+          )}
 
           <div className="space-y-6 py-4">
             {/* Order Details */}
@@ -1768,6 +2249,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                     setIsSearching(true);
                     setSearchQuery('');
                     setSearchResults([]);
+                    setExpandedProductIds({});
                   }}
                 >
                   Add Item
@@ -1821,6 +2303,30 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           </div>
 
           <DialogFooter>
+            <Button
+              variant={isOrderCancelled ? 'outline' : 'destructive'}
+              onClick={async () => {
+                const actionLabel = isOrderCancelled ? 'uncancel' : 'cancel'
+                const ok = window.confirm(`Are you sure you want to ${actionLabel} this order?`)
+                if (!ok) return
+                try {
+                  setIsLoading(true)
+                  await handleUpdate({
+                    cancelledAt: isOrderCancelled ? null : new Date().toISOString(),
+                    // Cancelled orders should no longer appear in active dispatch flows.
+                    isDispatched: isOrderCancelled ? order.isDispatched : false,
+                  } as any)
+                  setIsEditModalOpen(false)
+                } catch (error) {
+                  console.error(`Error trying to ${actionLabel} order:`, error)
+                } finally {
+                  setIsLoading(false)
+                }
+              }}
+              disabled={isLoading}
+            >
+              {isOrderCancelled ? 'Uncancel Order' : 'Cancel Order'}
+            </Button>
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
               Cancel
             </Button>
@@ -1857,7 +2363,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
 
       {/* Product Search Dialog */}
       <Dialog modal open={isSearching} onOpenChange={setIsSearching}>
-        <DialogContent aria-describedby="search-products-description">
+        <DialogContent className="w-[95vw] max-w-3xl" aria-describedby="search-products-description">
           <DialogHeader>
             <DialogTitle>Add Product</DialogTitle>
             <DialogDescription id="search-products-description">
@@ -1877,51 +2383,64 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             </div>
 
             {searchResults.length > 0 && (
-              <div className="border rounded-md divide-y max-h-[300px] overflow-auto">
-                {searchResults.map((product) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center justify-between p-3 hover:bg-gray-50"
-                  >
-                    <div>
-                      <div className="font-medium">{(() => {
-                        if (product.displayName?.trim()) return product.displayName
-                        const name = product.shopifyName
-                        if (name && name !== 'Default Title') return name
-                        return product.shopifyTitle || product.name
-                      })()}</div>
-                      <div className="text-sm text-gray-500">
-                        SKU: {product.shopifySku || product.variantSku}
+              <div className="border rounded-md divide-y max-h-[300px] overflow-auto overflow-x-hidden">
+                {searchResults.map((group) => {
+                  const productId = group.product.id
+                  const isExpanded = Boolean(expandedProductIds[productId])
+                  const productName = getSearchProductName(group)
+                  return (
+                    <div key={productId} className="p-2">
+                      <div className="flex items-center justify-between gap-2 rounded p-2 hover:bg-gray-50">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium truncate">{productName}</div>
+                        </div>
+                        <Button
+                          className="shrink-0"
+                          size="icon"
+                          variant="outline"
+                          onClick={() =>
+                            setExpandedProductIds((prev) => ({
+                              ...prev,
+                              [productId]: !prev[productId],
+                            }))
+                          }
+                        >
+                          {isExpanded ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                        </Button>
                       </div>
+
+                      {isExpanded && (
+                        <div className="mt-1 ml-2 border-l pl-2 space-y-1">
+                          {group.variants.map((variant) => {
+                            const variantTitle = getSearchVariantTitle(group, variant) || 'Default'
+                            return (
+                              <div
+                                key={variant.variantId}
+                                className="flex items-center justify-between gap-2 rounded p-2 hover:bg-gray-50"
+                              >
+                                <div className="min-w-0 flex-1">
+                                  <div className="text-sm font-medium truncate">{productName}</div>
+                                  <div className="text-xs text-gray-500 truncate">
+                                    {variantTitle}
+                                    {variant.shopifySku ? ` - SKU: ${variant.shopifySku}` : ''}
+                                  </div>
+                                </div>
+                                <Button className="shrink-0" size="sm" onClick={() => handleAddVariantFromGroup(group, variant)}>
+                                  Add
+                                </Button>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        const newItem = {
-                          sku: product.shopifySku || product.variantSku,
-                          title: (product.shopifyName && product.shopifyName !== 'Default Title') ? product.shopifyName : (product.shopifyTitle || product.name),
-                          variant_id: product.variantId,
-                          variantId: product.variantId,
-                          quantity: 1,
-                          price: "0.00",
-                          variant_title: null,
-                          vendor: "Cater Station",
-                          properties: [],
-                          taxable: true,
-                          requires_shipping: true,
-                          fulfillment_status: null
-                        } as any;
-                        const updatedLineItems = [...editedLineItems, newItem];
-                        handleUpdate({ lineItems: updatedLineItems });
-                        setIsSearching(false);
-                        setSearchQuery('');
-                        setSearchResults([]);
-                      }}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                ))}
+                  )
+                })}
+              </div>
+            )}
+            {searchQuery.length >= 2 && searchResults.length === 0 && (
+              <div className="text-sm text-gray-500 border rounded-md p-3">
+                No products found for &quot;{searchQuery}&quot;.
               </div>
             )}
           </div>
@@ -2068,6 +2587,40 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {productImagePreview && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product image"
+          onClick={() => setProductImagePreview(null)}
+        >
+          <div
+            className="relative bg-white rounded-lg shadow-xl max-w-[min(90vw,42rem)] max-h-[90vh] overflow-auto p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="absolute top-2 right-2 z-10 h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg leading-none flex items-center justify-center"
+              onClick={() => setProductImagePreview(null)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 className="font-semibold text-lg pr-10 mb-3">{productImagePreview.name}</h3>
+            {productImagePreview.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={productImagePreview.url}
+                alt={productImagePreview.name}
+                className="max-w-full max-h-[70vh] w-auto mx-auto object-contain rounded border border-gray-100"
+              />
+            ) : (
+              <p className="text-gray-500 text-sm py-8 text-center">No image on file for this product.</p>
+            )}
+          </div>
+        </div>
+      )}
       {/* Order Details Modal (opens when clicking phone number) */}
       <Dialog modal open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
         <DialogContent className="w-full max-w-lg max-h-[85vh] overflow-y-auto">
@@ -2193,12 +2746,18 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       </Dialog>
 
       {/* Product Edit Modal */}
-      <Dialog open={isProductEditModalOpen} onOpenChange={setIsProductEditModalOpen}>
+      <Dialog
+        open={isProductEditModalOpen}
+        onOpenChange={(open) => {
+          setIsProductEditModalOpen(open)
+          if (!open) productEditLineContextRef.current = null
+        }}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Edit Product Custom Data</DialogTitle>
             <DialogDescription>
-              Shopify data is read-only. Edit custom fields below.
+              Shopify data is read-only. Edit custom fields below. Use <span className="font-medium">Order only save</span> to store changes on this order only; use <span className="font-medium">Update product</span> to save to the catalog for all future orders.
             </DialogDescription>
           </DialogHeader>
           {editingProduct && (
@@ -2231,7 +2790,10 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             </div>
           )}
           
-          <form onSubmit={productForm.handleSubmit(handleProductEditSave)} className="space-y-2">
+          <form
+            onSubmit={productForm.handleSubmit(handleProductEditSave)}
+            className="space-y-2"
+          >
             <div className="grid grid-cols-2 gap-2">
               <div className="col-span-2">
                 <Label htmlFor="displayName">Display Name (optional)</Label>
@@ -2278,16 +2840,100 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                 <Settings className="h-4 w-4" />
                 Set Rule
               </Button>
-              <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCompListModalOpen(true)}
+                disabled={!editingProduct}
+              >
+                Comp List
+              </Button>
+              <div className="flex flex-wrap gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={() => setIsProductEditModalOpen(false)}>
                   Cancel
                 </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={isSavingProduct}
+                  onClick={productForm.handleSubmit(handleOrderOnlyProductSave)}
+                >
+                  {isSavingProduct ? 'Saving...' : 'Order only save'}
+                </Button>
                 <Button type="submit" disabled={isSavingProduct}>
-                  {isSavingProduct ? 'Saving...' : 'Save'}
+                  {isSavingProduct ? 'Saving...' : 'Update product'}
                 </Button>
               </div>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Component List Modal */}
+      <Dialog open={isCompListModalOpen} onOpenChange={setIsCompListModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Component List</DialogTitle>
+            <DialogDescription>
+              Per-box ingredient/component quantities for this variant (Base + Variant layers).
+            </DialogDescription>
+          </DialogHeader>
+          {editingProduct && (
+            <div className="space-y-3">
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">{editingProduct.displayName || editingProduct.shopifyName || editingProduct.shopifyTitle || 'Product'}</span>
+                <span className="ml-3">Variant ID: {editingProduct.variantId}</span>
+              </div>
+              {componentListRows.length === 0 ? (
+                <div className="text-sm text-gray-600">No ingredient rows found on this variant.</div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="rounded-md border overflow-hidden">
+                    <div className="grid grid-cols-[1fr_120px_180px] bg-gray-50 text-xs font-semibold px-3 py-2">
+                      <div>Combined Name</div>
+                      <div>Total Qty/box</div>
+                      <div>Layers</div>
+                    </div>
+                    <div className="divide-y">
+                      {componentListTotals.map((row) => (
+                        <div key={`total-${row.name}`} className="grid grid-cols-[1fr_120px_180px] px-3 py-2 text-sm">
+                          <div className="truncate" title={row.name}>{row.name}</div>
+                          <div>{row.totalQty}</div>
+                          <div>{row.layers.join(', ')}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-md border overflow-hidden">
+                    <div className="grid grid-cols-[90px_100px_1fr_120px_120px] bg-gray-50 text-xs font-semibold px-3 py-2">
+                      <div>Layer</div>
+                      <div>Source</div>
+                      <div>Name</div>
+                      <div>Qty/box</div>
+                      <div>Cost/box</div>
+                    </div>
+                    <div className="divide-y">
+                      {componentListRows.map((row) => (
+                        <div key={row.key} className="grid grid-cols-[90px_100px_1fr_120px_120px] px-3 py-2 text-sm">
+                          <div>{row.layer}</div>
+                          <div>{row.source}</div>
+                          <div className="truncate" title={row.name}>{row.name}</div>
+                          <div>{row.quantity} {row.unit}</div>
+                          <div>${row.cost.toFixed(2)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsCompListModalOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -2337,6 +2983,48 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
                   setIsInternalNoteModalOpen(false);
                 } catch (error) {
                   console.error('Error updating internal note:', error);
+                }
+              }}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Customer Note Modal */}
+      <Dialog open={isCustomerNoteModalOpen} onOpenChange={setIsCustomerNoteModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Customer Note</DialogTitle>
+            <DialogDescription>
+              This note is included in the day-prior email below the order items list.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="customerNote">Note to customer</Label>
+              <textarea
+                id="customerNote"
+                value={customerNote}
+                onChange={(e) => setCustomerNote(e.target.value)}
+                className="w-full h-32 p-2 border border-gray-300 rounded-md resize-none"
+                placeholder="Enter customer-specific note..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsCustomerNoteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={async () => {
+                try {
+                  await handleUpdate({ customerNote: customerNote.trim() });
+                  setIsCustomerNoteModalOpen(false);
+                } catch (error) {
+                  console.error('Error updating customer note:', error);
                 }
               }}
             >
