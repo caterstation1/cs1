@@ -166,11 +166,15 @@ export default function BasicDashboard() {
         const d1 = await r1.json()
         const todayOrders = (Array.isArray(d1.orders) ? d1.orders : []).sort(byDeliveryTime)
         setOrdersToday(todayOrders)
-        const deliveries = todayOrders.filter((o: any) => {
-          if (myStaffId && o?.driverId) return String(o.driverId) === String(myStaffId)
-          if (currentUserId && o?.driverId) return String(o.driverId) === String(currentUserId)
-          return false
-        })
+        const deliveries = todayOrders
+          .filter((o: any) => {
+            if (myStaffId && o?.driverId) return String(o.driverId) === String(myStaffId)
+            if (currentUserId && o?.driverId) return String(o.driverId) === String(currentUserId)
+            return false
+          })
+          .sort((a: OrderLite, b: OrderLite) =>
+            String(a.leaveTime || a.deliveryTime || '99:99').localeCompare(String(b.leaveTime || b.deliveryTime || '99:99'))
+          )
         setMyDeliveriesToday(deliveries)
       }
       if (r2.ok) {
@@ -274,7 +278,7 @@ export default function BasicDashboard() {
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-2 xl:gap-6">
       {/* 1) Clock In/Out */}
-      <Card className="dashboard-card">
+      <Card className="dashboard-card xl:col-span-2">
         <CardHeader>
           <CardTitle>Clock In / Out</CardTitle>
         </CardHeader>
@@ -365,26 +369,6 @@ export default function BasicDashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* 2) My Roster (next 7 days) */}
-      <Card className="dashboard-card">
-        <CardHeader>
-          <CardTitle>My Roster (next 7 days)</CardTitle>
-        </CardHeader>
-        <CardContent className="max-h-[420px] space-y-2 overflow-auto">
-          {myAssignments.length === 0 ? (
-            <div className="mobile-empty">No rostered shifts</div>
-          ) : (
-            myAssignments.map(a => (
-              <div key={a.id} className="mobile-list-row text-sm">
-                <div className="font-semibold text-slate-900">{new Date(a.date).toLocaleDateString('en-GB')}</div>
-                <div className="mobile-subtext">
-                  {(a.shiftType?.name || 'Shift')} • {a.startTime || a.shiftType?.startTime || '—'} - {a.endTime || a.shiftType?.endTime || '—'}
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
       {editingShift && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md space-y-3 rounded-xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl">
@@ -441,7 +425,7 @@ export default function BasicDashboard() {
         </div>
       )}
 
-      {/* 3) Daily Summary */}
+      {/* 2) My Deliveries Today */}
       <Card className="dashboard-card xl:col-span-2">
         <CardHeader>
           <CardTitle>My Deliveries Today</CardTitle>
@@ -578,6 +562,27 @@ export default function BasicDashboard() {
                 </div>
               ))}
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* 3) My Roster (next 7 days) */}
+      <Card className="dashboard-card xl:col-span-2">
+        <CardHeader>
+          <CardTitle>My Roster (next 7 days)</CardTitle>
+        </CardHeader>
+        <CardContent className="max-h-[420px] space-y-2 overflow-auto">
+          {myAssignments.length === 0 ? (
+            <div className="mobile-empty">No rostered shifts</div>
+          ) : (
+            myAssignments.map(a => (
+              <div key={a.id} className="mobile-list-row text-sm">
+                <div className="font-semibold text-slate-900">{new Date(a.date).toLocaleDateString('en-GB')}</div>
+                <div className="mobile-subtext">
+                  {(a.shiftType?.name || 'Shift')} • {a.startTime || a.shiftType?.startTime || '—'} - {a.endTime || a.shiftType?.endTime || '—'}
+                </div>
+              </div>
+            ))
           )}
         </CardContent>
       </Card>

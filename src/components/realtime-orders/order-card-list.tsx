@@ -10,7 +10,18 @@ import { fetchProductsWithBundles, clearProductCache } from '@/lib/product-servi
 import { format } from 'date-fns'
 import { RunsheetModal } from '@/components/RunsheetModal'
 import { TextOrdersModal } from '@/components/TextOrdersModal'
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Checkbox } from '@/components/ui/checkbox'
+import { DeliveryNotesButton } from './delivery-notes-modal'
+import { PaymentAlertBadge } from './payment-alert-badge'
+import { useDeliveryNotes } from '@/hooks/useDeliveryNotes'
 interface OrderCardListProps {
   orders: Order[]
   onUpdateOrder: (orderId: string, updates: Partial<Order>) => Promise<Order>
@@ -18,6 +29,16 @@ interface OrderCardListProps {
   selectedDate?: Date // Date for printing labels
   originAddressOverride?: string
   isTvMode?: boolean
+  compactFonts?: boolean
+  mobileSimpleList?: boolean
+  /** Native app: always use compact cards, never full OrderCard tables */
+  forceCompactOnly?: boolean
+}
+
+type LabelSelectionItem = {
+  key: string
+  orderNumber: number
+  productTitle: string
 }
 
 // Global audio state - shared across all order cards
@@ -36,7 +57,7 @@ function safeFormatDate(dateString: string | undefined | null): string {
   return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString();
 }
 
-export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete, selectedDate, originAddressOverride, isTvMode = false }: OrderCardListProps) {
+export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateComplete, selectedDate, originAddressOverride, isTvMode = false, compactFonts = false, mobileSimpleList = false, forceCompactOnly = false }: OrderCardListProps) {
   const [filter, setFilter] = useState<'all' | 'undispatched' | 'unfulfilled' | 'fulfilled'>('undispatched')
   const [isUpdatingTravelTimes, setIsUpdatingTravelTimes] = useState(false)
   const [products, setProducts] = useState<Record<string, any>>({})
@@ -47,12 +68,22 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   
   // Audio state
   const { isAudioEnabled, setIsAudioEnabled } = useAudioState()
+
+  // Delivery address notes (persistent, per address + client)
+  const { notesByOrderId: deliveryNotesByOrderId, updateOrderNotes: updateDeliveryNotes } = useDeliveryNotes(orders)
   const [isRunsheetOpen, setIsRunsheetOpen] = useState(false)
   const [isTextModalOpen, setIsTextModalOpen] = useState(false)
+  const [isLabelModalOpen, setIsLabelModalOpen] = useState(false)
+  const [isLoadingLabelCandidates, setIsLoadingLabelCandidates] = useState(false)
+  const [labelCandidates, setLabelCandidates] = useState<LabelSelectionItem[]>([])
+  const [selectedLabelKeys, setSelectedLabelKeys] = useState<string[]>([])
 
-  // Function to refresh products data
+  // Track previous product count to detect updates
+  const previousProductCountRef = useRef<number>(0)
+
+  // Function to refresh products data (silent background refresh)
   const refreshProducts = async () => {
-    setIsLoadingProducts(true)
+    // Don't show loading state - refresh silently in background
     try {
       // Clear the product cache to ensure we get the latest data
       clearProductCache()
@@ -88,23 +119,36 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       if (uniqueVariantIds.size > 0) {
         const variantIdsArray = Array.from(uniqueVariantIds)
         const { products: fetchedProducts } = await fetchProductsWithBundles(variantIdsArray)
-        setProducts(fetchedProducts)
+        const newProductCount = Object.keys(fetchedProducts).length
+        const previousCount = previousProductCountRef.current
         
-        // Show a toast to confirm products were refreshed
-        toast({
-          title: 'Products refreshed',
-          description: `Updated product data for ${Object.keys(fetchedProducts).length} products`,
-        })
+        // Only flash/show notification if there are actual updates (not initial load)
+        if (previousCount > 0 && newProductCount !== previousCount) {
+          // Flash effect - add a class to the container that will be removed after animation
+          const container = document.querySelector('.order-cards-container')
+          if (container) {
+            container.classList.add('flash-update')
+            setTimeout(() => container.classList.remove('flash-update'), 1000)
+          }
+          
+          toast({
+            title: 'Products updated',
+            description: `Updated product data for ${newProductCount} products`,
+            duration: 2000,
+          })
+        }
+        
+        previousProductCountRef.current = newProductCount
+        setProducts(fetchedProducts)
       }
     } catch (error) {
       console.error('Error refreshing products:', error)
+      // Only show error toast, not loading states
       toast({
         title: 'Error refreshing products',
         description: 'Failed to refresh product information',
         variant: 'destructive',
       })
-    } finally {
-      setIsLoadingProducts(false)
     }
   }
 
@@ -273,12 +317,37 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     .map(([meat, count]) => `${meat}${count}`)
     .join(' ');
 
+  // Local state to track orders for optimistic updates
+  const [localOrders, setLocalOrders] = useState<Order[]>(orders)
+
+  // Update local orders when orders prop changes
+  useEffect(() => {
+    setLocalOrders(orders)
+  }, [orders])
+
   // Memoize the onUpdateOrder function to prevent unnecessary re-renders
   const memoizedOnUpdateOrder = useMemo(() => {
     return async (orderId: string, updates: Partial<Order>): Promise<Order> => {
-      // console.log('OrderCardList onUpdateOrder called:', orderId, updates); // Commented out verbose log
+      // Optimistically update local state immediately
+      setLocalOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, ...updates }
+            : order
+        )
+      )
+      
       try {
         const result = await onUpdateOrder(orderId, updates);
+        
+        // Update local state with the server response to ensure consistency
+        setLocalOrders(prevOrders => 
+          prevOrders.map(order => 
+            order.id === orderId 
+              ? result
+              : order
+          )
+        )
         
         // If the order was just dispatched, add it to recently dispatched set
         if (updates.isDispatched === true) {
@@ -296,6 +365,8 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         
         return result;
       } catch (error) {
+        // Revert optimistic update on error
+        setLocalOrders(orders)
         console.error('Error updating order:', error);
         toast({
           title: 'Error updating order',
@@ -305,18 +376,20 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         throw error;
       }
     };
-  }, [onUpdateOrder, toast]);
+  }, [onUpdateOrder, toast, orders]);
 
   // Memoize the filtered and sorted orders to prevent unnecessary re-renders
   const { filteredOrders, sortedOrders } = useMemo(() => {
+    // Use localOrders for immediate updates, fallback to orders
+    const ordersToUse = localOrders.length > 0 ? localOrders : orders
     // Ensure orders is an array before filtering
-    if (!Array.isArray(orders)) {
-      console.warn('Orders is not an array:', orders);
+    if (!Array.isArray(ordersToUse)) {
+      console.warn('Orders is not an array:', ordersToUse);
       return { filteredOrders: [], sortedOrders: [] };
     }
     
     // Filter orders based on fulfillment status and dispatch status
-    const filtered = orders.filter(order => {
+    const filtered = ordersToUse.filter(order => {
       if (filter === 'all') return true;
       if (filter === 'undispatched') {
         // Show undispatched orders OR recently dispatched orders (for 1 second flash)
@@ -397,7 +470,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     });
 
     return { filteredOrders: filtered, sortedOrders: sorted };
-  }, [orders, filter, recentlyDispatchedOrders]);
+  }, [localOrders, orders, filter, recentlyDispatchedOrders]);
 
   // Fetch all unique products for all orders
   useEffect(() => {
@@ -457,8 +530,11 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   }, [orders, toast, isInitialLoad])
   
   // Handle bulk travel time update
-  // Print labels function - simple and working approach
-  const handlePrintLabels = async () => {
+  const buildLabelKey = (orderNumber: number, labelIndex: number, productTitle: string) => {
+    return `${orderNumber}|${labelIndex}|${String(productTitle || '').trim().toLowerCase()}`
+  }
+
+  const handleOpenPrintLabelsModal = async () => {
     if (!selectedDate) {
       toast({
         title: 'No date selected',
@@ -469,13 +545,78 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     }
 
     const dateStr = format(selectedDate, 'yyyy-MM-dd')
-    // Restrict printing to exactly the orders currently displayed
     const currentOrderIds = sortedOrders.map(o => o.id).join(',')
-    const url = `/labels/print?date=${encodeURIComponent(dateStr)}&orderIds=${encodeURIComponent(currentOrderIds)}`
-    
-    // Simple approach: open the print page in a new window
-    // This is the original working solution that properly renders labels
+
+    setIsLoadingLabelCandidates(true)
+    try {
+      const params = new URLSearchParams()
+      params.set('date', dateStr)
+      if (currentOrderIds) params.set('orderIds', currentOrderIds)
+
+      const res = await fetch(`/api/labels?${params.toString()}`, { cache: 'no-store' })
+      if (!res.ok) throw new Error('Failed to load labels')
+
+      const json = await res.json()
+      const mapped: LabelSelectionItem[] = (json.labels || []).map((label: any) => ({
+        key: buildLabelKey(
+          Number(label.orderNumber || 0),
+          Number(label.labelIndex || 0),
+          String(label.productTitle || '')
+        ),
+        orderNumber: Number(label.orderNumber || 0),
+        productTitle: String(label.productTitle || 'Product'),
+      }))
+
+      if (mapped.length === 0) {
+        toast({
+          title: 'No labels found',
+          description: 'No labels were found for the selected orders/date.',
+        })
+        return
+      }
+
+      setLabelCandidates(mapped)
+      setSelectedLabelKeys(mapped.map((item) => item.key))
+      setIsLabelModalOpen(true)
+    } catch (error) {
+      console.error('Error loading label candidates:', error)
+      toast({
+        title: 'Failed to load labels',
+        description: error instanceof Error ? error.message : 'Could not load labels for selection.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsLoadingLabelCandidates(false)
+    }
+  }
+
+  const handlePrintSelectedLabels = () => {
+    if (!selectedDate) return
+    if (selectedLabelKeys.length === 0) {
+      toast({
+        title: 'No labels selected',
+        description: 'Select at least one label to print.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    const dateStr = format(selectedDate, 'yyyy-MM-dd')
+    const currentOrderIds = sortedOrders.map(o => o.id).join(',')
+    const url =
+      `/labels/print?date=${encodeURIComponent(dateStr)}` +
+      `&orderIds=${encodeURIComponent(currentOrderIds)}` +
+      `&labelKeys=${encodeURIComponent(selectedLabelKeys.join(','))}`
+
     window.open(url, '_blank', 'noopener,noreferrer')
+    setIsLabelModalOpen(false)
+  }
+
+  const toggleLabelSelection = (key: string, checked: boolean) => {
+    setSelectedLabelKeys((prev) => {
+      if (checked) return prev.includes(key) ? prev : [...prev, key]
+      return prev.filter((value) => value !== key)
+    })
   }
 
   const handleBulkTravelTimeUpdate = async () => {
@@ -550,10 +691,119 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
     }
   }
 
+  const compactListEnabled = (mobileSimpleList || forceCompactOnly) && !isTvMode
+  const compactListClass = forceCompactOnly ? 'flex' : 'xl:hidden flex'
+  const fullListClass = forceCompactOnly ? 'hidden' : compactListEnabled ? 'hidden xl:flex' : 'flex'
+
+  const getOrderPhone = (order: Order) =>
+    order.customerPhone || order.shippingLines?.find((s) => !!s.phone)?.phone || ''
+
+  const getOrderAddress = (order: Order) => {
+    const addrObj: any =
+      typeof order.shippingAddress === 'string'
+        ? (() => {
+            try {
+              return JSON.parse(order.shippingAddress)
+            } catch {
+              return {}
+            }
+          })()
+        : (order.shippingAddress || {})
+
+    const line1 = (addrObj?.address1 || '').toString().trim()
+    const line2 = (addrObj?.address2 || '').toString().trim()
+    const line3 = (addrObj?.address3 || '').toString().trim()
+    const city = (addrObj?.city || '').toString().trim()
+    return [line1, line2, line3, city].filter(Boolean).join(', ')
+  }
+
+  const getAddressForMaps = (order: Order) => {
+    const addrObj: any =
+      typeof order.shippingAddress === 'string'
+        ? (() => {
+            try {
+              return JSON.parse(order.shippingAddress)
+            } catch {
+              return {}
+            }
+          })()
+        : (order.shippingAddress || {})
+
+    const parts = [
+      (addrObj?.address1 || '').toString().trim(),
+      (addrObj?.address2 || '').toString().trim(),
+      (addrObj?.address3 || '').toString().trim(),
+      (addrObj?.city || '').toString().trim(),
+      (addrObj?.province || '').toString().trim(),
+      (addrObj?.zip || '').toString().trim(),
+    ].filter(Boolean)
+    return parts.join(', ')
+  }
+
+  const getOrderCompany = (order: Order) => {
+    const addrObj: any =
+      typeof order.shippingAddress === 'string'
+        ? (() => {
+            try {
+              return JSON.parse(order.shippingAddress)
+            } catch {
+              return {}
+            }
+          })()
+        : (order.shippingAddress || {})
+    return (addrObj?.company || '').toString().trim()
+  }
+
+  const getCompactOrderItems = (order: Order) => {
+    let base: any[] = []
+    if (Array.isArray(order.lineItems)) {
+      base = order.lineItems
+    } else if (typeof order.lineItems === 'string' && order.lineItems) {
+      try {
+        base = JSON.parse(order.lineItems)
+      } catch {
+        base = []
+      }
+    }
+
+    return base.map((it: any, idx: number) => {
+      const variantId = it.variant_id?.toString() || it.variantId?.toString()
+      const product = variantId ? (products as any)[variantId] : null
+      const name = (() => {
+        if (product?.displayName?.trim()) return product.displayName
+        const shopifyName = product?.shopifyName
+        if (shopifyName && shopifyName !== 'Default Title') return shopifyName
+        return product?.shopifyTitle || product?.name || it.title || 'Item'
+      })()
+      const qty = Number(it.quantity || 1)
+      const hasSW =
+        !!product?.serveware ||
+        ((it.variant_title || it.variantTitle || '').toLowerCase().includes('yes serveware'))
+
+      return {
+        key: `${variantId || it.id || idx}-${idx}`,
+        qty,
+        name,
+        hasSW,
+      }
+    })
+  }
+
+  const getItemCount = (order: Order) => {
+    if (Array.isArray(order.lineItems)) return order.lineItems.reduce((sum, item: any) => sum + Number(item.quantity || 0), 0)
+    if (typeof order.lineItems === 'string') {
+      try {
+        const parsed = JSON.parse(order.lineItems)
+        if (Array.isArray(parsed)) return parsed.reduce((sum, item: any) => sum + Number(item.quantity || 0), 0)
+      } catch {}
+    }
+    return 0
+  }
+
   return (
-    <div className="w-full space-y-2">
-      <div className="flex justify-between items-center">
-        <div className="flex space-x-2">
+    <div className={`w-full space-y-2 ${compactFonts ? 'text-xs xl:text-sm' : ''}`}>
+      <div className={`flex gap-2 ${compactListEnabled ? 'flex-col xl:flex-row xl:items-center xl:justify-between' : 'justify-between items-center'}`}>
+        <div className={`flex gap-2 ${compactListEnabled ? 'overflow-x-auto pb-1 whitespace-nowrap' : ''}`}>
           <button
             onClick={() => setFilter('undispatched')}
             className={`px-3 py-1 rounded ${
@@ -587,7 +837,8 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
             Fulfilled
           </button>
           <button
-            onClick={handlePrintLabels}
+            onClick={handleOpenPrintLabelsModal}
+            disabled={isLoadingLabelCandidates}
             className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 flex items-center gap-1"
             title="Print labels for this date"
           >
@@ -595,7 +846,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
           </button>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className={`items-center gap-4 ${compactListEnabled ? 'hidden xl:flex' : 'flex'}`}>
           {/* Oven Count Display - Simplified */}
           {realTimeOvenCountString && (
             <div className="flex items-center gap-2">
@@ -657,37 +908,174 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         </div>
       </div>
 
-      {isLoadingProducts && isInitialLoad ? (
-        <div className="flex justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        </div>
-      ) : sortedOrders.length === 0 ? (
+      {sortedOrders.length === 0 ? (
         <p className="text-gray-500 text-center py-4">No orders found</p>
       ) : (
-        <div className="flex flex-col space-y-2 w-full">
-          {sortedOrders.map((order) => (
-            <div 
-              key={order.id} 
-              className={`transition-all duration-1000 ${
-                recentlyDispatchedOrders.has(order.id) 
-                  ? 'opacity-50 scale-95 bg-green-50 border-l-4 border-green-500' 
-                  : ''
-              }`}
-            >
-          <OrderCard 
-                order={order} 
-                onUpdate={memoizedOnUpdateOrder}
-                products={products}
-                refreshProducts={refreshProducts}
-                onBulkUpdateComplete={refreshAllData}
-                updateProductInState={updateProductInState}
-                isAudioEnabled={isAudioEnabled}
-                originAddressOverride={originAddressOverride}
-            isTvMode={isTvMode}
-              />
+        <>
+          {compactListEnabled && (
+            <div className={`${compactListClass} flex-col space-y-2 w-full`}>
+              {sortedOrders.map((order) => (
+                (() => {
+                  const company = getOrderCompany(order)
+                  const compactItems = getCompactOrderItems(order)
+                  return (
+                    <div
+                      key={order.id}
+                      className={`rounded-lg border bg-white p-3 ${
+                        recentlyDispatchedOrders.has(order.id) ? 'border-green-500 bg-green-50' : 'border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="font-semibold text-sm">{order.leaveTime || order.deliveryTime || '--:--'}</span>
+                          <span className="text-xs text-slate-500 truncate">#{order.orderNumber}</span>
+                        </div>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                          order.isDispatched ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {order.isDispatched ? 'Dispatched' : 'Pending'}
+                        </span>
+                      </div>
+
+                      <div className="mt-2">
+                        <p className="font-medium text-base leading-tight truncate">
+                          {`${order.customerFirstName || ''} ${order.customerLastName || ''}`.trim() || 'Unknown customer'}
+                          {company ? ` - ${company}` : ''}
+                        </p>
+                        <p className="text-xs text-slate-600 truncate">{getOrderPhone(order) || 'No phone'}</p>
+                        <div className="flex items-center min-w-0">
+                          <p className="text-xs text-slate-600 truncate">{getOrderAddress(order) || 'No address'}</p>
+                          <DeliveryNotesButton
+                            orderId={order.id}
+                            shippingAddress={order.shippingAddress}
+                            customerEmail={order.customerEmail}
+                            addressLabel={getOrderAddress(order)}
+                            notes={deliveryNotesByOrderId[order.id]}
+                            onNotesChanged={updateDeliveryNotes}
+                            className="ml-1.5"
+                            iconClassName="h-3.5 w-3.5"
+                          />
+                        </div>
+                        {order.note ? <p className="text-xs text-slate-700 mt-1 truncate">{order.note}</p> : null}
+                        {order.customerNote ? (
+                          <div className="mt-1.5 rounded-md border border-amber-200 bg-amber-50 p-2">
+                            <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">Customer note</div>
+                            <p className="whitespace-pre-wrap text-xs text-amber-900">{order.customerNote}</p>
+                          </div>
+                        ) : null}
+                        {order.internalNote ? (
+                          <div className="mt-1.5 rounded-md border border-blue-200 bg-blue-50 p-2">
+                            <div className="text-[10px] font-semibold uppercase tracking-wide text-blue-700">Internal note</div>
+                            <p className="whitespace-pre-wrap text-xs text-blue-800">{order.internalNote}</p>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {compactItems.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {compactItems.map((it) => (
+                            <div key={it.key} className="flex items-center justify-between text-xs text-slate-700">
+                              <div className="flex items-center min-w-0">
+                                <span className="w-7 flex-shrink-0 text-[10px] font-black text-red-600">{it.hasSW ? 'SW' : ''}</span>
+                                <span className="truncate">{it.name}</span>
+                              </div>
+                              <span className="ml-2 text-slate-500">x{it.qty}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-[11px] text-slate-600">
+                          <PaymentAlertBadge order={order} className="shrink-0" />
+                          {getItemCount(order)} items {order.travelTime ? `• ${order.travelTime} min` : ''}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                            onClick={() => {
+                              const phone = getOrderPhone(order)
+                              if (!phone) {
+                                alert('No phone number available')
+                                return
+                              }
+                              const shouldCall = window.confirm(`Do you want to call ${phone}?`)
+                              if (!shouldCall) return
+                              window.location.href = `tel:${phone}`
+                            }}
+                          >
+                            Call
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                            onClick={() => {
+                              const phone = getOrderPhone(order)
+                              if (!phone) {
+                                alert('No phone number available')
+                                return
+                              }
+                              window.location.href = `sms:${phone}`
+                            }}
+                          >
+                            Txt
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                            onClick={() => {
+                              const addr = getAddressForMaps(order)
+                              if (!addr) {
+                                alert('No address available')
+                                return
+                              }
+                              const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`
+                              window.open(url, '_blank', 'noopener,noreferrer')
+                            }}
+                          >
+                            Map
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+
+          <div className={`${fullListClass} flex-col space-y-2 w-full order-cards-container`}>
+            {sortedOrders.map((order) => (
+              <div 
+                key={order.id} 
+                className={`transition-all duration-1000 ${
+                  recentlyDispatchedOrders.has(order.id) 
+                    ? 'opacity-50 scale-95 bg-green-50 border-l-4 border-green-500' 
+                    : ''
+                }`}
+              >
+            <OrderCard 
+                  order={order} 
+                  onUpdate={memoizedOnUpdateOrder}
+                  products={products}
+                  refreshProducts={refreshProducts}
+                  onBulkUpdateComplete={refreshAllData}
+                  updateProductInState={updateProductInState}
+                  isAudioEnabled={isAudioEnabled}
+                  originAddressOverride={originAddressOverride}
+              isTvMode={isTvMode}
+                  compactFonts={compactFonts}
+                  deliveryNotes={deliveryNotesByOrderId[order.id]}
+                  onDeliveryNotesChanged={updateDeliveryNotes}
+                />
+              </div>
+            ))}
+          </div>
+        </>
       )}
       <RunsheetModal isOpen={isRunsheetOpen} onClose={() => setIsRunsheetOpen(false)} date={selectedDate || new Date()} orders={sortedOrders} productsMap={products} isWLG={!!originAddressOverride && originAddressOverride.includes('Wellington')} />
       <TextOrdersModal
@@ -697,6 +1085,55 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
         defaultTemplate="delivery"
         presetSelection={sortedOrders.map(o => o.id)}
       />
+      <Dialog open={isLabelModalOpen} onOpenChange={setIsLabelModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Select labels to print</DialogTitle>
+            <DialogDescription>
+              All labels are pre-selected. Uncheck any labels you do not want to print.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-[55vh] overflow-y-auto rounded border">
+            <div className="divide-y">
+              {labelCandidates.map((item) => {
+                const checked = selectedLabelKeys.includes(item.key)
+                return (
+                  <label
+                    key={item.key}
+                    className="flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-slate-50"
+                  >
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(value) => toggleLabelSelection(item.key, value === true)}
+                    />
+                    <span className="font-medium text-slate-700">#{item.orderNumber}</span>
+                    <span className="truncate text-slate-600">{item.productTitle}</span>
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+
+          <DialogFooter className="flex items-center justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSelectedLabelKeys([])}
+              disabled={selectedLabelKeys.length === 0}
+            >
+              Unselect all
+            </Button>
+            <Button
+              type="button"
+              onClick={handlePrintSelectedLabels}
+              disabled={selectedLabelKeys.length === 0}
+            >
+              Print selected ({selectedLabelKeys.length})
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 
