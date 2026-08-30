@@ -1473,7 +1473,12 @@ export function ProductsTab() {
                   step="0.01"
                   {...form.register('totalCost', { valueAsNumber: true })}
                   placeholder="0.00"
+                  readOnly
+                  className="bg-muted"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Recalculated on save from the product&apos;s base ingredients, this variant&apos;s options and the rows below.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -1495,16 +1500,6 @@ export function ProductsTab() {
               <IngredientSelector
                 onIngredientsChange={(ingredients) => {
                   form.setValue('ingredients', ingredients);
-                  // Calculate total cost from ingredients - ensure ingredients is an array
-                  const ingredientsArray = Array.isArray(ingredients) ? ingredients : [];
-                  const totalCost = ingredientsArray.reduce((sum, ingredient) => {
-                    if (!ingredient || typeof ingredient !== 'object') return sum;
-                    const cost = typeof ingredient.cost === 'number' ? ingredient.cost : 0;
-                    const quantity = typeof ingredient.quantity === 'number' ? ingredient.quantity : 0;
-                    return sum + (cost * quantity);
-                  }, 0);
-                  // Round to 2dp for display and saving
-                  form.setValue('totalCost', parseFloat(totalCost.toFixed(2)));
                 }}
                 initialIngredients={form.watch('ingredients') || []}
               />

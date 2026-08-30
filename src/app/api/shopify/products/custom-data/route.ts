@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { computeVariantCost } from '@/lib/pricing/persist';
 
 export async function POST(request: Request) {
   try {
@@ -44,7 +45,9 @@ export async function POST(request: Request) {
           option2: customData.option2,
           serveware: customData.serveware,
           ingredients: customData.ingredients,
-          totalCost: customData.totalCost || 0,
+          // totalCost is server-derived below. The client only ever sums the
+          // variant's own rows, so believing it dropped the product's base
+          // recipe from the total.
           updatedAt: new Date()
         },
         include: {
@@ -60,6 +63,15 @@ export async function POST(request: Request) {
           }
         }
       });
+
+      let derivedTotalCost = Number(updatedVariant.totalCost);
+      const outcome = await computeVariantCost(variantId);
+      if (outcome.totalCost == null) {
+        console.warn(`⚠️ Variant ${variantId} cost left unchanged: ${outcome.reasons.join(', ')}`);
+      } else {
+        derivedTotalCost = outcome.totalCost;
+        await prisma.productVariant.update({ where: { variantId }, data: { totalCost: derivedTotalCost } });
+      }
 
       // Transform to match expected format
       const transformedProduct = {
@@ -86,7 +98,7 @@ export async function POST(request: Request) {
         serveware: updatedVariant.serveware,
         isDraft: updatedVariant.isDraft,
         ingredients: updatedVariant.ingredients,
-        totalCost: updatedVariant.totalCost
+        totalCost: derivedTotalCost
       };
 
       console.log('✅ Updated product variant custom data:', updatedVariant.shopifyName);
