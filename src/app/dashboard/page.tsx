@@ -18,13 +18,31 @@ import HistoricPanel from './_components/HistoricPanel'
 import LiveMapModal from '@/components/live-map/LiveMapModal'
 
 interface DashboardData {
-  today: PeriodData
-  yesterday: PeriodData
-  weekToDate: PeriodData
-  monthToDate: PeriodData
-  yearToDate: PeriodData
-  historicPeriod1: PeriodData
-  historicPeriod2: PeriodData
+  /** Above the graph: what was sold, by order date. */
+  sales: {
+    today: PeriodData
+    weekToDate: PeriodData
+    monthToDate: PeriodData
+    yearToDate: PeriodData
+  }
+  /** Below the graph: what went out the door, by delivery date. */
+  delivery: {
+    today: PeriodData
+    yesterday: PeriodData
+    weekToDate: PeriodData
+    monthToDate: PeriodData
+    yearToDate: PeriodData
+  }
+  lockedDates: string[]
+  /** First delivery day that freezes automatically; null = manual only. */
+  lockFrom: string | null
+  periodDates: {
+    today: string
+    yesterday: string
+    weekStart: string
+    monthStart: string
+    yearStart: string
+  }
   outTheDoorToday: OutTheDoorData
   outTheDoorTomorrow: OutTheDoorData
   staffClockedIn: StaffMember[]
@@ -40,6 +58,10 @@ interface PeriodData {
   totalGPWithStaffing: number
   totalGPWithStaffingPercentage: number
   orderCount: number
+  /** Percentage of item quantity that had a resolvable cost. */
+  cogsCoveragePct: number
+  lockedDayCount?: number
+  dayCount?: number
 }
 
 interface OutTheDoorData {
@@ -414,6 +436,62 @@ export default function DashboardPage() {
     return `${value.toFixed(1)}%`
   }
 
+  // Cost of sales follows live supplier pricing, so a past day's COGS keeps
+  // moving as prices change. Locking freezes a day once its recipes are right.
+  const [lockBusyDate, setLockBusyDate] = useState<string | null>(null)
+  const [lockFromDraft, setLockFromDraft] = useState<string>('')
+  const [lockFromSaving, setLockFromSaving] = useState(false)
+  const [lockFromNote, setLockFromNote] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLockFromDraft(dashboardData?.lockFrom ?? '')
+  }, [dashboardData?.lockFrom])
+
+  const saveLockFrom = async (value: string | null) => {
+    setLockFromSaving(true)
+    setLockFromNote(null)
+    try {
+      const res = await fetch('/api/dashboard/cogs-lock/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lockFrom: value }),
+      })
+      if (!res.ok) throw new Error(await res.text())
+      const data = await res.json()
+      setLockFromNote(
+        data.lockFrom
+          ? `Locking from ${data.lockFrom}. ${data.lockedNow.length} day(s) frozen now${data.remaining ? `, ${data.remaining} still to process` : ''}.`
+          : 'Automatic locking turned off.'
+      )
+      await refreshDashboard()
+    } catch (e) {
+      console.error('Failed to save cost lock date', e)
+      setLockFromNote('Could not save that date.')
+    } finally {
+      setLockFromSaving(false)
+    }
+  }
+
+  const toggleDayLock = async (ymd: string, currentlyLocked: boolean) => {
+    setLockBusyDate(ymd)
+    try {
+      const res = currentlyLocked
+        ? await fetch(`/api/dashboard/cogs-lock?date=${ymd}`, { method: 'DELETE' })
+        : await fetch('/api/dashboard/cogs-lock', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: ymd }),
+          })
+      if (!res.ok) throw new Error(await res.text())
+      await refreshDashboard()
+    } catch (e) {
+      console.error('Failed to change day cost lock', e)
+      alert('Could not change the cost lock for that day.')
+    } finally {
+      setLockBusyDate(null)
+    }
+  }
+
   const fetchCostBreakdown = async (period: 'today'|'yesterday'|'week'|'month'|'year') => {
     try {
       const res = await fetch(`/api/dashboard/cost-breakdown?period=${period}`, { cache: 'no-store' })
@@ -551,6 +629,170 @@ export default function DashboardPage() {
     return null
   }
 
+  const lockedDates = new Set(dashboardData.lockedDates || [])
+
+  const CoverageNote = ({ data }: { data: PeriodData }) =>
+    data.cogsCoveragePct >= 100 ? null : (
+      <p className="text-xs text-amber-600">
+        Costed on {data.cogsCoveragePct}% of items — the remainder have no recipe cost yet.
+      </p>
+    )
+
+  const DayLockButton = ({ ymd }: { ymd: string }) => {
+    const locked = lockedDates.has(ymd)
+    const busy = lockBusyDate === ymd
+    return (
+      <button
+        onClick={() => toggleDayLock(ymd, locked)}
+        disabled={busy}
+        title={
+          locked
+            ? 'Cost is frozen at the value it had when locked. Unlock to follow live pricing again.'
+            : 'Freeze this day’s cost of sales so later price changes do not move it.'
+        }
+        className={`rounded-md border px-2 py-1 text-xs transition-colors disabled:opacity-50 ${
+          locked
+            ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+            : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+        }`}
+      >
+        {busy ? 'Saving…' : locked ? 'Cost locked — unlock' : 'Lock day cost'}
+      </button>
+    )
+  }
+
+  /** One delivery-basis performance panel (week/month/year to date). */
+  const PerformancePanel = ({
+    title,
+    icon,
+    data,
+    period,
+  }: {
+    title: string
+    icon: React.ReactNode
+    data: PeriodData
+    period: 'week' | 'month' | 'year'
+  }) => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          {icon}
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="text-xs text-slate-400">
+          Based on delivery date (out the door). Cancelled orders excluded.
+          {data.lockedDayCount ? ` ${data.lockedDayCount} of ${data.dayCount} days locked.` : ''}
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div onClick={() => fetchOrdersList(period)} className="cursor-pointer">
+            <p className="text-sm text-gray-600">Out the Door Value</p>
+            <p className="text-2xl font-bold text-green-600">{formatCurrency(data.salesValue)}</p>
+            <p className="text-xs text-gray-500">{data.orderCount} orders</p>
+          </div>
+          <div onClick={() => fetchCostBreakdown(period)} className="cursor-pointer">
+            <p className="text-sm text-gray-600">Cost of Sales</p>
+            <p className="text-2xl font-bold text-red-600">{formatCurrency(data.costOfSales)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">Total GP</p>
+            <p className="text-2xl font-bold text-blue-600">{formatCurrency(data.totalGP)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">GP %</p>
+            <p className="text-2xl font-bold text-purple-600">{formatPercentage(data.gpPercentage)}</p>
+          </div>
+          <div onClick={() => fetchStaffBreakdown(period)} className="cursor-pointer">
+            <p className="text-sm text-gray-600">Staff Costs</p>
+            <p className="text-xl font-bold text-orange-600">{formatCurrency(data.staffCosts)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">GP % (with staffing)</p>
+            <p className="text-xl font-bold text-red-600">
+              {formatPercentage(data.totalGPWithStaffingPercentage)}
+            </p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-sm text-gray-600">Total GP (with staff costs)</p>
+            <p className="text-lg font-bold text-blue-600">{formatCurrency(data.totalGPWithStaffing)}</p>
+          </div>
+        </div>
+        <CoverageNote data={data} />
+      </CardContent>
+    </Card>
+  )
+
+  /** One delivery-basis day panel (today/yesterday), which can be locked. */
+  const DayPanel = ({
+    title,
+    icon,
+    data,
+    period,
+    ymd,
+  }: {
+    title: string
+    icon: React.ReactNode
+    data: PeriodData
+    period: 'today' | 'yesterday'
+    ymd: string
+  }) => (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-3">
+          <CardTitle className="flex items-center gap-2">
+            {icon}
+            {title}
+          </CardTitle>
+          <DayLockButton ymd={ymd} />
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="text-xs text-slate-400">
+          Based on delivery date (out the door). Cancelled orders excluded.
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+          <div onClick={() => fetchOrdersList(period)} className="cursor-pointer">
+            <p className="text-sm text-gray-600">Out the Door Value</p>
+            <p className="text-xl font-bold text-green-600">{formatCurrency(data.salesValue)}</p>
+            <p className="text-xs text-gray-500">{data.orderCount} orders</p>
+          </div>
+          <div onClick={() => fetchCostBreakdown(period)} className="cursor-pointer">
+            <p className="text-sm text-gray-600">Cost of Sales</p>
+            <p className="text-xl font-bold text-red-600">{formatCurrency(data.costOfSales)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">Total GP</p>
+            <p className="text-xl font-bold text-blue-600">{formatCurrency(data.totalGP)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">GP %</p>
+            <p className="text-xl font-bold text-purple-600">{formatPercentage(data.gpPercentage)}</p>
+          </div>
+        </div>
+        <div className="border-t pt-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+            <div onClick={() => fetchStaffBreakdown(period)} className="cursor-pointer">
+              <p className="text-sm text-gray-600">Staff Costs</p>
+              <p className="text-lg font-bold text-orange-600">{formatCurrency(data.staffCosts)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">GP % (with staffing)</p>
+              <p className="text-lg font-bold text-red-600">
+                {formatPercentage(data.totalGPWithStaffingPercentage)}
+              </p>
+            </div>
+          </div>
+          <div className="mt-3">
+            <p className="text-sm text-gray-600">Total GP (with staff costs)</p>
+            <p className="text-lg font-bold text-blue-600">{formatCurrency(data.totalGPWithStaffing)}</p>
+          </div>
+        </div>
+        <CoverageNote data={data} />
+      </CardContent>
+    </Card>
+  )
+
   const OwnerContent = (
     <div className="w-full max-w-none space-y-4 sm:space-y-6">
         {/* Header */}
@@ -575,47 +817,27 @@ export default function DashboardPage() {
           </div>
         </div>
 
-      {/* Key Metrics Row */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-6">
-        <Card className="dashboard-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Sales — Today</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold sm:text-2xl lg:text-3xl">{formatCurrency(dashboardData.today.salesValue)}</div>
-            <p className="text-xs opacity-70 mt-1">{dashboardData.today.orderCount} orders</p>
-          </CardContent>
-        </Card>
-
-        <Card className="dashboard-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Sales — Week to Date</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold sm:text-2xl lg:text-3xl">{formatCurrency(dashboardData.weekToDate.salesValue)}</div>
-            <p className="text-xs opacity-70 mt-1">{dashboardData.weekToDate.orderCount} orders</p>
-          </CardContent>
-        </Card>
-
-        <Card className="dashboard-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Month to Date</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold sm:text-2xl lg:text-3xl">{formatCurrency(dashboardData.monthToDate.salesValue)}</div>
-            <p className="text-xs opacity-70 mt-1">{dashboardData.monthToDate.orderCount} orders</p>
-          </CardContent>
-        </Card>
-
-        <Card className="dashboard-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Year to Date</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold sm:text-2xl lg:text-3xl">{formatCurrency(dashboardData.yearToDate.salesValue)}</div>
-            <p className="text-xs opacity-70 mt-1">{dashboardData.yearToDate.orderCount} orders</p>
-          </CardContent>
-        </Card>
+      {/* Key Metrics Row — sales taken, by order date */}
+      <div>
+        <p className="mb-2 text-xs uppercase tracking-wide text-slate-500">Sales taken — by order date</p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-6">
+          {([
+            ['Sales — Today', dashboardData.sales.today],
+            ['Sales — Week to Date', dashboardData.sales.weekToDate],
+            ['Sales — Month to Date', dashboardData.sales.monthToDate],
+            ['Sales — Year to Date', dashboardData.sales.yearToDate],
+          ] as Array<[string, PeriodData]>).map(([label, data]) => (
+            <Card key={label} className="dashboard-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-slate-400">{label}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-bold sm:text-2xl lg:text-3xl">{formatCurrency(data.salesValue)}</div>
+                <p className="text-xs opacity-70 mt-1">{data.orderCount} orders</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-2 sm:hidden">
@@ -632,7 +854,45 @@ export default function DashboardPage() {
         <Sparkline data={rollingSeries} />
       </div>
 
-      {/* Main Content Tabs */}
+      {/* Main Content Tabs — out the door, by delivery date */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs uppercase tracking-wide text-slate-500">Out the door — by delivery date</p>
+
+        {/* Once pricing is trusted, freeze every completed day from a chosen
+            date so later supplier price moves cannot rewrite history. */}
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <label className="text-slate-400" htmlFor="cogs-lock-from">Lock costs from</label>
+          <input
+            id="cogs-lock-from"
+            type="date"
+            value={lockFromDraft}
+            onChange={(e) => setLockFromDraft(e.target.value)}
+            className="rounded-md border border-slate-300 bg-white px-2 py-1 text-slate-800"
+          />
+          <button
+            onClick={() => saveLockFrom(lockFromDraft || null)}
+            disabled={lockFromSaving || lockFromDraft === (dashboardData.lockFrom ?? '')}
+            className="rounded-md border border-slate-300 bg-white px-2 py-1 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            {lockFromSaving ? 'Saving…' : 'Save'}
+          </button>
+          {dashboardData.lockFrom && (
+            <button
+              onClick={() => { setLockFromDraft(''); saveLockFrom(null) }}
+              disabled={lockFromSaving}
+              className="rounded-md border border-slate-300 bg-white px-2 py-1 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              Turn off
+            </button>
+          )}
+          <span className="text-slate-400">
+            {dashboardData.lockFrom
+              ? `Auto-freezing each day at dispatch-day prices · ${dashboardData.lockedDates.length} locked`
+              : 'Off — all days follow live pricing'}
+          </span>
+        </div>
+      </div>
+      {lockFromNote && <p className="text-xs text-slate-400">{lockFromNote}</p>}
       <Tabs defaultValue="today" className="space-y-6">
         <TabsList className="flex w-full flex-nowrap gap-1 overflow-x-auto rounded-lg border border-slate-200 bg-white p-1 pb-1">
           <TabsTrigger value="today" className="dashboard-tab">Today</TabsTrigger>
@@ -646,44 +906,13 @@ export default function DashboardPage() {
         {/* Today Tab */}
         <TabsContent value="today" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Sales & Profitability */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-[#FF701F]" />
-                    Sales — Today
-                  </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-xs text-slate-400">Based on order creation date (Sales)</div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Sales Value</p>
-                    <p className="text-xl font-bold text-green-600">
-                      {formatCurrency(dashboardData.today.salesValue)}
-                    </p>
-                  </div>
-                  <div onClick={() => fetchCostBreakdown('today')} className="cursor-pointer">
-                    <p className="text-sm text-gray-600">Cost of Sales</p>
-                    <p className="text-xl font-bold text-red-600">
-                      {formatCurrency(dashboardData.today.costOfSales)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Total GP</p>
-                    <p className="text-xl font-bold text-blue-600">
-                      {formatCurrency(dashboardData.today.totalGP)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">GP %</p>
-                    <p className="text-xl font-bold text-purple-600">
-                      {formatPercentage(dashboardData.today.gpPercentage)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <DayPanel
+              title="Out the Door — Today"
+              icon={<DollarSign className="h-5 w-5 text-[#FF701F]" />}
+              data={dashboardData.delivery.today}
+              period="today"
+              ymd={dashboardData.periodDates.today}
+            />
 
             {/* Out the Door Today */}
             <Card>
@@ -717,240 +946,44 @@ export default function DashboardPage() {
         {/* Yesterday Tab */}
         <TabsContent value="yesterday" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-orange-600" />
-                  Out‑of‑Door — Yesterday
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-xs text-slate-400">Based on delivery date (Out‑of‑Door). Staff costs included for the day.</div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                  <div onClick={() => fetchOrdersList('yesterday')} className="cursor-pointer">
-                    <p className="text-sm text-gray-600">Out‑of‑Door Value</p>
-                    <p className="text-xl font-bold text-green-600">
-                      {formatCurrency(dashboardData.yesterday.salesValue)}
-                    </p>
-                  </div>
-                  <div onClick={() => fetchCostBreakdown('yesterday')} className="cursor-pointer">
-                    <p className="text-sm text-gray-600">Cost of Sales</p>
-                    <p className="text-xl font-bold text-red-600">
-                      {formatCurrency(dashboardData.yesterday.costOfSales)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Total GP</p>
-                    <p className="text-xl font-bold text-blue-600">
-                      {formatCurrency(dashboardData.yesterday.totalGP)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">GP %</p>
-                    <p className="text-xl font-bold text-purple-600">
-                      {formatPercentage(dashboardData.yesterday.gpPercentage)}
-                    </p>
-                  </div>
-                </div>
-                <div className="border-t pt-4">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                    <div onClick={() => fetchStaffBreakdown('yesterday')} className="cursor-pointer">
-                      <p className="text-sm text-gray-600">Staff Costs</p>
-                      <p className="text-lg font-bold text-orange-600">
-                        {formatCurrency(dashboardData.yesterday.staffCosts)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">GP % (with staffing)</p>
-                      <p className="text-lg font-bold text-red-600">
-                        {formatPercentage(dashboardData.yesterday.totalGPWithStaffingPercentage)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <p className="text-sm text-gray-600">Total GP (with staff costs)</p>
-                    <p className="text-lg font-bold text-blue-600">
-                      {formatCurrency(dashboardData.yesterday.totalGPWithStaffing)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <DayPanel
+              title="Out the Door — Yesterday"
+              icon={<Calendar className="h-5 w-5 text-orange-600" />}
+              data={dashboardData.delivery.yesterday}
+              period="yesterday"
+              ymd={dashboardData.periodDates.yesterday}
+            />
           </div>
         </TabsContent>
 
         {/* Week to Date Tab */}
         <TabsContent value="week" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-green-600" />
-                Week to Date Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-sm text-gray-600">Sales Value</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {formatCurrency(dashboardData.weekToDate.salesValue)}
-                  </p>
-                </div>
-                <div onClick={() => fetchCostBreakdown('week')} className="cursor-pointer">
-                  <p className="text-sm text-gray-600">Cost of Sales</p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {formatCurrency(dashboardData.weekToDate.costOfSales)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total GP</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {formatCurrency(dashboardData.weekToDate.totalGP)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">GP %</p>
-                  <p className="text-2xl font-bold text-purple-600">
-                    {formatPercentage(dashboardData.weekToDate.gpPercentage)}
-                  </p>
-                </div>
-                <div onClick={() => fetchStaffBreakdown('week')} className="cursor-pointer">
-                  <p className="text-sm text-gray-600">Staff Costs</p>
-                  <p className="text-xl font-bold text-orange-600">
-                    {formatCurrency(dashboardData.weekToDate.staffCosts)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">GP % (with staffing)</p>
-                  <p className="text-xl font-bold text-red-600">
-                    {formatPercentage(dashboardData.weekToDate.totalGPWithStaffingPercentage)}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-sm text-gray-600">Total GP (with staff costs)</p>
-                  <p className="text-lg font-bold text-blue-600">
-                    {formatCurrency(dashboardData.weekToDate.totalGPWithStaffing)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <PerformancePanel
+            title="Week to Date Performance"
+            icon={<TrendingUp className="h-5 w-5 text-green-600" />}
+            data={dashboardData.delivery.weekToDate}
+            period="week"
+          />
         </TabsContent>
 
         {/* Month to Date Tab */}
         <TabsContent value="month" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-purple-600" />
-                Month to Date Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-sm text-gray-600">Sales Value</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {formatCurrency(dashboardData.monthToDate.salesValue)}
-                  </p>
-                </div>
-                <div onClick={() => fetchCostBreakdown('month')} className="cursor-pointer">
-                  <p className="text-sm text-gray-600">Cost of Sales</p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {formatCurrency(dashboardData.monthToDate.costOfSales)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total GP</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {formatCurrency(dashboardData.monthToDate.totalGP)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">GP %</p>
-                  <p className="text-2xl font-bold text-purple-600">
-                    {formatPercentage(dashboardData.monthToDate.gpPercentage)}
-                  </p>
-                </div>
-                <div onClick={() => fetchStaffBreakdown('month')} className="cursor-pointer">
-                  <p className="text-sm text-gray-600">Staff Costs</p>
-                  <p className="text-xl font-bold text-orange-600">
-                    {formatCurrency(dashboardData.monthToDate.staffCosts)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">GP % (with staffing)</p>
-                  <p className="text-xl font-bold text-red-600">
-                    {formatPercentage(dashboardData.monthToDate.totalGPWithStaffingPercentage)}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-sm text-gray-600">Total GP (with staff costs)</p>
-                  <p className="text-lg font-bold text-blue-600">
-                    {formatCurrency(dashboardData.monthToDate.totalGPWithStaffing)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <PerformancePanel
+            title="Month to Date Performance"
+            icon={<Target className="h-5 w-5 text-purple-600" />}
+            data={dashboardData.delivery.monthToDate}
+            period="month"
+          />
         </TabsContent>
 
         {/* Year to Date Tab */}
         <TabsContent value="year" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-orange-600" />
-                Year to Date Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-sm text-gray-600">Sales Value</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {formatCurrency(dashboardData.yearToDate.salesValue)}
-                  </p>
-                </div>
-                <div onClick={() => fetchCostBreakdown('year')} className="cursor-pointer">
-                  <p className="text-sm text-gray-600">Cost of Sales</p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {formatCurrency(dashboardData.yearToDate.costOfSales)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total GP</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {formatCurrency(dashboardData.yearToDate.totalGP)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">GP %</p>
-                  <p className="text-2xl font-bold text-purple-600">
-                    {formatPercentage(dashboardData.yearToDate.gpPercentage)}
-                  </p>
-                </div>
-                <div onClick={() => fetchStaffBreakdown('year')} className="cursor-pointer">
-                  <p className="text-sm text-gray-600">Staff Costs</p>
-                  <p className="text-xl font-bold text-orange-600">
-                    {formatCurrency(dashboardData.yearToDate.staffCosts)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">GP % (with staffing)</p>
-                  <p className="text-xl font-bold text-red-600">
-                    {formatPercentage(dashboardData.yearToDate.totalGPWithStaffingPercentage)}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-sm text-gray-600">Total GP (with staff costs)</p>
-                  <p className="text-lg font-bold text-blue-600">
-                    {formatCurrency(dashboardData.yearToDate.totalGPWithStaffing)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <PerformancePanel
+            title="Year to Date Performance"
+            icon={<TrendingUp className="h-5 w-5 text-orange-600" />}
+            data={dashboardData.delivery.yearToDate}
+            period="year"
+          />
         </TabsContent>
 
         {/* Historic Tab */}

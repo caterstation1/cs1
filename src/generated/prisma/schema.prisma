@@ -77,6 +77,17 @@ model OtherProduct {
   updatedAt          DateTime @updatedAt
 }
 
+/// Maps a B&B bakery display item (keyed by display name) to an Other-tab
+/// product used to price it when the product has no Golden Kit ingredient
+/// linked. Set from the B&B page "Align" action.
+model BakeryCostAlignment {
+  id             String   @id @default(uuid())
+  bakeryItemName String   @unique
+  otherProductId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
 model ProduceCoProduct {
   id                 String   @id @default(uuid())
   productCode        String   @unique
@@ -314,28 +325,34 @@ model ShiftType {
 
 // Enhanced: Shift model (existing but with new fields)
 model Shift {
-  id                 String              @id @default(uuid())
-  staffId            String
-  clockIn            DateTime
-  clockOut           DateTime?
-  totalHours         Float?
-  date               DateTime
-  mileage            Float? // Kilometers driven
-  notes              String? // Staff notes about the shift
-  status             String              @default("active") // active, completed, edited
-  approved           Boolean             @default(false) // For payroll: must be approved to include
-  approvedAt         DateTime?
-  approvedBy         String? // Staff ID who approved
-  trackingAllowed    Boolean             @default(false)
-  trackingStartedAt  DateTime?
-  trackingStoppedAt  DateTime?
-  lastLocationPingAt DateTime?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  staff              Staff               @relation(fields: [staffId], references: [id])
-  reimbursements     Reimbursement[]
-  tasks              ShiftTask[]
-  locationPings      StaffLocationPing[]
+  id                              String              @id @default(uuid())
+  staffId                         String
+  clockIn                         DateTime
+  clockOut                        DateTime?
+  totalHours                      Float?
+  date                            DateTime
+  mileage                         Float? // Kilometers driven
+  notes                           String? // Staff notes about the shift
+  status                          String              @default("active") // active, completed, edited
+  approved                        Boolean             @default(false) // For payroll: must be approved to include
+  approvedAt                      DateTime?
+  approvedBy                      String? // Staff ID who approved
+  trackingAllowed                 Boolean             @default(false)
+  trackingStartedAt               DateTime?
+  trackingStoppedAt               DateTime?
+  lastLocationPingAt              DateTime?
+  // Delivery-run scoped location tracking (tracking is tied to active dispatched delivery runs, not general shifts)
+  trackingStatus                  String              @default("inactive") // inactive | active_delivery_run | stopping | stopped
+  trackingStopReason              String? // manual_stop | returned_to_base | clock_out | max_duration
+  activeDeliveryRunStartedAt      DateTime?
+  activeDeliveryOrderIds          String[]            @default([])
+  lastKnownDistanceFromBaseMeters Float?
+  createdAt                       DateTime            @default(now())
+  updatedAt                       DateTime            @updatedAt
+  staff                           Staff               @relation(fields: [staffId], references: [id])
+  reimbursements                  Reimbursement[]
+  tasks                           ShiftTask[]
+  locationPings                   StaffLocationPing[]
 
   @@index([staffId])
   @@index([staffId, clockOut, status])
@@ -498,7 +515,11 @@ model Order {
   driverId              String?
   /// Optional assigned delivery vehicle (references Car.id; no FK to keep writes simple, similar to driverId)
   carId                 String?
+  /// Stop order (1 = 1st, 2 = 2nd, ...) within a driver's multi-delivery run (same driverId + leaveTime + day)
+  deliverySequence      Int?
   isDispatched          Boolean   @default(false)
+  /// Set whenever isDispatched flips to true; cleared when un-dispatched. Powers the fresh-dispatch tracking window.
+  dispatchedAt          DateTime?
   lastSmsSent           DateTime?
   smsHistory            Json?
   internalNote          String?
@@ -522,6 +543,7 @@ model Order {
   @@index([orderNumber])
   @@index([createdAt])
   @@index([customerEmail])
+  @@index([deliveryDate])
   @@index([deliveryDateResolved])
   @@index([region, deliveryDateTime])
   @@index([needsSchedulingReview])
@@ -1718,4 +1740,249 @@ model CalendarDayAlert {
   dismissedAt    DateTime?
 
   @@index([region, date, dismissedAt])
+}
+
+/// Persistent internal delivery note keyed by normalized delivery address + client scope
+/// (business email domain, or exact email for generic-domain customers)
+model DeliveryAddressNote {
+  id                   String   @id @default(cuid())
+  normalizedAddressKey String
+  scopeDomain          String?
+  scopeEmail           String?
+  addressLabel         String
+  note                 String
+  createdBy            String?
+  createdAt            DateTime @default(now())
+
+  @@index([normalizedAddressKey])
+}
+
+// ---------------------------------------------------------------------------
+// Live pricing — ingredient master, price history and engine bookkeeping.
+//
+// Additive only. Recipe lines stay in the existing JSON columns
+// (Component.ingredients, ShopifyProduct.baseIngredients,
+// ProductVariant.ingredients); those rows gain an optional `ingredientId`
+// pointing here, and the engine falls back to the legacy (source, id) pair
+// when it is absent. See docs/PRICING-BUILD-SPEC.md.
+// ---------------------------------------------------------------------------
+
+/// A delivery day whose cost of sales has been signed off. Costing normally
+/// follows live supplier pricing, so a past day's COGS would keep moving every
+/// time a price changes. Locking freezes the numbers as they were when the
+/// recipes were known to be correct; the dashboard prefers these over a live
+/// recalculation for any locked day.
+model DailyCogsLock {
+  id              String   @id @default(uuid())
+  /// Delivery day (Auckland-local calendar date)
+  date            DateTime @unique @db.Date
+  revenueExGst    Float
+  costOfSales     Float
+  orderCount      Int
+  /// Percentage of item quantity that had a resolvable cost when locked
+  cogsCoveragePct Int      @default(0)
+  /// Per-line snapshot kept for audit / drill-down
+  breakdown       Json?
+  lockedAt        DateTime @default(now())
+  lockedByUserId  String?
+  lockedByName    String?
+
+  @@index([date])
+}
+
+/// The item(s) a variant title part is meant to carry, e.g. the part
+/// "Pulled Brisket (GF) (DF) (H)" is aligned to the "Pulled Brisket" component.
+/// Verify & Fix All uses this to add the aligned item to every product variant
+/// containing the part that is missing it.
+model VariantPartAlignment {
+  id        String   @id @default(uuid())
+  /// Title segment exactly as it appears between ' / ' in a variant title
+  partName  String   @unique
+  /// Recipe rows: [{ source, id, name, quantity, cost, unit, ingredientId? }]
+  items     Json
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Supplier-independent ingredient. One of these per real-world thing;
+/// each supplier that sells it gets an IngredientSupplierLink.
+model Ingredient {
+  id            String @id @default(uuid())
+  name          String @unique
+  /// 'kg' | 'l' | 'each'
+  canonicalUnit String
+
+  // Same flag convention as Component so allergen rollups are a plain OR.
+  hasGluten      Boolean @default(false)
+  hasDairy       Boolean @default(false)
+  hasSoy         Boolean @default(false)
+  hasOnionGarlic Boolean @default(false)
+  hasSesame      Boolean @default(false)
+  hasNuts        Boolean @default(false)
+  hasEgg         Boolean @default(false)
+  isVegetarian   Boolean @default(false)
+  isVegan        Boolean @default(false)
+  isHalal        Boolean @default(false)
+
+  /// active | archived
+  status    String   @default("active")
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  links IngredientSupplierLink[]
+}
+
+/// One supplier's way of selling an Ingredient, including how the pack is read.
+model IngredientSupplierLink {
+  id           String     @id @default(uuid())
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  /// 'Gilmours' | 'Bidfood' | 'ProduceCo' | 'Other'
+  source       String
+  /// Row id in the matching catalogue table, by convention (as the JSON refs do)
+  sourceId     String
+  /// 1 = preferred, 2 = backup, ...
+  rank         Int        @default(1)
+
+  unitsPerPack   Float   @default(1)
+  sizePerUnit    Float   @default(1)
+  /// kg | g | l | ml | each
+  sizeUnit       String  @default("each")
+  /// A human confirmed the pack structure above
+  packVerified   Boolean @default(false)
+  /// 0-1, from parsePackStructure
+  packConfidence Float?
+
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pricePoints PricePoint[]
+
+  @@unique([ingredientId, source, sourceId])
+  @@index([source, sourceId])
+}
+
+/// Dated price history. Never updated in place — a new price is a new row.
+model PricePoint {
+  id     String                 @id @default(uuid())
+  linkId String
+  link   IngredientSupplierLink @relation(fields: [linkId], references: [id])
+
+  packPrice Float
+  /// Derived at insert: packPrice / pack qty in the ingredient's canonical unit
+  unitCost  Float
+  /// 'backfill' | 'csv-upload' | 'email' | 'manual'
+  source    String
+
+  ingestionId String?
+  effectiveAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([linkId, effectiveAt(sort: Desc)])
+}
+
+/// One forwarded supplier price email and what came of it.
+model EmailIngestion {
+  id          String   @id @default(uuid())
+  /// Detected from the forwarded sender, null when unrecognised
+  supplier    String?
+  fromAddress String
+  subject     String
+  receivedAt  DateTime @default(now())
+  /// received | parsed | needs_review | applied | failed
+  status      String   @default("received")
+  /// 'gilmours-csv' | 'bidfood-csv' | 'llm-extract' | ...
+  parser      String?
+
+  rowsParsed    Int @default(0)
+  rowsMatched   Int @default(0)
+  rowsUnmatched Int @default(0)
+
+  /// Per-row outcomes, errors, unmatched SKUs
+  report    Json?
+  createdAt DateTime @default(now())
+}
+
+model PriceAlert {
+  id      String @id @default(uuid())
+  /// 'backup_cheaper' | 'price_spike' | 'special' | 'margin_below_target' | 'broken_ref' | 'missing_cost'
+  type    String
+  /// 'ingredient' | 'link' | 'component' | 'variant'
+  refType String
+  refId   String
+  message String
+  data    Json?
+  /// open | dismissed | resolved
+  status  String @default("open")
+
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  @@index([status, type])
+}
+
+/// Manual cost, winning over resolved supplier prices while active.
+model CostOverride {
+  id    String @id @default(uuid())
+  /// 'ingredient' | 'component' | 'variant'
+  scope String
+  refId String
+
+  unitCost  Float
+  unit      String
+  reason    String?
+  createdBy String?
+  active    Boolean @default(true)
+
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  @@index([scope, refId, active])
+}
+
+/// Audit trail for recalcAll: what ran, how long, and what it could not price.
+model RecalcRun {
+  id                String   @id @default(uuid())
+  trigger           String
+  startedAt         DateTime @default(now())
+  durationMs        Int?
+  componentsUpdated Int      @default(0)
+  variantsUpdated   Int      @default(0)
+  coveragePct       Float?
+  missing           Json?
+}
+
+/// Candidate duplicate ingredients. Suggestions only — a human confirms
+/// every merge; nothing here is acted on automatically.
+model IngredientMergeSuggestion {
+  id            String   @id @default(uuid())
+  ingredientIds String[]
+  /// 'normalized-name' | 'similarity'
+  reason        String
+  score         Float
+  /// open | merged | rejected
+  status        String   @default("open")
+  createdAt     DateTime @default(now())
+}
+
+/// Single-row settings table for the pricing engine and its alerts.
+///
+/// There is deliberately no applyYield switch. Component.producedQuantity is
+/// the final usable output, so cooking loss is already inside it; a yield
+/// divisor on top would charge for the same loss twice. See docs/PRICING-BUILD-SPEC.md.
+model PricingSettings {
+  id               String    @id @default("singleton")
+  targetMargin     Float     @default(0.7)
+  backupCheaperPct Float     @default(0.15)
+  spikePct         Float     @default(0.10)
+  digestEmail      String?
+  digestEnabled    Boolean   @default(true)
+  /// Once recipe pricing is trusted, set this to the first delivery day that
+  /// should be frozen. Every completed delivery day on or after it is locked
+  /// automatically at the prices in effect the morning after dispatch, so
+  /// later supplier price moves cannot rewrite history. Null = manual only.
+  cogsLockFromDate DateTime? @db.Date
 }

@@ -35,16 +35,21 @@ export async function GET(req: NextRequest) {
     const period = (searchParams.get('period') || 'today').toLowerCase()
     const { startStr, endStr } = getPeriodRange(period)
 
+    // `deliveryDate` is a free-text field that is empty on most orders;
+    // `deliveryDateResolved` is the canonical delivery day. Cancelled orders
+    // are excluded so this list reconciles with the dashboard cards.
     const orders = await prisma.order.findMany({
       where: {
-        AND: [
-          { deliveryDate: { gte: startStr } },
-          { deliveryDate: { lte: endStr } }
-        ]
+        deliveryDateResolved: {
+          gte: new Date(`${startStr}T00:00:00.000Z`),
+          lte: new Date(`${endStr}T00:00:00.000Z`),
+        },
+        cancelledAt: null,
       },
       select: {
         orderNumber: true,
         deliveryDate: true,
+        deliveryDateResolved: true,
         deliveryTime: true,
         totalPrice: true,
         subtotalPrice: true,
@@ -52,7 +57,7 @@ export async function GET(req: NextRequest) {
         shippingAddress: true,
       },
       orderBy: [
-        { deliveryDate: 'asc' },
+        { deliveryDateResolved: 'asc' },
         { deliveryTime: 'asc' },
         { orderNumber: 'asc' }
       ]
@@ -68,7 +73,9 @@ export async function GET(req: NextRequest) {
       const gst = Number((salesIncGst - salesExGst).toFixed(2))
       return {
         orderNumber: o.orderNumber,
-        deliveryDate: o.deliveryDate,
+        deliveryDate: o.deliveryDateResolved
+          ? o.deliveryDateResolved.toISOString().slice(0, 10)
+          : o.deliveryDate,
         deliveryTime: o.deliveryTime || null,
         salesExGst,
         gst,

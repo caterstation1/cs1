@@ -1,188 +1,258 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getTodayLocal, createLocalDate, formatLocalDate, formatNZYMD, getNZDateRangeForYmd } from '@/lib/date-utils';
+import { getTodayLocal, formatLocalDate, formatNZYMD, getNZDateRangeForYmd, addDaysNZ } from '@/lib/date-utils';
+import {
+  buildCogsIndex,
+  lineItemRefs,
+  periodTotals,
+  revenueExGst,
+  round2,
+  sumOrderCogs,
+  type CogsIndex,
+  type PeriodTotals,
+} from '@/lib/cogs';
+import { autoLockCompletedDays, getCogsLockFrom } from '@/lib/cogs-lock';
 
-function parseLineItems(li: any): any[] {
-  if (Array.isArray(li)) return li
-  if (typeof li === 'string') {
-    try { return JSON.parse(li) } catch {}
+// Year-to-date orders on two date bases, plus the party-pack cost index.
+export const maxDuration = 60
+
+// Module-scope geocode cache: persists across warm invocations so repeat
+// addresses don't re-hit the Google API on every dashboard request.
+const geocodeCache = new Map<string, { lat: number; lng: number }>()
+const GEOCODE_CACHE_MAX = 1000
+const GEOCODE_TIMEOUT_MS = 3000
+
+async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
+  const key = address.trim()
+  if (!key) return null
+  if (geocodeCache.has(key)) return geocodeCache.get(key)!
+  try {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY
+    if (!apiKey) return null
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(key)}&key=${apiKey}`
+    const resp = await fetch(url, { signal: AbortSignal.timeout(GEOCODE_TIMEOUT_MS) })
+    if (!resp.ok) return null
+    const data = await resp.json()
+    if (data.status !== 'OK' || !data.results?.length) return null
+    const loc = data.results[0].geometry.location
+    const coords = { lat: Number(loc.lat), lng: Number(loc.lng) }
+    if (geocodeCache.size >= GEOCODE_CACHE_MAX) geocodeCache.clear()
+    geocodeCache.set(key, coords)
+    return coords
+  } catch {
+    return null
   }
-  return []
 }
 
-function calcTotal(ings: any[]): number {
-  if (!Array.isArray(ings)) return 0
-  return Number(ings.reduce((s, ing) => {
-    const q = Number(ing?.quantity || 0)
-    const c = Number(ing?.cost || 0)
-    return s + (isFinite(q) && isFinite(c) ? q * c : 0)
-  }, 0).toFixed(2))
+/** `deliveryDateResolved` is a DATE column, so it is addressed at UTC midnight. */
+function utcMidnight(ymd: string): Date {
+  return new Date(`${ymd}T00:00:00.000Z`)
+}
+
+function resolvedYmd(order: { deliveryDateResolved: Date | null }): string | null {
+  return order.deliveryDateResolved ? order.deliveryDateResolved.toISOString().slice(0, 10) : null
+}
+
+type DeliveryOrder = {
+  id: string
+  orderNumber: number
+  deliveryDate: string | null
+  deliveryDateResolved: Date | null
+  deliveryTime: string | null
+  totalPrice: number
+  lineItems: unknown
+  customerFirstName: string
+  customerLastName: string
+  shippingAddress: unknown
+}
+
+/**
+ * Totals for a set of delivery-day orders, substituting the signed-off cost for
+ * any day that has been locked so historic days stop moving with supplier prices.
+ */
+function deliveryPeriodTotals(
+  orders: DeliveryOrder[],
+  index: CogsIndex,
+  locksByYmd: Map<string, { costOfSales: number }>,
+  staffCosts: number
+): PeriodTotals {
+  const byDay = new Map<string, DeliveryOrder[]>()
+  for (const order of orders) {
+    const ymd = resolvedYmd(order)
+    if (!ymd) continue
+    const bucket = byDay.get(ymd)
+    if (bucket) bucket.push(order)
+    else byDay.set(ymd, [order])
+  }
+
+  let salesValue = 0
+  let costOfSales = 0
+  let missingQty = 0
+  let totalQty = 0
+  let lockedDayCount = 0
+
+  for (const [ymd, dayOrders] of byDay) {
+    for (const order of dayOrders) salesValue += revenueExGst(order)
+
+    const lock = locksByYmd.get(ymd)
+    if (lock) {
+      costOfSales += lock.costOfSales
+      lockedDayCount++
+      continue
+    }
+    for (const order of dayOrders) {
+      const result = sumOrderCogs(order, index)
+      costOfSales += result.cogs
+      missingQty += result.missingQty
+      totalQty += result.totalQty
+    }
+  }
+
+  salesValue = round2(salesValue)
+  costOfSales = round2(costOfSales)
+  const totalGP = round2(salesValue - costOfSales)
+  const totalGPWithStaffing = round2(totalGP - staffCosts)
+
+  return {
+    salesValue,
+    costOfSales,
+    totalGP,
+    gpPercentage: salesValue > 0 ? Number(((totalGP / salesValue) * 100).toFixed(1)) : 0,
+    staffCosts: round2(staffCosts),
+    totalGPWithStaffing,
+    totalGPWithStaffingPercentage:
+      salesValue > 0 ? Number(((totalGPWithStaffing / salesValue) * 100).toFixed(1)) : 0,
+    orderCount: orders.length,
+    cogsCoveragePct: totalQty > 0 ? Math.round(((totalQty - missingQty) / totalQty) * 100) : 100,
+    lockedDayCount,
+    dayCount: byDay.size,
+  }
 }
 
 export async function GET() {
   try {
     console.log('📊 Fetching dashboard data...');
-    
-    // Get today's date in Auckland timezone (local time)
+
     const today = getTodayLocal();
-    const todayString = formatLocalDate(today);
-    
-    // Get yesterday and tomorrow in local time
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayString = formatLocalDate(yesterday);
-    
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowString = formatLocalDate(tomorrow);
-    
-    // Calculate date ranges for week, month, year in local time
-    // Week starts on Monday (1) in Auckland
-    const startOfWeek = new Date(today);
+    const todayYmd = formatLocalDate(today);
+    const yesterdayYmd = addDaysNZ(todayYmd, -1);
+    const tomorrowYmd = addDaysNZ(todayYmd, 1);
+
+    // Week starts Monday in Auckland
     const dayOfWeek = today.getDay();
-    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday=0 to Monday=0
-    startOfWeek.setDate(today.getDate() - daysToMonday);
-    
-    const startOfMonth = createLocalDate(today.getFullYear(), today.getMonth() + 1, 1);
-    const startOfYear = createLocalDate(today.getFullYear(), 1, 1);
-    const weekStartStr = formatLocalDate(startOfWeek);
-    const monthStartStr = formatLocalDate(startOfMonth);
-    const yearStartStr = formatLocalDate(startOfYear);
-    
-    // Helpers: fetch orders by delivery date (Out‑of‑Door)
-    const fetchOutTheDoorForDate = async (dateStr: string) => {
-      return prisma.order.findMany({ where: { deliveryDate: dateStr } });
-    }
-    const fetchOutTheDoorForRange = async (startStr: string, endStr: string) => {
-      return prisma.order.findMany({
-        where: {
-          AND: [
-            { deliveryDate: { gte: startStr } },
-            { deliveryDate: { lte: endStr } }
-          ]
-        }
-      })
-    }
-    
-    // Sales Today = Orders we MADE today (by createdAt) in Auckland timezone
-    // Create Auckland timezone date range
-    const aucklandTodayStart = new Date(todayString + 'T00:00:00+12:00'); // Auckland timezone
-    const aucklandTodayEnd = new Date(todayString + 'T23:59:59.999+12:00'); // Auckland timezone
-    
-    console.log('🌏 Auckland timezone date ranges:');
-    console.log('  Today:', todayString, '(Auckland)');
-    console.log('  Yesterday:', yesterdayString, '(Auckland)');
-    console.log('  Tomorrow:', tomorrowString, '(Auckland)');
-    console.log('  Week start:', formatLocalDate(startOfWeek), '(Auckland)');
-    console.log('  Month start:', formatLocalDate(startOfMonth), '(Auckland)');
-    console.log('  Year start:', formatLocalDate(startOfYear), '(Auckland)');
-    console.log('  Auckland Today Start:', aucklandTodayStart.toISOString());
-    console.log('  Auckland Today End:', aucklandTodayEnd.toISOString());
-    
-    // Sales Today (by createdAt in NZ local)
-    const todayYmd = formatNZYMD(today);
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const weekStartYmd = addDaysNZ(todayYmd, -daysToMonday);
+    const monthStartYmd = `${todayYmd.slice(0, 7)}-01`;
+    const yearStartYmd = `${todayYmd.slice(0, 4)}-01-01`;
+
+    // Order-date ("sales") boundaries follow the NZ local day.
     const { start: nzTodayStart, end: nzTodayEnd } = getNZDateRangeForYmd(todayYmd);
-    const salesToday = await prisma.order.findMany({
-      where: { createdAt: { gte: nzTodayStart, lte: nzTodayEnd } }
-    });
-    
-    // Out the Door Today = Orders we DELIVERED today (by deliveryDate)
-    const outTheDoorTodayOrders = await prisma.order.findMany({
-      where: { deliveryDate: todayString },
-      orderBy: { deliveryTime: 'asc' }
-    });
-    
-    // Tomorrow's deliveries
-    const tomorrowOrders = await prisma.order.findMany({
-      where: {
-        deliveryDate: tomorrowString
-      },
-      orderBy: {
-        deliveryTime: 'asc' // Sort by delivery time, earliest first
-      }
-    });
-    
-    // Yesterday's data (orders made yesterday) in Auckland timezone
-    const aucklandYesterdayStart = new Date(yesterdayString + 'T00:00:00+12:00'); // Auckland timezone
-    const aucklandYesterdayEnd = new Date(yesterdayString + 'T23:59:59.999+12:00'); // Auckland timezone
-    
-    console.log('  Auckland Yesterday Start:', aucklandYesterdayStart.toISOString());
-    console.log('  Auckland Yesterday End:', aucklandYesterdayEnd.toISOString());
-    
-    const yesterdayOrders = await fetchOutTheDoorForDate(yesterdayString);
-    
-    // Week to Date (orders made this week) in Auckland timezone
-    const aucklandWeekStart = new Date(formatLocalDate(startOfWeek) + 'T00:00:00+12:00'); // Auckland timezone
-    // Week to Date (by createdAt in NZ local)
-    const weekStartYmd = formatNZYMD(startOfWeek);
     const { start: nzWeekStart } = getNZDateRangeForYmd(weekStartYmd);
-    const { end: nzTodayEnd2 } = getNZDateRangeForYmd(todayYmd);
-    const weekToDateOrders = await prisma.order.findMany({
-      where: { createdAt: { gte: nzWeekStart, lte: nzTodayEnd2 } }
-    });
-    
-    // Month to Date (orders made this month) in Auckland timezone
-    const aucklandMonthStart = new Date(formatLocalDate(startOfMonth) + 'T00:00:00+12:00'); // Auckland timezone
-    // Month to Date (by createdAt in NZ local)
-    const monthStartYmd = formatNZYMD(startOfMonth);
     const { start: nzMonthStart } = getNZDateRangeForYmd(monthStartYmd);
-    const monthToDateOrders = await prisma.order.findMany({
-      where: { createdAt: { gte: nzMonthStart, lte: nzTodayEnd } }
-    });
-    
-    // Year to Date (orders made this year) in Auckland timezone
-    const aucklandYearStart = new Date(formatLocalDate(startOfYear) + 'T00:00:00+12:00'); // Auckland timezone
-    // Year to Date (by createdAt in NZ local)
-    const yearStartYmd = formatNZYMD(startOfYear);
     const { start: nzYearStart } = getNZDateRangeForYmd(yearStartYmd);
-    const yearToDateOrders = await prisma.order.findMany({
-      where: { createdAt: { gte: nzYearStart, lte: nzTodayEnd } }
-    });
-    
-    // Historic periods (previous week and previous month) in Auckland timezone
-    const previousWeekStart = new Date(startOfWeek);
-    previousWeekStart.setDate(previousWeekStart.getDate() - 7);
-    const aucklandPreviousWeekStart = new Date(formatLocalDate(previousWeekStart) + 'T00:00:00+12:00');
-    
-    const previousWeekEnd = new Date(startOfWeek);
-    previousWeekEnd.setDate(previousWeekEnd.getDate() - 1);
-    const aucklandPreviousWeekEnd = new Date(formatLocalDate(previousWeekEnd) + 'T23:59:59.999+12:00');
-    
-    const previousMonthStart = createLocalDate(today.getFullYear(), today.getMonth(), 1);
-    const aucklandPreviousMonthStart = new Date(formatLocalDate(previousMonthStart) + 'T00:00:00+12:00');
-    
-    const previousMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
-    const aucklandPreviousMonthEnd = new Date(formatLocalDate(previousMonthEnd) + 'T23:59:59.999+12:00');
-    
-    const historicPeriod1Orders = await prisma.order.findMany({
-      where: {
-        createdAt: {
-          gte: aucklandPreviousWeekStart,
-          lte: aucklandPreviousWeekEnd
-        }
-      }
-    });
-    
-    const historicPeriod2Orders = await prisma.order.findMany({
-      where: {
-        createdAt: {
-          gte: aucklandPreviousMonthStart,
-          lte: aucklandPreviousMonthEnd
-        }
-      }
-    });
-    
-    // Helper: compute staffing costs (NZ-local date range) using shifts * payRate
-    const computeStaffCostsBetween = async (start: Date, end: Date): Promise<number> => {
-      const shifts = await prisma.shift.findMany({
+
+    // Freeze any completed day the owner's lock-from date now covers. Bounded
+    // so a dashboard load stays quick; the nightly cron does the bulk of it and
+    // this is only a safety net for a missed run.
+    let lockFrom: string | null = null
+    try {
+      lockFrom = (await autoLockCompletedDays({ limit: 5 })).lockFrom
+    } catch (e) {
+      console.error('⚠️  auto cost lock skipped:', e)
+      lockFrom = await getCogsLockFrom().catch(() => null)
+    }
+
+    const deliveryOrderSelect = {
+      id: true,
+      orderNumber: true,
+      deliveryDate: true,
+      deliveryDateResolved: true,
+      deliveryTime: true,
+      totalPrice: true,
+      lineItems: true,
+      customerFirstName: true,
+      customerLastName: true,
+      shippingAddress: true,
+    } as const
+
+    const [salesOrders, deliveryOrders, activeShifts, staffCostShifts, locks] = await Promise.all([
+      // Above the graph: what was SOLD, by order creation date. Cancelled excluded.
+      prisma.order.findMany({
+        where: { createdAt: { gte: nzYearStart, lte: nzTodayEnd }, cancelledAt: null },
+        select: { createdAt: true, totalPrice: true, lineItems: true },
+      }),
+      // Below the graph: what went OUT THE DOOR, by resolved delivery day.
+      // Runs to tomorrow so the Out the Door Tomorrow card shares this query.
+      prisma.order.findMany({
         where: {
-          date: { gte: start, lte: end }
+          deliveryDateResolved: { gte: utcMidnight(yearStartYmd), lte: utcMidnight(tomorrowYmd) },
+          cancelledAt: null,
         },
-        include: { staff: true }
-      })
+        orderBy: { deliveryTime: 'asc' },
+        select: deliveryOrderSelect,
+      }),
+      prisma.shift.findMany({
+        where: { clockOut: null, status: 'active' },
+        select: {
+          staffId: true,
+          clockIn: true,
+          staff: { select: { firstName: true, lastName: true, accessLevel: true } },
+        },
+        orderBy: { clockIn: 'desc' },
+        take: 50,
+      }),
+      prisma.shift.findMany({
+        where: { date: { gte: nzYearStart, lte: nzTodayEnd } },
+        select: { date: true, totalHours: true, clockIn: true, clockOut: true, staff: { select: { payRate: true } } },
+      }),
+      prisma.dailyCogsLock.findMany({
+        where: { date: { gte: utcMidnight(yearStartYmd), lte: utcMidnight(todayYmd) } },
+        select: { date: true, costOfSales: true },
+      }),
+    ])
+
+    const locksByYmd = new Map(
+      locks.map((l) => [l.date.toISOString().slice(0, 10), { costOfSales: Number(l.costOfSales || 0) }])
+    )
+
+    // One cost index for every variant either set of orders references, with
+    // party-pack children resolved so packs cost their contents.
+    const refs = lineItemRefs([...salesOrders, ...deliveryOrders])
+    const [cogsIndex, deliveryMap] = await Promise.all([
+      buildCogsIndex(refs.variantIds, refs.skus),
+      (async () => {
+        const defaultNZ = { lat: -36.8485, lng: 174.7633 }
+        const buildAddress = (sa: any): string => {
+          if (!sa) return ''
+          const parts = [sa.address1, sa.address2, sa.city, sa.province, sa.zip, sa.country].filter(Boolean)
+          return parts.join(', ')
+        }
+        const mapOrders = deliveryOrders.filter((o) => resolvedYmd(o) === todayYmd).slice(0, 10)
+        return Promise.all(
+          mapOrders.map(async (order, index) => {
+            const address = buildAddress(order.shippingAddress as any) || 'Unknown Address'
+            const resolved = await geocode(address)
+            const coords = resolved ?? defaultNZ
+            const coordinates: [number, number] = [coords.lat, coords.lng]
+            return {
+              orderNumber: order.orderNumber?.toString() || `Order ${index + 1}`,
+              deliveryTime: order.deliveryTime || '12:00',
+              address,
+              coordinates,
+              salesValue: order.totalPrice || 0,
+            }
+          })
+        )
+      })(),
+    ])
+
+    // ---- Staff costs, bucketed from a single shift scan (NZ-local day) ----
+    const staffCostsBetween = (startYmd: string, endYmd: string): number => {
       let total = 0
-      for (const s of shifts) {
-        const pay = Number((s as any).staff?.payRate || 0)
+      for (const s of staffCostShifts) {
+        const ymd = formatNZYMD(new Date(s.date))
+        if (ymd < startYmd || ymd > endYmd) continue
+        const pay = Number(s.staff?.payRate || 0)
         let hours = typeof s.totalHours === 'number' ? s.totalHours : null
         if (hours == null) {
           if (s.clockIn && s.clockOut) {
@@ -194,284 +264,113 @@ export async function GET() {
         }
         total += pay * (hours || 0)
       }
-      return Number(total.toFixed(2))
+      return round2(total)
     }
 
-    // Calculate metrics using full base+variant costs; prefer variantId, include bundle children
-    const calculatePeriodData = async (orders: any[]) => {
-      // Sales value GST‑exclusive must strictly be derived from Inc GST totals:
-      // per order Ex GST = Inc GST / 1.15 (to avoid shipping/tax config inconsistencies).
-      const salesValue = Number(orders.reduce((sum, order) => {
-        const totInc = Number(order.totalPrice)
-        const inc = isFinite(totInc) ? totInc : 0
-        const ex = inc / 1.15
-        return sum + (isFinite(ex) ? ex : 0)
-      }, 0).toFixed(2));
-      const orderCount = orders.length;
+    // ---- Above the graph: sales by order date ----
+    const inCreatedRange = (o: { createdAt: Date }, from: Date, to: Date) => {
+      const t = o.createdAt.getTime()
+      return t >= from.getTime() && t <= to.getTime()
+    }
+    const sales = {
+      today: periodTotals(salesOrders.filter((o) => inCreatedRange(o, nzTodayStart, nzTodayEnd)), cogsIndex),
+      weekToDate: periodTotals(salesOrders.filter((o) => inCreatedRange(o, nzWeekStart, nzTodayEnd)), cogsIndex),
+      monthToDate: periodTotals(salesOrders.filter((o) => inCreatedRange(o, nzMonthStart, nzTodayEnd)), cogsIndex),
+      yearToDate: periodTotals(salesOrders.filter((o) => inCreatedRange(o, nzYearStart, nzTodayEnd)), cogsIndex),
+    }
 
-      // Gather all line items (including children) and extract IDs/SKUs
-      const allLis = orders.flatMap((o:any) => parseLineItems(o.lineItems))
-      const children = allLis.flatMap((li:any) => {
-        const kids = Array.isArray(li?.bundle_children) ? li.bundle_children
-          : (Array.isArray(li?.children) ? li.children : [])
-        return kids || []
+    // ---- Below the graph: out the door by delivery date ----
+    const deliveredBetween = (startYmd: string, endYmd: string) =>
+      deliveryOrders.filter((o) => {
+        const ymd = resolvedYmd(o)
+        return !!ymd && ymd >= startYmd && ymd <= endYmd
       })
-      const allForLookup = [...allLis, ...children]
-      const variantIds = Array.from(new Set(allForLookup.map((li:any)=> String(li?.variant_id || li?.variantId || '')).filter(Boolean)))
-      const skus = Array.from(new Set(allForLookup.map((li:any)=> String(li?.sku || '')).filter(Boolean)))
 
-      // Load variants by variantId (primary) and by sku (fallback), include ingredients + baseIngredients
-      const variantsById = variantIds.length ? await prisma.productVariant.findMany({
-        where: { variantId: { in: variantIds } },
-        select: {
-          variantId: true,
-          shopifySku: true,
-          shopifyName: true,
-          totalCost: true,
-          ingredients: true,
-          product: { select: { baseIngredients: true } }
-        }
-      }) : []
-      const variantsBySku = skus.length ? await prisma.productVariant.findMany({
-        where: { shopifySku: { in: skus } },
-        select: {
-          variantId: true,
-          shopifySku: true,
-          shopifyName: true,
-          totalCost: true,
-          ingredients: true,
-          product: { select: { baseIngredients: true } }
-        }
-      }) : []
-      const allVariants = [...variantsById, ...variantsBySku]
+    const deliveryToday = deliveredBetween(todayYmd, todayYmd)
+    const deliveryTomorrow = deliveredBetween(tomorrowYmd, tomorrowYmd)
 
-      const byVariantId = new Map<string, number>()
-      const bySku = new Map<string, number>()
-      for (const v of allVariants as any[]) {
-        const base = Array.isArray(v.product?.baseIngredients) ? v.product.baseIngredients : []
-        const varIngs = Array.isArray(v.ingredients) ? v.ingredients : []
-        const combined = calcTotal([...base, ...varIngs])
-        const primary = Number(v.totalCost || 0)
-        const unitCost = combined > 0 ? combined : primary
-        byVariantId.set(String(v.variantId), unitCost)
-        if (v.shopifySku) bySku.set(String(v.shopifySku), unitCost)
-      }
+    const delivery = {
+      today: deliveryPeriodTotals(deliveryToday, cogsIndex, locksByYmd, staffCostsBetween(todayYmd, todayYmd)),
+      yesterday: deliveryPeriodTotals(
+        deliveredBetween(yesterdayYmd, yesterdayYmd),
+        cogsIndex,
+        locksByYmd,
+        staffCostsBetween(yesterdayYmd, yesterdayYmd)
+      ),
+      weekToDate: deliveryPeriodTotals(
+        deliveredBetween(weekStartYmd, todayYmd),
+        cogsIndex,
+        locksByYmd,
+        staffCostsBetween(weekStartYmd, todayYmd)
+      ),
+      monthToDate: deliveryPeriodTotals(
+        deliveredBetween(monthStartYmd, todayYmd),
+        cogsIndex,
+        locksByYmd,
+        staffCostsBetween(monthStartYmd, todayYmd)
+      ),
+      yearToDate: deliveryPeriodTotals(
+        deliveredBetween(yearStartYmd, todayYmd),
+        cogsIndex,
+        locksByYmd,
+        staffCostsBetween(yearStartYmd, todayYmd)
+      ),
+    }
 
-      // Sum COGS including bundle children; prefer variantId then SKU
-      const sumItems = (items: any[]): number => {
-        let total = 0
-        for (const li of items) {
-          const qty = Number(li?.quantity || 0)
-          const vId = String(li?.variant_id || li?.variantId || '')
-          const sku = String(li?.sku || '')
-          const unit = (vId && byVariantId.get(vId)) ?? (sku && bySku.get(sku)) ?? 0
-          total += (isFinite(qty) && isFinite(Number(unit)) ? qty * Number(unit) : 0)
-        }
-        return total
-      }
-
-      const costOfSales = orders.reduce((sum, order) => {
-        const items = parseLineItems(order.lineItems)
-        const kids = items.flatMap((li:any) => {
-          const arr = Array.isArray(li?.bundle_children) ? li.bundle_children
-            : (Array.isArray(li?.children) ? li.children : [])
-          return arr || []
-        })
-        const orderCost = sumItems(items) + sumItems(kids)
-        return sum + orderCost
-      }, 0)
-
-      const totalGP = salesValue - costOfSales;
-      const gpPercentage = salesValue > 0 ? (totalGP / salesValue) * 100 : 0;
-      const staffCosts = 0;
-      const totalGPWithStaffing = totalGP - staffCosts;
-      const totalGPWithStaffingPercentage = salesValue > 0 ? (totalGPWithStaffing / salesValue) * 100 : 0;
-
-      return {
-        salesValue,
-        costOfSales: Number(costOfSales.toFixed(2)),
-        totalGP: Number(totalGP.toFixed(2)),
-        gpPercentage: Number(gpPercentage.toFixed(1)),
-        staffCosts,
-        totalGPWithStaffing: Number(totalGPWithStaffing.toFixed(2)),
-        totalGPWithStaffingPercentage: Number(totalGPWithStaffingPercentage.toFixed(1)),
-        orderCount
-      };
-    };
-    
-    // Calculate all period data
-    const [
-      todayData,
-      yesterdayData,
-      weekToDate,
-      monthToDate,
-      yearToDate,
-      historicPeriod1,
-      historicPeriod2
-    ] = await Promise.all([
-      calculatePeriodData(salesToday),
-      calculatePeriodData(yesterdayOrders),
-      calculatePeriodData(weekToDateOrders),
-      calculatePeriodData(monthToDateOrders),
-      calculatePeriodData(yearToDateOrders),
-      calculatePeriodData(historicPeriod1Orders),
-      calculatePeriodData(historicPeriod2Orders)
-    ]);
-    
-    console.log('📊 Out‑of‑Door (by delivery date) results:');
-    console.log('  Today:', salesToday.length, 'orders, $', todayData.salesValue);
-    console.log('  Yesterday:', yesterdayOrders.length, 'orders, $', yesterdayData.salesValue);
-    console.log('  Week to Date:', weekToDateOrders.length, 'orders, $', weekToDate.salesValue);
-    console.log('  Month to Date:', monthToDateOrders.length, 'orders, $', monthToDate.salesValue);
-    console.log('  Year to Date:', yearToDateOrders.length, 'orders, $', yearToDate.salesValue);
-    const outTheDoorTodayPreview = await calculatePeriodData(outTheDoorTodayOrders);
-    console.log('  Out the Door Today:', outTheDoorTodayOrders.length, 'orders, $', outTheDoorTodayPreview.salesValue);
-    
-    // Out the door data
-    const outTheDoorTodayCalc = await calculatePeriodData(outTheDoorTodayOrders);
     const outTheDoorToday = {
-      salesValue: outTheDoorTodayCalc.salesValue,
-      orderCount: outTheDoorTodayOrders.length,
-      orders: outTheDoorTodayOrders.slice(0, 5)
-    };
-    
-    const outTheDoorTomorrowCalc = await calculatePeriodData(tomorrowOrders);
+      salesValue: round2(deliveryToday.reduce((s, o) => s + revenueExGst(o), 0)),
+      orderCount: deliveryToday.length,
+      orders: deliveryToday.slice(0, 5),
+    }
     const outTheDoorTomorrow = {
-      salesValue: outTheDoorTomorrowCalc.salesValue,
-      orderCount: tomorrowOrders.length,
-      orders: tomorrowOrders.slice(0, 5)
-    };
-    
-    // Staff currently clocked in
-    const activeShifts = await prisma.shift.findMany({
-      where: {
-        clockOut: null,
-        status: 'active',
-      },
-      include: {
-        staff: true,
-      },
-      orderBy: {
-        clockIn: 'desc',
-      },
-      take: 50,
-    })
-    const staffClockedIn = activeShifts.map(s => ({
+      salesValue: round2(deliveryTomorrow.reduce((s, o) => s + revenueExGst(o), 0)),
+      orderCount: deliveryTomorrow.length,
+      orders: deliveryTomorrow.slice(0, 5),
+    }
+
+    const staffClockedIn = activeShifts.map((s) => ({
       id: s.staffId,
       name: s.staff ? `${s.staff.firstName} ${s.staff.lastName}` : 'Unknown',
       role: s.staff?.accessLevel || 'staff',
       clockInTime: new Date(s.clockIn).toLocaleTimeString('en-NZ', { hour: '2-digit', minute: '2-digit' }),
     }))
-    
-    // Delivery map data - geocode shipping address for accurate pins
-    const geocodeCache = new Map<string, { lat: number; lng: number }>()
-    const defaultNZ = { lat: -36.8485, lng: 174.7633 }
 
-    const buildAddress = (sa: any): string => {
-      if (!sa) return ''
-      const parts = [sa.address1, sa.address2, sa.city, sa.province, sa.zip, sa.country].filter(Boolean)
-      return parts.join(', ')
-    }
-
-    async function geocode(address: string): Promise<{ lat: number; lng: number } | null> {
-      const key = address.trim()
-      if (!key) return null
-      if (geocodeCache.has(key)) return geocodeCache.get(key)! 
-      try {
-        const apiKey = process.env.GOOGLE_MAPS_API_KEY
-        if (!apiKey) return null
-        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(key)}&key=${apiKey}`
-        const resp = await fetch(url)
-        if (!resp.ok) return null
-        const data = await resp.json()
-        if (data.status !== 'OK' || !data.results?.length) return null
-        const loc = data.results[0].geometry.location
-        const coords = { lat: Number(loc.lat), lng: Number(loc.lng) }
-        geocodeCache.set(key, coords)
-        return coords
-      } catch {
-        return null
-      }
-    }
-
-    const mapOrders = outTheDoorTodayOrders.slice(0, 10)
-    const deliveryMap = await Promise.all(
-      mapOrders.map(async (order, index) => {
-        const shippingAddress = order.shippingAddress as any
-        const address = buildAddress(shippingAddress) || 'Unknown Address'
-        const resolved = await geocode(address)
-        const coords = resolved ?? defaultNZ
-        const coordinates: [number, number] = [coords.lat, coords.lng]
-        return {
-          orderNumber: order.orderNumber?.toString() || `Order ${index + 1}`,
-          deliveryTime: order.deliveryTime || '12:00',
-          address,
-          coordinates,
-          salesValue: order.totalPrice || 0,
-        }
-      })
+    console.log(
+      '📊 Dashboard periods:',
+      'sales-today', sales.today.orderCount,
+      '| ood-today', delivery.today.orderCount,
+      '| ood-yesterday', delivery.yesterday.orderCount,
+      '| ood-ytd', delivery.yearToDate.orderCount,
+      '| locked days', locksByYmd.size
     )
-    
-    // Compute staffing costs for key periods (NZ local)
-    const nzStartOfDay = (d: Date) => new Date(formatLocalDate(d) + 'T00:00:00+12:00')
-    const nzEndOfDay = (d: Date) => new Date(formatLocalDate(d) + 'T23:59:59.999+12:00')
-    const yesterdayStaffCosts = await computeStaffCostsBetween(nzStartOfDay(yesterday), nzEndOfDay(yesterday))
-    const weekToDateStaffCosts = await computeStaffCostsBetween(nzWeekStart, nzEndOfDay(today))
-    const monthToDateStaffCosts = await computeStaffCostsBetween(nzMonthStart, nzEndOfDay(today))
-    const yearToDateStaffCosts = await computeStaffCostsBetween(nzYearStart, nzEndOfDay(today))
 
-    const todayWithStaff = todayData
-    const yesterdayWithStaff = {
-      ...yesterdayData,
-      staffCosts: yesterdayStaffCosts,
-      totalGPWithStaffing: Number((yesterdayData.totalGP - yesterdayStaffCosts).toFixed(2)),
-      totalGPWithStaffingPercentage: Number(((yesterdayData.salesValue > 0 ? (yesterdayData.totalGP - yesterdayStaffCosts) / yesterdayData.salesValue * 100 : 0)).toFixed(1))
-    }
-    const weekToDateWithStaff = {
-      ...weekToDate,
-      staffCosts: weekToDateStaffCosts,
-      totalGPWithStaffing: Number((weekToDate.totalGP - weekToDateStaffCosts).toFixed(2)),
-      totalGPWithStaffingPercentage: Number(((weekToDate.salesValue > 0 ? (weekToDate.totalGP - weekToDateStaffCosts) / weekToDate.salesValue * 100 : 0)).toFixed(1))
-    }
-    const monthToDateWithStaff = {
-      ...monthToDate,
-      staffCosts: monthToDateStaffCosts,
-      totalGPWithStaffing: Number((monthToDate.totalGP - monthToDateStaffCosts).toFixed(2)),
-      totalGPWithStaffingPercentage: Number(((monthToDate.salesValue > 0 ? (monthToDate.totalGP - monthToDateStaffCosts) / monthToDate.salesValue * 100 : 0)).toFixed(1))
-    }
-    const yearToDateWithStaff = {
-      ...yearToDate,
-      staffCosts: yearToDateStaffCosts,
-      totalGPWithStaffing: Number((yearToDate.totalGP - yearToDateStaffCosts).toFixed(2)),
-      totalGPWithStaffingPercentage: Number(((yearToDate.salesValue > 0 ? (yearToDate.totalGP - yearToDateStaffCosts) / yearToDate.salesValue * 100 : 0)).toFixed(1))
-    }
-
-    const dashboardData = {
-      today: todayWithStaff,
-      yesterday: yesterdayWithStaff,
-      weekToDate: weekToDateWithStaff,
-      monthToDate: monthToDateWithStaff,
-      yearToDate,
-      historicPeriod1,
-      historicPeriod2,
+    return NextResponse.json({
+      // Above the graph — order date
+      sales,
+      // Below the graph — delivery date ("out the door")
+      delivery,
+      lockedDates: Array.from(locksByYmd.keys()).sort(),
+      lockFrom,
+      periodDates: {
+        today: todayYmd,
+        yesterday: yesterdayYmd,
+        weekStart: weekStartYmd,
+        monthStart: monthStartYmd,
+        yearStart: yearStartYmd,
+      },
       outTheDoorToday,
       outTheDoorTomorrow,
       staffClockedIn,
-      deliveryMap
-    };
-    
-    console.log('✅ Dashboard data fetched successfully');
-    return NextResponse.json(dashboardData);
+      deliveryMap,
+    });
   } catch (error) {
     console.error('❌ Error fetching dashboard data:', error);
-    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to fetch dashboard data',
         details: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     );
   }
-} 
+}

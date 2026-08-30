@@ -1,7 +1,59 @@
 {
+  "regions": ["pdx1"],
   "functions": {
-    "src/app/api/**/*.ts": {
+    "src/app/api/cron/**/*.ts": {
       "maxDuration": 300
+    },
+    "src/app/api/shopify/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/orders/sync/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/orders/parse-all/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/admin/backfill-company-normalization/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/admin/backfill-private-customers/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/admin/backfill-scheduling/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/admin/company-normalization/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/admin/company-metrics/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/admin/customer-lifecycle/bulk-send/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/bulk-update-components/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/bulk-update-other/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/force-transform-all-orders/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/force-transform-orders/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/initialize-all-data/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/initialize-data/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/xero/**/*.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/**/*.ts": {
+      "maxDuration": 60
     }
   },
   "installCommand": "npm install --no-package-lock --no-audit --no-fund",
@@ -30,8 +82,28 @@
       "schedule": "0 21 * * *"
     },
     {
+      "path": "/api/cron/sync-orders",
+      "schedule": "5-59/10 * * * *"
+    },
+    {
       "path": "/api/cron/supplier-emails",
-      "schedule": "0 * * * *"
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/day-prior-order-notifications",
+      "schedule": "5 * * * *"
+    },
+    {
+      "path": "/api/cron/calendar-integrity-watchdog",
+      "schedule": "17 * * * *"
+    },
+    {
+      "path": "/api/cron/fcp-task-generator",
+      "schedule": "7 * * * *"
+    },
+    {
+      "path": "/api/cron/lock-daily-cogs",
+      "schedule": "30 15 * * *"
     }
   ]
-} 
+}

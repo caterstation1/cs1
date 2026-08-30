@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { RefreshCw, Settings, Save, CheckSquare, Square } from 'lucide-react';
+import { RefreshCw, Settings, Save, CheckSquare, Square, Trash2, Link2 } from 'lucide-react';
 import { IngredientSelector } from './IngredientSelector';
 
 // New grouped structure - Product with variants
@@ -60,13 +60,47 @@ interface VariantPartRow {
   variants: (ProductVariant & { productTitle: string; productId: string })[];
 }
 
+/** A recipe row stored on a variant, or aligned to a part. */
+interface RecipeRow {
+  source: string;
+  id: string;
+  name: string;
+  quantity: number;
+  cost: number;
+  unit: string;
+}
+
+interface StoredItem extends RecipeRow {
+  key: string;
+  variantCount: number;
+  onAll: boolean;
+}
+
+interface PartDetail {
+  partName: string;
+  variantCount: number;
+  storedItems: StoredItem[];
+  aligned: RecipeRow[];
+  alignmentGap: {
+    variantsMissing: number;
+    detail: Array<{ variantId: string; shopifyName: string; productTitle: string; missing: string[] }>;
+  };
+}
+
 export function VariantsTab() {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingOption, setEditingOption] = useState<string | null>(null);
   const [isComponentModalOpen, setIsComponentModalOpen] = useState(false);
   const [selectedComponents, setSelectedComponents] = useState<any[]>([]);
-  const [lastComponentsByPart, setLastComponentsByPart] = useState<Record<string, any[]>>({});
+  // Manage-part modal: what is stored on the part's variants and what it is aligned to
+  const [partDetail, setPartDetail] = useState<PartDetail | null>(null);
+  const [isPartDetailLoading, setIsPartDetailLoading] = useState(false);
+  const [partBusy, setPartBusy] = useState<string | null>(null);
+  const [pendingAlignment, setPendingAlignment] = useState<any[]>([]);
+  const [isAligningOpen, setIsAligningOpen] = useState(false);
+  /** partName -> number of aligned items, for the table's Aligned column. */
+  const [alignmentCounts, setAlignmentCounts] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [isSavingAll, setIsSavingAll] = useState(false);
   const [saveAllProgress, setSaveAllProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
@@ -222,10 +256,91 @@ export function VariantsTab() {
     }
   }, []);
 
+  const fetchAlignmentCounts = useCallback(async () => {
+    try {
+      const res = await fetch('/api/variants/alignment');
+      if (!res.ok) return;
+      const data = await res.json();
+      const counts: Record<string, number> = {};
+      for (const a of data.alignments || []) counts[a.partName] = (a.items || []).length;
+      setAlignmentCounts(counts);
+    } catch (error) {
+      console.error('Error fetching alignments:', error);
+    }
+  }, []);
+
   // Fetch products on component mount
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+    fetchAlignmentCounts();
+  }, [fetchProducts, fetchAlignmentCounts]);
+
+  const loadPartDetail = useCallback(async (partName: string) => {
+    setIsPartDetailLoading(true);
+    try {
+      const res = await fetch(`/api/variants/part-components?partName=${encodeURIComponent(partName)}`);
+      if (!res.ok) throw new Error(await res.text());
+      setPartDetail(await res.json());
+    } catch (error) {
+      console.error('Error loading part detail:', error);
+      setPartDetail(null);
+    } finally {
+      setIsPartDetailLoading(false);
+    }
+  }, []);
+
+  const openPartManager = useCallback((partName: string) => {
+    setEditingOption(partName);
+    setIsComponentModalOpen(true);
+    setSelectedComponents([]);
+    setPendingAlignment([]);
+    setIsAligningOpen(false);
+    setPartDetail(null);
+    loadPartDetail(partName);
+  }, [loadPartDetail]);
+
+  /** Add or remove stored items on every variant carrying the part. */
+  const runPartComponentOp = useCallback(async (partName: string, op: 'add' | 'remove', items: any[]) => {
+    if (items.length === 0) return;
+    setPartBusy(op);
+    try {
+      const res = await fetch('/api/variants/part-components', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partName, op, items }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      await loadPartDetail(partName);
+      await fetchProducts();
+      if (op === 'add') setSelectedComponents([]);
+    } catch (error) {
+      console.error(`Error running ${op} on part components:`, error);
+      alert(`Could not ${op} those items. Please try again.`);
+    } finally {
+      setPartBusy(null);
+    }
+  }, [loadPartDetail, fetchProducts]);
+
+  /** Set the item(s) this part is aligned to, used by Verify & Fix All. */
+  const saveAlignment = useCallback(async (partName: string, items: any[]) => {
+    setPartBusy('align');
+    try {
+      const res = await fetch('/api/variants/alignment', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partName, items }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setPendingAlignment([]);
+      setIsAligningOpen(false);
+      await Promise.all([loadPartDetail(partName), fetchAlignmentCounts()]);
+    } catch (error) {
+      console.error('Error saving alignment:', error);
+      alert('Could not save the alignment. Please try again.');
+    } finally {
+      setPartBusy(null);
+    }
+  }, [loadPartDetail, fetchAlignmentCounts]);
 
   // Handle inline editing - update local state
   const handleInlineEdit = useCallback((variantTitle: string, field: string, value: any) => {
@@ -239,97 +354,43 @@ export function VariantsTab() {
     }));
   }, []);
 
-  // Save all changes for an option
-  const handleSaveOptionInline = useCallback(async (partName: string) => {
+  // Save changes for one part. On success the pending edit is cleared — the
+  // refreshed consensus values then show what is actually stored.
+  const savePart = useCallback(async (partName: string): Promise<boolean> => {
     const optionData = editingData[partName];
-    if (!optionData) return;
+    if (!optionData) return true;
 
+    const payload: any = { partName };
+    if (optionData.meat !== undefined) payload.meat = optionData.meat;
+    if (optionData.timer !== undefined) payload.timer = optionData.timer;
+    if (optionData.option !== undefined) payload.option = optionData.option;
+    if (optionData.serveware !== undefined) payload.serveware = optionData.serveware;
+    const res = await fetch('/api/variants/bulk-part-save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (!res.ok) {
+      console.error('Bulk save failed for part', partName, await res.text());
+      return false;
+    }
+    setEditingData(prev => {
+      const next = { ...prev };
+      delete next[partName];
+      return next;
+    });
+    return true;
+  }, [editingData]);
+
+  const handleSaveOptionInline = useCallback(async (partName: string) => {
     try {
-      // Server-side bulk update for this part
-      const payload: any = { partName };
-      if (optionData.meat !== undefined) payload.meat = optionData.meat;
-      if (optionData.timer !== undefined) payload.timer = optionData.timer;
-      if (optionData.option !== undefined) payload.option = optionData.option;
-      if (optionData.serveware !== undefined) payload.serveware = optionData.serveware;
-      const res = await fetch('/api/variants/bulk-part-save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      if (!res.ok) {
-        console.error('Bulk save failed for part', partName, await res.text());
-      } else {
-        const result = await res.json();
-        console.log(`✅ Bulk updated variants for part "${partName}":`, result);
-      }
-      
-      // Refresh data
+      await savePart(partName);
       await fetchProducts();
-      // Persist the edited values in the inputs so users see what's stored
-      setEditingData(prev => ({
-        ...prev,
-        [partName]: {
-          optionName: partName,
-          meat: optionData.meat ?? (prev[partName]?.meat),
-          timer: optionData.timer ?? (prev[partName]?.timer ?? null),
-          option: optionData.option ?? (prev[partName]?.option),
-          serveware: optionData.serveware ?? (prev[partName]?.serveware)
-        }
-      }));
     } catch (error) {
       console.error('Error updating variant option:', error);
       alert('Error updating variant option. Please try again.');
     }
-  }, [editingData, products, fetchProducts]);
+  }, [savePart, fetchProducts]);
 
 
-  const handleAddComponentsToOption = useCallback(async (partName: string) => {
-    if (selectedComponents.length === 0) return;
-
-    try {
-      // Find all variants that contain this part
-      const relevantVariants: ProductVariant[] = [];
-      products.forEach(product => {
-        if (Array.isArray(product.variants)) {
-          product.variants.forEach(variant => {
-            const title = (variant.shopifyName || variant.shopifyTitle || '').trim();
-            const parts = title.split(' / ').map(p => p.trim());
-            if (parts.includes(partName)) relevantVariants.push(variant);
-          });
-        }
-      });
-
-      const updates = relevantVariants.map(async (variant) => {
-        // First get current ingredients
-        const response = await fetch(`/api/products/variant/${variant.variantId}`);
-        const variantData = await response.json();
-        
-        const currentIngredients = variantData.ingredients || [];
-        const updatedIngredients = [...currentIngredients, ...selectedComponents];
-
-        const updateResponse = await fetch(`/api/products/variant/${variant.variantId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ingredients: updatedIngredients })
-        });
-
-        if (!updateResponse.ok) {
-          console.error(`Failed to update variant ${variant.variantId}`);
-        }
-      });
-
-      await Promise.all(updates);
-      console.log(`✅ Added components to ${relevantVariants.length} variants for part "${partName}"`);
-      
-      // Refresh data
-      await fetchProducts();
-      setIsComponentModalOpen(false);
-      setSelectedComponents([]);
-      setEditingOption(null);
-      setLastComponentsByPart(prev => ({ ...prev, [partName]: selectedComponents }));
-    } catch (error) {
-      console.error('Error adding components to option:', error);
-      alert('Error adding components. Please try again.');
-    }
-  }, [selectedComponents, products, fetchProducts]);
-
-  // Bulk save all pending edits, sequentially with a tiny delay and progress
+  // Bulk save all pending edits sequentially, refreshing the table once at
+  // the end rather than after every part.
   const handleSaveAllPending = useCallback(async () => {
     const pendingParts = Object.keys(editingData);
     if (pendingParts.length === 0) return;
@@ -339,15 +400,16 @@ export function VariantsTab() {
     for (let i = 0; i < pendingParts.length; i++) {
       const part = pendingParts[i];
       try {
-        await handleSaveOptionInline(part);
+        await savePart(part);
       } catch (e) {
         console.error('Bulk save error for part', part, e);
       }
       setSaveAllProgress({ done: i + 1, total: pendingParts.length });
       await delay(150); // gentle rate limit to reduce 500s
     }
+    await fetchProducts();
     setIsSavingAll(false);
-  }, [editingData, handleSaveOptionInline]);
+  }, [editingData, savePart, fetchProducts]);
 
   const handleVerifyFix = useCallback(async () => {
     try {
@@ -418,9 +480,9 @@ export function VariantsTab() {
             }}
             disabled={isMigratingServeware}
             variant="outline"
-            title="Auto-set serveware for Yes Serveware variants"
+            title="Sync serveware flag from titles (Yes Serveware → on, No Serveware → off)"
           >
-            {isMigratingServeware ? 'Migrating...' : 'Auto-Detect SW'}
+            {isMigratingServeware ? 'Syncing...' : 'Sync SW from titles'}
           </Button>
           {Object.keys(editingData).length > 0 && (
             <Button
@@ -445,6 +507,7 @@ export function VariantsTab() {
               <TableHead>Option</TableHead>
               <TableHead>SW</TableHead>
               <TableHead>Components</TableHead>
+              <TableHead className="w-24">Aligned</TableHead>
               <TableHead className="w-32">Count</TableHead>
               <TableHead className="w-48">Actions</TableHead>
             </TableRow>
@@ -465,7 +528,7 @@ export function VariantsTab() {
                   </TableCell>
                   <TableCell>
                     <Input
-                      value={editingOptionData.meat ?? (editingOptionData as any).meat1 ?? (agg.meat ?? '')}
+                      value={editingOptionData.meat ?? (agg.meat ?? '')}
                       onChange={(e) => handleInlineEdit(row.partName, 'meat', e.target.value)}
                       placeholder="e.g., C"
                       className="w-20"
@@ -474,7 +537,7 @@ export function VariantsTab() {
                   <TableCell>
                     <Input
                       type="number"
-                      value={editingOptionData.timer ?? (editingOptionData as any).timer1 ?? (agg.timer ?? '')}
+                      value={editingOptionData.timer ?? (agg.timer ?? '')}
                       onChange={(e) => handleInlineEdit(row.partName, 'timer', e.target.value ? Number(e.target.value) : null)}
                       placeholder="30"
                       className="w-20"
@@ -482,7 +545,7 @@ export function VariantsTab() {
                   </TableCell>
                   <TableCell>
                     <Input
-                      value={editingOptionData.option ?? (editingOptionData as any).option1 ?? (agg.option ?? '')}
+                      value={editingOptionData.option ?? (agg.option ?? '')}
                       onChange={(e) => handleInlineEdit(row.partName, 'option', e.target.value)}
                       placeholder="GF"
                       className="w-20"
@@ -516,6 +579,19 @@ export function VariantsTab() {
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
+                    {alignmentCounts[row.partName] ? (
+                      <span
+                        className="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-700"
+                        title="Verify & Fix All will add this item to variants missing it"
+                      >
+                        <Link2 className="h-3 w-3" />
+                        {alignmentCounts[row.partName]}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-300">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
                     <span className="text-sm text-gray-600">
                       {products.reduce((count, product) => {
                         if (Array.isArray(product.variants)) {
@@ -541,10 +617,8 @@ export function VariantsTab() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
-                          setEditingOption(row.partName);
-                          setIsComponentModalOpen(true);
-                        }}
+                        title="Manage aligned item and stored items for this part"
+                        onClick={() => openPartManager(row.partName)}
                         className="h-8 px-2"
                       >
                         <Settings className="h-3 w-3" />
@@ -606,11 +680,13 @@ export function VariantsTab() {
             <DialogTitle>Verify & Fix All Visible Parts</DialogTitle>
             <DialogDescription>
               Runs verification for every part currently listed (after search filter). Uses any pending edits you’ve entered for Meat/Timer/Option; leaves fields untouched if not provided.
+              Any part with an aligned item also has that item added to every variant missing it.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div className="text-sm text-gray-600">
-              Parts to process: {filteredRows.length}
+              Parts to process: {filteredRows.length} · with an aligned item:{' '}
+              {filteredRows.filter(r => alignmentCounts[r.partName]).length}
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={()=>setIsVerifyAllOpen(false)}>Close</Button>
@@ -642,11 +718,11 @@ export function VariantsTab() {
                   const res = await fetch('/api/variants/verify-all', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ parts, fix: true })
+                    body: JSON.stringify({ parts, fix: true, applyAlignment: true })
                   });
                   const data = await res.json();
                   setVerifyAllResult(data);
-                  await fetchProducts();
+                  await Promise.all([fetchProducts(), fetchAlignmentCounts()]);
                 } catch (e) {
                   setVerifyAllResult({ error: 'Failed to verify all' });
                 }
@@ -661,50 +737,151 @@ export function VariantsTab() {
         </DialogContent>
       </Dialog>
 
-      {/* Add Components Modal */}
+      {/* Manage Part Modal — aligned item, stored items, add/remove */}
       <Dialog open={isComponentModalOpen} onOpenChange={(open) => {
         setIsComponentModalOpen(open);
         if (!open) {
           setEditingOption(null);
+          setPartDetail(null);
+          setSelectedComponents([]);
+          setPendingAlignment([]);
+          setIsAligningOpen(false);
         }
       }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Add Components to Option: {editingOption}</DialogTitle>
+            <DialogTitle>Manage Part: {editingOption}</DialogTitle>
             <DialogDescription>
-              Add components to all variants that contain this option
+              Applies to every variant whose title contains this part
+              {partDetail ? ` (${partDetail.variantCount} variants)` : ''}.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Components to Add</Label>
-              <IngredientSelector
-                onIngredientsChange={setSelectedComponents}
-                initialIngredients={[]}
-              />
-            </div>
+          {isPartDetailLoading && !partDetail ? (
+            <div className="py-8 text-center text-sm text-gray-500">Loading part…</div>
+          ) : (
+            <div className="space-y-6">
+              {/* Aligned item */}
+              <div className="space-y-2 rounded-lg border p-3">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-2">
+                    <Link2 className="h-4 w-4" />
+                    Aligned item
+                  </Label>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => setIsAligningOpen(v => !v)}>
+                      {isAligningOpen ? 'Cancel' : (partDetail?.aligned.length ? 'Change' : 'Assign')}
+                    </Button>
+                    {partDetail?.aligned.length ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={partBusy !== null}
+                        onClick={() => editingOption && saveAlignment(editingOption, [])}
+                      >
+                        Clear
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
 
-            <div className="flex justify-end space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setIsComponentModalOpen(false);
-                  setEditingOption(null);
-                  setSelectedComponents([]);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={() => editingOption && handleAddComponentsToOption(editingOption)}
-                disabled={selectedComponents.length === 0}
-              >
-                Add {selectedComponents.length} Components to {editingOption} Variants
-              </Button>
+                <p className="text-xs text-gray-500">
+                  Verify &amp; Fix All adds this item to any variant with this part that is missing it.
+                </p>
+
+                {partDetail?.aligned.length ? (
+                  <ul className="space-y-1 text-sm">
+                    {partDetail.aligned.map(item => (
+                      <li key={`${item.source}:${item.id}`} className="flex justify-between rounded bg-gray-50 px-2 py-1">
+                        <span>{item.name} <span className="text-xs text-gray-500">({item.source})</span></span>
+                        <span className="text-xs text-gray-500">qty {item.quantity} · ${item.cost}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-400">Not aligned to anything yet.</p>
+                )}
+
+                {partDetail && partDetail.aligned.length > 0 && (
+                  <p className={`text-xs ${partDetail.alignmentGap.variantsMissing > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                    {partDetail.alignmentGap.variantsMissing > 0
+                      ? `${partDetail.alignmentGap.variantsMissing} of ${partDetail.variantCount} variants are missing it — run Verify & Fix All to add it.`
+                      : 'All variants with this part carry the aligned item.'}
+                  </p>
+                )}
+
+                {isAligningOpen && (
+                  <div className="space-y-2 border-t pt-3">
+                    <IngredientSelector onIngredientsChange={setPendingAlignment} initialIngredients={[]} />
+                    <div className="flex justify-end">
+                      <Button
+                        size="sm"
+                        disabled={pendingAlignment.length === 0 || partBusy !== null}
+                        onClick={() => editingOption && saveAlignment(editingOption, pendingAlignment)}
+                      >
+                        {partBusy === 'align' ? 'Saving…' : `Align to ${pendingAlignment.length} item(s)`}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Stored items, with delete */}
+              <div className="space-y-2 rounded-lg border p-3">
+                <Label>Stored items on these variants</Label>
+                {partDetail && partDetail.storedItems.length > 0 ? (
+                  <div className="max-h-64 space-y-1 overflow-y-auto">
+                    {partDetail.storedItems.map(item => (
+                      <div key={item.key} className="flex items-center justify-between rounded border px-2 py-1 text-sm">
+                        <div>
+                          <div className="font-medium">{item.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {item.source} · qty {item.quantity} · ${item.cost} ·{' '}
+                            {item.onAll
+                              ? `on all ${partDetail.variantCount}`
+                              : `on ${item.variantCount} of ${partDetail.variantCount}`}
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={partBusy !== null}
+                          title={`Remove "${item.name}" from all variants with this part`}
+                          onClick={() => {
+                            if (!editingOption) return;
+                            if (!confirm(`Remove "${item.name}" from all ${item.variantCount} variant(s) with this part?`)) return;
+                            runPartComponentOp(editingOption, 'remove', [item]);
+                          }}
+                          className="h-8 px-2 text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">No items stored on these variants.</p>
+                )}
+              </div>
+
+              {/* Add items */}
+              <div className="space-y-2 rounded-lg border p-3">
+                <Label>Add items to all variants with this part</Label>
+                <IngredientSelector onIngredientsChange={setSelectedComponents} initialIngredients={[]} />
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={() => setIsComponentModalOpen(false)}>
+                    Close
+                  </Button>
+                  <Button
+                    disabled={selectedComponents.length === 0 || partBusy !== null}
+                    onClick={() => editingOption && runPartComponentOp(editingOption, 'add', selectedComponents)}
+                  >
+                    {partBusy === 'add' ? 'Adding…' : `Add ${selectedComponents.length} item(s)`}
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -714,7 +891,8 @@ export function VariantsTab() {
           <DialogHeader>
             <DialogTitle>Clean Option Indices</DialogTitle>
             <DialogDescription>
-              Nulls any meats/timers at indices ≥ 2 across all variants.
+              Clears meat/timer values that are provably junk: entries beyond the title&apos;s parts, and entries on
+              Yes/No option parts (e.g. &quot;No Serveware&quot;). Real third meats on three-meat titles are kept.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
