@@ -945,11 +945,70 @@ model ShopifyProduct {
   bundleDefaultItems Json?
   bakery           Boolean  @default(false) // Bakery product flag
   dietaryMarker    String? // Internal dietary card marker (B, W, O, Y, Pi, Pu)
+  /// How many portions of a chosen option this pack size uses. A 100-person
+  /// pack needs more of the same protein than a mini station, and quantity is
+  /// the only thing pack size changes — the components themselves are shared.
+  portionSize      Float    @default(1)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  
+
   variants         ProductVariant[]
+  optionQuantities ProductOptionQuantity[]
   @@map("shopify_products")
+}
+
+/// A choice a customer makes on the shop — one ' / ' segment of a variant
+/// title, such as "Beef Brisket" or "Yes Serveware ($15)".
+///
+/// Costed once here rather than copied onto every variant that offers it.
+/// A variant's cost is its product's base recipe plus the recipe of each
+/// option in its title, so nothing has to be kept in sync across variants.
+model CostingOption {
+  id            String   @id @default(uuid())
+  /// Canonical display name. Shopify's own spellings live in `aliases`.
+  name          String   @unique
+  /// choice | serveware | addon — grouping for the costing screen only.
+  kind          String   @default("choice")
+  /// Recipe rows for ONE portion:
+  /// [{ source, id, name, quantity, cost, unit, ingredientId? }]
+  items         Json     @default("[]")
+  /// True when the option genuinely has no ingredients — gift-card values,
+  /// headcount pickers — so it stops being reported as a costing gap.
+  noIngredients Boolean  @default(false)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  aliases       CostingOptionAlias[]
+  quantities    ProductOptionQuantity[]
+}
+
+/// A literal title segment exactly as Shopify spells it. Nine spellings of
+/// "Beef Brisket" all point at one CostingOption; the storefront is untouched.
+model CostingOptionAlias {
+  id       String @id @default(uuid())
+  value    String @unique
+  optionId String
+
+  option   CostingOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@index([optionId])
+}
+
+/// Per-product override of how many portions of an option are used, for the
+/// cases where `ShopifyProduct.portionSize` is not the whole story.
+model ProductOptionQuantity {
+  id        String @id @default(uuid())
+  productId String
+  optionId  String
+  quantity  Float
+
+  product   ShopifyProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  option    CostingOption  @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, optionId])
+  @@index([productId])
+  @@index([optionId])
 }
 
 model ProductVariant {

@@ -7,16 +7,10 @@
 
 import { prisma } from '@/lib/prisma'
 import { splitParts } from '@/lib/variant-part-edit'
+import { normalizeRow, normalizeRows, rowKey, type RecipeRow } from '@/lib/costing/options'
 
-export interface RecipeRow {
-  source: string
-  id: string
-  name: string
-  quantity: number
-  cost: number
-  unit: string
-  ingredientId?: string | null
-}
+export { normalizeRow, normalizeRows, rowKey }
+export type { RecipeRow }
 
 export interface PartVariant {
   variantId: string
@@ -24,39 +18,6 @@ export interface PartVariant {
   shopifySku: string | null
   productTitle: string
   ingredients: RecipeRow[]
-}
-
-/** Identity of a recipe row: the catalogue item it points at. */
-export function rowKey(row: { source?: unknown; id?: unknown; name?: unknown }): string {
-  const source = String(row?.source ?? '').trim().toLowerCase()
-  const id = String(row?.id ?? '').trim().toLowerCase()
-  if (id) return `${source}:${id}`
-  // Legacy rows written before ids were captured can only be matched by name.
-  return `${source}:name:${String(row?.name ?? '').trim().toLowerCase()}`
-}
-
-export function normalizeRow(raw: any): RecipeRow | null {
-  if (!raw || typeof raw !== 'object') return null
-  const source = String(raw.source ?? '').trim()
-  const id = String(raw.id ?? '').trim()
-  const name = String(raw.name ?? '').trim()
-  if (!source || (!id && !name)) return null
-  const quantity = Number(raw.quantity)
-  const cost = Number(raw.cost)
-  return {
-    source,
-    id,
-    name: name || id,
-    quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
-    cost: Number.isFinite(cost) && cost >= 0 ? cost : 0,
-    unit: String(raw.unit ?? 'unit').trim() || 'unit',
-    ...(raw.ingredientId ? { ingredientId: String(raw.ingredientId) } : {}),
-  }
-}
-
-export function normalizeRows(raw: unknown): RecipeRow[] {
-  if (!Array.isArray(raw)) return []
-  return raw.map(normalizeRow).filter((r): r is RecipeRow => r !== null)
 }
 
 /** Every variant whose title contains `partName` as a whole ' / ' segment. */
