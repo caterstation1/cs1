@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, Edit, ExternalLink, Settings, RefreshCw, Loader2, Download, ChevronRight, ChevronDown, Plus, X, Package } from 'lucide-react';
 import { IngredientSelector } from './IngredientSelector';
+import { BundleItemRow, buildBundleVariantLookup } from './BundleItemRow';
 import { SetRuleModal } from './SetRuleModal';
 import { ManageRulesModal } from './ManageRulesModal';
 import { debounce } from 'lodash';
@@ -199,6 +200,13 @@ export function ProductsTab() {
       return 0;
     });
   }, [products, searchTerm, sortField, sortDirection]);
+
+  // Built from the unfiltered list so bundle rows stay named while the table is
+  // narrowed by a search term.
+  const bundleVariantLookup = useMemo(
+    () => buildBundleVariantLookup(Array.isArray(products) ? products : []),
+    [products]
+  );
 
   // Debounced search handler
   const debouncedSetSearchTerm = useCallback(
@@ -1220,10 +1228,14 @@ export function ProductsTab() {
                                 <div className="space-y-2">
                                   {Array.isArray(product.bundleDefaultItems) && product.bundleDefaultItems.length > 0 ? (
                                     product.bundleDefaultItems.map((b, idx) => (
-                                      <div key={`${b.variantId}-${idx}`} className="flex items-center gap-2 bg-white p-2 rounded border">
-                                        <span className="flex-1 text-sm"><strong>Variant</strong>: {b.variantId} &nbsp; <strong>Qty</strong>: {b.quantity}</span>
-                                        <Button size="sm" variant="ghost" onClick={() => handleRemoveBundleItemFromProduct(product.id, idx)} disabled={savingBundleFor===product.id} className="h-6 w-6 p-0"><X className="h-3 w-3"/></Button>
-                                      </div>
+                                      <BundleItemRow
+                                        key={`${b.variantId}-${idx}`}
+                                        variantId={b.variantId}
+                                        quantity={b.quantity}
+                                        lookup={bundleVariantLookup}
+                                        onRemove={() => handleRemoveBundleItemFromProduct(product.id, idx)}
+                                        disabled={savingBundleFor === product.id}
+                                      />
                                     ))
                                   ) : (
                                     <div className="text-sm text-gray-500">No bundle items yet</div>
