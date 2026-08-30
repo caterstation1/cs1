@@ -65,7 +65,7 @@ export interface RecipeLine {
   snapshotCost: number
   /** Reference into the Ingredient master; absent until Phase 3 stamps it. */
   ingredientId: string | null
-  origin: 'base' | 'option' | 'variant' | 'component'
+  origin: 'base' | 'option' | 'bundle' | 'variant' | 'component'
   position: number
 }
 
@@ -134,10 +134,17 @@ export interface CostIndex {
 export interface CostIndexOptions {
   /** When false (the default) a catalogue price of 0 is unknown, not free. */
   treatZeroPriceAsFree: boolean
+  /**
+   * When false, party-pack contents are ignored and a pack is costed from its
+   * own rows alone. Only the parity report sets this, to isolate what bundle
+   * expansion changes.
+   */
+  expandBundles: boolean
 }
 
 export const DEFAULT_COST_INDEX_OPTIONS: CostIndexOptions = {
   treatZeroPriceAsFree: false,
+  expandBundles: true,
 }
 
 // Structural row shapes rather than Prisma types, so tests can build an index
@@ -212,7 +219,9 @@ export interface VariantRow {
   totalCost?: number | null
   ingredients?: unknown
   baseIngredients?: unknown
-  product?: { baseIngredients?: unknown } | null
+  /** Per-variant party-pack contents, `[{ variantId, quantity }]`. */
+  bundleItems?: unknown
+  product?: { baseIngredients?: unknown; bundleDefaultItems?: unknown } | null
   /**
    * Rows contributed by the choices in this variant's title, already summed
    * and scaled to the product's portion size. Supplied by `buildCostIndex`;
@@ -322,6 +331,74 @@ export function parseRecipeLines(value: unknown, origin: RecipeLine['origin']): 
     })
   })
   return lines
+}
+
+/**
+ * Party-pack contents as recipe rows.
+ *
+ * A pack variant has no recipe of its own: the food lives in a
+ * `[{ variantId, quantity }]` array, and each entry is a whole sellable
+ * variant. Expressing them as `source: 'Products'` rows hands them to the same
+ * nesting-aware resolution every other reference gets, so a pack is costed
+ * from its children's *current* cost rather than a stored number.
+ *
+ * Quantities accumulate per child: a pack may legitimately list the same
+ * station twice, and both are food that has to be paid for.
+ */
+export function parseBundleLines(value: unknown): RecipeLine[] {
+  let raw: unknown = value
+  if (typeof raw === 'string' && raw.trim()) {
+    try {
+      raw = JSON.parse(raw)
+    } catch {
+      return []
+    }
+  }
+  if (!Array.isArray(raw)) return []
+
+  const byChild = new Map<string, RecipeLine>()
+  for (const entry of raw) {
+    if (!entry || typeof entry !== 'object') continue
+    const row = entry as Record<string, unknown>
+    const childId = String(row.variantId ?? row.id ?? '').trim()
+    if (!childId) continue
+    // Matches every other bundle reader in the app: a missing or unparseable
+    // quantity means one of the child, never none of it.
+    const parsed = num(row.quantity, 1)
+    const quantity = parsed > 0 ? parsed : 1
+    const existing = byChild.get(childId)
+    if (existing) {
+      existing.quantity += quantity
+      continue
+    }
+    byChild.set(childId, {
+      source: 'Products',
+      id: childId,
+      name: String(row.name ?? row.title ?? '').trim() || childId,
+      quantity,
+      unit: 'each',
+      snapshotCost: num(row.cost, 0),
+      ingredientId: null,
+      origin: 'bundle',
+      position: byChild.size,
+    })
+  }
+  return [...byChild.values()]
+}
+
+/**
+ * Effective pack contents for one variant.
+ *
+ * Presence, not the `isPartyPack` / `isPartyPackDefault` flags, decides: this
+ * is the rule `src/lib/cogs.ts` already applies to order COGS, and the two
+ * engines disagreeing about what a pack contains would be worse than either
+ * rule being wrong. In production no variant has `bundleItems` at all, so
+ * today this always resolves to the product default.
+ */
+function bundleLinesForVariant(row: VariantRow): RecipeLine[] {
+  const own = parseBundleLines(row.bundleItems)
+  if (own.length) return own
+  return parseBundleLines(row.product?.bundleDefaultItems)
 }
 
 /** Same identity as `rowKey` in the costing lib, on an already-parsed line. */
@@ -514,14 +591,20 @@ function indexComponent(row: ComponentRow): IndexedComponent {
   }
 }
 
-function indexVariant(row: VariantRow): IndexedVariant {
+function indexVariant(row: VariantRow, options: CostIndexOptions): IndexedVariant {
   const base = parseRecipeLines(row.baseIngredients ?? row.product?.baseIngredients, 'base')
   const fromOptions = parseRecipeLines(row.optionIngredients, 'option')
+  const optionKeys = new Set(fromOptions.map(recipeLineKey))
+  // Options are the authoritative statement of what a title chose, so a pack
+  // whose contents an option already supplies contributes that child once.
+  const fromBundle = (options.expandBundles ? bundleLinesForVariant(row) : []).filter(
+    (line) => !optionKeys.has(recipeLineKey(line))
+  )
   // A variant still carries whatever the old rules sprayed onto it. Rows an
-  // option now supplies are dropped rather than added, or the ingredient would
-  // be counted twice; the rest are kept so nothing silently loses its cost
-  // before the catalogue is fully migrated.
-  const supplied = new Set(fromOptions.map(recipeLineKey))
+  // option or the pack contents now supply are dropped rather than added, or
+  // the ingredient would be counted twice; the rest are kept so nothing
+  // silently loses its cost before the catalogue is fully migrated.
+  const supplied = new Set([...optionKeys, ...fromBundle.map(recipeLineKey)])
   const own = parseRecipeLines(row.ingredients, 'variant').filter(
     (line) => !supplied.has(recipeLineKey(line))
   )
@@ -533,8 +616,9 @@ function indexVariant(row: VariantRow): IndexedVariant {
     sku: row.shopifySku ? String(row.shopifySku) : null,
     shopifyPriceInclGst: num(row.shopifyPrice, 0),
     storedTotalCost: num(row.totalCost, 0),
-    // Base first, then the title's choices, then any legacy rows that survive.
-    lines: [...base, ...fromOptions, ...own],
+    // Base first, then the title's choices, then pack contents, then any
+    // legacy rows that survive.
+    lines: [...base, ...fromOptions, ...fromBundle, ...own],
   }
 }
 
@@ -659,7 +743,7 @@ export function createCostIndex(input: CostIndexInput): CostIndex {
   const variantsById = new Map<string, IndexedVariant>()
   const variantIdsByProductId = new Map<string, string[]>()
   for (const row of input.variants ?? []) {
-    const indexed = indexVariant(row)
+    const indexed = indexVariant(row, options)
     variantsByVariantId.set(indexed.variantId, indexed)
     variantsById.set(indexed.id, indexed)
     const bucket = variantIdsByProductId.get(indexed.productId)
@@ -854,7 +938,8 @@ export async function buildCostIndex(opts: BuildCostIndexOptions = {}): Promise<
             shopifyPrice: true,
             totalCost: true,
             ingredients: true,
-            product: { select: { baseIngredients: true } },
+            bundleItems: true,
+            product: { select: { baseIngredients: true, bundleDefaultItems: true } },
           },
         })
       : Promise.resolve([]),
