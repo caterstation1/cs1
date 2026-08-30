@@ -29,6 +29,7 @@ interface ShopifyProduct {
   isPartyPackDefault?: boolean;
   bundleDefaultItems?: Array<{ variantId: string; quantity: number }>;
   bakery?: boolean;
+  dietaryMarker?: 'B' | 'W' | 'O' | 'Y' | 'Pi' | 'Pu' | null;
   createdAt: string;
   updatedAt: string;
   variants: ProductVariant[];
@@ -61,6 +62,31 @@ interface ProductVariant {
   updatedAt: string;
 }
 
+/**
+ * Average margin across a product's variants.
+ *
+ * Variants with no cost are left out rather than averaged in: an uncosted
+ * variant looks like 100% margin, and a handful of them would make a
+ * loss-making product read as the healthiest on the page. The count of what
+ * was actually included is returned so the number can be read honestly.
+ */
+function productMargin(variants: ProductVariant[]) {
+  let sum = 0
+  let costed = 0
+  for (const variant of variants) {
+    const priceEx = Number(variant.shopifyPrice) / 1.15
+    const cost = Number(variant.totalCost || 0)
+    if (!isFinite(priceEx) || priceEx <= 0 || cost <= 0) continue
+    sum += ((priceEx - cost) / priceEx) * 100
+    costed += 1
+  }
+  return {
+    average: costed > 0 ? sum / costed : null,
+    costed,
+    total: variants.length,
+  }
+}
+
 // Form data schema
 const customDataSchema = z.object({
   displayName: z.string().optional(),
@@ -85,6 +111,7 @@ type CustomDataFormData = z.infer<typeof customDataSchema>;
 type BaseProductFormData = z.infer<typeof baseProductSchema>;
 
 export function ProductsTab() {
+  const dietaryMarkerOptions = ['B', 'W', 'O', 'Y', 'Pi', 'Pu'] as const
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -990,34 +1017,89 @@ export function ProductsTab() {
                           />
                         </TableCell>
                         <TableCell>
-                          <label className="flex items-center gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={product.bakery || false}
+                          <div className="flex items-center gap-3">
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={product.bakery || false}
+                                onChange={async (e) => {
+                                  try {
+                                    const response = await fetch(`/api/products/${product.id}`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ bakery: e.target.checked })
+                                    });
+                                    if (response.ok) {
+                                      await fetchProducts();
+                                    } else {
+                                      alert('Failed to update bakery flag');
+                                    }
+                                  } catch (error) {
+                                    console.error('Error updating bakery flag:', error);
+                                    alert('Error updating bakery flag');
+                                  }
+                                }}
+                                className="h-4 w-4"
+                              />
+                              <span>Bakery</span>
+                            </label>
+                            <select
+                              value={product.dietaryMarker || ''}
                               onChange={async (e) => {
                                 try {
                                   const response = await fetch(`/api/products/${product.id}`, {
                                     method: 'PATCH',
                                     headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ bakery: e.target.checked })
+                                    body: JSON.stringify({ dietaryMarker: e.target.value || null })
                                   });
                                   if (response.ok) {
                                     await fetchProducts();
                                   } else {
-                                    alert('Failed to update bakery flag');
+                                    alert('Failed to update dietary marker');
                                   }
                                 } catch (error) {
-                                  console.error('Error updating bakery flag:', error);
-                                  alert('Error updating bakery flag');
+                                  console.error('Error updating dietary marker:', error);
+                                  alert('Error updating dietary marker');
                                 }
                               }}
-                              className="h-4 w-4"
-                            />
-                            <span>Bakery</span>
-                          </label>
+                              className="h-8 rounded border border-gray-300 bg-white px-2 text-xs"
+                              aria-label="Dietary marker"
+                            >
+                              <option value="">-</option>
+                              {dietaryMarkerOptions.map((marker) => (
+                                <option key={marker} value={marker}>
+                                  {marker}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </TableCell>
                         <TableCell colSpan={4} className="text-gray-500">
                           Product Group
+                        </TableCell>
+                        <TableCell>
+                          {(() => {
+                            const { average, costed, total } = productMargin(variants);
+                            if (average === null) {
+                              return (
+                                <div className="text-sm text-red-600" title="No variant on this product has a cost yet">
+                                  &mdash;
+                                </div>
+                              );
+                            }
+                            const tone =
+                              average >= 70 ? 'text-green-700' : average >= 50 ? 'text-amber-600' : 'text-red-600';
+                            return (
+                              <div>
+                                <div className={`text-sm font-semibold ${tone}`}>
+                                  {average.toFixed(1)}%
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {costed < total ? `avg · ${costed} of ${total}` : 'avg'}
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-1">
@@ -1049,7 +1131,7 @@ export function ProductsTab() {
                       {/* Base Ingredients Manager Row */}
                       {expandedIngredientsFor.has(product.id) && (
                         <TableRow className="bg-blue-50">
-                          <TableCell colSpan={8} className="p-4">
+                          <TableCell colSpan={9} className="p-4">
                             <div className="space-y-3">
                               <div className="font-semibold text-sm">Base Ingredients (apply to all variants)</div>
                               
@@ -1232,15 +1314,25 @@ export function ProductsTab() {
                             <div className="text-sm">${(variant.totalCost || 0).toFixed(2)}</div>
                           </TableCell>
                           <TableCell>
-                            <div className="text-sm">
-                              {(() => {
-                                const priceEx = Number(variant.shopifyPrice) / 1.15
-                                const cost = Number(variant.totalCost || 0)
-                                if (!isFinite(priceEx) || priceEx <= 0) return '0.0'
-                                const m = ((priceEx - cost) / priceEx) * 100
-                                return m.toFixed(1)
-                              })()}%
-                            </div>
+                            {(() => {
+                              const priceEx = Number(variant.shopifyPrice) / 1.15
+                              const cost = Number(variant.totalCost || 0)
+                              // A variant with no cost is not a 100% margin, it
+                              // is an unanswered question, and printing a number
+                              // there is how it stays unanswered.
+                              if (!isFinite(priceEx) || priceEx <= 0 || cost <= 0) {
+                                return (
+                                  <div className="text-sm text-red-600" title="This variant has no cost yet">
+                                    &mdash;
+                                  </div>
+                                )
+                              }
+                              return (
+                                <div className="text-sm">
+                                  {(((priceEx - cost) / priceEx) * 100).toFixed(1)}%
+                                </div>
+                              )
+                            })()}
                           </TableCell>
                           <TableCell>
                             <Button
@@ -1263,7 +1355,7 @@ export function ProductsTab() {
                 console.error('Error rendering ProductsTab:', error);
                 return (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-red-500">
+                    <TableCell colSpan={9} className="text-center text-red-500">
                       Error rendering products. Please try refreshing the page.
                     </TableCell>
                   </TableRow>
