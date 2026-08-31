@@ -12,12 +12,16 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Dispatch, SetStateAction } from 'react'
+import { parseCsvRows } from "@/lib/csv"
 
 export interface BidfoodProduct {
   id: string
   productCode: string
   brand: string
   description: string
+  isPreferred?: boolean
+  preferredReference?: string | null
+  preferredAllergens?: string[]
   packSize: string
   ctnQty: string
   uom: string
@@ -34,9 +38,16 @@ interface BidfoodTabProps {
   setProducts: Dispatch<SetStateAction<BidfoodProduct[]>>
   isLoading: boolean
   error?: string | null
+  onTogglePreferred?: (id: string, nextPreferred: boolean) => void | Promise<void>
 }
 
-export function BidfoodTab({ products, setProducts, isLoading, error: propError }: BidfoodTabProps) {
+export function BidfoodTab({
+  products,
+  setProducts,
+  isLoading,
+  error: propError,
+  onTogglePreferred,
+}: BidfoodTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [allergenMap, setAllergenMap] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(propError || null)
@@ -175,10 +186,10 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
 
     try {
       const text = await file.text()
-      const rows = text.split('\n')
+      const rows = parseCsvRows(text)
       
       // Extract headers from the first row
-      const headers = rows[0].split(',').map(header => 
+      const headers = rows[0].map(header => 
         header.replace(/^["']|["']$/g, '').trim()
       )
       
@@ -199,13 +210,7 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
       const productMap = new Map<string, BidfoodProduct>()
 
       rows.slice(1).forEach((row, index) => {
-        if (!row.trim()) return
-
-        // Split the row by comma, but handle quoted fields properly
-        const fields = row.split(',').map(field => {
-          // Remove quotes if present and trim whitespace
-          return field.replace(/^["']|["']$/g, '').trim()
-        })
+        const fields = row.map(field => field.replace(/^["']|["']$/g, '').trim())
 
         // Extract product code (assuming it's the first column)
         const productCode = fields[0]
@@ -327,6 +332,7 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
           <TableHeader>
             <TableRow>
               <TableHead>Product Code</TableHead>
+              <TableHead>Preferred</TableHead>
               <TableHead>Brand</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Pack Size</TableHead>
@@ -342,13 +348,13 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center">
+                <TableCell colSpan={12} className="text-center">
                   Loading products...
                 </TableCell>
               </TableRow>
             ) : (!products || products.length === 0) ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center">
+                <TableCell colSpan={12} className="text-center">
                   No products found. Upload a CSV file to get started.
                 </TableCell>
               </TableRow>
@@ -359,6 +365,23 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
                   return productsArray.map((product) => (
                     <TableRow key={product.productCode}>
                       <TableCell>{product.productCode}</TableCell>
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(product.isPreferred)}
+                          onChange={(e) => {
+                            const nextPreferred = e.target.checked
+                            setProducts((prev) =>
+                              prev.map((item) =>
+                                item.id === product.id ? { ...item, isPreferred: nextPreferred } : item
+                              )
+                            )
+                            if (product.id) {
+                              void onTogglePreferred?.(product.id, nextPreferred)
+                            }
+                          }}
+                        />
+                      </TableCell>
                       <TableCell>{product.brand}</TableCell>
                       <TableCell>{product.description}</TableCell>
                       <TableCell>{product.packSize}</TableCell>
@@ -380,7 +403,7 @@ export function BidfoodTab({ products, setProducts, isLoading, error: propError 
                   console.error('Error rendering Bidfood products:', error)
                   return (
                     <TableRow>
-                      <TableCell colSpan={10} className="text-center text-red-500">
+                      <TableCell colSpan={12} className="text-center text-red-500">
                         Error rendering products. Please try refreshing the page.
                       </TableCell>
                     </TableRow>

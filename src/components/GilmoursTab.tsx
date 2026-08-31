@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { GilmoursProduct, GilmoursProductMap } from "@/lib/types"
+import { parseCsvRows } from "@/lib/csv"
 import { Dispatch, SetStateAction } from 'react'
 
 interface GilmoursTabProps {
@@ -35,19 +36,14 @@ export function GilmoursTab({
   // Ensure products is always an array to prevent React invariant errors
   const safeProducts = Array.isArray(products) ? products : []
   
-  // Debug logging
-  console.log('GilmoursTab render - products:', safeProducts, 'type:', typeof products, 'isArray:', Array.isArray(products))
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
     const text = await file.text()
-    const rows = text.split('\n').map(row => row.split(','))
+    const rows = parseCsvRows(text)
     const headers = rows[0].map(header => header.toLowerCase().trim())
-    
-    console.log('🔍 CSV Debug - Headers:', headers)
-    
+
     // Find column indices
     const skuIndex = headers.findIndex(h => h.includes('sku'))
     const brandIndex = headers.findIndex(h => h.includes('brand'))
@@ -56,19 +52,12 @@ export function GilmoursTab({
     const uomIndex = headers.findIndex(h => h.includes('uom') || h.includes('unit'))
     const priceIndex = headers.findIndex(h => h.includes('price'))
     const qtyIndex = headers.findIndex(h => h.includes('qty') || h.includes('quantity'))
-    
-    console.log('🔍 CSV Debug - Column Indices:', {
-      skuIndex,
-      brandIndex,
-      descIndex,
-      packIndex,
-      uomIndex,
-      priceIndex,
-      qtyIndex
-    })
-    
-    // Show first few rows for debugging
-    console.log('🔍 CSV Debug - First 3 rows:', rows.slice(0, 3))
+    const dateIndex = headers.findIndex(h => h.includes('date'))
+
+    if (skuIndex === -1 || priceIndex === -1) {
+      setUploadError('That file does not look like a Gilmours export: no SKU or Price column found.')
+      return
+    }
 
     // Helper function to clean field values
     const cleanField = (value: string | undefined): string => {
@@ -81,52 +70,60 @@ export function GilmoursTab({
       if (!value) return 0
       const cleaned = cleanField(value)
       if (!cleaned) return 0
-      
-      console.log(`🔍 Price Debug - Raw value: "${value}", Cleaned: "${cleaned}"`)
-      
+
       // Handle currency formatting (remove $, commas, etc.)
-      let numericValue = cleaned
+      const numericValue = cleaned
         .replace(/[$,\s]/g, '') // Remove $, commas, and spaces
         .replace(/[^\d.-]/g, '') // Keep only digits, decimal points, and minus signs
-      
+
       const parsed = isInteger ? parseInt(numericValue, 10) : parseFloat(numericValue)
-      const result = isNaN(parsed) ? 0 : parsed
-      
-      console.log(`🔍 Price Debug - After currency cleanup: "${numericValue}", Parsed result: ${result}`)
-      return result
+      return isNaN(parsed) ? 0 : parsed
     }
 
     // Create a map of existing products
     const productMap = new Map(products.map(p => [p.sku, p]))
+    // A SKU appears once per purchase, and the export is not in date order, so
+    // taking the last row seen would price some items off an older invoice.
+    const seenAt = new Map<string, number>()
+    let skipped = 0
 
     // Process rows
     const newProducts = rows.slice(1).reduce((acc: GilmoursProductMap, row) => {
-      if (row.length < headers.length) return acc // Skip invalid rows
-
       const sku = cleanField(row[skuIndex])
       if (!sku) return acc
 
-      const rawPrice = row[priceIndex]
-      const parsedPrice = parseNumber(rawPrice)
-      
-      console.log(`🔍 Product Debug - SKU: ${sku}, Raw price: "${rawPrice}", Parsed price: ${parsedPrice}`)
-      
+      const purchasedAt = dateIndex === -1 ? NaN : Date.parse(cleanField(row[dateIndex]))
+      const previous = seenAt.get(sku)
+      if (previous !== undefined && Number.isFinite(purchasedAt) && purchasedAt < previous) {
+        return acc
+      }
+
+      const price = parseNumber(row[priceIndex])
+      if (price <= 0) {
+        skipped += 1
+        return acc
+      }
+
       const product: GilmoursProduct = {
         sku,
         brand: cleanField(row[brandIndex]),
         description: cleanField(row[descIndex]),
         packSize: cleanField(row[packIndex]),
         uom: cleanField(row[uomIndex]),
-        price: parsedPrice,
+        price,
         quantity: parseNumber(row[qtyIndex], true),
       }
 
-      console.log(`🔍 Product Debug - Final product:`, product)
+      if (Number.isFinite(purchasedAt)) seenAt.set(sku, purchasedAt)
       acc.set(sku, product)
       return acc
     }, productMap)
 
     const productsArray = Array.from(newProducts.values())
+    console.log(
+      `Gilmours CSV: ${rows.length - 1} rows, ${productsArray.length} products` +
+        (skipped ? `, ${skipped} rows skipped for having no price` : '')
+    )
     
 
     
