@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { TimePicker } from '@/components/ui/time-picker'
+import { RosterLabourTarget } from '@/components/roster/RosterLabourTarget'
 
 interface Staff {
   id: string
@@ -66,9 +67,19 @@ export default function RosterPage() {
   })
   const { toast } = useToast()
   
+  // Assignments are stored as UTC midnight of the rostered day, so a column key has
+  // to be the local calendar date. toISOString() would report the previous day for
+  // any local time past 11am/12pm in New Zealand.
+  const toDateKey = (date: Date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   // Get week dates (Monday to Sunday)
   const getWeekDates = (date: Date) => {
-    const start = new Date(date)
+    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate())
     const day = start.getDay()
     const diff = start.getDate() - day + (day === 0 ? -6 : 1) // Adjust when day is Sunday
     start.setDate(diff)
@@ -83,7 +94,7 @@ export default function RosterPage() {
   }
 
   const weekDates = getWeekDates(currentWeek)
-  const today = new Date().toISOString().split('T')[0]
+  const today = toDateKey(new Date())
 
   // Calculate shift duration
   const calculateShiftDuration = (startTime: string, endTime: string) => {
@@ -111,7 +122,7 @@ export default function RosterPage() {
       const [staffRes, shiftTypesRes, assignmentsRes] = await Promise.all([
         fetch('/api/staff'),
         fetch('/api/shift-types'),
-        fetch(`/api/roster/assignments?startDate=${weekDates[0].toISOString()}&endDate=${weekDates[6].toISOString()}`)
+        fetch(`/api/roster/assignments?startDate=${toDateKey(weekDates[0])}T00:00:00.000Z&endDate=${toDateKey(weekDates[6])}T23:59:59.999Z`)
       ])
 
       // Check for API errors
@@ -130,7 +141,7 @@ export default function RosterPage() {
       const assignmentsData = await assignmentsRes.json()
 
       console.log('Fetched assignments:', assignmentsData)
-      console.log('Week dates:', weekDates.map(d => d.toISOString().split('T')[0]))
+      console.log('Week dates:', weekDates.map(d => toDateKey(d)))
       console.log('Sample assignment date format:', assignmentsData[0]?.date)
       console.log('Staff data:', staffData.filter((s: Staff) => s.isActive))
 
@@ -434,6 +445,9 @@ export default function RosterPage() {
         </Card>
       </div>
 
+      {/* Owner-only; the component renders nothing when the API refuses it */}
+      <RosterLabourTarget weekDates={weekDates} />
+
       {/* Enhanced Roster Grid */}
       <Card className="shadow-lg">
         <CardContent className="p-0">
@@ -448,7 +462,7 @@ export default function RosterPage() {
                     </div>
                   </th>
                   {weekDates.map((date, index) => {
-                    const dateStr = date.toISOString().split('T')[0]
+                    const dateStr = toDateKey(date)
                     const isToday = dateStr === today
                     const dayAssignments = assignments.filter(a => 
                       new Date(a.date).toISOString().split('T')[0] === dateStr
@@ -490,7 +504,7 @@ export default function RosterPage() {
                       </div>
                     </td>
                     {weekDates.map((date, index) => {
-                      const dateStr = date.toISOString().split('T')[0]
+                      const dateStr = toDateKey(date)
                       const assignment = getAssignment(member.id, dateStr)
                       const isToday = dateStr === today
                       
@@ -521,7 +535,7 @@ export default function RosterPage() {
                                         // Copy to next day
                                         const nextDay = new Date(date)
                                         nextDay.setDate(date.getDate() + 1)
-                                        const nextDayStr = nextDay.toISOString().split('T')[0]
+                                        const nextDayStr = toDateKey(nextDay)
                                         handleCopyAssignment(assignment, nextDayStr)
                                       }}
                                       title="Copy to next day"
