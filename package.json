@@ -21,6 +21,7 @@
     "test:pricing-ingest": "npx tsx src/lib/pricing/__tests__/ingest-parse.test.ts",
     "test:costing-options": "npx tsx src/lib/costing/__tests__/options.test.ts",
     "test:recipe-lines": "npx tsx src/lib/recipe-builder/__tests__/lines.test.ts",
+    "test:roster-labour-target": "npx tsx src/lib/roster/__tests__/labour-target.test.ts",
     "test:pricing": "npm run test:pricing-units && npm run test:pricing-packsize && npm run test:pricing-cost && npm run test:pricing-recalc && npm run test:pricing-bundle && npm run test:pricing-variant-save && npm run test:pricing-ingest && npm run test:costing-options && npm run test:recipe-lines",
     "pricing:parity": "npx tsx scripts/pricing-parity-report.ts",
     "postinstall": "prisma generate && node scripts/fix-prisma-enum.js",
