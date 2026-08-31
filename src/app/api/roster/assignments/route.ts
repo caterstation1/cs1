@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { notifyRosterAssignmentCreated } from '@/lib/roster-assignment-alert'
 
 export async function GET(request: NextRequest) {
   try {
@@ -74,6 +75,18 @@ export async function POST(request: NextRequest) {
     })
     
     console.log(`✅ Created roster assignment: ${assignment.id}`)
+
+    // Both the Roster page and the calendar Roster drawer post here, so alerting
+    // from this one place keeps the two entry points behaving identically.
+    // notifyRosterAssignmentCreated never throws — a notification problem must
+    // not turn a saved shift into a failed request.
+    const alertOutcome = await notifyRosterAssignmentCreated(assignment)
+    if (alertOutcome.status === 'failed') {
+      console.error(`[roster-alert] ${assignment.id} failed: ${alertOutcome.reason}`)
+    } else if (alertOutcome.status !== 'disabled') {
+      console.log(`[roster-alert] ${assignment.id} ${alertOutcome.status}`, alertOutcome)
+    }
+
     return NextResponse.json(assignment, { status: 201 })
   } catch (error) {
     console.error('❌ Error creating roster assignment:', error)
