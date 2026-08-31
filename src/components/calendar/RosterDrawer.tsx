@@ -133,24 +133,6 @@ export function RosterDrawer({
 
   useEffect(() => {
     if (!open) return
-    const prevOverflow = document.body.style.overflow
-    const prevPaddingRight = document.body.style.paddingRight
-    // Removing the page scrollbar would shift the content behind the drawer, which
-    // is exactly what an overlay must not do, so pad by the width it occupied.
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-    document.body.style.overflow = 'hidden'
-    if (scrollbarWidth > 0) {
-      const currentPadding = Number.parseFloat(window.getComputedStyle(document.body).paddingRight) || 0
-      document.body.style.paddingRight = `${currentPadding + scrollbarWidth}px`
-    }
-    return () => {
-      document.body.style.overflow = prevOverflow
-      document.body.style.paddingRight = prevPaddingRight
-    }
-  }, [open])
-
-  useEffect(() => {
-    if (!open) return
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose()
     }
@@ -434,267 +416,268 @@ export function RosterDrawer({
   )
 
   return createPortal(
-    <div className="fixed inset-0 z-[200]">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label="Roster shifts"
-        className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-2xl"
-      >
-        <div className="flex shrink-0 items-start justify-between gap-3 border-b px-4 py-3">
-          <div>
-            <div className="flex items-center gap-2 text-lg font-semibold">
-              <CalendarClock className="h-5 w-5 text-indigo-600" />
-              Roster
-            </div>
-            <div className="text-sm font-medium text-gray-900">
-              {format(selectedDate, 'EEEE, d MMMM yyyy')}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Drag down the grid to select a time, then choose an Auckland staff member.
-            </div>
+    // No scrim and no full-viewport wrapper: the calendar behind stays scrollable and
+    // clickable, so the panel must not cover it with a hit-testable layer. It is
+    // deliberately not aria-modal for the same reason — the rest of the page is live.
+    <aside
+      role="dialog"
+      aria-label="Roster shifts"
+      className="fixed inset-y-0 right-0 z-[200] flex w-full max-w-md flex-col border-l bg-white shadow-2xl"
+    >
+      <div className="flex shrink-0 items-start justify-between gap-3 border-b px-4 py-3">
+        <div>
+          <div className="flex items-center gap-2 text-lg font-semibold">
+            <CalendarClock className="h-5 w-5 text-indigo-600" />
+            Roster
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close roster"
-            className="rounded px-2 py-1 text-lg leading-none hover:bg-gray-100"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="text-sm font-medium text-gray-900">
+            {format(selectedDate, 'EEEE, d MMMM yyyy')}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Drag down the grid to select a time, then choose an Auckland staff member.
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close roster"
+          className="rounded px-2 py-1 text-lg leading-none hover:bg-gray-100"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
 
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
-          {loadError && (
-            <div className="mb-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
-              {loadError}
-            </div>
-          )}
-          {loading && (
-            <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Loading roster…
-            </div>
-          )}
+      {/* overscroll-contain: the page behind is scrollable now, so reaching the end of
+          the grid must not hand the rest of the gesture to it mid-scroll. */}
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
+        {loadError && (
+          <div className="mb-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+            {loadError}
+          </div>
+        )}
+        {loading && (
+          <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading roster…
+          </div>
+        )}
 
-          <div className="flex select-none">
-            <div className="relative w-14 shrink-0" style={{ height: SLOT_COUNT * SLOT_HEIGHT }}>
-              {hourMarks.map((minutes) => (
+        <div className="flex select-none">
+          <div className="relative w-14 shrink-0" style={{ height: SLOT_COUNT * SLOT_HEIGHT }}>
+            {hourMarks.map((minutes) => (
+              <div
+                key={minutes}
+                className="absolute right-2 -translate-y-1/2 text-[11px] font-medium text-gray-500"
+                style={{ top: ((minutes - DAY_START_MINUTES) / SLOT_MINUTES) * SLOT_HEIGHT }}
+              >
+                {toDisplayClock(minutes)}
+              </div>
+            ))}
+          </div>
+
+          <div
+            ref={trackRef}
+            onPointerDown={handlePointerDown}
+            onPointerMove={(event) => moveCursor(event.clientY)}
+            onPointerUp={finishDrag}
+            className="relative flex-1 cursor-crosshair border-y border-l border-gray-300 bg-white"
+            style={{ height: SLOT_COUNT * SLOT_HEIGHT, touchAction: 'none' }}
+          >
+            {Array.from({ length: SLOT_COUNT }, (_, slot) => (
+              <div
+                key={slot}
+                className={`absolute inset-x-0 border-t ${
+                  slot === 0
+                    ? 'border-transparent'
+                    : slot % 4 === 0
+                      ? 'border-gray-300'
+                      : 'border-gray-100'
+                }`}
+                style={{ top: slot * SLOT_HEIGHT, height: SLOT_HEIGHT }}
+              />
+            ))}
+
+            {placedShifts.map(({ assignment, startMinutes, endMinutes, lane }) => {
+              const top =
+                ((Math.max(startMinutes, DAY_START_MINUTES) - DAY_START_MINUTES) / SLOT_MINUTES) * SLOT_HEIGHT
+              const bottom =
+                ((Math.min(endMinutes, DAY_END_MINUTES) - DAY_START_MINUTES) / SLOT_MINUTES) * SLOT_HEIGHT
+              return (
                 <div
-                  key={minutes}
-                  className="absolute right-2 -translate-y-1/2 text-[11px] font-medium text-gray-500"
-                  style={{ top: ((minutes - DAY_START_MINUTES) / SLOT_MINUTES) * SLOT_HEIGHT }}
-                >
-                  {toDisplayClock(minutes)}
-                </div>
-              ))}
-            </div>
-
-            <div
-              ref={trackRef}
-              onPointerDown={handlePointerDown}
-              onPointerMove={(event) => moveCursor(event.clientY)}
-              onPointerUp={finishDrag}
-              className="relative flex-1 cursor-crosshair border-y border-l border-gray-300 bg-white"
-              style={{ height: SLOT_COUNT * SLOT_HEIGHT, touchAction: 'none' }}
-            >
-              {Array.from({ length: SLOT_COUNT }, (_, slot) => (
-                <div
-                  key={slot}
-                  className={`absolute inset-x-0 border-t ${
-                    slot === 0
-                      ? 'border-transparent'
-                      : slot % 4 === 0
-                        ? 'border-gray-300'
-                        : 'border-gray-100'
-                  }`}
-                  style={{ top: slot * SLOT_HEIGHT, height: SLOT_HEIGHT }}
-                />
-              ))}
-
-              {placedShifts.map(({ assignment, startMinutes, endMinutes, lane }) => {
-                const top =
-                  ((Math.max(startMinutes, DAY_START_MINUTES) - DAY_START_MINUTES) / SLOT_MINUTES) * SLOT_HEIGHT
-                const bottom =
-                  ((Math.min(endMinutes, DAY_END_MINUTES) - DAY_START_MINUTES) / SLOT_MINUTES) * SLOT_HEIGHT
-                return (
-                  <div
-                    key={assignment.id}
-                    className="absolute overflow-hidden rounded border border-emerald-400 bg-emerald-100/90 px-1 py-0.5 text-[10px] leading-tight text-emerald-900"
-                    style={{
-                      top,
-                      height: Math.max(SLOT_HEIGHT, bottom - top),
-                      left: `${(lane * 100) / laneCount}%`,
-                      width: `calc(${100 / laneCount}% - 2px)`,
-                    }}
-                    title={`${assignment.staff?.firstName ?? ''} ${assignment.staff?.lastName ?? ''} ${toDisplayClock(
-                      startMinutes
-                    )} – ${toDisplayClock(endMinutes)}`}
-                  >
-                    <div className="truncate font-semibold">
-                      {assignment.staff?.firstName} {assignment.staff?.lastName?.charAt(0)}
-                    </div>
-                    <div className="truncate">
-                      {toDisplayClock(startMinutes)}–{toDisplayClock(endMinutes)}
-                    </div>
-                  </div>
-                )
-              })}
-
-              {activeRange && (
-                <div
-                  className="pointer-events-none absolute inset-x-0 rounded border-2 border-indigo-500 bg-indigo-500/25"
+                  key={assignment.id}
+                  className="absolute overflow-hidden rounded border border-emerald-400 bg-emerald-100/90 px-1 py-0.5 text-[10px] leading-tight text-emerald-900"
                   style={{
-                    top: activeRange.startSlot * SLOT_HEIGHT,
-                    height: (activeRange.endSlot - activeRange.startSlot) * SLOT_HEIGHT,
+                    top,
+                    height: Math.max(SLOT_HEIGHT, bottom - top),
+                    left: `${(lane * 100) / laneCount}%`,
+                    width: `calc(${100 / laneCount}% - 2px)`,
                   }}
+                  title={`${assignment.staff?.firstName ?? ''} ${assignment.staff?.lastName ?? ''} ${toDisplayClock(
+                    startMinutes
+                  )} – ${toDisplayClock(endMinutes)}`}
                 >
-                  <div className="whitespace-nowrap px-1 text-[11px] font-semibold text-indigo-900">
-                    {toDisplayClock(slotToMinutes(activeRange.startSlot))} –{' '}
-                    {toDisplayClock(slotToMinutes(activeRange.endSlot))} (
-                    {toDurationLabel((activeRange.endSlot - activeRange.startSlot) * SLOT_MINUTES)})
+                  <div className="truncate font-semibold">
+                    {assignment.staff?.firstName} {assignment.staff?.lastName?.charAt(0)}
+                  </div>
+                  <div className="truncate">
+                    {toDisplayClock(startMinutes)}–{toDisplayClock(endMinutes)}
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
+              )
+            })}
 
-          {shiftsOutsideGrid.length > 0 && (
-            <div className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600">
-              <div className="font-medium">Also rostered, outside 6:00am–8:00pm</div>
-              {shiftsOutsideGrid.map((assignment) => (
-                <div key={assignment.id}>
-                  {assignment.staff?.firstName} {assignment.staff?.lastName}
-                  {assignment.startTime && assignment.endTime
-                    ? ` ${assignment.startTime}–${assignment.endTime}`
-                    : ' (no time set)'}
+            {activeRange && (
+              <div
+                className="pointer-events-none absolute inset-x-0 rounded border-2 border-indigo-500 bg-indigo-500/25"
+                style={{
+                  top: activeRange.startSlot * SLOT_HEIGHT,
+                  height: (activeRange.endSlot - activeRange.startSlot) * SLOT_HEIGHT,
+                }}
+              >
+                <div className="whitespace-nowrap px-1 text-[11px] font-semibold text-indigo-900">
+                  {toDisplayClock(slotToMinutes(activeRange.startSlot))} –{' '}
+                  {toDisplayClock(slotToMinutes(activeRange.endSlot))} (
+                  {toDurationLabel((activeRange.endSlot - activeRange.startSlot) * SLOT_MINUTES)})
                 </div>
-              ))}
-            </div>
-          )}
-
-          {!loading && assignments.length === 0 && (
-            <div className="mt-3 text-xs text-muted-foreground">Nobody is rostered on this day yet.</div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="shrink-0 space-y-3 border-t px-4 py-3">
-          {selection ? (
-            <div className="rounded border border-indigo-200 bg-indigo-50 px-3 py-2">
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-indigo-900">
-                  {toDisplayClock(slotToMinutes(selection.startSlot))} –{' '}
-                  {toDisplayClock(slotToMinutes(selection.endSlot))} (
-                  {toDurationLabel((selection.endSlot - selection.startSlot) * SLOT_MINUTES)})
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => setSelection(null)}>
-                  Clear
-                </Button>
+        {shiftsOutsideGrid.length > 0 && (
+          <div className="mt-3 rounded border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600">
+            <div className="font-medium">Also rostered, outside 6:00am–8:00pm</div>
+            {shiftsOutsideGrid.map((assignment) => (
+              <div key={assignment.id}>
+                {assignment.staff?.firstName} {assignment.staff?.lastName}
+                {assignment.startTime && assignment.endTime
+                  ? ` ${assignment.startTime}–${assignment.endTime}`
+                  : ' (no time set)'}
               </div>
-              <div className="mt-1 flex items-center gap-4 text-xs text-indigo-900">
-                <div className="flex items-center gap-1">
-                  <span>Start</span>
-                  <button
-                    type="button"
-                    className="rounded border border-indigo-300 px-1.5 hover:bg-indigo-100"
-                    onClick={() => adjustSelection('start', -1)}
-                  >
-                    −15m
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded border border-indigo-300 px-1.5 hover:bg-indigo-100"
-                    onClick={() => adjustSelection('start', 1)}
-                  >
-                    +15m
-                  </button>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span>End</span>
-                  <button
-                    type="button"
-                    className="rounded border border-indigo-300 px-1.5 hover:bg-indigo-100"
-                    onClick={() => adjustSelection('end', -1)}
-                  >
-                    −15m
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded border border-indigo-300 px-1.5 hover:bg-indigo-100"
-                    onClick={() => adjustSelection('end', 1)}
-                  >
-                    +15m
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-xs text-muted-foreground">
-              No time selected. Drag on the grid above to pick a start and finish.
-            </div>
-          )}
-
-          <div className="space-y-1">
-            <label htmlFor="roster-staff" className="text-xs font-medium text-gray-700">
-              Auckland staff
-            </label>
-            <select
-              id="roster-staff"
-              value={staffId}
-              onChange={(event) => {
-                setStaffId(event.target.value)
-                setSaveError(null)
-                setSavedMessage(null)
-              }}
-              disabled={!selection || staff.length === 0}
-              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm disabled:opacity-50"
-            >
-              <option value="">
-                {staff.length === 0 ? 'No Auckland staff found' : 'Select staff member…'}
-              </option>
-              {staff.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.firstName} {member.lastName}
-                </option>
-              ))}
-            </select>
+            ))}
           </div>
+        )}
 
-          {overlaps.length > 0 && (
-            <div className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-              <div className="font-semibold">Overlaps an existing shift</div>
-              {overlaps.map((assignment) => {
-                const range = assignmentRange(assignment)
-                return (
-                  <div key={assignment.id}>
-                    Already rostered{' '}
-                    {range ? `${toDisplayClock(range.startMinutes)} – ${toDisplayClock(range.endMinutes)}` : 'this day'}
-                  </div>
-                )
-              })}
+        {!loading && assignments.length === 0 && (
+          <div className="mt-3 text-xs text-muted-foreground">Nobody is rostered on this day yet.</div>
+        )}
+      </div>
+
+      <div className="shrink-0 space-y-3 border-t px-4 py-3">
+        {selection ? (
+          <div className="rounded border border-indigo-200 bg-indigo-50 px-3 py-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-sm font-semibold text-indigo-900">
+                {toDisplayClock(slotToMinutes(selection.startSlot))} –{' '}
+                {toDisplayClock(slotToMinutes(selection.endSlot))} (
+                {toDurationLabel((selection.endSlot - selection.startSlot) * SLOT_MINUTES)})
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setSelection(null)}>
+                Clear
+              </Button>
             </div>
-          )}
-
-          {saveError && (
-            <div className="rounded border border-red-300 bg-red-50 px-3 py-2 text-xs text-red-800">{saveError}</div>
-          )}
-          {savedMessage && (
-            <div className="rounded border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
-              {savedMessage}
+            <div className="mt-1 flex items-center gap-4 text-xs text-indigo-900">
+              <div className="flex items-center gap-1">
+                <span>Start</span>
+                <button
+                  type="button"
+                  className="rounded border border-indigo-300 px-1.5 hover:bg-indigo-100"
+                  onClick={() => adjustSelection('start', -1)}
+                >
+                  −15m
+                </button>
+                <button
+                  type="button"
+                  className="rounded border border-indigo-300 px-1.5 hover:bg-indigo-100"
+                  onClick={() => adjustSelection('start', 1)}
+                >
+                  +15m
+                </button>
+              </div>
+              <div className="flex items-center gap-1">
+                <span>End</span>
+                <button
+                  type="button"
+                  className="rounded border border-indigo-300 px-1.5 hover:bg-indigo-100"
+                  onClick={() => adjustSelection('end', -1)}
+                >
+                  −15m
+                </button>
+                <button
+                  type="button"
+                  className="rounded border border-indigo-300 px-1.5 hover:bg-indigo-100"
+                  onClick={() => adjustSelection('end', 1)}
+                >
+                  +15m
+                </button>
+              </div>
             </div>
-          )}
+          </div>
+        ) : (
+          <div className="text-xs text-muted-foreground">
+            No time selected. Drag on the grid above to pick a start and finish.
+          </div>
+        )}
 
-          <Button
-            onClick={handleConfirm}
-            disabled={!selection || !staffId || saving}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+        <div className="space-y-1">
+          <label htmlFor="roster-staff" className="text-xs font-medium text-gray-700">
+            Auckland staff
+          </label>
+          <select
+            id="roster-staff"
+            value={staffId}
+            onChange={(event) => {
+              setStaffId(event.target.value)
+              setSaveError(null)
+              setSavedMessage(null)
+            }}
+            disabled={!selection || staff.length === 0}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm disabled:opacity-50"
           >
-            {saving ? 'Creating shift…' : overlaps.length > 0 ? 'Confirm anyway' : 'Confirm shift'}
-          </Button>
+            <option value="">
+              {staff.length === 0 ? 'No Auckland staff found' : 'Select staff member…'}
+            </option>
+            {staff.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.firstName} {member.lastName}
+              </option>
+            ))}
+          </select>
         </div>
-      </aside>
-    </div>,
+
+        {overlaps.length > 0 && (
+          <div className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <div className="font-semibold">Overlaps an existing shift</div>
+            {overlaps.map((assignment) => {
+              const range = assignmentRange(assignment)
+              return (
+                <div key={assignment.id}>
+                  Already rostered{' '}
+                  {range ? `${toDisplayClock(range.startMinutes)} – ${toDisplayClock(range.endMinutes)}` : 'this day'}
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {saveError && (
+          <div className="rounded border border-red-300 bg-red-50 px-3 py-2 text-xs text-red-800">{saveError}</div>
+        )}
+        {savedMessage && (
+          <div className="rounded border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+            {savedMessage}
+          </div>
+        )}
+
+        <Button
+          onClick={handleConfirm}
+          disabled={!selection || !staffId || saving}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+        >
+          {saving ? 'Creating shift…' : overlaps.length > 0 ? 'Confirm anyway' : 'Confirm shift'}
+        </Button>
+      </div>
+    </aside>,
     document.body
   )
 }
