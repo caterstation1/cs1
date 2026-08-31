@@ -7,7 +7,7 @@
 // src/lib/pricing and returned by /api/pricing/*. That is the whole point of
 // the rebuild, so resist adding arithmetic here.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LineOrigin, LineTarget, isEditableOrigin, notEditableReason } from '@/lib/recipe-builder/lines'
 import './recipe-builder.css'
 
@@ -133,8 +133,11 @@ const rowKey = (node: TreeNode) => `${node.origin}:${node.position}`
 
 const hasIssueDeep = (n: TreeNode): boolean => Boolean(n.reason) || (n.children ?? []).some(hasIssueDeep)
 
-/** Rows rendered per catalogue group before the list asks you to search. */
-const GROUP_LIMIT = 40
+/** Row heights the catalogue window measures with. They must match the heights
+ *  .rb-catItem is given in recipe-builder.css: a product row carries a SKU line
+ *  under its name, a component row is a single line. */
+const PRODUCT_ROW_H = 50
+const COMPONENT_ROW_H = 36
 
 const matches = (name: string, sku: string | null, q: string) =>
   name.toLowerCase().includes(q) || (sku ?? '').toLowerCase().includes(q)
@@ -196,28 +199,28 @@ export default function RecipeBuilderPage() {
     if (sel) loadRecipe(sel.type, sel.id)
   }, [sel, loadRecipe])
 
+  // Refreshes fire after every save and each one rebuilds the cost index, so
+  // they can finish out of order. Only the newest answer may touch the panel.
+  const catalogSeq = useRef(0)
   const refreshCatalog = useCallback(async () => {
+    const seq = ++catalogSeq.current
     try {
       const res = await fetch('/api/pricing/catalog')
-      if (res.ok) setCatalog(await res.json())
+      if (res.ok && seq === catalogSeq.current) setCatalog(await res.json())
     } catch {
       // A stale left panel is not worth surfacing; the next edit refreshes it.
     }
   }, [])
 
-  // The prototype listed a handful of demo rows. Production has 1,300 variants,
-  // which would push Components off the bottom of the panel where it could
-  // never be reached, so each group is capped and search is the way through.
+  // The whole catalogue arrives in one payload — one cost index build serves
+  // every row, so paging it server-side would rebuild that index per page — and
+  // search runs over all of it, not over what happens to be on screen.
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!catalog) return { products: [], components: [], productTotal: 0, componentTotal: 0 }
-    const products = q ? catalog.products.filter((p) => matches(p.name, p.sku, q)) : catalog.products
-    const components = q ? catalog.components.filter((c) => matches(c.name, null, q)) : catalog.components
+    if (!catalog) return { products: [], components: [] }
     return {
-      products: products.slice(0, GROUP_LIMIT),
-      components: components.slice(0, GROUP_LIMIT),
-      productTotal: products.length,
-      componentTotal: components.length,
+      products: q ? catalog.products.filter((p) => matches(p.name, p.sku, q)) : catalog.products,
+      components: q ? catalog.components.filter((c) => matches(c.name, null, q)) : catalog.components,
     }
   }, [catalog, search])
 
@@ -442,7 +445,7 @@ export default function RecipeBuilderPage() {
               className={`rb-catTab${catTab === 'products' ? ' on' : ''}`}
               onClick={() => setCatTab('products')}
             >
-              Products <span className="rb-count">{filtered.productTotal}</span>
+              Products <span className="rb-count">{filtered.products.length}</span>
             </button>
             <button
               role="tab"
@@ -450,7 +453,7 @@ export default function RecipeBuilderPage() {
               className={`rb-catTab${catTab === 'components' ? ' on' : ''}`}
               onClick={() => setCatTab('components')}
             >
-              Components <span className="rb-count">{filtered.componentTotal}</span>
+              Components <span className="rb-count">{filtered.components.length}</span>
             </button>
           </div>
           <input
@@ -459,55 +462,49 @@ export default function RecipeBuilderPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <div className="rb-catList">
-            {catTab === 'products' ? (
-              <div className="rb-catGroup">
-                {filtered.products.map((p) => (
-                  <button
-                    key={p.id}
-                    className={`rb-catItem${sel?.type === 'product' && sel.id === p.id ? ' sel' : ''}`}
-                    onClick={() => { setSel({ type: 'product', id: p.id }); setChecked(new Set()); setOpenSup(null) }}
-                    title={p.sku ? `${p.name} · ${p.sku}` : p.name}
-                  >
-                    <span className="nm">
-                      {p.name}
-                      {/* Many variants share a title; the SKU is what tells them apart. */}
-                      {p.sku && <span className="sku">{p.sku}</span>}
-                    </span>
-                    <span className={`mg num ${p.margin == null ? '' : p.belowTarget ? 'low' : 'ok'}`}>
-                      {pct(p.margin)}
-                    </span>
-                  </button>
-                ))}
-                {!filtered.products.length && <div className="rb-more">No products match.</div>}
-                {filtered.productTotal > filtered.products.length && (
-                  <div className="rb-more">
-                    {filtered.productTotal - filtered.products.length} more — search to narrow.
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="rb-catGroup">
-                {filtered.components.map((c) => (
-                  <button
-                    key={c.id}
-                    className={`rb-catItem${sel?.type === 'component' && sel.id === c.id ? ' sel' : ''}`}
-                    onClick={() => { setSel({ type: 'component', id: c.id }); setChecked(new Set()); setOpenSup(null) }}
-                    title={c.name}
-                  >
-                    <span className="nm">{c.name}</span>
-                    <span className="cost num">{c.perUnit == null ? '—' : `${money(c.perUnit)}/${c.unit}`}</span>
-                  </button>
-                ))}
-                {!filtered.components.length && <div className="rb-more">No components match.</div>}
-                {filtered.componentTotal > filtered.components.length && (
-                  <div className="rb-more">
-                    {filtered.componentTotal - filtered.components.length} more — search to narrow.
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          {catTab === 'products' ? (
+            <CatalogList
+              items={filtered.products}
+              rowHeight={PRODUCT_ROW_H}
+              resetKey={`products:${search}`}
+              keyOf={(p) => p.id}
+              empty={catalog ? 'No products match.' : 'Loading catalogue…'}
+              renderRow={(p) => (
+                <button
+                  className={`rb-catItem${sel?.type === 'product' && sel.id === p.id ? ' sel' : ''}`}
+                  onClick={() => { setSel({ type: 'product', id: p.id }); setChecked(new Set()); setOpenSup(null) }}
+                  title={p.sku ? `${p.name} · ${p.sku}` : p.name}
+                >
+                  <span className="nm">
+                    {p.name}
+                    {/* Many variants share a title; the SKU is what tells them apart. */}
+                    {p.sku && <span className="sku">{p.sku}</span>}
+                  </span>
+                  <span className={`mg num ${p.margin == null ? '' : p.belowTarget ? 'low' : 'ok'}`}>
+                    {pct(p.margin)}
+                  </span>
+                </button>
+              )}
+            />
+          ) : (
+            <CatalogList
+              items={filtered.components}
+              rowHeight={COMPONENT_ROW_H}
+              resetKey={`components:${search}`}
+              keyOf={(c) => c.id}
+              empty={catalog ? 'No components match.' : 'Loading catalogue…'}
+              renderRow={(c) => (
+                <button
+                  className={`rb-catItem${sel?.type === 'component' && sel.id === c.id ? ' sel' : ''}`}
+                  onClick={() => { setSel({ type: 'component', id: c.id }); setChecked(new Set()); setOpenSup(null) }}
+                  title={c.name}
+                >
+                  <span className="nm">{c.name}</span>
+                  <span className="cost num">{c.perUnit == null ? '—' : `${money(c.perUnit)}/${c.unit}`}</span>
+                </button>
+              )}
+            />
+          )}
         </section>
 
         {/* MIDDLE — recipe tree */}
@@ -727,6 +724,77 @@ export default function RecipeBuilderPage() {
             setOpenSup(null)
           }}
         />
+      )}
+    </div>
+  )
+}
+
+/**
+ * The catalogue panel, scrolling the whole list but mounting only the rows near
+ * the viewport. 1,339 variants is far more DOM than the panel needs, and the
+ * list is rebuilt on every keystroke and after every save, so mounting all of
+ * it would be paid for repeatedly. Rows are a fixed height, which is what lets
+ * the offsets be arithmetic rather than measurement.
+ */
+function CatalogList<T>({
+  items,
+  rowHeight,
+  resetKey,
+  keyOf,
+  renderRow,
+  empty,
+}: {
+  items: T[]
+  rowHeight: number
+  /** Scroll returns to the top when this changes — a new search or a new tab. */
+  resetKey: string
+  keyOf: (item: T) => string
+  renderRow: (item: T) => ReactNode
+  empty: string
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [scrollTop, setScrollTop] = useState(0)
+  const [viewport, setViewport] = useState(0)
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const measure = () => setViewport(el.clientHeight)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  // Without this a search that shortens the list leaves you parked past its
+  // end, looking at nothing.
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0
+    setScrollTop(0)
+  }, [resetKey])
+
+  const overscan = 6
+  const height = viewport || 600
+  const start = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan)
+  const end = Math.min(items.length, Math.ceil((scrollTop + height) / rowHeight) + overscan)
+  const visible = items.slice(start, end)
+
+  return (
+    <div className="rb-catList" ref={scrollRef} onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}>
+      {items.length ? (
+        <div className="rb-catSizer" style={{ height: items.length * rowHeight }}>
+          {visible.map((item, i) => (
+            <div
+              key={keyOf(item)}
+              className="rb-catRow"
+              style={{ top: (start + i) * rowHeight, height: rowHeight }}
+            >
+              {renderRow(item)}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="rb-more">{empty}</div>
       )}
     </div>
   )
