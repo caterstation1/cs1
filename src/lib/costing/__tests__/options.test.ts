@@ -9,6 +9,7 @@ import {
   optionRowsForVariant,
   residualLegacyRows,
   rowKey,
+  variantRecipeDisplayCost,
 } from '../options'
 
 function item(name: string, quantity = 1, cost = 10): RecipeRow {
@@ -168,5 +169,52 @@ assert.notEqual(
   normalizeOptionKey('Chicken (DF)'),
   'different dishes must not collapse into one another'
 )
+
+// --- products-tab display cost --------------------------------------------
+
+{
+  const kfc = option('kfc', 'Korean Fried Chicken', [item('Korean Fried Chicken portion', 1, 45.06)])
+  const index = indexOf([kfc, noServeware])
+  const base = [
+    item('Large Lettuce - 75', 1, 4.37),
+    item('Large station', 1, 7.36),
+    item('Insert card box', 3, 1.04),
+  ]
+  const cost = variantRecipeDisplayCost(
+    {
+      baseIngredients: base,
+      shopifyName: 'Korean Fried Chicken / Korean Fried Chicken / No Serveware',
+      productId: 'taco',
+      ingredients: [],
+      storedTotalCost: 0,
+    },
+    index
+  )
+  assert.equal(
+    Number(cost.toFixed(2)),
+    Number((4.37 + 7.36 + 3.12 + 45.06 + 45.06).toFixed(2)),
+    'parent base plus two costing-tab portions, even when the variant bag is empty'
+  )
+}
+
+{
+  const gf = option('gf', 'Yes GF Bagels', [item('BAGELS G/F 3PK FZN', 1, 10.82)])
+  const index = indexOf([gf, noServeware])
+  const cost = variantRecipeDisplayCost(
+    {
+      baseIngredients: [item('Large station', 1, 7.36)],
+      shopifyName: 'No Serveware / Yes GF Bagels',
+      productId: 'bagel',
+      ingredients: [item('BAGELS G/F 3PK FZN', 1, 10.82)],
+      storedTotalCost: 10.82,
+    },
+    index
+  )
+  assert.equal(
+    Number(cost.toFixed(2)),
+    18.18,
+    'a variant row the costing tab already supplies is not counted twice'
+  )
+}
 
 console.log('costing options tests passed')

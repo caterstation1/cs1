@@ -187,3 +187,34 @@ export function residualLegacyRows(legacy: RecipeRow[], optionRows: RecipeRow[])
   const supplied = new Set(optionRows.map(rowKey))
   return legacy.filter((row) => !supplied.has(rowKey(row)))
 }
+
+export function sumRecipeRows(rows: RecipeRow[]): number {
+  return rows.reduce((sum, row) => {
+    const qty = Number(row.quantity)
+    const cost = Number(row.cost)
+    if (!Number.isFinite(qty) || !Number.isFinite(cost)) return sum
+    return sum + qty * cost
+  }, 0)
+}
+
+/**
+ * What the Products tab should show: parent base + costing-tab choices
+ * (a title can name the same choice twice) + leftover variant-only rows.
+ */
+export function variantRecipeDisplayCost(
+  input: {
+    baseIngredients?: unknown
+    shopifyName?: string | null
+    productId: string
+    ingredients?: unknown
+    storedTotalCost?: number | null
+  },
+  index: OptionIndex
+): number {
+  const base = normalizeRows(input.baseIngredients)
+  const fromOptions = optionRowsForVariant(String(input.shopifyName ?? ''), input.productId, index).rows
+  const own = residualLegacyRows(normalizeRows(input.ingredients), [...base, ...fromOptions])
+  const rows = [...base, ...fromOptions, ...own]
+  if (rows.length === 0) return Number(input.storedTotalCost || 0)
+  return sumRecipeRows(rows)
+}

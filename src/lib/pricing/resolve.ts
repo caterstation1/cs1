@@ -178,6 +178,8 @@ export interface ProduceCoRow {
   id: string
   productCode?: string | null
   productName?: string | null
+  packSize?: string | null
+  uom?: string | null
   price: number
   isPreferred?: boolean
   updatedAt?: Date | string | null
@@ -499,9 +501,11 @@ function bidfoodEntry(row: BidfoodRow, options: CostIndexOptions): CatalogueEntr
   }
 }
 
-// ProduceCoProduct carries no pack size, so the price is taken as a price per
-// item as sold. Guessing a weight out of the product name would be inventing
-// data; confidence stays moderate so the verification queue picks these up.
+// Produce Co rows only carry a pack size and uom once an order confirmation has
+// filled them in, so both paths have to work. With them, the price is read
+// against the pack like any other supplier; without them, it stays a price per
+// item as sold, at moderate confidence so the verification queue picks it up.
+// Guessing a weight out of the product name would be inventing data.
 function produceCoEntry(row: ProduceCoRow, options: CostIndexOptions): CatalogueEntry {
   const updatedAt = toDate(row.updatedAt)
   const price = num(row.price, Number.NaN)
@@ -512,8 +516,8 @@ function produceCoEntry(row: ProduceCoRow, options: CostIndexOptions): Catalogue
     code: row.productCode ? String(row.productCode) : null,
     name,
     price: Number.isFinite(price) ? price : null,
-    packSize: null,
-    uom: null,
+    packSize: row.packSize ?? null,
+    uom: row.uom ?? null,
     ctnQty: null,
     structure: null,
     cost: null,
@@ -523,6 +527,25 @@ function produceCoEntry(row: ProduceCoRow, options: CostIndexOptions): Catalogue
   }
   const problem = priceProblem(base.price, options)
   if (problem) return { ...base, reason: problem }
+
+  if (row.packSize || row.uom) {
+    const derived = deriveUnitPricing({ packSize: row.packSize, uom: row.uom, price: base.price })
+    if (derived) {
+      return {
+        ...base,
+        structure: derived.structure,
+        cost: {
+          unitCost: derived.unitCost,
+          unit: derived.unit,
+          supplier: 'ProduceCo',
+          sourceId: row.id,
+          asOf: updatedAt,
+          provenance: 'catalogue',
+          confidence: derived.confidence,
+        },
+      }
+    }
+  }
 
   return {
     ...base,
@@ -895,6 +918,8 @@ export async function buildCostIndex(opts: BuildCostIndexOptions = {}): Promise<
         id: true,
         productCode: true,
         productName: true,
+        packSize: true,
+        uom: true,
         price: true,
         isPreferred: true,
         updatedAt: true,
