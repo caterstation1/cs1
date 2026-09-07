@@ -1,25 +1,47 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { loadOptionIndex } from '@/lib/costing/load';
+import { variantRecipeDisplayCost } from '@/lib/costing/options';
 
 export async function GET() {
   try {
     console.log('📦 Fetching products from PostgreSQL...');
     
-    const products = await prisma.shopifyProduct.findMany({
-      include: {
-        variants: {
-          orderBy: {
-            shopifyName: 'asc'
+    const [products, optionIndex] = await Promise.all([
+      prisma.shopifyProduct.findMany({
+        include: {
+          variants: {
+            orderBy: {
+              shopifyName: 'asc'
+            }
           }
+        },
+        orderBy: {
+          productTitle: 'asc'
         }
-      },
-      orderBy: {
-        productTitle: 'asc'
-      }
-    });
+      }),
+      loadOptionIndex(),
+    ]);
+
+    const payload = products.map((product) => ({
+      ...product,
+      variants: product.variants.map((variant) => ({
+        ...variant,
+        displayCost: variantRecipeDisplayCost(
+          {
+            baseIngredients: product.baseIngredients,
+            shopifyName: variant.shopifyName,
+            productId: product.id,
+            ingredients: variant.ingredients,
+            storedTotalCost: Number(variant.totalCost ?? 0),
+          },
+          optionIndex
+        ),
+      })),
+    }));
     
     console.log(`✅ Successfully fetched ${products.length} products with variants`);
-    return NextResponse.json(products);
+    return NextResponse.json(payload);
   } catch (error) {
     console.error('❌ Error fetching products:', error);
     return NextResponse.json(

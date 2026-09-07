@@ -40,6 +40,9 @@ export default function SalesProfitTrend({ params }: { params: Record<string, an
         <KPI label="COGS" value={currency(k.cogs)} />
         <KPI label="Gross Profit" value={currency(k.grossProfit)} />
         <KPI label="Margin %" value={`${Number(k.grossMarginPct || 0).toFixed(1)}%`} />
+        <KPI label="Staffing Cost" value={currency(k.labourCost)} />
+        <KPI label="GP After Staffing" value={currency(k.netProfitAfterStaffing)} />
+        <KPI label="GP After Staffing %" value={`${Number(k.netMarginAfterStaffingPct || 0).toFixed(1)}%`} />
       </div>
       <div className="h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
@@ -47,11 +50,14 @@ export default function SalesProfitTrend({ params }: { params: Record<string, an
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis />
+            <YAxis yAxisId={1} orientation="right" tickFormatter={(value) => `${Number(value || 0).toFixed(0)}%`} />
             <Tooltip />
             <Legend />
             <Line type="monotone" dataKey="revenue" stroke="#2563eb" dot={false} />
             <Line type="monotone" dataKey="cogs" stroke="#ef4444" dot={false} />
             <Line type="monotone" dataKey="grossProfit" stroke="#10b981" dot={false} />
+            <Line type="monotone" dataKey="labourCost" stroke="#7c3aed" dot={false} />
+            <Line type="monotone" dataKey="netProfitAfterStaffing" stroke="#0ea5e9" dot={false} />
             <Line type="monotone" dataKey="grossMarginPct" stroke="#f59e0b" dot={false} yAxisId={1} />
           </LineChart>
         </ResponsiveContainer>

@@ -4,8 +4,22 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { toPng } from 'html-to-image'
 import jsPDF from 'jspdf'
 import { LabelCard, type LabelData } from '@/components/labels/LabelCard'
+import { AllergenLabelCard } from '@/components/labels/AllergenLabelCard'
 
 interface LabelsResponse { date: string; count: number; labels: any[] }
+type RenderJob =
+  | { kind: 'primary'; data: LabelData }
+  | {
+      kind: 'secondary'
+      data: {
+        orderNumber: number
+        labelIndex: number
+        labelCount: number
+        productTitle: string
+        components: Array<{ name: string; allergens: string[] }>
+        dietaryMarker?: string | null
+      }
+    }
 
 export function LabelsPanel({ initialDate, auto }: { initialDate?: string; auto?: boolean }) {
   const [date, setDate] = useState<string>(initialDate || '')
@@ -38,6 +52,7 @@ export function LabelsPanel({ initialDate, auto }: { initialDate?: string; auto?
         notes: l.notes,
         phonePrimary: l.phonePrimary,
         phoneSecondary: l.phoneSecondary,
+        secondary: l.secondary,
       }))
       setLabels(mapped)
     } finally { setLoading(false) }
@@ -70,6 +85,24 @@ export function LabelsPanel({ initialDate, auto }: { initialDate?: string; auto?
   // Simpler approach: render one hidden LabelCard and capture sequentially by updating state
   const [renderIndex, setRenderIndex] = useState<number | null>(null)
   const [images, setImages] = useState<string[]>([])
+  const renderJobs: RenderJob[] = labels.flatMap((label: any) => {
+    const secondary = label.secondary
+    if (!secondary) return [{ kind: 'primary', data: label }]
+    return [
+      { kind: 'primary', data: label },
+      {
+        kind: 'secondary',
+        data: {
+          orderNumber: label.orderNumber,
+          labelIndex: label.labelIndex,
+          labelCount: label.labelCount,
+          productTitle: secondary.productTitle || label.productTitle || '',
+          components: Array.isArray(secondary.components) ? secondary.components : [],
+          dietaryMarker: secondary.dietaryMarker || null,
+        },
+      },
+    ]
+  })
 
   useEffect(() => {
     const run = async () => {
@@ -78,7 +111,7 @@ export function LabelsPanel({ initialDate, auto }: { initialDate?: string; auto?
       if (!card) return
       const dataUrl = await toPng(card, { pixelRatio: 2 })
       setImages(prev => [...prev, dataUrl])
-      if (renderIndex < labels.length - 1) {
+      if (renderIndex < renderJobs.length - 1) {
         setRenderIndex(renderIndex + 1)
       } else {
         // build PDF
@@ -127,8 +160,12 @@ export function LabelsPanel({ initialDate, auto }: { initialDate?: string; auto?
 
       {/* Hidden renderer */}
       <div ref={hiddenRef} style={{ position:'absolute', left: -10000, top: 0 }}>
-        {renderIndex !== null && labels[renderIndex] && (
-          <LabelCard data={labels[renderIndex]} landscape />
+        {renderIndex !== null && renderJobs[renderIndex] && (
+          renderJobs[renderIndex].kind === 'primary' ? (
+            <LabelCard data={renderJobs[renderIndex].data} landscape />
+          ) : (
+            <AllergenLabelCard data={renderJobs[renderIndex].data} landscape />
+          )
         )}
       </div>
     </div>

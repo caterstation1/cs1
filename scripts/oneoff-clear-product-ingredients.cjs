@@ -9,7 +9,8 @@
 const fs = require('fs')
 const path = require('path')
 const { PrismaClient } = require('../src/generated/prisma')
-const prisma = new PrismaClient()
+const { scriptPrismaOptions } = require('./lib/script-prisma-url.cjs')
+const prisma = new PrismaClient(scriptPrismaOptions())
 
 async function main() {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')

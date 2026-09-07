@@ -7,8 +7,9 @@ const fs = require('fs');
 const path = require('path');
 // Use project-local generated client (prisma generate outputs to src/generated/prisma)
 const { PrismaClient } = require('../src/generated/prisma');
+const { scriptPrismaOptions } = require('./lib/script-prisma-url.cjs');
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient(scriptPrismaOptions());
 
 function parseArgs() {
   const args = process.argv.slice(2);

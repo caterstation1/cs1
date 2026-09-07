@@ -178,6 +178,31 @@ export function parsePackSize(packSizeRaw?: string | null): ParsedPackSize | nul
   return unparseable(raw, [`could not parse '${raw}'`])
 }
 
+export interface PackStructureOptions {
+  /**
+   * The supplier's UOM names the whole listed pack, not one piece inside it.
+   *
+   * True for Gilmours, whose only units are Each, Case and KG, and whose pack
+   * size column always describes one sellable unit: '40 x 90g' at 'Price per
+   * Each $64.88' is $64.88 for the box of forty, not for one 90g bagel.
+   *
+   * False for Bidfood, whose UOM names the piece: '[12X400G/Tin]' at $4.02 is
+   * $4.02 for one 400g tin. Reading that as the whole carton would price tomato
+   * paste at 84c/kg instead of $10.05/kg.
+   */
+  unitNamesPack?: boolean
+}
+
+/**
+ * Which suppliers price per listed pack. Keep every caller reading this rather
+ * than testing the source name themselves, so the ingredient search, the recipe
+ * picker and the costing engine can never disagree about what a price means.
+ */
+export function unitNamesPackFor(source: string | null | undefined): boolean {
+  const normalized = String(source ?? '').toLowerCase().replace(/[^a-z]/g, '')
+  return normalized === 'gilmours' || normalized === 'produceco' || normalized === 'producecompany'
+}
+
 /**
  * Pack structure with the supplier's UOM and carton quantity folded in.
  * Bidfood supplies ctnQty alongside packSize; Gilmours supplies packSize+uom.
@@ -185,7 +210,8 @@ export function parsePackSize(packSizeRaw?: string | null): ParsedPackSize | nul
 export function parsePackStructure(
   packSize?: string | null,
   uom?: string | null,
-  ctnQty?: number | string | null
+  ctnQty?: number | string | null,
+  options: PackStructureOptions = {}
 ): PackStructure {
   const uomToken = normalizeUnitToken(uom) || null
   const uomKind = uomToken ? unitKind(uomToken) : null
@@ -228,15 +254,17 @@ export function parsePackStructure(
   }
 
   const isCase = uomToken ? CASE_UOMS.has(uomToken) : false
-  const pricedPer: PackStructure['pricedPer'] = weightPriced ? 'canonical' : isCase ? 'pack' : 'piece'
+  const coversWholePack = isCase || Boolean(options.unitNamesPack)
+  const pricedPer: PackStructure['pricedPer'] = weightPriced ? 'canonical' : coversWholePack ? 'pack' : 'piece'
 
   if (weightPriced) confidence = Math.max(confidence, CONFIDENCE.weightPriced)
 
   // '6X670G' with UOM 'Can': the pack says six pieces but the UOM names one,
   // so the price could be per can or per carton — a factor-of-six difference.
   // Reading it per piece keeps parity with the existing behaviour, but the
-  // confidence has to say it is a guess.
-  if (!weightPriced && !isCase && unitsPerPack > 1 && parsed.canonicalUnit !== 'each') {
+  // confidence has to say it is a guess. Not ambiguous when the supplier's unit
+  // is known to name the pack.
+  if (!weightPriced && !coversWholePack && unitsPerPack > 1 && parsed.canonicalUnit !== 'each') {
     notes.push(`price basis ambiguous: pack holds ${unitsPerPack} pieces but UOM is '${uomToken ?? 'unset'}'`)
     confidence = Math.min(confidence, 0.5)
   }
@@ -264,16 +292,20 @@ export function parsePackStructure(
  * case UOM means the $10 covers the lot, so $1.3333/kg. The same pack with a
  * per-piece UOM means $10 buys one 2.5kg piece, so $4.00/kg.
  */
-export function deriveUnitPricing(opts: {
-  packSize?: string | null
-  uom?: string | null
-  ctnQty?: number | string | null
-  price?: number | string | null
-}): DerivedUnitPricing | null {
+export function deriveUnitPricing(
+  opts: {
+    packSize?: string | null
+    uom?: string | null
+    ctnQty?: number | string | null
+    price?: number | string | null
+  } & PackStructureOptions
+): DerivedUnitPricing | null {
   const price = toNumber(opts.price)
   if (!Number.isFinite(price)) return null
 
-  const structure = parsePackStructure(opts.packSize, opts.uom, opts.ctnQty)
+  const structure = parsePackStructure(opts.packSize, opts.uom, opts.ctnQty, {
+    unitNamesPack: opts.unitNamesPack,
+  })
 
   if (structure.weightPriced && structure.uom) {
     // Price is per uom already; restate it per canonical unit (per g -> per kg).

@@ -20,6 +20,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { deriveUnitPricing } from '@/lib/packsize'
+import { unitNamesPackFor } from '@/lib/pricing/packsize'
 
 interface Ingredient {
   source: 'Gilmours' | 'Bidfood' | 'Other' | 'Components' | 'Products'
@@ -120,7 +121,13 @@ export function IngredientSelector({ onIngredientsChange, initialIngredients = [
                 const uom = item.uom || item.UoM || item.uom_text
                 const ctnQty = item.ctnQty || item.ctnqty || item.CTNQty
                 const price = item.price ?? item.lastPricePaid ?? item.totalExGST ?? item.cost
-                const derived = deriveUnitPricing({ packSize, uom, ctnQty, price: typeof price === 'string' ? parseFloat(price) : price })
+                const derived = deriveUnitPricing({
+                  packSize,
+                  uom,
+                  ctnQty,
+                  price: typeof price === 'string' ? parseFloat(price) : price,
+                  unitNamesPack: unitNamesPackFor(source),
+                })
                 return {
                   ...item,
                   source: source as Ingredient['source'],

@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useMemo, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import HoursChart from './HoursChart'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -62,6 +62,9 @@ export default function StaffDetailSheet({
           <DialogTitle>
             {data?.staff?.name || 'Staff'} — {startDate} to {endDate}
           </DialogTitle>
+          <DialogDescription>
+            Review hours, shifts, mileage and reimbursements for the selected date range.
+          </DialogDescription>
         </DialogHeader>
         {loading ? (
           <div className="p-4">Loading…</div>

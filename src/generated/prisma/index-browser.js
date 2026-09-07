@@ -182,10 +182,20 @@ exports.Prisma.OtherProductScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.BakeryCostAlignmentScalarFieldEnum = {
+  id: 'id',
+  bakeryItemName: 'bakeryItemName',
+  otherProductId: 'otherProductId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.ProduceCoProductScalarFieldEnum = {
   id: 'id',
   productCode: 'productCode',
   productName: 'productName',
+  packSize: 'packSize',
+  uom: 'uom',
   totalUnits: 'totalUnits',
   totalSales: 'totalSales',
   price: 'price',
@@ -399,6 +409,11 @@ exports.Prisma.ShiftScalarFieldEnum = {
   trackingStartedAt: 'trackingStartedAt',
   trackingStoppedAt: 'trackingStoppedAt',
   lastLocationPingAt: 'lastLocationPingAt',
+  trackingStatus: 'trackingStatus',
+  trackingStopReason: 'trackingStopReason',
+  activeDeliveryRunStartedAt: 'activeDeliveryRunStartedAt',
+  activeDeliveryOrderIds: 'activeDeliveryOrderIds',
+  lastKnownDistanceFromBaseMeters: 'lastKnownDistanceFromBaseMeters',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -530,7 +545,9 @@ exports.Prisma.OrderScalarFieldEnum = {
   leaveTime: 'leaveTime',
   driverId: 'driverId',
   carId: 'carId',
+  deliverySequence: 'deliverySequence',
   isDispatched: 'isDispatched',
+  dispatchedAt: 'dispatchedAt',
   lastSmsSent: 'lastSmsSent',
   smsHistory: 'smsHistory',
   internalNote: 'internalNote',
@@ -791,8 +808,33 @@ exports.Prisma.ShopifyProductScalarFieldEnum = {
   bundleDefaultItems: 'bundleDefaultItems',
   bakery: 'bakery',
   dietaryMarker: 'dietaryMarker',
+  portionSize: 'portionSize',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CostingOptionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  kind: 'kind',
+  items: 'items',
+  noIngredients: 'noIngredients',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CostingOptionAliasScalarFieldEnum = {
+  id: 'id',
+  value: 'value',
+  optionId: 'optionId'
+};
+
+exports.Prisma.ProductOptionQuantityScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  optionId: 'optionId',
+  quantity: 'quantity'
 };
 
 exports.Prisma.ProductVariantScalarFieldEnum = {
@@ -1064,6 +1106,7 @@ exports.Prisma.StockOrderItemScalarFieldEnum = {
   orderId: 'orderId',
   stockItemId: 'stockItemId',
   nameSnapshot: 'nameSnapshot',
+  descriptionSnapshot: 'descriptionSnapshot',
   supplierNameSnapshot: 'supplierNameSnapshot',
   unitPriceExGst: 'unitPriceExGst',
   qty: 'qty',
@@ -1298,6 +1341,182 @@ exports.Prisma.CalendarDayAlertScalarFieldEnum = {
   dismissedAt: 'dismissedAt'
 };
 
+exports.Prisma.DeliveryAddressNoteScalarFieldEnum = {
+  id: 'id',
+  normalizedAddressKey: 'normalizedAddressKey',
+  scopeDomain: 'scopeDomain',
+  scopeEmail: 'scopeEmail',
+  addressLabel: 'addressLabel',
+  note: 'note',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DailyCogsLockScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  revenueExGst: 'revenueExGst',
+  costOfSales: 'costOfSales',
+  orderCount: 'orderCount',
+  cogsCoveragePct: 'cogsCoveragePct',
+  breakdown: 'breakdown',
+  lockedAt: 'lockedAt',
+  lockedByUserId: 'lockedByUserId',
+  lockedByName: 'lockedByName'
+};
+
+exports.Prisma.VariantPartAlignmentScalarFieldEnum = {
+  id: 'id',
+  partName: 'partName',
+  items: 'items',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.IngredientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  canonicalUnit: 'canonicalUnit',
+  hasGluten: 'hasGluten',
+  hasDairy: 'hasDairy',
+  hasSoy: 'hasSoy',
+  hasOnionGarlic: 'hasOnionGarlic',
+  hasSesame: 'hasSesame',
+  hasNuts: 'hasNuts',
+  hasEgg: 'hasEgg',
+  isVegetarian: 'isVegetarian',
+  isVegan: 'isVegan',
+  isHalal: 'isHalal',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.IngredientSupplierLinkScalarFieldEnum = {
+  id: 'id',
+  ingredientId: 'ingredientId',
+  source: 'source',
+  sourceId: 'sourceId',
+  rank: 'rank',
+  unitsPerPack: 'unitsPerPack',
+  sizePerUnit: 'sizePerUnit',
+  sizeUnit: 'sizeUnit',
+  packVerified: 'packVerified',
+  packConfidence: 'packConfidence',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PricePointScalarFieldEnum = {
+  id: 'id',
+  linkId: 'linkId',
+  packPrice: 'packPrice',
+  unitCost: 'unitCost',
+  source: 'source',
+  ingestionId: 'ingestionId',
+  effectiveAt: 'effectiveAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EmailIngestionScalarFieldEnum = {
+  id: 'id',
+  supplier: 'supplier',
+  fromAddress: 'fromAddress',
+  subject: 'subject',
+  receivedAt: 'receivedAt',
+  status: 'status',
+  parser: 'parser',
+  rowsParsed: 'rowsParsed',
+  rowsMatched: 'rowsMatched',
+  rowsUnmatched: 'rowsUnmatched',
+  report: 'report',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PriceAlertScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  refType: 'refType',
+  refId: 'refId',
+  message: 'message',
+  data: 'data',
+  status: 'status',
+  createdAt: 'createdAt',
+  resolvedAt: 'resolvedAt'
+};
+
+exports.Prisma.CostOverrideScalarFieldEnum = {
+  id: 'id',
+  scope: 'scope',
+  refId: 'refId',
+  unitCost: 'unitCost',
+  unit: 'unit',
+  reason: 'reason',
+  createdBy: 'createdBy',
+  active: 'active',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt'
+};
+
+exports.Prisma.RecalcRunScalarFieldEnum = {
+  id: 'id',
+  trigger: 'trigger',
+  startedAt: 'startedAt',
+  durationMs: 'durationMs',
+  componentsUpdated: 'componentsUpdated',
+  variantsUpdated: 'variantsUpdated',
+  coveragePct: 'coveragePct',
+  missing: 'missing'
+};
+
+exports.Prisma.IngredientMergeSuggestionScalarFieldEnum = {
+  id: 'id',
+  ingredientIds: 'ingredientIds',
+  reason: 'reason',
+  score: 'score',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PricingSettingsScalarFieldEnum = {
+  id: 'id',
+  targetMargin: 'targetMargin',
+  backupCheaperPct: 'backupCheaperPct',
+  spikePct: 'spikePct',
+  digestEmail: 'digestEmail',
+  digestEnabled: 'digestEnabled',
+  cogsLockFromDate: 'cogsLockFromDate'
+};
+
+exports.Prisma.PriceSheetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  notes: 'notes',
+  isActive: 'isActive',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PriceSheetEntryScalarFieldEnum = {
+  id: 'id',
+  sheetId: 'sheetId',
+  source: 'source',
+  sourceId: 'sourceId',
+  supplierName: 'supplierName',
+  packPrice: 'packPrice',
+  unitsPerPack: 'unitsPerPack',
+  sizePerUnit: 'sizePerUnit',
+  sizeUnit: 'sizeUnit',
+  unitCost: 'unitCost',
+  unitCostUnit: 'unitCostUnit',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1485,6 +1704,7 @@ exports.Prisma.ModelName = {
   GilmoursProduct: 'GilmoursProduct',
   BidfoodProduct: 'BidfoodProduct',
   OtherProduct: 'OtherProduct',
+  BakeryCostAlignment: 'BakeryCostAlignment',
   ProduceCoProduct: 'ProduceCoProduct',
   Supplier: 'Supplier',
   Component: 'Component',
@@ -1522,6 +1742,9 @@ exports.Prisma.ModelName = {
   CompanyMetricsMonthly: 'CompanyMetricsMonthly',
   CustomerMetricsMonthly: 'CustomerMetricsMonthly',
   ShopifyProduct: 'ShopifyProduct',
+  CostingOption: 'CostingOption',
+  CostingOptionAlias: 'CostingOptionAlias',
+  ProductOptionQuantity: 'ProductOptionQuantity',
   ProductVariant: 'ProductVariant',
   EmailSetting: 'EmailSetting',
   FulfillmentCommsSetting: 'FulfillmentCommsSetting',
@@ -1557,7 +1780,21 @@ exports.Prisma.ModelName = {
   FcpIncident: 'FcpIncident',
   FcpPeriodicCleaningTask: 'FcpPeriodicCleaningTask',
   FcpContact: 'FcpContact',
-  CalendarDayAlert: 'CalendarDayAlert'
+  CalendarDayAlert: 'CalendarDayAlert',
+  DeliveryAddressNote: 'DeliveryAddressNote',
+  DailyCogsLock: 'DailyCogsLock',
+  VariantPartAlignment: 'VariantPartAlignment',
+  Ingredient: 'Ingredient',
+  IngredientSupplierLink: 'IngredientSupplierLink',
+  PricePoint: 'PricePoint',
+  EmailIngestion: 'EmailIngestion',
+  PriceAlert: 'PriceAlert',
+  CostOverride: 'CostOverride',
+  RecalcRun: 'RecalcRun',
+  IngredientMergeSuggestion: 'IngredientMergeSuggestion',
+  PricingSettings: 'PricingSettings',
+  PriceSheet: 'PriceSheet',
+  PriceSheetEntry: 'PriceSheetEntry'
 };
 
 /**

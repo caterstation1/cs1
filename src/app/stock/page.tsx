@@ -19,7 +19,8 @@ export default function StockPage() {
   const [data, setData] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState<boolean[]>(Array(7).fill(true))
-  const [rawOnly, setRawOnly] = useState(true)
+  const [rawOnly, setRawOnly] = useState(false)
+  const [imagePreview, setImagePreview] = useState<{ name: string; url: string | null } | null>(null)
 
   const fetchSummary = async () => {
     setLoading(true)
@@ -43,9 +44,11 @@ export default function StockPage() {
     })
   }, [data?.days, start])
 
-  const renderSection = (title: string, matrix: Matrix) => {
+  const renderSection = (title: string, matrix: Matrix, opts?: { clickableProductNames?: boolean; productImageMap?: Record<string, string> }) => {
     const keys = Object.keys(matrix).sort((a,b)=> a.localeCompare(b))
     if (keys.length === 0) return null
+    const clickable = opts?.clickableProductNames === true
+    const imgMap = opts?.productImageMap || {}
     return (
       <div className="mt-6">
         <h3 className="font-semibold mb-2">{title}</h3>
@@ -74,7 +77,19 @@ export default function StockPage() {
             <tbody>
               {keys.map(k => (
                 <tr key={k}>
-                  <td className="border px-2 py-1 sticky left-0 bg-white z-10">{k}</td>
+                  <td className="border px-2 py-1 sticky left-0 bg-white z-10">
+                    {clickable ? (
+                      <button
+                        type="button"
+                        className="text-left text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-normal"
+                        onClick={() => setImagePreview({ name: k, url: imgMap[k] || null })}
+                      >
+                        {k}
+                      </button>
+                    ) : (
+                      k
+                    )}
+                  </td>
                   {matrix[k].map((n, i) => (
                     <td key={i} className="border px-2 py-1 text-right">{n || ''}</td>
                   ))}
@@ -161,7 +176,10 @@ export default function StockPage() {
             </div>
           )}
 
-          {renderSection('Products', data.products || {})}
+          {renderSection('Products', data.products || {}, {
+            clickableProductNames: true,
+            productImageMap: data.productImages || {}
+          })}
           {renderSection('Add-ons', data.addons || {})}
           {!rawOnly && renderSection('Cold Kitchen', data.cold || {})}
           {!rawOnly && renderSection('Hot Kitchen', data.hot || {})}
@@ -170,6 +188,41 @@ export default function StockPage() {
         </>
       ) : (
         <div>Loading…</div>
+      )}
+
+      {imagePreview && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product image"
+          onClick={() => setImagePreview(null)}
+        >
+          <div
+            className="relative bg-white rounded-lg shadow-xl max-w-[min(90vw,42rem)] max-h-[90vh] overflow-auto p-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="absolute top-2 right-2 z-10 h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg leading-none flex items-center justify-center"
+              onClick={() => setImagePreview(null)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 className="font-semibold text-lg pr-10 mb-3">{imagePreview.name}</h3>
+            {imagePreview.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={imagePreview.url}
+                alt={imagePreview.name}
+                className="max-w-full max-h-[70vh] w-auto mx-auto object-contain rounded border border-gray-100"
+              />
+            ) : (
+              <p className="text-gray-500 text-sm py-8 text-center">No image on file for this product.</p>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )

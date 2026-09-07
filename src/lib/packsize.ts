@@ -87,6 +87,8 @@ export function deriveUnitPricing(opts: {
   uom?: string;
   ctnQty?: number | string | null;
   price?: number;
+  /** Supplier's UOM names the whole listed pack; see unitNamesPackFor. */
+  unitNamesPack?: boolean;
 }): { derivedUnit: 'kg' | 'l' | 'unit'; derivedCostPerUnit: number; confidence: number } | null {
   const { packSize, uom, ctnQty, price } = opts;
   const p = typeof price === 'number' ? price : NaN;
@@ -102,7 +104,7 @@ export function deriveUnitPricing(opts: {
   if (!parsed) return null;
 
   // Determine whether price is per case or per piece based on UOM
-  const isCase = CASE_UOMS.has(u);
+  const isCase = CASE_UOMS.has(u) || Boolean(opts.unitNamesPack);
   const isPiece = PIECE_UOMS.has(u) || !isCase;
 
   if (parsed.baseUnit === 'unit') {

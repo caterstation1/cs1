@@ -11,8 +11,9 @@
 
 import { PrismaClient } from '../src/generated/prisma'
 import { canonicalizeOrderScheduling } from '../src/lib/order-canonicalize'
+import { scriptPrismaOptions } from './lib/script-prisma-url.cjs'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient(scriptPrismaOptions())
 
 const BATCH_SIZE = 500
 

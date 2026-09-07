@@ -111,6 +111,7 @@ export async function getCustomerDashboard(filters: ExecutiveFilters) {
     }
     return {
       month: monthKey(monthStart),
+      isPartial: monthEnd > filters.endDate,
       newRevenue: toCurrency(newRevenue),
       returningRevenue: toCurrency(returningRevenue),
       totalRevenue: toCurrency(newRevenue + returningRevenue),
@@ -165,16 +166,42 @@ export async function getCustomerDashboard(filters: ExecutiveFilters) {
   })()
 
   const topLimit = filters.topCustomerLimit || 25
-  const topCustomers = Array.from(byCustomer.entries())
-    .map(([customerId, list]) => ({
-      customerId,
-      revenue: toCurrency(list.reduce((sum, order) => sum + order.orderTotal, 0)),
-      orders: list.length,
-      averageOrderValue: toCurrency(list.reduce((sum, order) => sum + order.orderTotal, 0) / list.length),
-      lastOrderDate: list.at(-1)?.orderDate?.toISOString() || null,
-    }))
+  const topCustomersRaw = Array.from(byCustomer.entries())
+    .map(([customerId, list]) => {
+      const companyCounts = new Map<string, number>()
+      for (const order of list) {
+        companyCounts.set(order.companyId, (companyCounts.get(order.companyId) || 0) + 1)
+      }
+      const primaryCompanyId =
+        Array.from(companyCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] || null
+      return {
+        customerId,
+        primaryCompanyId,
+        revenue: toCurrency(list.reduce((sum, order) => sum + order.orderTotal, 0)),
+        orders: list.length,
+        averageOrderValue: toCurrency(list.reduce((sum, order) => sum + order.orderTotal, 0) / list.length),
+        lastOrderDate: list.at(-1)?.orderDate?.toISOString() || null,
+      }
+    })
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, topLimit)
+
+  const topCompanyIds = Array.from(
+    new Set(topCustomersRaw.map((row) => row.primaryCompanyId).filter((id): id is string => !!id))
+  )
+  const topCompanies = topCompanyIds.length
+    ? await prisma.company.findMany({
+        where: { companyId: { in: topCompanyIds } },
+        select: { companyId: true, canonicalCompanyName: true },
+      })
+    : []
+  const companyNameById = new Map(topCompanies.map((row) => [row.companyId, row.canonicalCompanyName]))
+  const topCustomers = topCustomersRaw.map(({ primaryCompanyId, ...row }) => ({
+    ...row,
+    // Display contact without the raw identifier prefix (e.g. "email:").
+    contact: row.customerId.replace(/^email:/i, ''),
+    companyName: (primaryCompanyId && companyNameById.get(primaryCompanyId)) || null,
+  }))
 
   return {
     metrics: {

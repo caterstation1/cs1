@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hashPassword } from '@/lib/auth'
+import { requireRole } from '@/lib/authz'
 
 export async function GET(
   request: NextRequest,
@@ -50,6 +51,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Admin-only: editing staff can change accessLevel and passwords.
+    try {
+      await requireRole(['owner', 'admin'])
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     const { id } = await params
     const data = await request.json()
     
@@ -104,6 +111,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Admin-only: deleting staff is destructive.
+    try {
+      await requireRole(['owner', 'admin'])
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     const { id } = await params
     await prisma.staff.delete({
       where: { id }

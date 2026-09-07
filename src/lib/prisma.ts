@@ -4,13 +4,23 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
+// Per-instance Prisma pool size. Defaults to 2. Once a transaction-mode
+// pooler (e.g. PgBouncer) sits between the app and Postgres, set
+// PRISMA_CONNECTION_LIMIT=1 — the pooler multiplexes connections, so each
+// serverless instance only needs a single client connection.
+function resolveConnectionLimit(): string {
+  const raw = process.env.PRISMA_CONNECTION_LIMIT
+  if (raw && /^\d+$/.test(raw) && Number(raw) > 0) return raw
+  return '2'
+}
+
 function withPrismaConnectionGuards(rawUrl: string | undefined): string | undefined {
   if (!rawUrl) return rawUrl
   try {
     const url = new URL(rawUrl)
     // Keep per-runtime pool small to avoid exhausting Postgres client slots
     // under high serverless concurrency.
-    if (!url.searchParams.get('connection_limit')) url.searchParams.set('connection_limit', '2')
+    if (!url.searchParams.get('connection_limit')) url.searchParams.set('connection_limit', resolveConnectionLimit())
     if (!url.searchParams.get('pool_timeout')) url.searchParams.set('pool_timeout', '20')
     if (!url.searchParams.get('connect_timeout')) url.searchParams.set('connect_timeout', '15')
     return url.toString()

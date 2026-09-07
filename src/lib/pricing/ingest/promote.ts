@@ -22,7 +22,7 @@
 // writer here would be a second answer to "what is this worth per kg".
 
 import { prisma } from '../../prisma'
-import { parsePackStructure } from '../packsize'
+import { parsePackStructure, unitNamesPackFor } from '../packsize'
 import { ParsedPriceRow } from './parse'
 
 export type CatalogueSourceName = 'Gilmours' | 'Bidfood' | 'ProduceCo'
@@ -92,7 +92,9 @@ export async function repairPlaceholderMaster(
   const previousName = link.ingredient.name
   if (!isPlaceholderName(previousName, source, code)) return null
 
-  const structure = parsePackStructure(row.packSize, row.uom, row.ctnQty)
+  const structure = parsePackStructure(row.packSize, row.uom, row.ctnQty, {
+    unitNamesPack: unitNamesPackFor(source),
+  })
 
   // The real name may already be taken by another supplier's version of the
   // same thing, in which case the code stays on as a disambiguator.
@@ -141,7 +143,9 @@ export async function masterCatalogueRow(
   })
   if (existing) return null
 
-  const structure = parsePackStructure(row.packSize, row.uom, row.ctnQty)
+  const structure = parsePackStructure(row.packSize, row.uom, row.ctnQty, {
+    unitNamesPack: unitNamesPackFor(source),
+  })
   const code = String(row.sku ?? '').trim()
   const described = titleCase(row.description ?? '')
   const namePlaceholder = !described

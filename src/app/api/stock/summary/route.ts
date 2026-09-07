@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
     // Load variant data with parent
     let variants = await prisma.productVariant.findMany({
       where: { variantId: { in: variantIds } },
-      include: { product: { select: { displayName: true, isPartyPackDefault: true, bundleDefaultItems: true, baseIngredients: true } } }
+      include: { product: { select: { displayName: true, isPartyPackDefault: true, bundleDefaultItems: true, baseIngredients: true, heroImageUrl: true } } }
     })
     const variantById = new Map(variants.map(v => [v.variantId, v]))
     // Load bundle children one pass
@@ -144,7 +144,7 @@ export async function GET(req: NextRequest) {
     if (missingChildIds.length) {
       const childVariants = await prisma.productVariant.findMany({
         where: { variantId: { in: missingChildIds } },
-        include: { product: { select: { displayName: true, isPartyPackDefault: true, bundleDefaultItems: true, baseIngredients: true } } }
+        include: { product: { select: { displayName: true, isPartyPackDefault: true, bundleDefaultItems: true, baseIngredients: true, heroImageUrl: true } } }
       })
       childVariants.forEach(v => variantById.set(v.variantId, v))
       variants = [...variants, ...childVariants]
@@ -167,6 +167,7 @@ export async function GET(req: NextRequest) {
     // Init matrices
     const zero = () => Array(dayKeys.length).fill(0)
     const products: Record<string, number[]> = {}
+    const productImages: Record<string, string> = {}
     const addons: Record<string, number[]> = {}
     const cold: Record<string, number[]> = {}
     const hot: Record<string, number[]> = {}
@@ -226,6 +227,10 @@ export async function GET(req: NextRequest) {
         } else {
           // pack child contributes to products too
           bump(products, display, dayIdx, ei.quantity)
+        }
+        if (!isAddonSku(sku)) {
+          const hero = vv?.product?.heroImageUrl
+          if (hero && display && !productImages[display]) productImages[display] = hero
         }
 
         // Proteins
@@ -289,6 +294,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(JSON.stringify({
       days: dayKeys,
       products,
+      productImages,
       addons,
       cold: rawFlag ? {} : cold,
       hot: rawFlag ? {} : hot,

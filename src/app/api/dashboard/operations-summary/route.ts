@@ -13,6 +13,7 @@ import {
 } from '@/lib/accounting'
 import { getTodayLocal, formatLocalDate, formatNZYMD, getNZDateRangeForYmd, addDaysNZ } from '@/lib/date-utils'
 import { isWellingtonOrder } from '@/lib/region'
+import { sectionsToCsv } from '@/lib/dashboard'
 
 export type OpsPreset =
   | 'today'
@@ -287,7 +288,7 @@ export async function GET(req: NextRequest) {
         deliveryCost: round2(r.deliveryCost),
       }))
 
-    return NextResponse.json({
+    const payload = {
       params: {
         preset,
         region: regionFilter === 'AKL' || regionFilter === 'WLG' ? regionFilter : null,
@@ -299,7 +300,19 @@ export async function GET(req: NextRequest) {
       kpis,
       regionBreakdown,
       dailySeries,
-    })
+    }
+
+    if ((sp.get('format') || '').toLowerCase() === 'csv') {
+      return new NextResponse(sectionsToCsv([['operationsSummary', payload]]), {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/csv; charset=utf-8',
+          'Content-Disposition': 'attachment; filename="operations-summary.csv"',
+        },
+      })
+    }
+
+    return NextResponse.json(payload)
   } catch (error: any) {
     if (error?.status === 403) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

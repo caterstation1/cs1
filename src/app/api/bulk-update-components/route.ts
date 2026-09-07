@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { BulkComponentCostInput, computeComponentCostsBulk } from '@/lib/pricing/persist'
 
 export async function PUT(request: NextRequest) {
   try {
@@ -19,7 +20,38 @@ export async function PUT(request: NextRequest) {
       errorsList: [] as any[]
     }
 
-    for (const component of components) {
+    // This route used to write totalCost and leave costPerOutputUnit and
+    // normalizedOutputUnit untouched, so the three drifted apart on every bulk
+    // save. All three are now derived together, from the recipe rather than
+    // from the submitted `cost`.
+    //
+    // producedQuantity/producedUnit are not part of the bulk payload, so they
+    // come from the stored row; a new component falls back to the 1-unit default.
+    const existingRows = await prisma.component.findMany({
+      where: { id: { in: components.map((c: any) => c?.id).filter((id: unknown) => typeof id === 'string' && id !== 'new') } },
+      select: { id: true, producedQuantity: true, producedUnit: true },
+    })
+    const producedById = new Map(existingRows.map((r) => [r.id, r]))
+
+    const costInputs: BulkComponentCostInput[] = components
+      .map((c: any, i: number): BulkComponentCostInput | null => {
+        if (!c?.name || String(c.name).trim() === '') return null
+        const stored = c.id && c.id !== 'new' ? producedById.get(c.id) : undefined
+        return {
+          key: String(c.id && c.id !== 'new' ? c.id : `new:${i}`),
+          componentId: c.id && c.id !== 'new' ? c.id : null,
+          name: String(c.name).trim(),
+          ingredients: c.ingredients || [],
+          producedQuantity: stored?.producedQuantity ?? 1,
+          producedUnit: stored?.producedUnit ?? 'unit',
+          clientTotalCost: c.cost ? parseFloat(String(c.cost)) : 0,
+        }
+      })
+      .filter((c): c is BulkComponentCostInput => c !== null)
+
+    const costs = await computeComponentCostsBulk(costInputs)
+
+    for (const [i, component] of components.entries()) {
       try {
         const {
           id,
@@ -63,11 +95,14 @@ export async function PUT(request: NextRequest) {
           prepCategorySingle = prepCategory.trim()
         }
 
+        const costKey = String(id && id !== 'new' ? id : `new:${i}`)
+        const derived = costs.get(costKey)
+
         const data: any = {
           name: name.trim(),
           description: description?.trim() || '',
           ingredients: ingredients || [],
-          totalCost: cost ? parseFloat(cost.toString()) : 0,
+          totalCost: derived ? derived.totalCost : cost ? parseFloat(cost.toString()) : 0,
           prepCategory: prepCategorySingle,
           hasGluten: Boolean(hasGluten),
           hasDairy: Boolean(hasDairy),
@@ -79,6 +114,12 @@ export async function PUT(request: NextRequest) {
           isVegetarian: Boolean(isVegetarian),
           isVegan: Boolean(isVegan),
           isHalal: Boolean(isHalal),
+        }
+
+        // Written together with totalCost so the three cannot drift apart.
+        if (derived) {
+          data.costPerOutputUnit = derived.costPerOutputUnit
+          data.normalizedOutputUnit = derived.normalizedOutputUnit
         }
 
         // Only include prepCategories if it's not null

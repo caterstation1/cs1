@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { fetchShopifyOrders, fetchAllShopifyOrders, ShopifyOrder } from '@/lib/shopify-client'
 import { transformShopifyOrder } from '@/lib/data-transformer'
 import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver'
+import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize'
+import { parseAndUpsertCompanyForOrder } from '@/lib/company-matching'
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,6 +41,22 @@ export async function POST(req: NextRequest) {
       tags: transformed.tags,
       createdAt: transformed.createdAt,
     })
+    const scheduling = canonicalizeOrderScheduling({
+      deliveryDate: transformed.deliveryDate,
+      deliveryTime: transformed.deliveryTime,
+      tags: transformed.tags,
+      createdAt: transformed.createdAt,
+      shippingAddress: transformed.shippingAddress,
+      lineItems: transformed.lineItems,
+      noteAttributes: (candidate as any).note_attributes,
+      note_attributes: (candidate as any).note_attributes,
+    })
+
+    const existingByShopify = await prisma.order.findUnique({
+      where: { shopifyId: String(transformed.shopifyId) },
+    })
+    /** Do not replace line items from Shopify when staff have local edits (e.g. orderProductOverrides). */
+    const preserveLineItems = existingByShopify?.hasLocalEdits === true
 
     // Upsert by shopifyId
     const saved = await prisma.order.upsert({
@@ -71,6 +89,10 @@ export async function POST(req: NextRequest) {
         deliveryDateResolved: (resolved.date as unknown as Date) ?? null,
         deliveryDateResolvedSource: (resolved.source as any) ?? null,
         deliveryDateResolvedAt: new Date(),
+        region: scheduling.region,
+        deliveryDateTime: scheduling.deliveryDateTime,
+        deliveryDateSource: scheduling.deliveryDateSource,
+        needsSchedulingReview: scheduling.needsSchedulingReview,
       },
       update: {
         updatedAt: new Date(transformed.updatedAt),
@@ -81,15 +103,28 @@ export async function POST(req: NextRequest) {
         customerLastName: transformed.customerLastName,
         customerPhone: transformed.customerPhone,
         shippingAddress: transformed.shippingAddress as any,
-        lineItems: transformed.lineItems as any,
+        ...(preserveLineItems ? {} : { lineItems: transformed.lineItems as any }),
         syncedAt: new Date(transformed.syncedAt),
         deliveryDate: transformed.deliveryDate,
         deliveryTime: transformed.deliveryTime,
         deliveryDateResolved: (resolved.date as unknown as Date) ?? null,
         deliveryDateResolvedSource: (resolved.source as any) ?? null,
         deliveryDateResolvedAt: new Date(),
+        region: scheduling.region,
+        deliveryDateTime: scheduling.deliveryDateTime,
+        deliveryDateSource: scheduling.deliveryDateSource,
+        needsSchedulingReview: scheduling.needsSchedulingReview,
       },
     })
+
+    try {
+      await parseAndUpsertCompanyForOrder({
+        shopifyOrder: candidate as any,
+        transformedOrder: transformed as any,
+      })
+    } catch (companyError) {
+      console.error('[orders/refetch-by-number] Company parse failed:', companyError)
+    }
 
     return NextResponse.json({ status: 'inserted', orderNumber, id: saved.id })
   } catch (e) {

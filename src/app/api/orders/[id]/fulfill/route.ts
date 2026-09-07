@@ -8,12 +8,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const { id } = await params
     const url = new URL(request.url)
-    // Prefer query param, but allow JSON body override
-    let notifyCustomer = url.searchParams.get('notify') === '1' || url.searchParams.get('notify') === 'true'
+    // When true, send our app confirmation email after Shopify fulfillment (never Shopify's shipping email).
+    let sendAppConfirmation = url.searchParams.get('notify') === '1' || url.searchParams.get('notify') === 'true'
     try {
       const body = await request.json().catch(() => null) as any
       if (body && typeof body.notifyCustomer === 'boolean') {
-        notifyCustomer = body.notifyCustomer
+        sendAppConfirmation = body.notifyCustomer
       }
     } catch {}
     // Resolve order by DB id, then by orderNumber, then by shopifyId
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           const createFulfillmentUrl = `https://${shopUrl}/admin/api/${apiVersion}/fulfillments.json`
           const fb = {
             fulfillment: {
-              notify_customer: notifyCustomer,
+              notify_customer: false,
               tracking_info: { number: null, url: null, company: null },
               line_items_by_fulfillment_order,
             },
@@ -129,43 +129,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             console.warn('Fulfillment Orders API failed, falling back. Status', cfres.status, cftxt)
           } else {
             usedFO = true
-            // Attempt to explicitly send notification when requested (some stores/apps ignore notify_customer on FO flow)
-            if (notifyCustomer) {
-              try {
-                const cfjson = JSON.parse(cftxt || '{}')
-                const fulfillmentId = cfjson?.fulfillment?.id
-                if (fulfillmentId) {
-                  // Try explicit fulfillment notification
-                  const notifyUrl = `https://${shopUrl}/admin/api/${apiVersion}/orders/${order.shopifyId}/fulfillments/${fulfillmentId}/send_notification.json`
-                  await fetch(notifyUrl, {
-                    method: 'POST',
-                    headers: {
-                      'X-Shopify-Access-Token': accessToken,
-                      'Content-Type': 'application/json',
-                      'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({}),
-                  }).catch(() => undefined)
-                  // If this was a local delivery, also create a 'delivered' fulfillment event to trigger local_delivered template
-                  const isLocal = Array.isArray(shopifyOrder?.shipping_lines) && shopifyOrder.shipping_lines.some((sl: any) =>
-                    (sl?.delivery_category && String(sl.delivery_category).toLowerCase() === 'local') ||
-                    (sl?.title && /local/i.test(String(sl.title)))
-                  )
-                  if (isLocal) {
-                    const evtUrl = `https://${shopUrl}/admin/api/${apiVersion}/orders/${order.shopifyId}/fulfillments/${fulfillmentId}/events.json`
-                    await fetch(evtUrl, {
-                      method: 'POST',
-                      headers: {
-                        'X-Shopify-Access-Token': accessToken,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                      },
-                      body: JSON.stringify({ event: { status: 'delivered', message: 'Delivered by local delivery' } }),
-                    }).catch(() => undefined)
-                  }
-                }
-              } catch {}
-            }
           }
         }
       }
@@ -177,7 +140,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         fulfillment: {
           location_id,
           line_items,
-          notify_customer: notifyCustomer,
+          notify_customer: false,
         },
       }
       const fres = await fetch(fulfillUrl, {
@@ -193,49 +156,24 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       if (!fres.ok) {
         return NextResponse.json({ error: 'Shopify fulfillment failed', status: fres.status, details: ftxt }, { status: 502 })
       }
-      // Explicitly send notification as a backup (some stores ignore notify_customer here)
-      if (notifyCustomer) {
-        try {
-          const fjson = JSON.parse(ftxt || '{}')
-          const fulfillmentId = fjson?.fulfillment?.id
-          if (fulfillmentId) {
-            const notifyUrl = `https://${shopUrl}/admin/api/${apiVersion}/orders/${order.shopifyId}/fulfillments/${fulfillmentId}/send_notification.json`
-            await fetch(notifyUrl, {
-              method: 'POST',
-              headers: {
-                'X-Shopify-Access-Token': accessToken,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-              },
-              body: JSON.stringify({}),
-            }).catch(() => undefined)
-            // If this was a local delivery, also create a 'delivered' fulfillment event to target local_delivered template
-            const isLocal = Array.isArray(shopifyOrder?.shipping_lines) && shopifyOrder.shipping_lines.some((sl: any) =>
-              (sl?.delivery_category && String(sl.delivery_category).toLowerCase() === 'local') ||
-              (sl?.title && /local/i.test(String(sl.title)))
-            )
-            if (isLocal) {
-              const evtUrl = `https://${shopUrl}/admin/api/${apiVersion}/orders/${order.shopifyId}/fulfillments/${fulfillmentId}/events.json`
-              await fetch(evtUrl, {
-                method: 'POST',
-                headers: {
-                  'X-Shopify-Access-Token': accessToken,
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',
-                },
-                body: JSON.stringify({ event: { status: 'delivered', message: 'Delivered by local delivery' } }),
-              }).catch(() => undefined)
-            }
-          }
-        } catch {}
-      }
     }
 
-    // Optionally, update our DB: mark fulfillmentStatus as 'fulfilled'
+    // Optionally, update our DB: mark fulfillmentStatus as 'fulfilled'.
+    // Note: this does NOT stop the driver's delivery-run location tracking.
+    // Tracking intentionally continues after delivery completion until
+    // return-to-base/manual stop/clock-out/max-duration so dispatch can see
+    // driver proximity to base for next deliveries.
     await prisma.order.update({
       where: { id: order.id },
       data: { fulfillmentStatus: 'fulfilled', dbUpdatedAt: new Date() } as any,
     }).catch(() => undefined)
+
+    if (sendAppConfirmation) {
+      const { sendFulfillmentConfirmationForOrder } = await import('@/lib/fulfillment-comms-send')
+      await sendFulfillmentConfirmationForOrder(order.id).catch((e) => {
+        console.error('Fulfillment confirmation email failed', e)
+      })
+    }
 
     return NextResponse.json({ success: true })
   } catch (e: any) {

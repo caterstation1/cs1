@@ -38,6 +38,10 @@ interface CompanyGraph {
   periodOrders: CompanyOrderRow[]
   allOrdersToEnd: CompanyOrderRow[]
   periodOrdersAll: CompanyOrderRow[]
+  /** All orders <= endDate across every cluster (incl. private/unmatched). */
+  allOrdersToEndAll: CompanyOrderRow[]
+  /** All orders <= endDate belonging to private/unmatched clusters. */
+  privateOrdersToEnd: CompanyOrderRow[]
   privatePeriodRevenue: number
   privatePeriodOrders: number
 }
@@ -266,6 +270,8 @@ async function loadCompanyGraph(filters: ExecutiveFilters): Promise<CompanyGraph
       periodOrders: [],
       allOrdersToEnd: [],
       periodOrdersAll: [],
+      allOrdersToEndAll: [],
+      privateOrdersToEnd: [],
       privatePeriodRevenue: 0,
       privatePeriodOrders: 0,
     }
@@ -397,6 +403,10 @@ async function loadCompanyGraph(filters: ExecutiveFilters): Promise<CompanyGraph
 
   const includePrivateUnmatched = filters.includePrivateUnmatched
   const periodOrdersAll = clusters.flatMap((cluster) => cluster.periodOrders)
+  const allOrdersToEndAll = clusters.flatMap((cluster) => cluster.allOrders)
+  const privateOrdersToEnd = clusters
+    .filter((cluster) => privateClusterKeys.has(cluster.clusterKey))
+    .flatMap((cluster) => cluster.allOrders)
   const privatePeriodOrders = periodOrdersAll.filter((order) => privateClusterKeys.has(order.companyId))
   const privatePeriodRevenue = privatePeriodOrders.reduce((sum, order) => sum + order.orderTotal, 0)
 
@@ -524,9 +534,176 @@ async function loadCompanyGraph(filters: ExecutiveFilters): Promise<CompanyGraph
     periodOrders: periodOrders.filter((order) => allowedRollupKeys.has(order.companyId)),
     allOrdersToEnd: allOrdersToEndGrouped.filter((order) => allowedRollupKeys.has(order.companyId)),
     periodOrdersAll,
+    allOrdersToEndAll,
+    privateOrdersToEnd,
     privatePeriodRevenue,
     privatePeriodOrders: privatePeriodOrders.length,
   }
+}
+
+interface SummaryWindowStats {
+  totalRevenue: number
+  totalOrders: number
+  averageOrderValue: number
+  activeCompanies: number
+  newCompanies: number
+  returningCompanies: number
+  averageRevenuePerCompany: number
+  medianRevenuePerCompany: number
+  revenueFromReturningCompanies: number
+  repeatCompanyRevenuePct: number
+  averageDaysBetweenCompanyOrders: number
+  atRiskCompanies: number
+  lapsedCompanies: number
+  companyLifetimeValue: number
+  averageOrdersPerCompanyAllTime: number
+  averageOrdersPerCompany12m: number
+  privateRevenueSharePct: number
+}
+
+/**
+ * Computes the executive-summary KPI set for an arbitrary [start, end] window
+ * so the same math powers the headline cards' deltas and sparklines.
+ * "As-of" metrics (status counts, lifetime value, cumulative averages) use
+ * `end` as the reference date.
+ */
+function computeSummaryWindowStats(params: {
+  allOrdersToEndAll: CompanyOrderRow[]
+  allowedByCompany: Map<string, CompanyOrderRow[]>
+  privateOrdersToEnd: CompanyOrderRow[]
+  start: Date
+  end: Date
+}): SummaryWindowStats {
+  const { allOrdersToEndAll, allowedByCompany, privateOrdersToEnd, start, end } = params
+  const inWindow = (order: CompanyOrderRow) => order.orderDate >= start && order.orderDate <= end
+
+  const windowAll = allOrdersToEndAll.filter(inWindow)
+  const totalRevenue = windowAll.reduce((sum, order) => sum + order.orderTotal, 0)
+  const totalOrders = windowAll.length
+  const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
+  const privateRevenue = privateOrdersToEnd.filter(inWindow).reduce((sum, order) => sum + order.orderTotal, 0)
+
+  let activeCompanies = 0
+  let newCompanies = 0
+  let returningCompanies = 0
+  let allowedWindowRevenue = 0
+  let returningRevenue = 0
+  const perCompanyWindowRevenue: number[] = []
+  const gaps: number[] = []
+  let atRiskCompanies = 0
+  let lapsedCompanies = 0
+  let lifetimeRevenueSum = 0
+  let lifetimeOrdersSum = 0
+  let companiesToEnd = 0
+  let orders12m = 0
+  const active12m = new Set<string>()
+  const twelveMonthsBeforeEnd = new Date(end.getTime() - 365 * 24 * 60 * 60 * 1000)
+
+  for (const [companyId, orders] of allowedByCompany.entries()) {
+    const ordersToEnd = orders.filter((order) => order.orderDate <= end)
+    if (!ordersToEnd.length) continue
+    companiesToEnd += 1
+    lifetimeOrdersSum += ordersToEnd.length
+    lifetimeRevenueSum += ordersToEnd.reduce((sum, order) => sum + order.orderTotal, 0)
+
+    for (let i = 1; i < ordersToEnd.length; i++) {
+      gaps.push(diffDays(ordersToEnd[i - 1].orderDate, ordersToEnd[i].orderDate))
+    }
+
+    const windowOrders = ordersToEnd.filter(inWindow)
+    const firstOrderDate = ordersToEnd[0].orderDate
+    const lastOrderDate = ordersToEnd[ordersToEnd.length - 1].orderDate
+
+    const in12m = ordersToEnd.filter((order) => order.orderDate >= twelveMonthsBeforeEnd)
+    orders12m += in12m.length
+    if (in12m.length > 0) active12m.add(companyId)
+
+    if (windowOrders.length > 0) {
+      activeCompanies += 1
+      const windowRevenue = windowOrders.reduce((sum, order) => sum + order.orderTotal, 0)
+      allowedWindowRevenue += windowRevenue
+      perCompanyWindowRevenue.push(windowRevenue)
+      if (isNewCompanyInPeriod(firstOrderDate, start, end)) newCompanies += 1
+      else if (firstOrderDate < start) {
+        returningCompanies += 1
+        returningRevenue += windowRevenue
+      }
+    }
+
+    const status = companyStatusFromDates(firstOrderDate, lastOrderDate, end, windowOrders.length > 0, null)
+    if (status === 'at_risk') atRiskCompanies += 1
+    else if (status === 'lapsed') lapsedCompanies += 1
+  }
+
+  return {
+    totalRevenue,
+    totalOrders,
+    averageOrderValue,
+    activeCompanies,
+    newCompanies,
+    returningCompanies,
+    averageRevenuePerCompany: activeCompanies > 0 ? allowedWindowRevenue / activeCompanies : 0,
+    medianRevenuePerCompany: median(perCompanyWindowRevenue),
+    revenueFromReturningCompanies: returningRevenue,
+    repeatCompanyRevenuePct: allowedWindowRevenue > 0 ? (returningRevenue / allowedWindowRevenue) * 100 : 0,
+    averageDaysBetweenCompanyOrders: gaps.length ? avg(gaps) : 0,
+    atRiskCompanies,
+    lapsedCompanies,
+    companyLifetimeValue: companiesToEnd > 0 ? lifetimeRevenueSum / companiesToEnd : 0,
+    averageOrdersPerCompanyAllTime: companiesToEnd > 0 ? lifetimeOrdersSum / companiesToEnd : 0,
+    averageOrdersPerCompany12m: active12m.size > 0 ? orders12m / active12m.size : 0,
+    privateRevenueSharePct: totalRevenue > 0 ? (privateRevenue / totalRevenue) * 100 : 0,
+  }
+}
+
+export interface KpiCardMeta {
+  deltaPct: number | null
+  sparkline: number[] | null
+}
+
+function deltaPctOf(current: number, previous: number): number | null {
+  if (!Number.isFinite(current) || !Number.isFinite(previous)) return null
+  if (previous === 0) return current === 0 ? 0 : null
+  return toCurrency(((current - previous) / Math.abs(previous)) * 100)
+}
+
+function computeSummaryCardMeta(
+  graph: CompanyGraph,
+  filters: ExecutiveFilters
+): Record<keyof SummaryWindowStats, KpiCardMeta> {
+  const allowedByCompany = groupOrdersByCompany(graph.allOrdersToEnd)
+  const base = {
+    allOrdersToEndAll: graph.allOrdersToEndAll,
+    allowedByCompany,
+    privateOrdersToEnd: graph.privateOrdersToEnd,
+  }
+
+  const current = computeSummaryWindowStats({ ...base, start: filters.startDate, end: filters.endDate })
+  const durationMs = Math.max(1, filters.endDate.getTime() - filters.startDate.getTime())
+  const prevEnd = new Date(filters.startDate.getTime() - 1)
+  const prevStart = new Date(prevEnd.getTime() - durationMs)
+  const previous = computeSummaryWindowStats({ ...base, start: prevStart, end: prevEnd })
+
+  // 12 monthly points ending with the month of endDate (trailing partial month included, flagged in charts).
+  const sparkMonths = monthsBetween(
+    new Date(filters.endDate.getFullYear(), filters.endDate.getMonth() - 11, 1),
+    filters.endDate
+  )
+  const monthlyStats = sparkMonths.map((monthStart) => {
+    const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0, 23, 59, 59, 999)
+    const cappedEnd = monthEnd > filters.endDate ? filters.endDate : monthEnd
+    return computeSummaryWindowStats({ ...base, start: monthStart, end: cappedEnd })
+  })
+
+  const keys = Object.keys(current) as Array<keyof SummaryWindowStats>
+  const meta = {} as Record<keyof SummaryWindowStats, KpiCardMeta>
+  for (const key of keys) {
+    meta[key] = {
+      deltaPct: deltaPctOf(current[key], previous[key]),
+      sparkline: monthlyStats.map((row) => toCurrency(row[key])),
+    }
+  }
+  return meta
 }
 
 export async function getExecutiveSummary(filters: ExecutiveFilters) {
@@ -554,7 +731,12 @@ export async function getExecutiveSummary(filters: ExecutiveFilters) {
 
   const selectedCompanyRevenue = periodOrders.reduce((sum, order) => sum + order.orderTotal, 0)
   const averageRevenuePerCompany = activeCompanies > 0 ? selectedCompanyRevenue / activeCompanies : 0
-  const medianRevenuePerCompany = median(rollups.map((row) => row.periodRevenue))
+  // Median must use the same population as the mean: companies active in the
+  // period. Including lifetime-only rollups (periodRevenue = 0) drags the
+  // median to 0 whenever inactive companies outnumber active ones.
+  const medianRevenuePerCompany = median(
+    rollups.filter((row) => row.periodOrders > 0).map((row) => row.periodRevenue)
+  )
   const companyLifetimeValue =
     totalCompanies > 0
       ? toCurrency(rollups.reduce((sum, row) => sum + row.lifetimeRevenue, 0) / totalCompanies)
@@ -587,6 +769,29 @@ export async function getExecutiveSummary(filters: ExecutiveFilters) {
   const revenueSorted = [...rollups].sort((a, b) => b.periodRevenue - a.periodRevenue)
   const top10Revenue = revenueSorted.slice(0, 10).reduce((sum, row) => sum + row.periodRevenue, 0)
   const top25Revenue = revenueSorted.slice(0, 25).reduce((sum, row) => sum + row.periodRevenue, 0)
+
+  // D3: cumulative revenue-concentration (Pareto) curve over period revenue.
+  const concentrationCurve = (() => {
+    const contributors = revenueSorted.filter((row) => row.periodRevenue > 0)
+    const total = contributors.reduce((sum, row) => sum + row.periodRevenue, 0)
+    if (!contributors.length || total <= 0) return [] as Array<{ rank: number; cumulativePct: number; companyName?: string }>
+    const points: Array<{ rank: number; cumulativePct: number; companyName?: string }> = []
+    let cumulative = 0
+    // Dense points for the head of the curve, sparse sampling for the tail.
+    const step = Math.max(1, Math.floor(contributors.length / 150))
+    for (let i = 0; i < contributors.length; i++) {
+      cumulative += contributors[i].periodRevenue
+      const rank = i + 1
+      const include = rank <= 50 || rank % step === 0 || rank === contributors.length || rank === 10 || rank === 25
+      if (!include) continue
+      points.push({
+        rank,
+        cumulativePct: toCurrency((cumulative / total) * 100),
+        ...(rank <= 25 ? { companyName: contributors[i].companyName } : {}),
+      })
+    }
+    return points
+  })()
   const monthlyRevenueSum = toCurrency(
     monthsBetween(filters.startDate, filters.endDate).reduce((sum, monthStart) => {
       const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0, 23, 59, 59, 999)
@@ -663,6 +868,13 @@ export async function getExecutiveSummary(filters: ExecutiveFilters) {
       companyRevenueExcludingPrivate: toCurrency(selectedCompanyRevenue),
       includePrivateUnmatchedInCompanyMetrics: filters.includePrivateUnmatched,
     },
+    cardMeta: computeSummaryCardMeta(graph, filters),
+    concentration: {
+      curve: concentrationCurve,
+      companiesWithRevenue: revenueSorted.filter((row) => row.periodRevenue > 0).length,
+      top10Pct: selectedCompanyRevenue > 0 ? toCurrency((top10Revenue / selectedCompanyRevenue) * 100) : 0,
+      top25Pct: selectedCompanyRevenue > 0 ? toCurrency((top25Revenue / selectedCompanyRevenue) * 100) : 0,
+    },
     validationChecks,
     notEnoughData: totalOrders === 0,
   }
@@ -711,6 +923,9 @@ export async function getRevenueTrends(filters: ExecutiveFilters) {
 
     return {
       month: monthKey(monthStart),
+      // B3: the trailing month is partial when the filter window cuts it short
+      // (e.g. "last 12 months" ending today mid-month).
+      isPartial: monthEnd > filters.endDate,
       revenue: toCurrency(revenue),
       newRevenue: toCurrency(newRevenue),
       returningRevenue: toCurrency(returningRevenue),
@@ -727,19 +942,26 @@ export async function getRevenueTrends(filters: ExecutiveFilters) {
   return {
     monthlyRevenue: monthRows.map((row) => ({
       month: row.month,
+      isPartial: row.isPartial,
       revenue: row.revenue,
       newRevenue: row.newRevenue,
       returningRevenue: row.returningRevenue,
     })),
     monthlyOrders: monthRows.map((row) => ({
       month: row.month,
+      isPartial: row.isPartial,
       orders: row.orders,
       newOrders: row.newOrders,
       returningOrders: row.returningOrders,
     })),
-    monthlyAov: monthRows.map((row) => ({ month: row.month, averageOrderValue: row.averageOrderValue })),
+    monthlyAov: monthRows.map((row) => ({
+      month: row.month,
+      isPartial: row.isPartial,
+      averageOrderValue: row.averageOrderValue,
+    })),
     monthlyActiveCompanies: monthRows.map((row) => ({
       month: row.month,
+      isPartial: row.isPartial,
       activeCompanies: row.activeCompanies,
       newCompanies: row.newCompanies,
       reactivatedCompanies: row.reactivatedCompanies,
@@ -892,11 +1114,64 @@ export async function getCompanyBehaviour(filters: ExecutiveFilters) {
       }
     })
 
+  // D1: cohort retention — acquisition month (rows) x months since first order
+  // (columns), cell = % of the cohort that ordered again in that offset month.
+  const cohortRetention = (() => {
+    const byCompany = groupOrdersByCompany(allOrdersToEnd)
+    const endMonthStart = new Date(filters.endDate.getFullYear(), filters.endDate.getMonth(), 1)
+    const firstCohortMonth = new Date(endMonthStart.getFullYear(), endMonthStart.getMonth() - 11, 1)
+    const monthIndex = (date: Date) => date.getFullYear() * 12 + date.getMonth()
+    const maxOffset = 11
+
+    const cohorts = new Map<number, { size: number; offsets: Map<number, Set<string>> }>()
+    for (const [companyId, orders] of byCompany.entries()) {
+      if (!orders.length) continue
+      const first = orders[0].orderDate
+      if (first < firstCohortMonth || first > filters.endDate) continue
+      const cohortIdx = monthIndex(first)
+      const cohort = cohorts.get(cohortIdx) || { size: 0, offsets: new Map<number, Set<string>>() }
+      cohort.size += 1
+      for (const order of orders) {
+        const offset = monthIndex(order.orderDate) - cohortIdx
+        if (offset < 1 || offset > maxOffset) continue
+        const set = cohort.offsets.get(offset) || new Set<string>()
+        set.add(companyId)
+        cohort.offsets.set(offset, set)
+      }
+      cohorts.set(cohortIdx, cohort)
+    }
+
+    const endIdx = monthIndex(endMonthStart)
+    const rows = Array.from(cohorts.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([cohortIdx, cohort]) => {
+        const cohortDate = new Date(Math.floor(cohortIdx / 12), cohortIdx % 12, 1)
+        const cells = []
+        for (let offset = 1; offset <= maxOffset; offset++) {
+          if (cohortIdx + offset > endIdx) {
+            cells.push(null) // future month — not yet observable
+            continue
+          }
+          const count = cohort.offsets.get(offset)?.size || 0
+          cells.push({
+            offset,
+            count,
+            pct: cohort.size > 0 ? toCurrency((count / cohort.size) * 100) : 0,
+          })
+        }
+        return { cohort: monthKey(cohortDate), size: cohort.size, cells }
+      })
+      .filter((row) => row.size > 0)
+
+    return { maxOffset, rows }
+  })()
+
   return {
     frequencyDistribution: frequencyBuckets,
     revenueByOrderNumber,
     valueSegmentation,
     timeBetweenOrders: orderGap,
+    cohortRetention,
     lapsedCompanies,
     notEnoughData: rollups.length === 0,
   }

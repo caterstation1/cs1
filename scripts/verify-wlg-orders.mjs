@@ -2,10 +2,11 @@
 
 import { PrismaClient } from '../src/generated/prisma/index.js';
 import dotenv from 'dotenv';
+import { scriptPrismaOptions } from './lib/script-prisma-url.cjs';
 
 dotenv.config();
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient(scriptPrismaOptions());
 
 const wlgOrderNumbers = [10479, 10483, 10517, 10536, 10557, 10574, 10581, 10595, 10599, 10600, 10609, 10639];
 

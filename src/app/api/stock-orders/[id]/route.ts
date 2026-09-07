@@ -4,9 +4,17 @@ import { prisma } from '@/lib/prisma'
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const order = await prisma.stockOrder.findUnique({ where: { id }, include: { items: true } })
+    const order = await prisma.stockOrder.findUnique({
+      where: { id },
+      include: { items: { include: { stockItem: { select: { description: true } } } } }
+    })
     if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    return NextResponse.json(order)
+    // Older orders were created before descriptions were snapshotted; fall back to the live item description
+    const items = order.items.map(({ stockItem, ...item }) => ({
+      ...item,
+      descriptionSnapshot: item.descriptionSnapshot ?? stockItem?.description ?? null
+    }))
+    return NextResponse.json({ ...order, items })
   } catch (e) {
     console.error('GET /api/stock-orders/[id] failed', e)
     return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 })

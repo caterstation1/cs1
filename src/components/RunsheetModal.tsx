@@ -78,6 +78,28 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
     return []
   }
 
+  const formatAddressForCell = (shippingAddress: any) => {
+    if (!shippingAddress) return 'No address'
+    const addr = typeof shippingAddress === 'string' ? (() => {
+      try { return JSON.parse(shippingAddress) } catch { return {} }
+    })() : shippingAddress
+    const parts = [addr.address1, addr.address2, addr.city].filter(Boolean)
+    return parts.length ? parts.join(', ') : 'No address'
+  }
+
+  const extractOrderPhone = (order: any) => {
+    const direct = order?.customerPhone || order?.customer_phone
+    if (direct) return String(direct)
+    const ship = order?.shippingAddress || order?.shipping_address || {}
+    if (ship?.phone) return String(ship.phone)
+    return 'No phone'
+  }
+
+  const formatDeliveryBadge = (order: any) => {
+    const time = firstTimeTo24((order as any).deliveryTime || '')
+    return time || (order?.deliveryTime ? String(order.deliveryTime) : 'No time')
+  }
+
   const { orderCount, boxesCount, servewareBoxes, productsList, addonsList, proteinsByInitial } = useMemo(() => {
     const cutoff = 14 * 60
     const toMinutes = (hhmm: string) => { if (!hhmm) return 24*60; const [h,m] = hhmm.split(':').map(Number); return h*60+m }
@@ -406,10 +428,248 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
     return { bakery, prep, proteinsList, bakeryItems, prepItems }
   }, [nextDayOrders, productsMap, componentsCatalog, otherCatalog])
 
+  const printOrderCells = useMemo(() => {
+    const cells = orders.map((order) => {
+      const items = parseLineItems(order)
+      const addons: string[] = []
+      const products: string[] = []
+
+      for (const item of items) {
+        const qty = Number(item?.quantity || 1)
+        const sku = String(item?.sku || '')
+        const variantId = String(item?.variant_id || item?.variantId || '')
+        const product = variantId ? productsMap[variantId] : undefined
+        const displayName =
+          product?.productDisplayName?.trim() ||
+          product?.displayName?.trim() ||
+          product?.shopifyName ||
+          item?.title ||
+          'Product'
+
+        if (isAddon(sku)) {
+          addons.push(`${qty}x ${displayName}`)
+          continue
+        }
+
+        const meats = [product?.meat1, product?.meat2].filter(Boolean).join(' / ')
+        const meta = meats ? ` - ${meats}` : ''
+        products.push(`${qty}x ${displayName}${meta}`)
+      }
+
+      return {
+        id: String(order?.id || order?.orderNumber || Math.random()),
+        orderNumber: order?.orderNumber || 'N/A',
+        customerName: `${order?.customerFirstName || ''} ${order?.customerLastName || ''}`.trim() || 'Customer',
+        address: formatAddressForCell(order?.shippingAddress || order?.shipping_address),
+        deliveryTime: formatDeliveryBadge(order),
+        phone: extractOrderPhone(order),
+        products,
+        addons,
+      }
+    })
+
+    return cells
+  }, [orders, productsMap])
+
+  const escapeHtml = (value: unknown) =>
+    String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+
+  const runsheetPrintV2Html = useMemo(() => {
+    const toRows = (items: Record<string, { total: number; am: number }>) => {
+      const entries = Object.entries(items || {}).sort(([a], [b]) => a.localeCompare(b))
+      if (!entries.length) return '<div class="empty-row">No items</div>'
+      return entries
+        .map(([name, q]) => `<div class="row"><span class="qty">${q.total}<sup>${q.am}</sup></span><span>${escapeHtml(name)}</span></div>`)
+        .join('')
+    }
+
+    const productsRows = productsList.length
+      ? productsList
+          .map((p) => `<div class="row"><span class="qty">${p.total}<sup>${p.am}</sup></span><span>${escapeHtml(p.name)}</span></div>`)
+          .join('')
+      : '<div class="empty-row">No products</div>'
+
+    const proteinsRows = proteinsByInitial.length
+      ? proteinsByInitial
+          .map((p) => `<div class="row"><span class="qty">${escapeHtml(p.initial)}</span><span>${p.total}<sup>${p.am}</sup></span></div>`)
+          .join('')
+      : '<div class="empty-row">No proteins</div>'
+
+    const addonsRows = addonsList.length
+      ? addonsList
+          .map((a) => `<div class="row"><span class="qty">${a.total}<sup>${a.am}</sup></span><span>${escapeHtml(a.name)}</span></div>`)
+          .join('')
+      : '<div class="empty-row">No add-ons</div>'
+
+    const rosterRows = rosterAssignments.length
+      ? rosterAssignments
+          .slice(0, 12)
+          .map(
+            (assignment: any) =>
+              `<div class="roster-row"><strong>${escapeHtml(assignment.firstName || '')} ${escapeHtml((assignment.lastName || '').slice(0, 1))}.</strong> ${escapeHtml(assignment.startTime || '')}-${escapeHtml(assignment.endTime || '')}</div>`
+          )
+          .join('')
+      : '<div class="empty-row">No staff rostered</div>'
+
+    const orderCardRows = printOrderCells.length
+      ? printOrderCells
+          .map((cell) => {
+            const products = cell.products.length
+              ? cell.products.slice(0, 6).map((line) => `<div class="cell-product">${escapeHtml(line)}</div>`).join('')
+              : '<div class="cell-product muted">No products</div>'
+            const addons = cell.addons.length ? `<div class="cell-addons">Add-ons: ${escapeHtml(cell.addons.slice(0, 3).join(', '))}${cell.addons.length > 3 ? ' ...' : ''}</div>` : ''
+            return `
+              <article class="order-cell">
+                <div class="cell-head">
+                  <span>#${escapeHtml(cell.orderNumber)}</span>
+                  <span>${escapeHtml(cell.deliveryTime)}</span>
+                </div>
+                <div class="cell-line cell-name">${escapeHtml(cell.customerName)}</div>
+                <div class="cell-line">${escapeHtml(cell.address)}</div>
+                <div class="cell-line">${escapeHtml(cell.phone)}</div>
+                ${products}
+                ${addons}
+              </article>
+            `
+          })
+          .join('')
+      : '<div class="empty-row">No orders</div>'
+
+    return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Runsheet Print v2 - ${escapeHtml(headerDate)}</title>
+  <style>
+    @page { size: landscape; margin: 6mm; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #0f172a; }
+    .sheet { width: 100%; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; margin-bottom: 6px; }
+    .title { font-size: 18px; font-weight: 700; }
+    .kpis { display: flex; gap: 6px; }
+    .kpi { min-width: 56px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; padding: 4px; text-align: center; }
+    .kpi-label { font-size: 8px; text-transform: uppercase; color: #64748b; }
+    .kpi-value { font-size: 16px; font-weight: 700; line-height: 1.15; }
+    .layout { display: grid; grid-template-columns: 4.9fr 1.1fr; gap: 6px; align-items: start; }
+    .left-grid { display: grid; grid-template-columns: 1fr 1.26fr 1fr 1.08fr; gap: 5px; }
+    .shared-col { display: grid; grid-template-rows: 1fr 1fr; gap: 5px; min-height: 0; }
+    .panel { background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 5px; min-height: 24px; }
+    .panel-title { margin: 0 0 4px 0; font-size: 11px; color: #0369a1; font-weight: 700; }
+    .rows { display: grid; gap: 1px; }
+    .row { display: grid; grid-template-columns: 38px 1fr; gap: 4px; align-items: baseline; font-size: 10px; line-height: 1.18; }
+    .qty { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .qty sup { font-size: 8px; margin-left: 1px; }
+    .roster-row { font-size: 9px; line-height: 1.2; margin-bottom: 1px; }
+    .orders-pages { break-before: page; page-break-before: always; }
+    .orders-title { margin: 0 0 6px 0; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; }
+    .order-cells-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+    .order-cell { border: 1px solid #d1d5db; border-radius: 6px; padding: 4px; break-inside: avoid; page-break-inside: avoid; }
+    .cell-head { display: flex; justify-content: space-between; gap: 4px; font-size: 10px; font-weight: 700; margin-bottom: 2px; }
+    .cell-line { font-size: 8px; line-height: 1.2; margin-bottom: 1px; }
+    .cell-name { font-weight: 700; }
+    .cell-product { font-size: 8px; line-height: 1.2; margin-top: 1px; }
+    .cell-addons { font-size: 7.5px; line-height: 1.2; margin-top: 2px; color: #334155; }
+    .muted, .empty-row { color: #64748b; font-size: 9px; }
+    .timesheet { margin: 0 0 6px 0; }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="topbar">
+      <div>
+        <div class="title">Runsheet — ${escapeHtml(headerDate)}</div>
+        <div class="panel timesheet">
+          <h3 class="panel-title">Time Sheet</h3>
+          ${rosterRows}
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-label">Boxes</div><div class="kpi-value">${boxesCount}</div></div>
+        <div class="kpi"><div class="kpi-label">Orders</div><div class="kpi-value">${orderCount}</div></div>
+        <div class="kpi"><div class="kpi-label">Serveware</div><div class="kpi-value">${servewareBoxes}</div></div>
+      </div>
+    </div>
+    <section class="first-page">
+      <div class="layout">
+        <div class="left-grid">
+          <section class="panel"><h3 class="panel-title">Products</h3><div class="rows">${productsRows}</div></section>
+          <section class="panel"><h3 class="panel-title">Cold kitchen</h3><div class="rows">${toRows(tasksByCategory['Cold kitchen']?.items || {})}</div></section>
+          <section class="panel"><h3 class="panel-title">Hot kitchen</h3><div class="rows">${toRows(tasksByCategory['Hot kitchen']?.items || {})}</div></section>
+          <div class="shared-col">
+            <section class="panel"><h3 class="panel-title">Desserts</h3><div class="rows">${toRows(tasksByCategory['Desserts']?.items || {})}</div></section>
+            <section class="panel"><h3 class="panel-title">Pre day prep</h3><div class="rows">${toRows(tasksByCategory['Pre day prep']?.items || {})}</div></section>
+          </div>
+        </div>
+        <div>
+          <section class="panel"><h3 class="panel-title">Proteins</h3><div class="rows">${proteinsRows}</div></section>
+          <section class="panel" style="margin-top: 5px;"><h3 class="panel-title">Add-ons</h3><div class="rows">${addonsRows}</div></section>
+        </div>
+      </div>
+    </section>
+    <section class="orders-pages">
+      <h3 class="orders-title">Dispatch Order Cells</h3>
+      <div class="order-cells-grid">${orderCardRows}</div>
+    </section>
+  </div>
+</body>
+</html>`
+  }, [headerDate, rosterAssignments, boxesCount, orderCount, servewareBoxes, productsList, tasksByCategory, proteinsByInitial, addonsList, printOrderCells])
+
+  const handlePrintV2 = () => {
+    const iframe = document.createElement('iframe')
+    iframe.style.position = 'fixed'
+    iframe.style.width = '1px'
+    iframe.style.height = '1px'
+    iframe.style.opacity = '0'
+    iframe.style.pointerEvents = 'none'
+    iframe.style.bottom = '0'
+    iframe.style.right = '0'
+
+    const cleanup = () => {
+      window.setTimeout(() => {
+        iframe.remove()
+      }, 1000)
+    }
+
+    let printed = false
+    const printWhenReady = () => {
+      if (printed) return
+      printed = true
+      try {
+        const frameWindow = iframe.contentWindow
+        if (!frameWindow) {
+          cleanup()
+          return
+        }
+        frameWindow.focus()
+        frameWindow.print()
+      } finally {
+        cleanup()
+      }
+    }
+
+    iframe.onload = () => {
+      const frameDoc = iframe.contentDocument
+      const isReady = frameDoc?.readyState === 'complete' && (frameDoc.body?.children.length || 0) > 0
+      if (!isReady) return
+      window.setTimeout(printWhenReady, 120)
+    }
+
+    // Set srcdoc before attaching to avoid printing initial about:blank document
+    iframe.srcdoc = runsheetPrintV2Html
+    document.body.appendChild(iframe)
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(o)=>{ if(!o) onClose() }}>
       <DialogContent className="p-0 bg-transparent border-0 shadow-none max-w-[310mm]">
-        <div className="bg-white p-6 rounded-lg" style={{ width: '297mm', minHeight: 'auto' }}>
+        <div className="bg-white p-6 rounded-lg runsheet-print-shell" style={{ width: '100%', maxWidth: '297mm', minHeight: 'auto' }}>
         <DialogHeader className="print-hide">
           <div className="flex items-center justify-between bg-gradient-to-r from-sky-600 via-sky-500 to-sky-400 text-white px-4 py-3 rounded-md shadow">
             <div className="flex items-center gap-3">
@@ -418,12 +678,19 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
               <img src="/caterstation-logo.png" alt="Cater Station" className="h-8 w-auto hidden sm:block" onError={(e)=>{ (e.currentTarget as HTMLImageElement).style.display='none' }} />
               <DialogTitle className="text-white text-xl sm:text-2xl">Runsheet — {headerDate}</DialogTitle>
             </div>
-            <Button className="no-print bg-white/10 hover:bg-white/20 border-white/30" variant="outline" onClick={() => window.print()}>Print</Button>
+            <div className="flex items-center gap-2">
+              <Button className="no-print bg-white/10 hover:bg-white/20 border-white/30" variant="outline" onClick={handlePrintV2}>
+                Print v2 (beta)
+              </Button>
+              <Button className="no-print bg-white/10 hover:bg-white/20 border-white/30" variant="outline" onClick={() => window.print()}>
+                Print (legacy)
+              </Button>
+            </div>
           </div>
         </DialogHeader>
         <div className="runsheet relative z-10 space-y-5 bg-gray-50 p-5 rounded-lg h-[calc(210mm-70px)] overflow-auto">
           {/* Top row: Date — Time Sheet — KPI squares */}
-          <div className="grid grid-cols-[auto_1fr_80px_80px_80px] print:grid-cols-[auto_1fr_80px_80px_80px] gap-4 items-stretch">
+          <div className="runsheet-top-grid grid grid-cols-[auto_1fr_80px_80px_80px] print:grid-cols-[auto_1fr_80px_80px_80px] gap-4 items-stretch">
             <div className="flex items-center">
               <div className="text-2xl font-semibold">{headerDate}</div>
             </div>
@@ -463,9 +730,9 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
           </div>
 
           {/* Main dashboard grid */}
-          <div className="grid grid-cols-[4.2fr_0.72fr] print:grid-cols-[4.2fr_0.72fr] gap-5">
-            {/* Left: five columns with custom widths - Products, Cold (wider), Hot, Desserts (narrower), Pre-prep */}
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_1.3fr_1fr_0.8fr_1fr] print:grid-cols-[1fr_1.3fr_1fr_0.8fr_1fr] gap-4">
+          <div className="runsheet-main-grid grid grid-cols-[4.35fr_0.78fr] print:grid-cols-[4.35fr_0.78fr_2.35fr] gap-5">
+            {/* Left: four columns - Products, Cold (wider), Hot, Shared (Desserts + Pre day prep) */}
+            <div className="runsheet-left-grid grid grid-cols-1 md:grid-cols-[1fr_1.28fr_1fr_1.08fr] print:grid-cols-[1fr_1.28fr_1fr_1.08fr] gap-4">
               {/* Products column */}
               <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
                 <div className="font-semibold mb-2 text-sky-700">Products</div>
@@ -515,29 +782,30 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
                 </div>
               </div>
 
-              {/* Desserts */}
-              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
-                <div className="font-semibold mb-2 text-sky-700">Desserts</div>
-                <div className="space-y-1 max-h-[60vh] overflow-auto pr-1">
-                  {Object.entries(tasksByCategory['Desserts'].items).map(([name, q]) => (
-                    <div key={name} className="grid grid-cols-[3ch_auto] gap-2 items-baseline text-sm">
-                      <div className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{(q as any).total}<sup className="ml-1 align-super text-[10px]">{(q as any).am}</sup></div>
-                      <div>{name}</div>
-                    </div>
-                  ))}
+              {/* Shared: Desserts + Pre day prep */}
+              <div className="runsheet-shared-prep-column space-y-3">
+                <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
+                  <div className="font-semibold mb-2 text-sky-700">Desserts</div>
+                  <div className="space-y-1 max-h-[28vh] overflow-auto pr-1">
+                    {Object.entries(tasksByCategory['Desserts'].items).map(([name, q]) => (
+                      <div key={name} className="grid grid-cols-[3ch_auto] gap-2 items-baseline text-sm">
+                        <div className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{(q as any).total}<sup className="ml-1 align-super text-[10px]">{(q as any).am}</sup></div>
+                        <div>{name}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Pre day prep */}
-              <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
-                <div className="font-semibold mb-2 text-sky-700">Pre day prep</div>
-                <div className="space-y-1 max-h-[60vh] overflow-auto pr-1">
-                  {Object.entries(tasksByCategory['Pre day prep'].items).map(([name, q]) => (
-                    <div key={name} className="grid grid-cols-[3ch_auto] gap-2 items-baseline text-sm">
-                      <div className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{(q as any).total}<sup className="ml-1 align-super text-[10px]">{(q as any).am}</sup></div>
-                      <div>{name}</div>
-                    </div>
-                  ))}
+                <div className="bg-sky-50 rounded-lg border border-sky-200 shadow-sm p-2">
+                  <div className="font-semibold mb-2 text-sky-700">Pre day prep</div>
+                  <div className="space-y-1 max-h-[28vh] overflow-auto pr-1">
+                    {Object.entries(tasksByCategory['Pre day prep'].items).map(([name, q]) => (
+                      <div key={name} className="grid grid-cols-[3ch_auto] gap-2 items-baseline text-sm">
+                        <div className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>{(q as any).total}<sup className="ml-1 align-super text-[10px]">{(q as any).am}</sup></div>
+                        <div>{name}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -570,6 +838,38 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Print-only compact order cells rail */}
+            <div className="runsheet-print-cells-rail hidden print:block bg-white border border-gray-200 rounded-lg p-2">
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-600 mb-2">
+                Dispatch Order Cells
+              </div>
+              <div className="print-order-cells-list">
+                {printOrderCells.map((cell) => (
+                  <div key={cell.id} className="print-order-cell">
+                    <div className="print-order-cell__head">
+                      <span className="print-order-cell__order">#{cell.orderNumber}</span>
+                      <span className="print-order-cell__time">{cell.deliveryTime}</span>
+                    </div>
+                    <div className="print-order-cell__line print-order-cell__name">{cell.customerName}</div>
+                    <div className="print-order-cell__line">{cell.address}</div>
+                    <div className="print-order-cell__line">{cell.phone}</div>
+                    {cell.products.slice(0, 5).map((line, idx) => (
+                      <div key={`${cell.id}-p-${idx}`} className="print-order-cell__product">{line}</div>
+                    ))}
+                    {cell.products.length > 5 ? (
+                      <div className="print-order-cell__line">+{cell.products.length - 5} more products</div>
+                    ) : null}
+                    {cell.addons.length > 0 ? (
+                      <div className="print-order-cell__addon">
+                        Add-ons: {cell.addons.slice(0, 3).join(', ')}
+                        {cell.addons.length > 3 ? ' ...' : ''}
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -624,12 +924,15 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
         @media print {
           @page {
             size: A4 landscape;
-            margin: 8mm;
+            margin: 3mm;
           }
           
           html, body {
             background: #ffffff !important;
+            width: auto !important;
             height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
           
           /* Hide everything first, then selectively show */
@@ -642,15 +945,66 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
             position: static !important;
             transform: none !important;
             inset: auto !important;
+            display: block !important;
             width: auto !important;
+            max-width: none !important;
             height: auto !important;
             max-height: none !important;
             box-shadow: none !important;
             background: transparent !important;
             border: 0 !important;
             padding: 0 !important;
-            margin: 0 auto !important;
+            margin: 0 !important;
             visibility: visible !important; /* make sure container is visible */
+          }
+
+          .runsheet-print-shell {
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            max-width: 100% !important;
+            min-height: auto !important;
+            border-radius: 0 !important;
+            padding: 1.5mm !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
+          }
+
+          .runsheet {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            padding: 1.5mm !important;
+            margin: 0 !important;
+          }
+
+          .runsheet-main-grid {
+            grid-template-columns: 4.55fr 0.82fr 2.65fr !important;
+            gap: 1.5mm !important;
+            align-items: start !important;
+          }
+
+          .runsheet-left-grid {
+            grid-template-columns: 1fr 1.24fr 1fr 1.08fr !important;
+            gap: 1.25mm !important;
+          }
+
+          .runsheet-shared-prep-column {
+            display: grid !important;
+            grid-template-rows: 1fr 1fr !important;
+            gap: 1.25mm !important;
+            min-height: 0 !important;
+          }
+
+          .runsheet-top-grid {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            margin-bottom: 1.5mm !important;
+          }
+
+          .runsheet-print-cells-rail {
+            padding: 1.25mm !important;
+            min-height: 0 !important;
           }
           
           /* Ensure overlay is hidden */
@@ -672,6 +1026,67 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
             max-height: none !important;
             overflow: visible !important;
             visibility: visible !important; /* show all children */
+          }
+
+          .print-order-cells-list {
+            height: auto !important;
+            max-height: none !important;
+            column-count: 2;
+            column-gap: 6px;
+            column-fill: auto;
+            overflow: visible !important;
+          }
+
+          .print-order-cell {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 6px;
+            margin-bottom: 6px;
+            background: #ffffff;
+          }
+
+          .print-order-cell__head {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 2px;
+          }
+
+          .print-order-cell__order {
+            font-size: 10px;
+            font-weight: 700;
+          }
+
+          .print-order-cell__time {
+            font-size: 10px;
+            font-weight: 700;
+          }
+
+          .print-order-cell__line {
+            font-size: 8px;
+            line-height: 1.18;
+            margin-bottom: 1px;
+            color: #1f2937;
+          }
+
+          .print-order-cell__name {
+            font-weight: 700;
+          }
+
+          .print-order-cell__product {
+            font-size: 8px;
+            line-height: 1.15;
+            color: #111827;
+            margin-top: 1px;
+          }
+
+          .print-order-cell__addon {
+            font-size: 7.5px;
+            line-height: 1.15;
+            margin-top: 2px;
+            color: #374151;
           }
           
           /* Colors */

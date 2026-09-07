@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { buildQuery } from '@/lib/use-accounting'
 import SalesProfitTrend from '@/components/accounting/SalesProfitTrend'
+import SalesByWeekday from '@/components/accounting/SalesByWeekday'
 import DeliveryProfitByZone from '@/components/accounting/DeliveryProfitByZone'
 import CustomerCohorts from '@/components/accounting/CustomerCohorts'
 import CogsDrivers from '@/components/accounting/CogsDrivers'
@@ -159,6 +160,11 @@ export default function AccountingPage() {
         <div className="col-span-12">
           <ErrorBoundary componentName="SalesProfitTrend">
             <SalesProfitTrend params={commonParams} />
+          </ErrorBoundary>
+        </div>
+        <div className="col-span-12">
+          <ErrorBoundary componentName="SalesByWeekday">
+            <SalesByWeekday params={commonParams} />
           </ErrorBoundary>
         </div>
         <div className="col-span-12 lg:col-span-6">

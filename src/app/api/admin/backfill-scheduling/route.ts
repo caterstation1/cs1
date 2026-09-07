@@ -8,13 +8,18 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize'
+import { requireRole } from '@/lib/authz'
 
 const BATCH_SIZE = 500
 
 export async function POST(request: Request) {
   try {
-    // TEMPORARY: Auth disabled for backfill - remove after completion
-    // TODO: Re-enable auth or delete this endpoint after backfill
+    // Admin-only: this endpoint mass-mutates order scheduling fields.
+    try {
+      await requireRole(['owner', 'admin'])
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     console.log('🔄 Backfill endpoint called')
     
     const { searchParams } = new URL(request.url)

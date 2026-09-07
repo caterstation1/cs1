@@ -22,6 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { DeliveryNotesButton } from './delivery-notes-modal'
 import { PaymentAlertBadge } from './payment-alert-badge'
 import { useDeliveryNotes } from '@/hooks/useDeliveryNotes'
+import { deliveryRunKey, ordinalLabel } from '@/lib/delivery-sequence'
 interface OrderCardListProps {
   orders: Order[]
   onUpdateOrder: (orderId: string, updates: Partial<Order>) => Promise<Order>
@@ -379,14 +380,35 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
   }, [onUpdateOrder, toast, orders]);
 
   // Memoize the filtered and sorted orders to prevent unnecessary re-renders
-  const { filteredOrders, sortedOrders } = useMemo(() => {
+  const { filteredOrders, sortedOrders, runInfoByOrderId } = useMemo(() => {
     // Use localOrders for immediate updates, fallback to orders
     const ordersToUse = localOrders.length > 0 ? localOrders : orders
     // Ensure orders is an array before filtering
     if (!Array.isArray(ordersToUse)) {
       console.warn('Orders is not an array:', ordersToUse);
-      return { filteredOrders: [], sortedOrders: [] };
+      return { filteredOrders: [], sortedOrders: [], runInfoByOrderId: {} as Record<string, { runKey: string; runSize: number; isDuplicateSequence: boolean }> };
     }
+
+    // Group orders into delivery runs (same driver + same dispatch/leave time).
+    // Computed over ALL orders for the day (not the filtered view) so dispatched stops still count.
+    const runGroups = new Map<string, Order[]>()
+    ordersToUse.forEach(o => {
+      if (o.cancelledAt) return
+      const key = deliveryRunKey(o)
+      if (!key) return
+      const group = runGroups.get(key)
+      if (group) group.push(o)
+      else runGroups.set(key, [o])
+    })
+    const runInfo: Record<string, { runKey: string; runSize: number; isDuplicateSequence: boolean }> = {}
+    runGroups.forEach((group, key) => {
+      group.forEach(o => {
+        const isDuplicateSequence =
+          o.deliverySequence != null &&
+          group.some(other => other.id !== o.id && other.deliverySequence === o.deliverySequence)
+        runInfo[o.id] = { runKey: key, runSize: group.length, isDuplicateSequence }
+      })
+    })
     
     // Filter orders based on fulfillment status and dispatch status
     const filtered = ordersToUse.filter(order => {
@@ -402,6 +424,14 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
 
     // Sort orders by dispatch time (earliest first)
     const sorted = [...filtered].sort((a, b) => {
+      // Orders on the same delivery run (same driver + leave time) sort by assigned stop order
+      const runA = runInfo[a.id]
+      const runB = runInfo[b.id]
+      if (runA && runB && runA.runKey === runB.runKey) {
+        const seqA = a.deliverySequence ?? Number.MAX_SAFE_INTEGER
+        const seqB = b.deliverySequence ?? Number.MAX_SAFE_INTEGER
+        if (seqA !== seqB) return seqA - seqB
+      }
       // Calculate dispatch time: delivery time - travel time
       const getDispatchTime = (order: Order) => {
         // Extract delivery time from order - use deliveryTime field first, then fallback to tags
@@ -469,7 +499,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    return { filteredOrders: filtered, sortedOrders: sorted };
+    return { filteredOrders: filtered, sortedOrders: sorted, runInfoByOrderId: runInfo };
   }, [localOrders, orders, filter, recentlyDispatchedOrders]);
 
   // Fetch all unique products for all orders
@@ -928,6 +958,11 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="font-semibold text-sm">{order.leaveTime || order.deliveryTime || '--:--'}</span>
+                          {(runInfoByOrderId[order.id]?.runSize ?? 0) > 1 && order.deliverySequence != null && (
+                            <span className="rounded-full bg-green-600 px-2 py-0.5 text-[11px] font-black text-white">
+                              {ordinalLabel(order.deliverySequence)}
+                            </span>
+                          )}
                           <span className="text-xs text-slate-500 truncate">#{order.orderNumber}</span>
                         </div>
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
@@ -1071,6 +1106,8 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
                   compactFonts={compactFonts}
                   deliveryNotes={deliveryNotesByOrderId[order.id]}
                   onDeliveryNotesChanged={updateDeliveryNotes}
+                  runSize={runInfoByOrderId[order.id]?.runSize ?? 1}
+                  isDuplicateSequence={runInfoByOrderId[order.id]?.isDuplicateSequence ?? false}
                 />
               </div>
             ))}

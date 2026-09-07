@@ -20,6 +20,7 @@ import { TextOrdersModal } from '@/components/TextOrdersModal'
 import { DeliveryNotesButton, type DeliveryNoteEntry } from './delivery-notes-modal'
 import { PaymentAlertBadge } from './payment-alert-badge'
 import { requestTrackingStatusSync } from '@/contexts/shift-location-tracking'
+import { ordinalLabel } from '@/lib/delivery-sequence'
 import { resolveBundleItems } from '@/lib/product-service'
 import {
   ContextMenu,
@@ -120,9 +121,13 @@ interface OrderCardProps {
   compactFonts?: boolean
   deliveryNotes?: DeliveryNoteEntry[]
   onDeliveryNotesChanged?: (orderId: string, notes: DeliveryNoteEntry[]) => void
+  /** Number of orders sharing this order's driver + dispatch time (same delivery run). >1 shows the stop-order dropdown */
+  runSize?: number
+  /** True when another order in the same run has the same deliverySequence assigned */
+  isDuplicateSequence?: boolean
 }
 
-export default function OrderCard({ order, onUpdate, products, refreshProducts, onBulkUpdateComplete, updateProductInState, isAudioEnabled = true, originAddressOverride, isTvMode = false, compactFonts = false, deliveryNotes, onDeliveryNotesChanged }: OrderCardProps) {
+export default function OrderCard({ order, onUpdate, products, refreshProducts, onBulkUpdateComplete, updateProductInState, isAudioEnabled = true, originAddressOverride, isTvMode = false, compactFonts = false, deliveryNotes, onDeliveryNotesChanged, runSize = 1, isDuplicateSequence = false }: OrderCardProps) {
   // Debug logging disabled in production for performance and clarity
   const parseTravelTime = (value: string | number | undefined | null): number => {
     const parsed = parseInt(String(value ?? ''), 10)
@@ -135,6 +140,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [travelTimeDraft, setTravelTimeDraft] = useState<string>(String(parseTravelTime(order.travelTime)))
   const [isTravelTimeEditing, setIsTravelTimeEditing] = useState(false)
   const [driverId, setDriverId] = useState<string>('')
+  const [deliverySequence, setDeliverySequence] = useState<number | null>(order.deliverySequence ?? null)
   const [drivers, setDrivers] = useState<Staff[]>([])
   const [carId, setCarId] = useState<string>('')
   const [cars, setCars] = useState<Array<{ id: string; name: string; rego?: string }>>([])
@@ -433,8 +439,9 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     }
     setLeaveTime(order.leaveTime || '')
     setDriverId(order.driverId || '')
+    setDeliverySequence(order.deliverySequence ?? null)
     setCarId(((order as any)?.carId as string) || '')
-  }, [order.travelTime, order.leaveTime, order.driverId, (order as any)?.carId, isTravelTimeEditing])
+  }, [order.travelTime, order.leaveTime, order.driverId, order.deliverySequence, (order as any)?.carId, isTravelTimeEditing])
   
   // Update leave time when delivery inputs change; prefer explicit/edited time over tags
   useEffect(() => {
@@ -1576,7 +1583,9 @@ ${itemsSummary}`
                 value={driverId}
                 onChange={(e) => {
                   setDriverId(e.target.value)
-                  handleUpdate({ driverId: e.target.value })
+                  // Changing driver moves the order to a different run, so any stop order is stale
+                  setDeliverySequence(null)
+                  handleUpdate({ driverId: e.target.value, deliverySequence: null })
                 }}
                 className={`w-full px-1 py-0.5 rounded bg-blue-200 border border-blue-300 ${
                   driverId ? 'text-transparent font-black' : 'text-black text-xs'
@@ -1598,6 +1607,41 @@ ${itemsSummary}`
               )}
             </div>
           </div>
+          {/* Stop order within a multi-delivery run (same driver + dispatch time) */}
+          {runSize > 1 && (
+            <div className={`${isTvMode ? 'w-32' : 'w-16 sm:w-20'}`}>
+              <select
+                value={deliverySequence ?? ''}
+                onChange={(e) => {
+                  const v = e.target.value === '' ? null : Number(e.target.value)
+                  setDeliverySequence(v)
+                  handleUpdate({ deliverySequence: v })
+                }}
+                className={`w-full px-1 py-0.5 rounded border font-bold text-center ${
+                  isDuplicateSequence
+                    ? 'bg-red-600 text-white border-red-700 animate-pulse'
+                    : deliverySequence != null
+                      ? 'bg-green-600 text-white border-green-700'
+                      : 'bg-green-100 text-green-900 border-green-500 animate-pulse text-xs'
+                }`}
+                title={
+                  isDuplicateSequence
+                    ? 'Duplicate stop number! Another order on this run has the same stop number.'
+                    : `Delivery stop order (${runSize} orders on this run)`
+                }
+              >
+                <option value="">Stop?</option>
+                {Array.from(
+                  { length: Math.max(runSize, deliverySequence ?? 0) },
+                  (_, i) => i + 1
+                ).map((n) => (
+                  <option key={n} value={n}>
+                    {ordinalLabel(n)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="flex-1 flex items-center min-w-0 mr-4">
             <div 
               className="truncate cursor-pointer hover:underline min-w-0" 

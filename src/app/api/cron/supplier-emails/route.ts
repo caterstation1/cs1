@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // Call the send-bakery-email endpoint internally
-async function sendBakeryEmailForSupplier(supplierId: string) {
+async function sendBakeryEmailForSupplier(supplierId: string, isFinalRun: boolean) {
   // Use VERCEL_URL in production, or construct from environment variables
   const baseUrl = process.env.VERCEL_URL 
     ? `https://${process.env.VERCEL_URL}`
     : (process.env.NEXT_PUBLIC_APP_URL || process.env.PRODUCTION_URL || 'https://caterstation1.vercel.app');
+  const runParam = isFinalRun ? '?run=final' : '';
   
-  console.log(`🔗 Calling send-bakery-email for supplier ${supplierId} via ${baseUrl}`);
+  console.log(`🔗 Calling send-bakery-email for supplier ${supplierId} via ${baseUrl}${runParam}`);
   
-  const response = await fetch(`${baseUrl}/api/suppliers/${supplierId}/send-bakery-email`, {
+  const response = await fetch(`${baseUrl}/api/suppliers/${supplierId}/send-bakery-email${runParam}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -58,23 +59,24 @@ export async function GET(request: NextRequest) {
     const [hours, minutes] = nzTime.split(':').map(Number);
     const currentMinutes = hours * 60 + minutes;
     
-    // Production times: 9:00 AM (540 minutes) or 3:15 PM (915 minutes)
+    // Production times: 9:00 AM (540 minutes) or 3:20 PM (920 minutes)
     const is9AM = currentMinutes >= 540 && currentMinutes < 545; // 5 minute window
-    const is315PM = currentMinutes >= 915 && currentMinutes < 920; // 5 minute window
+    const is320PM = currentMinutes >= 920 && currentMinutes < 925; // 5 minute window
     
     // Only allow production times
-    if (!is9AM && !is315PM) {
+    if (!is9AM && !is320PM) {
       console.log(`⏰ Supplier email cron called but not scheduled time. Current NZ time: ${nzTime} (${currentMinutes} minutes)`);
       return NextResponse.json({ 
         message: 'Not scheduled time for supplier emails',
         currentTime: nzTime,
         currentMinutes,
         is9AM,
-        is315PM
+        is320PM
       });
     }
     
-    console.log(`✅ Supplier email cron triggered at ${nzTime} (${currentMinutes} minutes) - ${is9AM ? '9:00 AM' : '3:15 PM'}`);
+    const isFinalRun = is320PM
+    console.log(`✅ Supplier email cron triggered at ${nzTime} (${currentMinutes} minutes) - ${is9AM ? '9:00 AM' : '3:20 PM FINAL'}`);
     
     // Get all suppliers with bakery emails enabled
     const allSuppliers = await prisma.supplier.findMany({
@@ -101,7 +103,7 @@ export async function GET(request: NextRequest) {
     for (const supplier of suppliers) {
       try {
         console.log(`📤 Sending bakery email to ${supplier.name} (${supplier.contactEmail})...`);
-        await sendBakeryEmailForSupplier(supplier.id);
+        await sendBakeryEmailForSupplier(supplier.id, isFinalRun);
         console.log(`✅ Successfully sent email to ${supplier.name}`);
         results.push({ supplier: supplier.name, status: 'success' });
       } catch (error) {
@@ -117,7 +119,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       time: nzTime,
-      trigger: is9AM ? '9:00 AM' : '3:15 PM',
+      trigger: is9AM ? '9:00 AM' : '3:20 PM FINAL',
       suppliersProcessed: results.length,
       results
     });

@@ -13,7 +13,7 @@
 import { prisma as defaultPrisma } from '../prisma'
 import { type CostingPrismaClient, loadOptionIndex } from '../costing/load'
 import { optionRowsForVariant } from '../costing/options'
-import { PackStructure, deriveUnitPricing } from './packsize'
+import { PackStructure, deriveUnitPricing, unitNamesPackFor } from './packsize'
 import { CanonicalUnit, fromLegacyOutputUnit, toCanonicalLoose } from './units'
 
 export type CatalogueSource = 'Gilmours' | 'Bidfood' | 'ProduceCo' | 'Other'
@@ -440,7 +440,14 @@ function gilmoursEntry(row: GilmoursRow, options: CostIndexOptions): CatalogueEn
   const problem = priceProblem(base.price, options)
   if (problem) return { ...base, reason: problem }
 
-  const derived = deriveUnitPricing({ packSize: row.packSize, uom: row.uom, price: base.price })
+  // Gilmours price per listed pack: '40 x 90g' at 'Price per Each $64.88' buys
+  // the box of forty, not one bagel.
+  const derived = deriveUnitPricing({
+    packSize: row.packSize,
+    uom: row.uom,
+    price: base.price,
+    unitNamesPack: unitNamesPackFor('Gilmours'),
+  })
   if (!derived) return { ...base, reason: 'pack-size-unparseable' }
   return {
     ...base,
@@ -529,7 +536,12 @@ function produceCoEntry(row: ProduceCoRow, options: CostIndexOptions): Catalogue
   if (problem) return { ...base, reason: problem }
 
   if (row.packSize || row.uom) {
-    const derived = deriveUnitPricing({ packSize: row.packSize, uom: row.uom, price: base.price })
+    const derived = deriveUnitPricing({
+      packSize: row.packSize,
+      uom: row.uom,
+      price: base.price,
+      unitNamesPack: unitNamesPackFor('ProduceCo'),
+    })
     if (derived) {
       return {
         ...base,

@@ -2,11 +2,12 @@
 
 import { PrismaClient } from '../src/generated/prisma/index.js';
 import dotenv from 'dotenv';
+import { scriptPrismaOptions } from './lib/script-prisma-url.cjs';
 
 // Load environment variables
 dotenv.config();
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient(scriptPrismaOptions());
 
 async function fixWellingtonOrders() {
   try {

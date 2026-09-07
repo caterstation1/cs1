@@ -25,6 +25,10 @@ export const env = createEnv({
     CLICKSEND_SENDER_ID: z.string().optional(),
     // Driver Portal tokens
     DD_JWT_SECRET: z.string().optional(),
+    // Xero OAuth (required for payroll integration)
+    XERO_CLIENT_ID: z.string().optional(),
+    XERO_CLIENT_SECRET: z.string().optional(),
+    XERO_REDIRECT_URI: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN: z.string(),
@@ -54,5 +58,9 @@ export const env = createEnv({
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
     NEXT_PUBLIC_CLOUDINARY_BASE_FOLDER: process.env.NEXT_PUBLIC_CLOUDINARY_BASE_FOLDER,
+    DD_JWT_SECRET: process.env.DD_JWT_SECRET,
+    XERO_CLIENT_ID: process.env.XERO_CLIENT_ID,
+    XERO_CLIENT_SECRET: process.env.XERO_CLIENT_SECRET,
+    XERO_REDIRECT_URI: process.env.XERO_REDIRECT_URI,
   },
 }); 

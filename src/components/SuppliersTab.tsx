@@ -39,6 +39,10 @@ interface Supplier {
   contactName: string | null
   contactNumber: string | null
   contactEmail: string | null
+  mpiNumber: string | null
+  accountNumber: string | null
+  loginAccessLevel?: string | null
+  hasPassword?: boolean
   emailSettings?: {
     bakery?: {
       enabled: boolean
@@ -56,6 +60,10 @@ const formSchema = z.object({
   contactName: z.string().optional().nullable(),
   contactNumber: z.string().optional().nullable(),
   contactEmail: z.string().email("Invalid email").optional().nullable(),
+  mpiNumber: z.string().optional().nullable(),
+  accountNumber: z.string().optional().nullable(),
+  loginAccessLevel: z.string().optional().nullable(),
+  newPassword: z.string().optional().nullable(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -77,6 +85,10 @@ export function SuppliersTab() {
       contactName: null,
       contactNumber: null,
       contactEmail: null,
+      mpiNumber: null,
+      accountNumber: null,
+      loginAccessLevel: 'bakery',
+      newPassword: null,
     },
   })
 
@@ -111,9 +123,13 @@ export function SuppliersTab() {
     try {
       setIsLoading(true)
       setError(null)
-      
-      const response = await fetch("/api/suppliers", {
-        method: "POST",
+
+      const isEdit = Boolean(values.id)
+      const endpoint = isEdit ? `/api/suppliers/${values.id}` : "/api/suppliers"
+      const method = isEdit ? "PATCH" : "POST"
+
+      const response = await fetch(endpoint, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -149,6 +165,10 @@ export function SuppliersTab() {
       contactName: supplier.contactName,
       contactNumber: supplier.contactNumber,
       contactEmail: supplier.contactEmail,
+      mpiNumber: supplier.mpiNumber,
+      accountNumber: supplier.accountNumber,
+      loginAccessLevel: supplier.loginAccessLevel || 'bakery',
+      newPassword: null,
     })
     setIsDialogOpen(true)
   }
@@ -162,6 +182,10 @@ export function SuppliersTab() {
       contactName: null,
       contactNumber: null,
       contactEmail: null,
+      mpiNumber: null,
+      accountNumber: null,
+      loginAccessLevel: 'bakery',
+      newPassword: null,
     })
     setIsDialogOpen(true)
   }
@@ -254,6 +278,90 @@ export function SuppliersTab() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="mpiNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>MPI #</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="MPI number"
+                          {...field}
+                          value={field.value || ""}
+                          onChange={(e) => field.onChange(e.target.value || null)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="accountNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Acc #</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Account number"
+                          {...field}
+                          value={field.value || ""}
+                          onChange={(e) => field.onChange(e.target.value || null)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="loginAccessLevel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assigned Role</FormLabel>
+                      <FormControl>
+                        <select
+                          className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                          value={field.value || 'bakery'}
+                          onChange={(e) => field.onChange(e.target.value)}
+                        >
+                          <option value="bakery">bakery</option>
+                          <option value="basic">basic</option>
+                          <option value="pricing_lab">pricing_lab</option>
+                          <option value="wlg_team">wlg_team</option>
+                          <option value="wlg_admin">wlg_admin</option>
+                          <option value="supplier">supplier</option>
+                          <option value="admin">admin</option>
+                          <option value="owner">owner</option>
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="newPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Create / Reset Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder={editingSupplier ? "Enter new password to reset" : "Create password"}
+                          {...field}
+                          value={field.value || ""}
+                          onChange={(e) => field.onChange(e.target.value || null)}
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        Leave blank to keep current password unchanged.
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <DialogFooter>
                   <Button type="submit" disabled={isLoading}>
                     {isLoading ? "Saving..." : "Save"}
@@ -286,7 +394,10 @@ export function SuppliersTab() {
                 <TableHead>Contact Name</TableHead>
                 <TableHead>Contact Number</TableHead>
                 <TableHead>Contact Email</TableHead>
+                <TableHead>MPI #</TableHead>
+                <TableHead>Acc #</TableHead>
                 <TableHead>Email Settings</TableHead>
+                <TableHead>Login Role</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -302,6 +413,8 @@ export function SuppliersTab() {
                     <TableCell>{supplier.contactName || "-"}</TableCell>
                     <TableCell>{supplier.contactNumber || "-"}</TableCell>
                     <TableCell>{supplier.contactEmail || "-"}</TableCell>
+                    <TableCell>{supplier.mpiNumber || "-"}</TableCell>
+                    <TableCell>{supplier.accountNumber || "-"}</TableCell>
                     <TableCell>
                       <div className="space-y-2">
                         <label className="flex items-center gap-2 text-sm">
@@ -364,6 +477,14 @@ export function SuppliersTab() {
                             {isSending ? 'Sending...' : 'Send Email'}
                           </Button>
                         )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <div>{supplier.loginAccessLevel || 'bakery'}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {supplier.contactEmail ? (supplier.hasPassword ? 'Password set' : 'No password') : 'No email'}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">

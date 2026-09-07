@@ -97,6 +97,19 @@ export function ShopifySyncProvider({ children }: { children: React.ReactNode })
       setLastSyncTime(new Date())
       setSyncStatus('Last sync: ' + new Date().toLocaleTimeString())
       console.log('✅ Shopify sync completed successfully:', result)
+      const needsReviewCount = Number(result?.result?.needsReviewCount || 0)
+      const needsReviewOrderNumbers = Array.isArray(result?.result?.needsReviewOrderNumbers)
+        ? result.result.needsReviewOrderNumbers
+        : []
+      if (needsReviewCount > 0 && typeof window !== 'undefined') {
+        const preview = needsReviewOrderNumbers.slice(0, 8).join(', ')
+        const suffix = needsReviewOrderNumbers.length > 8 ? ', ...' : ''
+        window.alert(
+          `Scheduling alert: ${needsReviewCount} new order(s) could not be confidently scheduled and need manual review.\n` +
+          `Order numbers: ${preview}${suffix}\n\n` +
+          `This is common for pickup orders or orders missing explicit date attributes.`
+        )
+      }
       try { localStorage.setItem('orders-sync-last', String(Date.now())) } catch {}
     } catch (err) {
       let errorMessage = err instanceof Error ? err.message : 'An unknown error occurred'

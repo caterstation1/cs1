@@ -1,39 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/generated/prisma';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { requireRole } from '@/lib/authz';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all tables and their row counts
+    // Admin-only: exposes full database schema and row counts.
+    try {
+      await requireRole(['owner', 'admin']);
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    // Single query using pg_stat_user_tables avoids N+1 COUNT(*) scans and
+    // reduces pressure on database connections.
     const tables = await prisma.$queryRaw`
       SELECT 
-        table_name,
-        (SELECT COUNT(*) FROM information_schema.tables t2 WHERE t2.table_name = t1.table_name) as row_count
-      FROM information_schema.tables t1
-      WHERE table_schema = 'public'
-      ORDER BY table_name;
+        t.table_name,
+        COALESCE(s.n_live_tup::bigint, 0) as row_count
+      FROM information_schema.tables t
+      LEFT JOIN pg_stat_user_tables s
+        ON s.relname = t.table_name
+      WHERE t.table_schema = 'public'
+      ORDER BY t.table_name;
     `;
-
-    // Get actual row counts for each table
-    const tableNames = (tables as any[]).map(t => t.table_name);
-    const rowCounts: { [key: string]: number } = {};
-
-    for (const tableName of tableNames) {
-      try {
-        const result = await prisma.$queryRawUnsafe(`SELECT COUNT(*) as count FROM "${tableName}"`);
-        rowCounts[tableName] = Number((result as any[])[0]?.count || 0);
-      } catch (error) {
-        rowCounts[tableName] = 0;
-      }
-    }
-
-    const tablesWithCounts = (tables as any[]).map(table => ({
-      table_name: table.table_name,
-      row_count: rowCounts[table.table_name] || 0
-    }));
-
-    return NextResponse.json(tablesWithCounts);
+    return NextResponse.json(tables);
   } catch (error) {
     console.error('Error fetching tables:', error);
     return NextResponse.json(

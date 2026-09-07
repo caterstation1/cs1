@@ -7,6 +7,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { getAuthSecret } from './auth-secret'
 
 // Create a transporter using Gmail SMTP
 const transporter = nodemailer.createTransport({
@@ -17,8 +18,9 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-// Auth secret - use NEXTAUTH_SECRET consistently (fallback to JWT_SECRET for backward compat)
-const AUTH_SECRET = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-secret-key'
+// Auth secret - resolved via a single helper that fails closed in production
+// (no hardcoded fallback). Supports NEXTAUTH_SECRET, then JWT_SECRET.
+const AUTH_SECRET = getAuthSecret()
 
 // NextAuth configuration
 export const authOptions: NextAuthOptions = {
@@ -34,40 +36,84 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const staff = await prisma.staff.findUnique({
-          where: { email: credentials.email as string }
+        // Shared bakery login sourced from env (no credentials in source).
+        // If either var is unset, the bakery shortcut is disabled (fail closed).
+        const BAKERY_LOGIN = (process.env.BAKERY_LOGIN_EMAIL || '').trim().toLowerCase()
+        const BAKERY_PASSWORD = process.env.BAKERY_LOGIN_PASSWORD || ''
+        if (
+          BAKERY_LOGIN &&
+          BAKERY_PASSWORD &&
+          (credentials.email || '').trim().toLowerCase() === BAKERY_LOGIN &&
+          credentials.password === BAKERY_PASSWORD
+        ) {
+          return {
+            id: 'bakery-hardcoded',
+            email: BAKERY_LOGIN,
+            name: 'Bakery',
+            accessLevel: 'bakery'
+          }
+        }
+
+        const loginEmail = (credentials.email || '').trim().toLowerCase()
+        const staff = await prisma.staff.findFirst({
+          where: {
+            email: {
+              equals: loginEmail,
+              mode: 'insensitive',
+            },
+          },
         })
 
-        if (!staff || !staff.password) {
-          return null
+        if (staff?.password) {
+          let isValid = false
+          try {
+            isValid = await comparePasswords(credentials.password as string, staff.password)
+          } catch {}
+          // Backward-compat: allow plaintext match if DB stored un-hashed password
+          if (!isValid && credentials.password === staff.password) {
+            isValid = true
+            console.warn('⚠️ Plaintext password match used for staff:', staff.email)
+          }
+
+          if (isValid) {
+            // Update last login
+            await prisma.staff.update({
+              where: { id: staff.id },
+              data: { lastLogin: new Date() }
+            })
+
+            return {
+              id: staff.id,
+              email: staff.email,
+              name: `${staff.firstName} ${staff.lastName}`,
+              accessLevel: staff.accessLevel
+            }
+          }
         }
 
-        let isValid = false
-        try {
-          isValid = await comparePasswords(credentials.password as string, staff.password)
-        } catch {}
-        // Backward-compat: allow plaintext match if DB stored un-hashed password
-        if (!isValid && credentials.password === staff.password) {
-          isValid = true
-          console.warn('⚠️ Plaintext password match used for staff:', staff.email)
-        }
-
-        if (!isValid) {
-          return null
-        }
-
-        // Update last login
-        await prisma.staff.update({
-          where: { id: staff.id },
-          data: { lastLogin: new Date() }
+        const supplier = await prisma.supplier.findFirst({
+          where: {
+            contactEmail: {
+              equals: loginEmail,
+              mode: 'insensitive',
+            },
+          },
         })
-
-        return {
-          id: staff.id,
-          email: staff.email,
-          name: `${staff.firstName} ${staff.lastName}`,
-          accessLevel: staff.accessLevel
+        if (supplier?.password) {
+          let supplierValid = false
+          try {
+            supplierValid = await comparePasswords(credentials.password as string, supplier.password)
+          } catch {}
+          if (supplierValid) {
+            return {
+              id: `supplier-${supplier.id}`,
+              email: supplier.contactEmail || loginEmail,
+              name: supplier.name,
+              accessLevel: supplier.loginAccessLevel || 'bakery'
+            }
+          }
         }
+        return null
       }
     })
   ],
@@ -203,7 +249,7 @@ export async function sendLoginInvitation(staffId: string): Promise<{ success: b
           <p>Hi ${staff.firstName}</p>
           <p>Please see the link below to generate a new password.</p>
           <p><a href="${resetLink}" style="color: #2563eb; text-decoration: underline;">Create your password</a></p>
-          <p>Please also fill out this link <a href="https://b8lphoy2f40.typeform.com/to/TTJw3LGb" style="color: #2563eb; text-decoration: underline;">https://b8lphoy2f40.typeform.com/to/TTJw3LGb</a> so we can load you into our payroll system.</p>
+          <p>Please also fill out this link <a href="https://docs.google.com/forms/d/e/1FAIpQLSf1TNfx_S8jR_1ONW0hOQ-lMmr0RZoQyRE_GrSiOXN4MzKpuQ/viewform?usp=header" style="color: #2563eb; text-decoration: underline;">https://docs.google.com/forms/d/e/1FAIpQLSf1TNfx_S8jR_1ONW0hOQ-lMmr0RZoQyRE_GrSiOXN4MzKpuQ/viewform?usp=header</a> so we can load you into our payroll system.</p>
           <p>Attached you will find a brief CS introduction manual - please take a minute to read through.</p>
           <p>Thanks again.</p>
         </div>

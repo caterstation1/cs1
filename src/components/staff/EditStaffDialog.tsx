@@ -46,6 +46,7 @@ type FormData = z.infer<typeof formSchema>
 
 interface Staff extends FormData {
   id: string
+  xeroEmployeeId?: string | null
 }
 
 interface EditStaffDialogProps {
@@ -59,6 +60,7 @@ interface EditStaffDialogProps {
 export function EditStaffDialog({ open, onOpenChange, staff, onSuccess, allowedRoleOptions }: EditStaffDialogProps) {
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [creatingXero, setCreatingXero] = useState(false)
 
   const roleOptions = (allowedRoleOptions && allowedRoleOptions.length > 0)
     ? allowedRoleOptions
@@ -99,6 +101,25 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess, allowedR
       toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to update staff member', variant: 'destructive' })
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const createInXero = async () => {
+    setCreatingXero(true)
+    try {
+      const response = await fetch(`/api/staff/${staff.id}/create-xero`, {
+        method: 'POST',
+      })
+      const data = await response.json().catch(() => ({} as any))
+      if (!response.ok) {
+        throw new Error(data.error || data.details || 'Failed to create staff in Xero')
+      }
+      toast({ title: 'Success', description: 'Staff member created in Xero and linked' })
+      onSuccess()
+    } catch (error) {
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to create staff in Xero', variant: 'destructive' })
+    } finally {
+      setCreatingXero(false)
     }
   }
 
@@ -242,9 +263,16 @@ export function EditStaffDialog({ open, onOpenChange, staff, onSuccess, allowedR
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Updating...' : 'Update Staff Member'}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Updating...' : 'Update Staff Member'}
+              </Button>
+              {!staff.xeroEmployeeId && (
+                <Button type="button" variant="outline" onClick={createInXero} disabled={creatingXero}>
+                  {creatingXero ? 'Creating...' : 'Create in Xero'}
+                </Button>
+              )}
+            </div>
           </form>
         </Form>
       </DialogContent>

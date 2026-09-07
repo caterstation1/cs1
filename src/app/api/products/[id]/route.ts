@@ -48,7 +48,12 @@ export async function PATCH(
 
     // Filter allowed fields for ShopifyProduct update
     const allowedFields = [
-      'displayName', 'baseIngredients', 'isPartyPackDefault', 'bundleDefaultItems', 'bakery'
+      'displayName',
+      'baseIngredients',
+      'isPartyPackDefault',
+      'bundleDefaultItems',
+      'bakery',
+      'dietaryMarker',
     ];
 
     const filteredData = Object.keys(data).reduce((acc, key) => {

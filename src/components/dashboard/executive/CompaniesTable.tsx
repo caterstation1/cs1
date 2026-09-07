@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { formatValue } from '@/lib/format'
+import { AsyncSection } from './primitives/AsyncSection'
+import { DataTable } from './primitives/DataTable'
 
 function toDate(value?: string | null): string {
   if (!value) return '-'
@@ -16,7 +18,7 @@ export function CompaniesTable({ baseQuery }: { baseQuery: string }) {
   const [page, setPage] = useState(1)
   const [sortBy, setSortBy] = useState('lifetimeRevenue')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
-  const [state, setState] = useState<any>({ rows: [], pagination: null, loading: false })
+  const [state, setState] = useState<any>({ rows: [], pagination: null, loading: true, error: null })
 
   const query = useMemo(() => {
     const params = new URLSearchParams(baseQuery)
@@ -30,108 +32,147 @@ export function CompaniesTable({ baseQuery }: { baseQuery: string }) {
 
   useEffect(() => {
     let cancelled = false
-    setState((prev: any) => ({ ...prev, loading: true }))
+    setState((prev: any) => ({ ...prev, loading: true, error: null }))
     fetch(`/api/dashboard/companies?${query}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled) setState({ ...data, loading: false })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load companies')
+        return res.json()
       })
-      .catch(() => {
-        if (!cancelled) setState({ rows: [], pagination: null, loading: false })
+      .then((data) => {
+        if (!cancelled) setState({ ...data, loading: false, error: null })
+      })
+      .catch((error: any) => {
+        if (!cancelled)
+          setState({ rows: [], pagination: null, loading: false, error: error?.message || 'Failed to load companies' })
       })
     return () => {
       cancelled = true
     }
   }, [query])
 
-  const toggleSort = (key: string) => {
-    if (sortBy === key) setSortDir(sortDir === 'asc' ? 'desc' : 'asc')
-    else {
-      setSortBy(key)
-      setSortDir('desc')
-    }
+  // All rows (server ignores pagination for CSV), respecting current filters/search/sort
+  const csvHref = useMemo(() => {
+    const params = new URLSearchParams(baseQuery)
+    params.set('sortBy', sortBy)
+    params.set('sortDir', sortDir)
+    if (search.trim()) params.set('search', search.trim())
+    params.set('format', 'csv')
+    return `/api/dashboard/companies?${params.toString()}`
+  }, [baseQuery, sortBy, sortDir, search])
+
+  const onSortChange = (key: string, dir: 'asc' | 'desc') => {
+    setSortBy(key)
+    setSortDir(dir)
+    setPage(1)
   }
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-3">
-        <CardTitle>Companies</CardTitle>
+      <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between gap-3 space-y-0">
+        <CardTitle className="text-sm font-semibold">Companies</CardTitle>
         <div className="flex gap-2">
-          <Input placeholder="Search companies..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Button asChild variant="outline">
-            <a href={`/api/dashboard/companies?${new URLSearchParams(`${baseQuery}&format=csv`).toString()}`}>Export CSV</a>
+          <Input
+            placeholder="Search companies..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+            className="h-8 w-56"
+          />
+          <Button asChild variant="outline" size="sm">
+            <a href={csvHref}>Download CSV (all)</a>
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {state.loading ? <p className="text-sm text-muted-foreground">Loading...</p> : null}
-        {!state.loading && (!state.rows || state.rows.length === 0) ? (
-          <p className="text-sm text-muted-foreground">Not enough data yet</p>
-        ) : null}
-        {state.rows?.length ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead onClick={() => toggleSort('companyName')} className="cursor-pointer">Company</TableHead>
-                <TableHead onClick={() => toggleSort('lifetimeRevenue')} className="cursor-pointer">Lifetime revenue</TableHead>
-                <TableHead onClick={() => toggleSort('lifetimeOrders')} className="cursor-pointer">Orders</TableHead>
-                <TableHead>AOV</TableHead>
-                <TableHead>First order</TableHead>
-                <TableHead>Last order</TableHead>
-                <TableHead>Days since</TableHead>
-                <TableHead>Contacts</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Confidence</TableHead>
-                <TableHead>Domain</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Quality flag</TableHead>
-                <TableHead>Match methods</TableHead>
-                <TableHead>Unique addresses</TableHead>
-                <TableHead>Is generic domain</TableHead>
-                <TableHead>Last reviewed</TableHead>
-                <TableHead>Recommended action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {state.rows.map((row: any) => (
-                <TableRow key={row.companyId}>
-                  <TableCell>
-                    <a href={`/admin/companies/${row.companyId}`} className="underline underline-offset-2">
-                      {row.companyName}
-                    </a>
-                  </TableCell>
-                  <TableCell>{row.lifetimeRevenue}</TableCell>
-                  <TableCell>{row.lifetimeOrders}</TableCell>
-                  <TableCell>{row.averageOrderValue}</TableCell>
-                  <TableCell>{toDate(row.firstOrderDate)}</TableCell>
-                  <TableCell>{toDate(row.lastOrderDate)}</TableCell>
-                  <TableCell>{row.daysSinceLastOrder ?? '-'}</TableCell>
-                  <TableCell>{row.contacts}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                  <TableCell>{row.matchConfidence}</TableCell>
-                  <TableCell>{row.primaryDomain || '-'}</TableCell>
-                  <TableCell>{row.primaryAddress || '-'}</TableCell>
-                  <TableCell>{row.qualityFlag || '-'}</TableCell>
-                  <TableCell>{row.matchMethodBreakdown || '-'}</TableCell>
-                  <TableCell>{row.uniqueAddresses ?? '-'}</TableCell>
-                  <TableCell>{row.isGenericDomain ? 'Yes' : 'No'}</TableCell>
-                  <TableCell>{toDate(row.lastManuallyReviewedDate)}</TableCell>
-                  <TableCell>{row.recommendedAction}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : null}
+      <CardContent className="p-4 pt-2 space-y-3">
+        <AsyncSection
+          loading={state.loading}
+          error={state.error}
+          isEmpty={!state.rows || state.rows.length === 0}
+          emptyMessage="No companies match the current filters."
+          skeletonHeight={360}
+        >
+          <DataTable
+            columns={[
+              {
+                key: 'companyName',
+                label: 'Company',
+                render: (row: any) => (
+                  <a href={`/admin/companies/${row.companyId}`} className="underline underline-offset-2">
+                    {row.companyName}
+                  </a>
+                ),
+              },
+              { key: 'lifetimeRevenue', label: 'Lifetime revenue', format: 'currency' },
+              { key: 'lifetimeOrders', label: 'Orders', format: 'count' },
+              { key: 'averageOrderValue', label: 'AOV', format: 'currency' },
+              { key: 'firstOrderDate', label: 'First order', render: (row: any) => toDate(row.firstOrderDate) },
+              { key: 'lastOrderDate', label: 'Last order', render: (row: any) => toDate(row.lastOrderDate) },
+              { key: 'daysSinceLastOrder', label: 'Days since', format: 'count' },
+              { key: 'status', label: 'Status' },
+              { key: 'recommendedAction', label: 'Recommended action', sortable: false },
+              // Diagnostic columns — hidden by default, available via the Columns picker
+              { key: 'contacts', label: 'Contacts', format: 'count', defaultHidden: true },
+              { key: 'matchConfidence', label: 'Confidence', format: 'count', defaultHidden: true },
+              { key: 'primaryDomain', label: 'Domain', defaultHidden: true },
+              { key: 'primaryAddress', label: 'Address', defaultHidden: true },
+              { key: 'qualityFlag', label: 'Quality flag', defaultHidden: true },
+              { key: 'matchMethodBreakdown', label: 'Match methods', defaultHidden: true, sortable: false },
+              { key: 'uniqueAddresses', label: 'Unique addresses', format: 'count', defaultHidden: true },
+              {
+                key: 'isGenericDomain',
+                label: 'Is generic domain',
+                defaultHidden: true,
+                render: (row: any) => (row.isGenericDomain ? 'Yes' : 'No'),
+              },
+              {
+                key: 'lastManuallyReviewedDate',
+                label: 'Last reviewed',
+                defaultHidden: true,
+                render: (row: any) => toDate(row.lastManuallyReviewedDate),
+              },
+            ]}
+            rows={state.rows || []}
+            rowKey={(row: any) => row.companyId}
+            sortBy={sortBy}
+            sortDir={sortDir}
+            onSortChange={onSortChange}
+            columnPicker
+            renderDetail={(row: any) => (
+              <dl className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-2 py-1 text-xs">
+                {[
+                  ['Contacts', formatValue(row.contacts, 'count')],
+                  ['Match confidence', formatValue(row.matchConfidence, 'count')],
+                  ['Domain', row.primaryDomain || '-'],
+                  ['Address', row.primaryAddress || '-'],
+                  ['Quality flag', row.qualityFlag || '-'],
+                  ['Match methods', row.matchMethodBreakdown || '-'],
+                  ['Unique addresses', formatValue(row.uniqueAddresses, 'count')],
+                  ['Is generic domain', row.isGenericDomain ? 'Yes' : 'No'],
+                  ['Last reviewed', toDate(row.lastManuallyReviewedDate)],
+                ].map(([label, value]) => (
+                  <div key={String(label)}>
+                    <dt className="text-muted-foreground">{label}</dt>
+                    <dd className="font-medium">{value as string}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          />
+        </AsyncSection>
         {state.pagination ? (
           <div className="flex justify-end items-center gap-2">
-            <Button variant="outline" disabled={state.pagination.page <= 1} onClick={() => setPage((p) => p - 1)}>
+            <Button variant="outline" size="sm" disabled={state.pagination.page <= 1} onClick={() => setPage((p) => p - 1)}>
               Prev
             </Button>
             <span className="text-xs text-muted-foreground">
-              Page {state.pagination.page} / {state.pagination.totalPages}
+              Page {state.pagination.page} / {state.pagination.totalPages} · {formatValue(state.pagination.total, 'count')}{' '}
+              companies
             </span>
             <Button
               variant="outline"
+              size="sm"
               disabled={state.pagination.page >= state.pagination.totalPages}
               onClick={() => setPage((p) => p + 1)}
             >

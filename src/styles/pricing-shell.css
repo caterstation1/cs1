@@ -1,6 +1,11 @@
-/* Palette and layout lifted from the approved prototype
-   (docs: recipe-builder.html). Scoped to .rb so it cannot leak into the rest
-   of the app, which runs on the standard Tailwind theme. */
+/* Shared shell for the pricing surfaces — Recipe Builder and Pricing Lab.
+   Palette and layout lifted from the approved prototype (docs:
+   recipe-builder.html). Scoped to .rb so it cannot leak into the rest of the
+   app, which runs on the standard Tailwind theme.
+
+   Both pages render under `<div className="rb">` and use these classes
+   verbatim; that is what keeps them from drifting apart. Page-specific rules
+   live beside the page (see src/app/pricing-lab/pricing-lab.css). */
 
 .rb {
   --bg: #f4f6f2; --panel: #ffffff; --panel2: #ecefe8; --line: #dce1d6; --line-soft: #e7eae1;

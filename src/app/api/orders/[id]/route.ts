@@ -1,7 +1,31 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@/generated/prisma';
 import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver';
 import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { requireRole } from '@/lib/authz';
+import { buildOrderChangeEntries, writeOrderChangeLog } from '@/lib/order-change-log';
+
+// Callers (edit modals, calendar views) often PATCH back the entire order object,
+// which can carry computed fields (isFirstOrder), relations (orderChangeLogs), or
+// read-only columns. Prisma rejects unknown arguments with a 500, so only allow
+// real, writable Order columns through.
+const ORDER_UPDATABLE_FIELDS = new Set<string>(Object.values(Prisma.OrderScalarFieldEnum));
+for (const readOnlyField of ['id', 'dbCreatedAt', 'dbUpdatedAt']) {
+  ORDER_UPDATABLE_FIELDS.delete(readOnlyField);
+}
+
+function pickUpdatableOrderFields(rawBody: unknown): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+  if (rawBody && typeof rawBody === 'object') {
+    for (const [key, value] of Object.entries(rawBody)) {
+      if (ORDER_UPDATABLE_FIELDS.has(key)) sanitized[key] = value;
+    }
+  }
+  return sanitized;
+}
 
 export async function GET(
   request: Request,
@@ -17,7 +41,13 @@ export async function GET(
     console.log(`🔍 Fetching order ${id} from PostgreSQL...`);
     
     const order = await prisma.order.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        orderChangeLogs: {
+          orderBy: { changedAt: 'desc' },
+          take: 200,
+        },
+      },
     });
     
     if (!order) {
@@ -38,9 +68,10 @@ export async function GET(
   }
 }
 
-export async function PUT(
+async function updateOrderWithAudit(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  params: Promise<{ id: string }>,
+  action: 'ORDER_UPDATED_PUT' | 'ORDER_UPDATED_PATCH'
 ) {
   try {
     // Best-effort ensure carId column exists
@@ -48,12 +79,17 @@ export async function PUT(
       await prisma.$executeRawUnsafe('ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "carId" TEXT');
     } catch {}
     const { id } = await params;
-    const body = await request.json();
+    const rawBody = await request.json();
+    const body = pickUpdatableOrderFields(rawBody);
     
     console.log(`🔄 Updating order ${id} in PostgreSQL...`);
     
     // Compute resolved delivery day from updated fields
     const existing = await prisma.order.findUnique({ where: { id } })
+    if (!existing) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
     const candidate = {
       deliveryDate: body.deliveryDate ?? existing?.deliveryDate,
       noteAttributes: body.noteAttributes ?? existing?.noteAttributes,
@@ -71,20 +107,69 @@ export async function PUT(
     }
     const scheduling = canonicalizeOrderScheduling(updatedOrderData as any)
 
+    // Maintain the fresh-dispatch timestamp used by delivery-run tracking
+    // eligibility. Only touch it when the payload explicitly changes dispatch
+    // state: stamp on false -> true transitions, clear when un-dispatched.
+    let dispatchedAtUpdate: { dispatchedAt: Date | null } | undefined
+    if (Object.prototype.hasOwnProperty.call(body ?? {}, 'isDispatched')) {
+      if (body.isDispatched === true && existing.isDispatched !== true) {
+        dispatchedAtUpdate = { dispatchedAt: new Date() }
+      } else if (body.isDispatched === false) {
+        dispatchedAtUpdate = { dispatchedAt: null }
+      }
+    }
+
+    const updateData = {
+      ...body,
+      ...dispatchedAtUpdate,
+      hasLocalEdits: true,
+      deliveryDateResolved: resolved.date,
+      deliveryDateResolvedSource: resolved.source,
+      deliveryDateResolvedAt: new Date(),
+      // Update canonical scheduling fields
+      region: scheduling.region,
+      deliveryDateTime: scheduling.deliveryDateTime,
+      deliveryDateSource: scheduling.deliveryDateSource,
+      needsSchedulingReview: scheduling.needsSchedulingReview,
+    };
+
     const order = await prisma.order.update({
       where: { id },
-      data: {
-        ...body,
-        hasLocalEdits: true,
-        deliveryDateResolved: resolved.date,
-        deliveryDateResolvedSource: resolved.source,
-        deliveryDateResolvedAt: new Date(),
-        // Update canonical scheduling fields
-        region: scheduling.region,
-        deliveryDateTime: scheduling.deliveryDateTime,
-        deliveryDateSource: scheduling.deliveryDateSource,
-        needsSchedulingReview: scheduling.needsSchedulingReview,
-      }
+      data: updateData
+    });
+
+    const session = await getServerSession(authOptions).catch(() => null);
+    const actor = session?.user
+      ? {
+          id: session.user.id,
+          name: session.user.name ?? null,
+          email: session.user.email ?? null,
+        }
+      : undefined;
+
+    const candidateKeys = [
+      ...Object.keys(body || {}),
+      ...(dispatchedAtUpdate ? ['dispatchedAt'] : []),
+      'hasLocalEdits',
+      'deliveryDateResolved',
+      'deliveryDateResolvedSource',
+      'deliveryDateResolvedAt',
+      'region',
+      'deliveryDateTime',
+      'deliveryDateSource',
+      'needsSchedulingReview',
+    ];
+    const changes = buildOrderChangeEntries(
+      existing as unknown as Record<string, unknown>,
+      order as unknown as Record<string, unknown>,
+      candidateKeys
+    );
+    await writeOrderChangeLog({
+      orderId: id,
+      action,
+      changes,
+      actor,
+      source: new URL(request.url).pathname,
     });
     
     console.log(`✅ Updated order: ${order.orderNumber}`);
@@ -98,63 +183,18 @@ export async function PUT(
   }
 }
 
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return updateOrderWithAudit(request, params, 'ORDER_UPDATED_PUT');
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    // Best-effort ensure carId column exists
-    try {
-      await prisma.$executeRawUnsafe('ALTER TABLE \"Order\" ADD COLUMN IF NOT EXISTS \"carId\" TEXT');
-    } catch {}
-    const { id } = await params;
-    const body = await request.json();
-    
-    console.log(`🔄 Patching order ${id} in PostgreSQL...`);
-    
-    const existing = await prisma.order.findUnique({ where: { id } })
-    const candidate = {
-      deliveryDate: body.deliveryDate ?? existing?.deliveryDate,
-      noteAttributes: body.noteAttributes ?? existing?.noteAttributes,
-      tags: body.tags ?? existing?.tags,
-      createdAt: existing?.createdAt,
-    }
-    const resolved = resolveDeliveryDateResolved(candidate)
-    
-    // Recalculate canonical scheduling fields
-    const updatedOrderData = {
-      ...existing,
-      ...body,
-      shippingAddress: body.shippingAddress ?? existing?.shippingAddress,
-      noteAttributes: body.noteAttributes ?? existing?.noteAttributes,
-    }
-    const scheduling = canonicalizeOrderScheduling(updatedOrderData as any)
-
-    const order = await prisma.order.update({
-      where: { id },
-      data: {
-        ...body,
-        hasLocalEdits: true,
-        deliveryDateResolved: resolved.date,
-        deliveryDateResolvedSource: resolved.source,
-        deliveryDateResolvedAt: new Date(),
-        // Update canonical scheduling fields
-        region: scheduling.region,
-        deliveryDateTime: scheduling.deliveryDateTime,
-        deliveryDateSource: scheduling.deliveryDateSource,
-        needsSchedulingReview: scheduling.needsSchedulingReview,
-      }
-    });
-    
-    console.log(`✅ Patched order: ${order.orderNumber}`);
-    return NextResponse.json(order);
-  } catch (error) {
-    console.error('❌ Error patching order:', error);
-    return NextResponse.json(
-      { error: 'Failed to update order' },
-      { status: 500 }
-    );
-  }
+  return updateOrderWithAudit(request, params, 'ORDER_UPDATED_PATCH');
 }
 
 export async function DELETE(
@@ -162,6 +202,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Deleting an order is destructive — restrict to elevated roles rather than
+    // any logged-in staffer (the `basic` role can reach /api/orders via middleware).
+    try {
+      await requireRole(['owner', 'admin', 'manager']);
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const { id } = await params;
     
     console.log(`🗑️ Deleting order ${id} from PostgreSQL...`);

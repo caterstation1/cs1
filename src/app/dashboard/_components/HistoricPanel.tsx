@@ -218,18 +218,18 @@ export default function HistoricPanel() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-slate-800 text-slate-100 border border-slate-700">
+      <Card className="dashboard-card">
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div className="flex gap-2">
-              <button className={`px-3 py-1.5 rounded ${metric==='salesEx'?'bg-amber-600 text-white':'bg-slate-700 text-slate-200'}`} onClick={()=>setMetric('salesEx')}>Sales Ex GST</button>
-              <button className={`px-3 py-1.5 rounded ${metric==='gpPct'?'bg-amber-600 text-white':'bg-slate-700 text-slate-200'}`} onClick={()=>setMetric('gpPct')}>GP %</button>
-              <button className={`px-3 py-1.5 rounded ${metric==='gpStaffPct'?'bg-amber-600 text-white':'bg-slate-700 text-slate-200'}`} onClick={()=>setMetric('gpStaffPct')}>GP % (with staffing)</button>
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="flex flex-wrap gap-2">
+              <button className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${metric==='salesEx'?'border-slate-500/45 bg-slate-600/40 font-medium text-slate-50':'border-slate-600/25 bg-slate-800/35 text-slate-400 hover:border-slate-500/35 hover:bg-slate-800/55 hover:text-slate-200'}`} onClick={()=>setMetric('salesEx')}>Sales Ex GST</button>
+              <button className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${metric==='gpPct'?'border-slate-500/45 bg-slate-600/40 font-medium text-slate-50':'border-slate-600/25 bg-slate-800/35 text-slate-400 hover:border-slate-500/35 hover:bg-slate-800/55 hover:text-slate-200'}`} onClick={()=>setMetric('gpPct')}>GP %</button>
+              <button className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${metric==='gpStaffPct'?'border-slate-500/45 bg-slate-600/40 font-medium text-slate-50':'border-slate-600/25 bg-slate-800/35 text-slate-400 hover:border-slate-500/35 hover:bg-slate-800/55 hover:text-slate-200'}`} onClick={()=>setMetric('gpStaffPct')}>GP % (with staffing)</button>
             </div>
             <div className="flex items-center gap-2">
-              <input type="date" value={start} onChange={e=>setStart(e.target.value)} className="bg-slate-700 text-slate-100 rounded px-2 py-1" />
-              <span className="text-slate-300">to</span>
-              <input type="date" value={end} onChange={e=>setEnd(e.target.value)} className="bg-slate-700 text-slate-100 rounded px-2 py-1" />
+              <input type="date" value={start} onChange={e=>setStart(e.target.value)} className="rounded-md border border-slate-600/30 bg-slate-950/35 px-2 py-1 text-sm text-slate-200" />
+              <span className="text-slate-400">to</span>
+              <input type="date" value={end} onChange={e=>setEnd(e.target.value)} className="rounded-md border border-slate-600/30 bg-slate-950/35 px-2 py-1 text-sm text-slate-200" />
             </div>
           </div>
           <div className="mt-4 w-full h-80">
@@ -240,7 +240,7 @@ export default function HistoricPanel() {
                 <YAxis stroke="#cbd5e1" tickFormatter={(v)=> isPct ? `${v}%` : `$${Number(v).toFixed(0)}`} />
                 <Tooltip formatter={(v:any)=> isPct ? `${v}%` : formatCurrency(Number(v))} />
                 <Legend />
-                <Line type="monotone" dataKey={metricKey} stroke="#f59e0b" dot={false} strokeWidth={2} />
+                <Line type="monotone" dataKey={metricKey} stroke="#94a3b8" dot={false} strokeWidth={2} />
                 <Brush dataKey="date" height={20} stroke="#94a3b8" travellerWidth={8} />
               </LineChart>
             </ResponsiveContainer>
@@ -263,7 +263,20 @@ export default function HistoricPanel() {
       <Card>
         <CardContent className="p-4">
           <div className="text-sm font-semibold mb-2">Last 7 days</div>
-          <div className="grid grid-cols-13 text-xs text-slate-500 border-b pb-1">
+          <div className="space-y-2 sm:hidden">
+            {last7.map(d => (
+              <button key={`m7-${d.date}`} onClick={()=>openDayCost(d.date)} className="w-full rounded-md border border-slate-600/25 bg-slate-950/25 p-3 text-left text-sm transition-colors hover:border-slate-500/30">
+                <div className="mb-1 text-xs text-blue-300 underline">{d.date}</div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-slate-300">
+                  <div>Sales Ex: <span className="font-semibold text-slate-100">{formatCurrency(d.salesExGst)}</span></div>
+                  <div>COGS: <span className="font-semibold text-slate-100">{formatCurrency(d.costOfSales)}</span></div>
+                  <div>GP %: <span className="font-semibold text-slate-100">{formatPct(d.gpPct)}</span></div>
+                  <div>GP w/Staff %: <span className="font-semibold text-slate-100">{formatPct(d.gpWithStaffPct)}</span></div>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="hidden grid-cols-13 border-b pb-1 text-xs text-slate-500 sm:grid">
             <div className="col-span-2">Date</div>
             <div className="col-span-2 text-right">Sales Ex</div>
             <div className="col-span-2 text-right">COGS</div>
@@ -274,7 +287,7 @@ export default function HistoricPanel() {
             <div className="col-span-1 text-right">GP % w/Staff</div>
           </div>
           {last7.map(d => (
-            <div key={d.date} className="grid grid-cols-13 text-sm py-1 border-b">
+            <div key={d.date} className="hidden grid-cols-13 border-b py-1 text-sm sm:grid">
               <button className="col-span-2 text-left text-blue-400 underline hover:text-blue-300" onClick={()=>openDayCost(d.date)}>{d.date}</button>
               <div className="col-span-2 text-right">{formatCurrency(d.salesExGst)}</div>
               <div className="col-span-2 text-right">{formatCurrency(d.costOfSales)}</div>
@@ -285,7 +298,7 @@ export default function HistoricPanel() {
               <div className="col-span-1 text-right">{formatPct(d.gpWithStaffPct)}</div>
             </div>
           ))}
-          <div className="grid grid-cols-13 text-sm py-1 border-t mt-2 font-semibold">
+          <div className="hidden grid-cols-13 border-t py-1 mt-2 text-sm font-semibold sm:grid">
             <div className="col-span-2">AVERAGE</div>
             <div className="col-span-2 text-right">{formatCurrency(avg(last7, 'salesExGst'))}</div>
             <div className="col-span-2 text-right">{formatCurrency(avg(last7, 'costOfSales'))}</div>
@@ -302,7 +315,20 @@ export default function HistoricPanel() {
       <Card>
         <CardContent className="p-4">
           <div className="text-sm font-semibold mb-2">Last 28 days</div>
-          <div className="grid grid-cols-13 text-xs text-slate-500 border-b pb-1">
+          <div className="space-y-2 sm:hidden">
+            {last28.map(d => (
+              <button key={`m28-${d.date}`} onClick={()=>openDayCost(d.date)} className="w-full rounded-md border border-slate-600/25 bg-slate-950/25 p-3 text-left text-sm transition-colors hover:border-slate-500/30">
+                <div className="mb-1 text-xs text-blue-300 underline">{d.date}</div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-slate-300">
+                  <div>Sales Ex: <span className="font-semibold text-slate-100">{formatCurrency(d.salesExGst)}</span></div>
+                  <div>COGS: <span className="font-semibold text-slate-100">{formatCurrency(d.costOfSales)}</span></div>
+                  <div>GP %: <span className="font-semibold text-slate-100">{formatPct(d.gpPct)}</span></div>
+                  <div>GP w/Staff %: <span className="font-semibold text-slate-100">{formatPct(d.gpWithStaffPct)}</span></div>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="hidden grid-cols-13 border-b pb-1 text-xs text-slate-500 sm:grid">
             <div className="col-span-2">Date</div>
             <div className="col-span-2 text-right">Sales Ex</div>
             <div className="col-span-2 text-right">COGS</div>
@@ -313,7 +339,7 @@ export default function HistoricPanel() {
             <div className="col-span-1 text-right">GP % w/Staff</div>
           </div>
           {last28.map(d => (
-            <div key={d.date} className="grid grid-cols-13 text-sm py-1 border-b">
+            <div key={d.date} className="hidden grid-cols-13 border-b py-1 text-sm sm:grid">
               <button className="col-span-2 text-left text-blue-400 underline hover:text-blue-300" onClick={()=>openDayCost(d.date)}>{d.date}</button>
               <div className="col-span-2 text-right">{formatCurrency(d.salesExGst)}</div>
               <div className="col-span-2 text-right">{formatCurrency(d.costOfSales)}</div>
@@ -324,7 +350,7 @@ export default function HistoricPanel() {
               <div className="col-span-1 text-right">{formatPct(d.gpWithStaffPct)}</div>
             </div>
           ))}
-          <div className="grid grid-cols-13 text-sm py-1 border-t mt-2 font-semibold">
+          <div className="hidden grid-cols-13 border-t py-1 mt-2 text-sm font-semibold sm:grid">
             <div className="col-span-2">AVERAGE</div>
             <div className="col-span-2 text-right">{formatCurrency(avg(last28, 'salesExGst'))}</div>
             <div className="col-span-2 text-right">{formatCurrency(avg(last28, 'costOfSales'))}</div>
@@ -341,7 +367,20 @@ export default function HistoricPanel() {
       <Card>
         <CardContent className="p-4">
           <div className="text-sm font-semibold mb-2">Year to Date (monthly)</div>
-          <div className="grid grid-cols-13 text-xs text-slate-500 border-b pb-1">
+          <div className="space-y-2 sm:hidden">
+            {ytdMonthly.map((m) => (
+              <div key={`mytd-${m.month}`} className="w-full rounded-md border border-slate-600/25 bg-slate-950/25 p-3 text-left text-sm">
+                <div className="mb-1 text-xs text-slate-300">{m.month}</div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-slate-300">
+                  <div>Sales Ex: <span className="font-semibold text-slate-100">{formatCurrency(m.salesEx)}</span></div>
+                  <div>COGS: <span className="font-semibold text-slate-100">{formatCurrency(m.cogs)}</span></div>
+                  <div>GP %: <span className="font-semibold text-slate-100">{formatPct(m.gpPct)}</span></div>
+                  <div>GP w/Staff %: <span className="font-semibold text-slate-100">{formatPct(m.gpStaffPct)}</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden grid-cols-13 border-b pb-1 text-xs text-slate-500 sm:grid">
             <div className="col-span-2">Month</div>
             <div className="col-span-2 text-right">Sales Ex</div>
             <div className="col-span-2 text-right">COGS</div>
@@ -352,7 +391,7 @@ export default function HistoricPanel() {
             <div className="col-span-1 text-right">GP % w/Staff</div>
           </div>
           {ytdMonthly.map((m) => (
-            <div key={m.month} className="grid grid-cols-13 text-sm py-1 border-b">
+            <div key={m.month} className="hidden grid-cols-13 border-b py-1 text-sm sm:grid">
               <div className="col-span-2">{m.month}</div>
               <div className="col-span-2 text-right">{formatCurrency(m.salesEx)}</div>
               <div className="col-span-2 text-right">{formatCurrency(m.cogs)}</div>
@@ -364,7 +403,7 @@ export default function HistoricPanel() {
             </div>
           ))}
           {ytdMonthly.length > 0 && (
-            <div className="grid grid-cols-13 text-sm py-1 border-t mt-2 font-semibold">
+            <div className="hidden grid-cols-13 border-t py-1 mt-2 text-sm font-semibold sm:grid">
               <div className="col-span-2">AVERAGE</div>
               <div className="col-span-2 text-right">{formatCurrency(ytdMonthly.reduce((s,r)=>s+r.salesEx,0)/ytdMonthly.length)}</div>
               <div className="col-span-2 text-right">{formatCurrency(ytdMonthly.reduce((s,r)=>s+r.cogs,0)/ytdMonthly.length)}</div>
@@ -441,7 +480,7 @@ export default function HistoricPanel() {
                   <div className="text-xs font-semibold text-slate-300 mb-1">Base Ingredients</div>
                   <div className="border rounded-md max-h-56 overflow-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-slate-800 sticky top-0">
+                      <thead className="sticky top-0 bg-slate-800/55">
                         <tr>
                           <th className="text-left p-2">Name</th>
                           <th className="text-right p-2">Qty</th>
@@ -474,7 +513,7 @@ export default function HistoricPanel() {
                   <div className="text-xs font-semibold text-slate-300 mb-1">Variant Ingredients</div>
                   <div className="border rounded-md max-h-56 overflow-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-slate-800 sticky top-0">
+                      <thead className="sticky top-0 bg-slate-800/55">
                         <tr>
                           <th className="text-left p-2">Name</th>
                           <th className="text-right p-2">Qty</th>
@@ -505,8 +544,8 @@ export default function HistoricPanel() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button className="px-3 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600" onClick={()=>setIsAddBaseOpen(true)}>Add Base Ingredient</button>
-                <button className="px-3 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600" onClick={()=>setIsAddVariantOpen(true)}>Add Variant Ingredient</button>
+                <button className="dashboard-btn-quiet px-3 py-1" onClick={()=>setIsAddBaseOpen(true)}>Add Base Ingredient</button>
+                <button className="dashboard-btn-quiet px-3 py-1" onClick={()=>setIsAddVariantOpen(true)}>Add Variant Ingredient</button>
               </div>
             </div>
           )}
@@ -519,8 +558,8 @@ export default function HistoricPanel() {
           <DialogHeader><DialogTitle>Add Base Ingredient</DialogTitle></DialogHeader>
           <IngredientSelector onIngredientsChange={setPendingBaseIngredients} />
           <div className="flex justify-end gap-2 mt-4">
-            <button className="px-3 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600" onClick={()=>setIsAddBaseOpen(false)}>Cancel</button>
-            <button className="px-3 py-1 text-xs rounded bg-amber-600 hover:bg-amber-500 text-white" onClick={addToBase}>Save</button>
+            <button className="dashboard-btn-quiet px-3 py-1" onClick={()=>setIsAddBaseOpen(false)}>Cancel</button>
+            <button className="rounded-md border border-sky-700/40 bg-sky-950/45 px-3 py-1 text-xs text-sky-100 hover:bg-sky-900/50" onClick={addToBase}>Save</button>
           </div>
         </DialogContent>
       </Dialog>
@@ -531,8 +570,8 @@ export default function HistoricPanel() {
           <DialogHeader><DialogTitle>Add Variant Ingredient</DialogTitle></DialogHeader>
           <IngredientSelector onIngredientsChange={setPendingVariantIngredients} />
           <div className="flex justify-end gap-2 mt-4">
-            <button className="px-3 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600" onClick={()=>setIsAddVariantOpen(false)}>Cancel</button>
-            <button className="px-3 py-1 text-xs rounded bg-amber-600 hover:bg-amber-500 text-white" onClick={addToVariant}>Save</button>
+            <button className="dashboard-btn-quiet px-3 py-1" onClick={()=>setIsAddVariantOpen(false)}>Cancel</button>
+            <button className="rounded-md border border-emerald-800/35 bg-emerald-950/40 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-900/45" onClick={addToVariant}>Save</button>
           </div>
         </DialogContent>
       </Dialog>

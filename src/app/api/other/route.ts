@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+function normalizePreferredAllergens(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return Array.from(
+    new Set(
+      value
+        .map((item) => (typeof item === 'string' ? item.trim().toLowerCase() : ''))
+        .filter(Boolean)
+    )
+  )
+}
+
 export async function GET() {
   try {
     const products = await prisma.otherProduct.findMany({
@@ -29,15 +40,38 @@ export async function POST(request: Request) {
       )
     }
     
-    const product = await prisma.otherProduct.create({
-      data: {
-        name: body.name,
-        supplier: body.supplier,
-        description: body.description,
-        cost: parseFloat(body.cost) || 0,
-        prepCategory: body.prepCategory ?? null
-      }
-    })
+    const dietaryData = {
+      listOnLabel: Boolean(body.listOnLabel),
+      isVegetarian: Boolean(body.isVegetarian),
+      isVegan: Boolean(body.isVegan),
+      isHalal: Boolean(body.isHalal),
+    }
+    const preferredAllergens = normalizePreferredAllergens(body.preferredAllergens)
+
+    const product = body.id
+      ? await prisma.otherProduct.update({
+          where: { id: String(body.id) },
+          data: {
+            name: body.name,
+            supplier: body.supplier,
+            description: body.description,
+            cost: parseFloat(body.cost) || 0,
+            prepCategory: body.prepCategory ?? null,
+            preferredAllergens,
+            ...dietaryData,
+          },
+        })
+      : await prisma.otherProduct.create({
+          data: {
+            name: body.name,
+            supplier: body.supplier,
+            description: body.description,
+            cost: parseFloat(body.cost) || 0,
+            prepCategory: body.prepCategory ?? null,
+            preferredAllergens,
+            ...dietaryData,
+          },
+        })
     
     console.log(`✅ Created other product: ${product.name}`)
     return NextResponse.json(product, { status: 201 })

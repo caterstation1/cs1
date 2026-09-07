@@ -7,9 +7,10 @@
 // src/lib/pricing and returned by /api/pricing/*. That is the whole point of
 // the rebuild, so resist adding arithmetic here.
 
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { LineOrigin, LineTarget, isEditableOrigin, notEditableReason } from '@/lib/recipe-builder/lines'
-import './recipe-builder.css'
+import { CatalogList, Kpi, money, pct } from '@/components/pricing-ui'
+import '@/styles/pricing-shell.css'
 
 type OwnerType = 'product' | 'component'
 
@@ -112,9 +113,6 @@ interface IngredientDetail {
   links: SupplierLink[]
 }
 
-const money = (v: number | null | undefined) => (v == null ? '—' : `$${v.toFixed(2)}`)
-const pct = (v: number | null | undefined) => (v == null ? '—' : `${(v * 100).toFixed(1)}%`)
-
 /** Where a fix must be applied: the entity whose ingredient array holds the
  *  line. For nested rows that is the enclosing component, not the selection. */
 interface FixOwner { type: OwnerType; id: string }
@@ -134,7 +132,7 @@ const rowKey = (node: TreeNode) => `${node.origin}:${node.position}`
 const hasIssueDeep = (n: TreeNode): boolean => Boolean(n.reason) || (n.children ?? []).some(hasIssueDeep)
 
 /** Row heights the catalogue window measures with. They must match the heights
- *  .rb-catItem is given in recipe-builder.css: a product row carries a SKU line
+ *  .rb-catItem is given in pricing-shell.css: a product row carries a SKU line
  *  under its name, a component row is a single line. */
 const PRODUCT_ROW_H = 50
 const COMPONENT_ROW_H = 36
@@ -729,77 +727,6 @@ export default function RecipeBuilderPage() {
   )
 }
 
-/**
- * The catalogue panel, scrolling the whole list but mounting only the rows near
- * the viewport. 1,339 variants is far more DOM than the panel needs, and the
- * list is rebuilt on every keystroke and after every save, so mounting all of
- * it would be paid for repeatedly. Rows are a fixed height, which is what lets
- * the offsets be arithmetic rather than measurement.
- */
-function CatalogList<T>({
-  items,
-  rowHeight,
-  resetKey,
-  keyOf,
-  renderRow,
-  empty,
-}: {
-  items: T[]
-  rowHeight: number
-  /** Scroll returns to the top when this changes — a new search or a new tab. */
-  resetKey: string
-  keyOf: (item: T) => string
-  renderRow: (item: T) => ReactNode
-  empty: string
-}) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [scrollTop, setScrollTop] = useState(0)
-  const [viewport, setViewport] = useState(0)
-
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-    const measure = () => setViewport(el.clientHeight)
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
-  // Without this a search that shortens the list leaves you parked past its
-  // end, looking at nothing.
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = 0
-    setScrollTop(0)
-  }, [resetKey])
-
-  const overscan = 6
-  const height = viewport || 600
-  const start = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan)
-  const end = Math.min(items.length, Math.ceil((scrollTop + height) / rowHeight) + overscan)
-  const visible = items.slice(start, end)
-
-  return (
-    <div className="rb-catList" ref={scrollRef} onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}>
-      {items.length ? (
-        <div className="rb-catSizer" style={{ height: items.length * rowHeight }}>
-          {visible.map((item, i) => (
-            <div
-              key={keyOf(item)}
-              className="rb-catRow"
-              style={{ top: (start + i) * rowHeight, height: rowHeight }}
-            >
-              {renderRow(item)}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="rb-more">{empty}</div>
-      )}
-    </div>
-  )
-}
-
 interface SearchHit {
   source: string
   id: string
@@ -1019,17 +946,6 @@ function FixDialog({
             </div>
           </>
         )}
-      </div>
-    </div>
-  )
-}
-
-function Kpi({ label, value, small }: { label: string; value: string; small?: string }) {
-  return (
-    <div className="rb-kpi">
-      <div className="l">{label}</div>
-      <div className="v num">
-        {value} {small && <small>{small}</small>}
       </div>
     </div>
   )

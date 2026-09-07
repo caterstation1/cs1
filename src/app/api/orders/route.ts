@@ -100,10 +100,10 @@ export async function GET(request: Request) {
     const date = searchParams.get('date')
     const deliveryDateResolved = searchParams.get('deliveryDateResolved') // YYYY-MM-DD
     const search = searchParams.get('search')
-    const limit = parseInt(searchParams.get('limit') || '100')
+    const requestedLimit = parseInt(searchParams.get('limit') || '100')
     const offset = parseInt(searchParams.get('offset') || '0')
     
-    console.log('📦 Fetching orders from PostgreSQL...', { search, limit, offset })
+    console.log('📦 Fetching orders from PostgreSQL...', { search, limit: requestedLimit, offset })
     
     // Build where clause
     let whereClause: any = {}
@@ -144,9 +144,15 @@ export async function GET(request: Request) {
       ]
     }
     
+    const hasFilters = Object.keys(whereClause).length > 0
+    const limit = hasFilters ? requestedLimit : Math.min(requestedLimit, 1000)
+    if (!hasFilters && requestedLimit > limit) {
+      console.warn(`⚠️ /api/orders unfiltered request limit ${requestedLimit} capped to ${limit}`)
+    }
+
     const orders = await withRetry(async () => {
       return await prisma.order.findMany({
-        where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
+        where: hasFilters ? whereClause : undefined,
         orderBy: {
           createdAt: 'desc'
         },
@@ -158,7 +164,7 @@ export async function GET(request: Request) {
     // Get total count for pagination
     const totalCount = await withRetry(async () => {
       return await prisma.order.count({
-        where: Object.keys(whereClause).length > 0 ? whereClause : undefined
+        where: hasFilters ? whereClause : undefined
       })
     })
     

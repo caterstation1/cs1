@@ -135,7 +135,10 @@ export function MessageCard({ message, onStatusChange, onReply, onOrderHover, on
             <tbody>
               {stockOrder.items.map((i: any) => (
                 <tr key={i.id} className="border-t">
-                  <td className="p-2">{i.nameSnapshot}</td>
+                  <td className="p-2">
+                    <div>{i.nameSnapshot}</div>
+                    {i.descriptionSnapshot && <div className="text-[10px] text-gray-500">{i.descriptionSnapshot}</div>}
+                  </td>
                   <td className="p-2 text-right">${parseFloat(i.unitPriceExGst).toFixed(2)}</td>
                   <td className="p-2 text-center">{i.qty}</td>
                   <td className="p-2 text-right">${parseFloat(i.lineTotalExGst).toFixed(2)}</td>

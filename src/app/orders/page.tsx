@@ -18,7 +18,21 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { ProductEditModal, Product } from '@/components/ProductEditModal';
-import { TextOrdersModal } from '@/components/TextOrdersModal'
+
+interface OrderChangeLog {
+  id: string;
+  action: string;
+  changedAt: string;
+  changedByUserId: string | null;
+  changedByName: string | null;
+  changedByEmail: string | null;
+  source: string | null;
+  changes: Array<{
+    field: string;
+    before: unknown;
+    after: unknown;
+  }>;
+}
 
 // Define the Order type based on our Prisma model
 interface Order {
@@ -68,6 +82,7 @@ interface Order {
   deliveryDateResolvedAt?: string | null;
   driverId?: string | null;
   isDispatched?: boolean;
+  orderChangeLogs?: OrderChangeLog[];
 }
 
 export default function OrdersPage() {
@@ -75,10 +90,24 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<{ synced: number; skipped: number; errors: number } | null>(null);
+  const [syncResult, setSyncResult] = useState<{
+    synced: number;
+    skipped: number;
+    errors: number;
+    needsReviewCount?: number;
+    needsReviewOrderNumbers?: number[];
+  } | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderData, setShowOrderData] = useState(false);
+  const [isLoadingOrderDetails, setIsLoadingOrderDetails] = useState(false);
+  const [orderDetailsError, setOrderDetailsError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [pricingDraft, setPricingDraft] = useState({
+    totalPrice: '',
+    subtotalPrice: '',
+    totalTax: '',
+  });
+  const [isSavingPricing, setIsSavingPricing] = useState(false);
   
   // Search and pagination state
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,7 +126,6 @@ export default function OrdersPage() {
     productTitle: '',
     variantTitle: ''
   });
-  const [isTextModalOpen, setIsTextModalOpen] = useState(false)
 
   const fetchOrders = async (search?: string, offset = 0) => {
     try {
@@ -141,6 +169,19 @@ export default function OrdersPage() {
       
       const data = await response.json();
       setSyncResult(data.result);
+      const needsReviewCount = Number(data?.result?.needsReviewCount || 0);
+      const needsReviewOrderNumbers = Array.isArray(data?.result?.needsReviewOrderNumbers)
+        ? data.result.needsReviewOrderNumbers
+        : [];
+      if (needsReviewCount > 0) {
+        const preview = needsReviewOrderNumbers.slice(0, 8).join(', ');
+        const suffix = needsReviewOrderNumbers.length > 8 ? ', ...' : '';
+        window.alert(
+          `Scheduling alert: ${needsReviewCount} new order(s) need manual date review.\n` +
+          `Order numbers: ${preview}${suffix}\n\n` +
+          `This commonly happens when pickup/date metadata is missing.`
+        );
+      }
       
       // Refresh orders after sync
       await fetchOrders();
@@ -192,9 +233,43 @@ export default function OrdersPage() {
     // You could add a toast notification here
   };
 
+  const loadOrderDetails = async (orderId: string) => {
+    const response = await fetch(`/api/orders/${orderId}`, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error('Failed to load order details');
+    }
+    const detail = await response.json();
+    return detail as Order;
+  };
+
+  const handleOpenAllData = async (order: Order) => {
+    setSelectedOrder(order);
+    setOrderDetailsError(null);
+    setShowOrderData(true);
+    setIsLoadingOrderDetails(true);
+    try {
+      const detail = await loadOrderDetails(order.id);
+      setSelectedOrder(detail);
+    } catch (err) {
+      console.error('Error loading order details:', err);
+      setOrderDetailsError('Could not load full order history. Showing available order data.');
+    } finally {
+      setIsLoadingOrderDetails(false);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    if (!showOrderData || !selectedOrder) return;
+    setPricingDraft({
+      totalPrice: Number(selectedOrder.totalPrice || 0).toFixed(2),
+      subtotalPrice: Number(selectedOrder.subtotalPrice || 0).toFixed(2),
+      totalTax: Number(selectedOrder.totalTax || 0).toFixed(2),
+    });
+  }, [showOrderData, selectedOrder]);
 
   // Handle search
   const handleSearch = async () => {
@@ -237,6 +312,72 @@ export default function OrdersPage() {
     }
   };
 
+  const handleToggleCancelled = async (order: Order) => {
+    const isCancelled = !!order.cancelledAt
+    const nextAction = isCancelled ? 'uncancel' : 'cancel'
+    const ok = window.confirm(`Are you sure you want to ${nextAction} order #${order.orderNumber}?`)
+    if (!ok) return
+    await handleOrderUpdate(order.id, {
+      cancelledAt: isCancelled ? null : new Date().toISOString(),
+      isDispatched: isCancelled ? order.isDispatched : false,
+    } as Partial<Order>)
+  }
+
+  const parseMoneyDraft = (value: string): number => {
+    const normalized = String(value ?? '').replace(/[^0-9.-]/g, '').trim();
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const formatLogValue = (value: unknown): string => {
+    if (value === null || value === undefined || value === '') return '(empty)';
+    if (typeof value === 'object') {
+      try {
+        return JSON.stringify(value);
+      } catch {
+        return '[object]';
+      }
+    }
+    return String(value);
+  };
+
+  const getLogActor = (log: OrderChangeLog): string => {
+    return log.changedByName || log.changedByEmail || log.changedByUserId || 'System';
+  };
+
+  const handleSavePricingFromAllData = async () => {
+    if (!selectedOrder) return;
+    setIsSavingPricing(true);
+    try {
+      const updates = {
+        totalPrice: parseMoneyDraft(pricingDraft.totalPrice),
+        subtotalPrice: parseMoneyDraft(pricingDraft.subtotalPrice),
+        totalTax: parseMoneyDraft(pricingDraft.totalTax),
+      };
+      const response = await fetch(`/api/orders/${selectedOrder.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update pricing');
+      }
+      const updatedOrder = await response.json();
+      setOrders((prev) => prev.map((order) => (order.id === selectedOrder.id ? { ...order, ...updatedOrder } : order)));
+      setSelectedOrder((prev) => (prev ? { ...prev, ...updatedOrder } : prev));
+      setPricingDraft({
+        totalPrice: Number(updatedOrder.totalPrice || 0).toFixed(2),
+        subtotalPrice: Number(updatedOrder.subtotalPrice || 0).toFixed(2),
+        totalTax: Number(updatedOrder.totalTax || 0).toFixed(2),
+      });
+    } catch (err) {
+      console.error('Error updating pricing:', err);
+      setError('Failed to update pricing. Please try again.');
+    } finally {
+      setIsSavingPricing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto py-8">
@@ -264,12 +405,6 @@ export default function OrdersPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">All Orders</h1>
         <div className="flex gap-2">
-          <button
-            onClick={() => setIsTextModalOpen(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Text all
-          </button>
           <button
             onClick={syncOrders}
             disabled={syncing}
@@ -346,7 +481,7 @@ export default function OrdersPage() {
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.id} className="border-t border-gray-200 hover:bg-gray-50">
+                <tr key={order.id} className={`border-t border-gray-200 hover:bg-gray-50 ${order.cancelledAt ? 'opacity-70' : ''}`}>
                   <td className="py-3 px-4">{order.orderNumber}</td>
                   <td className="py-3 px-4">
                     {format(new Date(order.createdAt), 'MMM d, yyyy h:mm a')}
@@ -382,18 +517,34 @@ export default function OrdersPage() {
                     {order.currency} {order.totalPrice.toFixed(2)}
                   </td>
                   <td className="py-3 px-4">
-                    <span className={`inline-block px-2 py-1 text-xs rounded ${
-                      order.fulfillmentStatus === 'fulfilled' 
-                        ? 'bg-green-100 text-green-800' 
-                        : order.fulfillmentStatus === 'partial' 
-                          ? 'bg-yellow-100 text-yellow-800' 
-                          : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {order.fulfillmentStatus || 'Unfulfilled'}
-                    </span>
+                    {order.cancelledAt ? (
+                      <span className="inline-block px-2 py-1 text-xs rounded bg-red-100 text-red-800">
+                        Cancelled
+                      </span>
+                    ) : (
+                      <span className={`inline-block px-2 py-1 text-xs rounded ${
+                        order.fulfillmentStatus === 'fulfilled' 
+                          ? 'bg-green-100 text-green-800' 
+                          : order.fulfillmentStatus === 'partial' 
+                            ? 'bg-yellow-100 text-yellow-800' 
+                            : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {order.fulfillmentStatus || 'Unfulfilled'}
+                      </span>
+                    )}
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex gap-2">
+                      <button
+                        onClick={() => handleToggleCancelled(order)}
+                        className={`text-sm px-3 py-1 rounded ${
+                          order.cancelledAt
+                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                            : 'bg-red-100 text-red-700 hover:bg-red-200'
+                        }`}
+                      >
+                        {order.cancelledAt ? 'Uncancel' : 'Cancel'}
+                      </button>
                       <button
                         onClick={() => {
                           setSelectedOrder(order);
@@ -405,8 +556,7 @@ export default function OrdersPage() {
                       </button>
                       <button
                         onClick={() => {
-                          setSelectedOrder(order);
-                          setShowOrderData(true);
+                          void handleOpenAllData(order);
                         }}
                         className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200"
                       >
@@ -549,7 +699,16 @@ export default function OrdersPage() {
             <button
               onClick={() => {
                 if (selectedOrder) {
-                  handleOrderUpdate(selectedOrder.id, selectedOrder);
+                  // Only send the fields this modal edits; PATCHing the whole
+                  // order object pushes computed/relation fields to the API.
+                  handleOrderUpdate(selectedOrder.id, {
+                    deliveryDate: selectedOrder.deliveryDate,
+                    deliveryTime: selectedOrder.deliveryTime,
+                    leaveTime: selectedOrder.leaveTime,
+                    travelTime: selectedOrder.travelTime,
+                    note: selectedOrder.note,
+                    internalNote: selectedOrder.internalNote,
+                  });
                 }
               }}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -571,6 +730,17 @@ export default function OrdersPage() {
           
           {selectedOrder && (
             <div className="mt-4 space-y-6">
+              {orderDetailsError ? (
+                <div className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  {orderDetailsError}
+                </div>
+              ) : null}
+              {isLoadingOrderDetails ? (
+                <div className="rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800">
+                  Loading latest order history...
+                </div>
+              ) : null}
+
               {/* Quick Reference Section */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 className="font-semibold text-blue-800 mb-2">📋 Quick Reference</h3>
@@ -640,11 +810,44 @@ export default function OrdersPage() {
                         <span className="text-xs text-gray-500">{key}</span>
                       </div>
                       <p className="text-xs text-gray-500 mb-2">{description}</p>
-                      <div className="text-sm font-mono bg-gray-50 p-2 rounded">
-                        ${selectedOrder[key as keyof typeof selectedOrder]?.toString() || '0.00'}
-                      </div>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={pricingDraft[key as keyof typeof pricingDraft] ?? ''}
+                        onChange={(e) =>
+                          setPricingDraft((prev) => ({
+                            ...prev,
+                            [key]: e.target.value,
+                          }))
+                        }
+                        className="w-full text-sm font-mono bg-gray-50 p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
                     </div>
                   ))}
+                </div>
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPricingDraft({
+                        totalPrice: Number(selectedOrder.totalPrice || 0).toFixed(2),
+                        subtotalPrice: Number(selectedOrder.subtotalPrice || 0).toFixed(2),
+                        totalTax: Number(selectedOrder.totalTax || 0).toFixed(2),
+                      })
+                    }
+                    className="px-3 py-2 text-sm text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+                    disabled={isSavingPricing}
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSavePricingFromAllData}
+                    className="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                    disabled={isSavingPricing}
+                  >
+                    {isSavingPricing ? 'Saving...' : 'Save Pricing'}
+                  </button>
                 </div>
               </div>
 
@@ -835,6 +1038,50 @@ export default function OrdersPage() {
                 </div>
               </div>
 
+              {/* Edit/Input History */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🧾 Edit & Input History</h3>
+                {!selectedOrder.orderChangeLogs || selectedOrder.orderChangeLogs.length === 0 ? (
+                  <div className="border rounded-lg p-3 text-sm text-gray-500">
+                    No logged order edits yet.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {selectedOrder.orderChangeLogs.map((log) => (
+                      <div key={log.id} className="border rounded-lg p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="text-sm font-medium text-gray-800">{getLogActor(log)}</div>
+                          <div className="text-xs text-gray-500">
+                            {new Date(log.changedAt).toLocaleString('en-NZ')}
+                          </div>
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {log.action}
+                          {log.source ? ` · ${log.source}` : ''}
+                        </div>
+                        <div className="mt-3 space-y-2">
+                          {Array.isArray(log.changes) && log.changes.length > 0 ? (
+                            log.changes.map((change, index) => (
+                              <div key={`${log.id}:${change.field}:${index}`} className="rounded bg-gray-50 p-2 text-xs">
+                                <div className="font-semibold text-gray-700">{change.field}</div>
+                                <div className="text-gray-600">
+                                  <span className="font-medium">Before:</span> {formatLogValue(change.before)}
+                                </div>
+                                <div className="text-gray-600">
+                                  <span className="font-medium">After:</span> {formatLogValue(change.after)}
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-xs text-gray-500">No field-level changes captured.</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Raw Data Section */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">🔍 Raw Data (All Fields)</h3>
@@ -866,13 +1113,6 @@ export default function OrdersPage() {
         productTitle={productEditModal.productTitle}
         variantTitle={productEditModal.variantTitle}
         onProductUpdated={handleProductUpdated}
-      />
-      <TextOrdersModal
-        isOpen={isTextModalOpen}
-        onClose={() => setIsTextModalOpen(false)}
-        orders={orders as any}
-        defaultTemplate="delivery"
-        presetSelection={orders.map(o => o.id)}
       />
     </div>
   );

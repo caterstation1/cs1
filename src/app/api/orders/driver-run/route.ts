@@ -51,11 +51,14 @@ export async function GET(request: NextRequest) {
         customerFirstName: true,
         customerLastName: true,
         deliveryTime: true,
+        deliverySequence: true,
         shippingAddress: true
       },
-      orderBy: {
-        deliveryTime: 'asc' // Sort by delivery time within the same dispatch
-      },
+      orderBy: [
+        // Assigned stop order (1st, 2nd, 3rd...) takes priority; unassigned fall back to delivery time
+        { deliverySequence: { sort: 'asc', nulls: 'last' } },
+        { deliveryTime: 'asc' }
+      ],
       take: 10 // Google waypoint limit
     })
 
@@ -75,6 +78,7 @@ export async function GET(request: NextRequest) {
         orderNumber: order.orderNumber,
         customerName: customerName,
         deliveryTime: order.deliveryTime || '',
+        deliverySequence: order.deliverySequence ?? null,
         address: address
       })
     }

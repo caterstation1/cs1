@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { formatValue } from '@/lib/format'
+import { AsyncSection } from './primitives/AsyncSection'
+import { DataTable } from './primitives/DataTable'
 
 function toDate(value?: string | null): string {
   if (!value) return '-'
@@ -14,7 +16,7 @@ function toDate(value?: string | null): string {
 export function GrowthOpportunitiesTable({ baseQuery }: { baseQuery: string }) {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const [state, setState] = useState<any>({ rows: [], pagination: null, loading: false })
+  const [state, setState] = useState<any>({ rows: [], pagination: null, loading: true, error: null })
 
   const query = useMemo(() => {
     const params = new URLSearchParams(baseQuery)
@@ -26,16 +28,35 @@ export function GrowthOpportunitiesTable({ baseQuery }: { baseQuery: string }) {
     return params.toString()
   }, [baseQuery, page, search])
 
+  // All rows (server ignores pagination for CSV), respecting current filters/search
+  const csvHref = useMemo(() => {
+    const params = new URLSearchParams(baseQuery)
+    params.set('sortBy', 'estimatedRevenueUpside')
+    params.set('sortDir', 'desc')
+    if (search.trim()) params.set('search', search.trim())
+    params.set('format', 'csv')
+    return `/api/dashboard/growth-opportunities?${params.toString()}`
+  }, [baseQuery, search])
+
   useEffect(() => {
     let cancelled = false
-    setState((prev: any) => ({ ...prev, loading: true }))
+    setState((prev: any) => ({ ...prev, loading: true, error: null }))
     fetch(`/api/dashboard/growth-opportunities?${query}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled) setState({ ...data, loading: false })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load growth opportunities')
+        return res.json()
       })
-      .catch(() => {
-        if (!cancelled) setState({ rows: [], pagination: null, loading: false })
+      .then((data) => {
+        if (!cancelled) setState({ ...data, loading: false, error: null })
+      })
+      .catch((error: any) => {
+        if (!cancelled)
+          setState({
+            rows: [],
+            pagination: null,
+            loading: false,
+            error: error?.message || 'Failed to load growth opportunities',
+          })
       })
     return () => {
       cancelled = true
@@ -44,70 +65,75 @@ export function GrowthOpportunitiesTable({ baseQuery }: { baseQuery: string }) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-3">
-        <CardTitle>Growth opportunities</CardTitle>
+      <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between gap-3 space-y-0">
+        <CardTitle className="text-sm font-semibold">Growth opportunities</CardTitle>
         <div className="flex gap-2">
-          <Input placeholder="Search opportunities..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Button asChild variant="outline">
-            <a href={`/api/dashboard/growth-opportunities?${new URLSearchParams(`${baseQuery}&format=csv`).toString()}`}>Export CSV</a>
+          <Input
+            placeholder="Search opportunities..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+            className="h-8 w-56"
+          />
+          <Button asChild variant="outline" size="sm">
+            <a href={csvHref}>Download CSV (all)</a>
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {state.loading ? <p className="text-sm text-muted-foreground">Loading...</p> : null}
-        {!state.loading && (!state.rows || state.rows.length === 0) ? (
-          <p className="text-sm text-muted-foreground">Not enough data yet</p>
-        ) : null}
-        {state.rows?.length ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Company</TableHead>
-                <TableHead>Lifetime revenue</TableHead>
-                <TableHead>Orders</TableHead>
-                <TableHead>AOV</TableHead>
-                <TableHead>Contacts</TableHead>
-                <TableHead>Last order</TableHead>
-                <TableHead>Days since</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Opportunity type</TableHead>
-                <TableHead>Estimated upside</TableHead>
-                <TableHead>Recommended action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {state.rows.map((row: any) => (
-                <TableRow key={`${row.companyId}-${row.opportunityType}`}>
-                  <TableCell>
-                    <a href={`/admin/companies/${row.companyId}`} className="underline underline-offset-2">
-                      {row.companyName}
-                    </a>
-                  </TableCell>
-                  <TableCell>{row.lifetimeRevenue}</TableCell>
-                  <TableCell>{row.lifetimeOrders}</TableCell>
-                  <TableCell>{row.averageOrderValue}</TableCell>
-                  <TableCell>{row.contacts}</TableCell>
-                  <TableCell>{toDate(row.lastOrderDate)}</TableCell>
-                  <TableCell>{row.daysSinceLastOrder ?? '-'}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                  <TableCell>{row.opportunityType}</TableCell>
-                  <TableCell>{row.estimatedRevenueUpside}</TableCell>
-                  <TableCell>{row.recommendedAction}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : null}
+      <CardContent className="p-4 pt-2 space-y-3">
+        <AsyncSection
+          loading={state.loading}
+          error={state.error}
+          isEmpty={!state.rows || state.rows.length === 0}
+          emptyMessage="No growth opportunities match the current filters."
+          skeletonHeight={320}
+        >
+          <DataTable
+            columns={[
+              {
+                key: 'companyName',
+                label: 'Company',
+                sortable: false,
+                render: (row: any) => (
+                  <a href={`/admin/companies/${row.companyId}`} className="underline underline-offset-2">
+                    {row.companyName}
+                  </a>
+                ),
+              },
+              { key: 'lifetimeRevenue', label: 'Lifetime revenue', format: 'currency', sortable: false },
+              { key: 'lifetimeOrders', label: 'Orders', format: 'count', sortable: false },
+              { key: 'averageOrderValue', label: 'AOV', format: 'currency', sortable: false },
+              { key: 'contacts', label: 'Contacts', format: 'count', sortable: false },
+              {
+                key: 'lastOrderDate',
+                label: 'Last order',
+                sortable: false,
+                render: (row: any) => toDate(row.lastOrderDate),
+              },
+              { key: 'daysSinceLastOrder', label: 'Days since', format: 'count', sortable: false },
+              { key: 'status', label: 'Status', sortable: false },
+              { key: 'opportunityType', label: 'Opportunity type', sortable: false },
+              { key: 'estimatedRevenueUpside', label: 'Estimated upside', format: 'currency', sortable: false },
+              { key: 'recommendedAction', label: 'Recommended action', sortable: false },
+            ]}
+            rows={state.rows || []}
+            rowKey={(row: any) => `${row.companyId}-${row.opportunityType}`}
+          />
+        </AsyncSection>
         {state.pagination ? (
           <div className="flex justify-end items-center gap-2">
-            <Button variant="outline" disabled={state.pagination.page <= 1} onClick={() => setPage((p) => p - 1)}>
+            <Button variant="outline" size="sm" disabled={state.pagination.page <= 1} onClick={() => setPage((p) => p - 1)}>
               Prev
             </Button>
             <span className="text-xs text-muted-foreground">
-              Page {state.pagination.page} / {state.pagination.totalPages}
+              Page {state.pagination.page} / {state.pagination.totalPages} · {formatValue(state.pagination.total, 'count')}{' '}
+              opportunities
             </span>
             <Button
               variant="outline"
+              size="sm"
               disabled={state.pagination.page >= state.pagination.totalPages}
               onClick={() => setPage((p) => p + 1)}
             >

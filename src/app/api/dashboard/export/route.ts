@@ -10,40 +10,10 @@ import {
   getProductPerformance,
   getRevenueTrends,
   parseExecutiveFilters,
-  toCsv,
+  sectionsToCsv,
 } from '@/lib/dashboard'
 
-type Row = Record<string, unknown>
-
-function pushRows(rows: Row[], section: string, payload: unknown, parentKey?: string) {
-  if (payload == null) {
-    rows.push({ section, key: parentKey || '', value: '' })
-    return
-  }
-  if (Array.isArray(payload)) {
-    payload.forEach((entry, index) => {
-      if (entry != null && typeof entry === 'object' && !Array.isArray(entry)) {
-        Object.entries(entry as Record<string, unknown>).forEach(([k, v]) => {
-          rows.push({ section, key: `${parentKey || 'item'}[${index}].${k}`, value: typeof v === 'object' ? JSON.stringify(v) : v })
-        })
-      } else {
-        rows.push({ section, key: `${parentKey || 'item'}[${index}]`, value: String(entry) })
-      }
-    })
-    return
-  }
-  if (typeof payload === 'object') {
-    Object.entries(payload as Record<string, unknown>).forEach(([k, v]) => {
-      if (v != null && typeof v === 'object') {
-        pushRows(rows, section, v, parentKey ? `${parentKey}.${k}` : k)
-      } else {
-        rows.push({ section, key: parentKey ? `${parentKey}.${k}` : k, value: v ?? '' })
-      }
-    })
-    return
-  }
-  rows.push({ section, key: parentKey || '', value: String(payload) })
-}
+const ALL_ROWS = Number.MAX_SAFE_INTEGER
 
 export async function GET(req: NextRequest) {
   try {
@@ -54,29 +24,28 @@ export async function GET(req: NextRequest) {
       getExecutiveSummary(filters),
       getRevenueTrends(filters),
       getCompanyBehaviour(filters),
-      getCompaniesTable({ ...filters, page: 1, pageSize: 5000 }),
-      getGrowthOpportunities({ ...filters, page: 1, pageSize: 5000 }),
+      getCompaniesTable({ ...filters, page: 1, pageSize: ALL_ROWS }),
+      getGrowthOpportunities({ ...filters, page: 1, pageSize: ALL_ROWS }),
       getCustomerDashboard(filters),
       getProductPerformance(filters),
       getDataQualityMetrics(filters),
     ])
 
-    const rows: Row[] = []
-    pushRows(rows, 'summary', summary)
-    pushRows(rows, 'revenueTrends', trends)
-    pushRows(rows, 'companyBehaviour', behaviour)
-    pushRows(rows, 'companies', companies)
-    pushRows(rows, 'growthOpportunities', growth)
-    pushRows(rows, 'customers', customers)
-    pushRows(rows, 'products', products)
-    pushRows(rows, 'dataQuality', dataQuality)
-
-    const csv = toCsv(rows, ['section', 'key', 'value'])
+    const csv = sectionsToCsv([
+      ['summary', summary],
+      ['revenueTrends', trends],
+      ['companyBehaviour', behaviour],
+      ['companies', companies],
+      ['growthOpportunities', growth],
+      ['customers', customers],
+      ['products', products],
+      ['dataQuality', dataQuality],
+    ])
     return new NextResponse(csv, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'attachment; filename=\"executive-dashboard-export.csv\"',
+        'Content-Disposition': 'attachment; filename="executive-dashboard-export.csv"',
       },
     })
   } catch (error: any) {

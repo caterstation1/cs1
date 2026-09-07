@@ -1,13 +1,26 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     console.log('🚀 Starting data initialization...');
+    const requestUrl = new URL(request.url);
+    const origin = requestUrl.origin;
+    const cookieHeader = request.headers.get('cookie') || '';
+
+    const callInternal = async (path: string, init: RequestInit) => {
+      return fetch(`${origin}${path}`, {
+        ...init,
+        headers: {
+          ...(init.headers || {}),
+          ...(cookieHeader ? { cookie: cookieHeader } : {}),
+        },
+      });
+    };
     
     // Step 1: Sync Shopify products to PostgreSQL
     console.log('📦 Step 1: Syncing Shopify products...');
-    const shopifyProductsResponse = await fetch(`${process.env.VERCEL_URL || 'http://localhost:3000'}/api/shopify/products`, {
+    const shopifyProductsResponse = await callInternal('/api/shopify/products', {
       method: 'POST'
     });
     
@@ -21,7 +34,7 @@ export async function POST() {
     
     // Step 2: Sync Shopify orders to PostgreSQL
     console.log('📋 Step 2: Syncing Shopify orders...');
-    const shopifyOrdersResponse = await fetch(`${process.env.VERCEL_URL || 'http://localhost:3000'}/api/shopify/sync-orders`, {
+    const shopifyOrdersResponse = await callInternal('/api/shopify/sync-orders', {
       method: 'POST'
     });
     
@@ -35,7 +48,7 @@ export async function POST() {
     
     // Step 3: Sync products with custom data
     console.log('🔧 Step 3: Syncing products with custom data...');
-    const customDataResponse = await fetch(`${process.env.VERCEL_URL || 'http://localhost:3000'}/api/products-with-custom-data/sync`, {
+    const customDataResponse = await callInternal('/api/products-with-custom-data/sync', {
       method: 'POST'
     });
     
@@ -48,7 +61,7 @@ export async function POST() {
     
     // Step 4: Apply product rules to populate custom data
     console.log('⚙️ Step 4: Applying product rules...');
-    const rulesResponse = await fetch(`${process.env.VERCEL_URL || 'http://localhost:3000'}/api/product-rules/apply`, {
+    const rulesResponse = await callInternal('/api/product-rules/apply', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'apply-all' })

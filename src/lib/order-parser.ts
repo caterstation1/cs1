@@ -1,5 +1,6 @@
 import { prisma } from './prisma';
 import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver';
+import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize';
 import { ShopifyOrder as ShopifyClientOrder } from './shopify-client';
 import { formatLocalDate, parseLocalDate } from './date-utils';
 
@@ -188,6 +189,14 @@ export async function updateParsedOrder(orderId: string, updates: any) {
       createdAt: existing?.createdAt,
     }
     const resolved = resolveDeliveryDateResolved(candidate)
+    const scheduling = canonicalizeOrderScheduling({
+      ...existing,
+      ...updates,
+      shippingAddress: updates?.shippingAddress ?? existing?.shippingAddress,
+      lineItems: updates?.lineItems ?? existing?.lineItems,
+      noteAttributes: updates?.noteAttributes ?? existing?.noteAttributes,
+      note_attributes: updates?.noteAttributes ?? existing?.noteAttributes,
+    })
 
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
@@ -197,6 +206,11 @@ export async function updateParsedOrder(orderId: string, updates: any) {
         deliveryDateResolved: resolved.date,
         deliveryDateResolvedSource: resolved.source,
         deliveryDateResolvedAt: new Date(),
+        // Keep canonical scheduling fields in sync with resolved date updates.
+        region: scheduling.region,
+        deliveryDateTime: scheduling.deliveryDateTime,
+        deliveryDateSource: scheduling.deliveryDateSource,
+        needsSchedulingReview: scheduling.needsSchedulingReview,
       }
     });
     return updatedOrder;

@@ -92,6 +92,11 @@ model ProduceCoProduct {
   id                 String   @id @default(uuid())
   productCode        String   @unique
   productName        String
+  // Order confirmations name the pack ('12kg') and the unit the price is per
+  // ('Case', 'Kilo'). Without both, a $134 case of 12kg chicken reads as $134
+  // each and every recipe using it is costed an order of magnitude high.
+  packSize           String?
+  uom                String?
   totalUnits         Int
   totalSales         Float
   price              Float
@@ -945,12 +950,71 @@ model ShopifyProduct {
   bundleDefaultItems Json?
   bakery             Boolean  @default(false) // Bakery product flag
   dietaryMarker      String? // Internal dietary card marker (B, W, O, Y, Pi, Pu)
+  /// How many portions of a chosen option this pack size uses. A 100-person
+  /// pack needs more of the same protein than a mini station, and quantity is
+  /// the only thing pack size changes — the components themselves are shared.
+  portionSize        Float    @default(1)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  variants ProductVariant[]
+  variants         ProductVariant[]
+  optionQuantities ProductOptionQuantity[]
 
   @@map("shopify_products")
+}
+
+/// A choice a customer makes on the shop — one ' / ' segment of a variant
+/// title, such as "Beef Brisket" or "Yes Serveware ($15)".
+///
+/// Costed once here rather than copied onto every variant that offers it.
+/// A variant's cost is its product's base recipe plus the recipe of each
+/// option in its title, so nothing has to be kept in sync across variants.
+model CostingOption {
+  id            String   @id @default(uuid())
+  /// Canonical display name. Shopify's own spellings live in `aliases`.
+  name          String   @unique
+  /// choice | serveware | addon — grouping for the costing screen only.
+  kind          String   @default("choice")
+  /// Recipe rows for ONE portion:
+  /// [{ source, id, name, quantity, cost, unit, ingredientId? }]
+  items         Json     @default("[]")
+  /// True when the option genuinely has no ingredients — gift-card values,
+  /// headcount pickers — so it stops being reported as a costing gap.
+  noIngredients Boolean  @default(false)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  aliases    CostingOptionAlias[]
+  quantities ProductOptionQuantity[]
+}
+
+/// A literal title segment exactly as Shopify spells it. Nine spellings of
+/// "Beef Brisket" all point at one CostingOption; the storefront is untouched.
+model CostingOptionAlias {
+  id       String @id @default(uuid())
+  value    String @unique
+  optionId String
+
+  option CostingOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@index([optionId])
+}
+
+/// Per-product override of how many portions of an option are used, for the
+/// cases where `ShopifyProduct.portionSize` is not the whole story.
+model ProductOptionQuantity {
+  id        String @id @default(uuid())
+  productId String
+  optionId  String
+  quantity  Float
+
+  product ShopifyProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  option  CostingOption  @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, optionId])
+  @@index([productId])
+  @@index([optionId])
 }
 
 model ProductVariant {
@@ -1318,15 +1382,16 @@ model StockOrder {
 model StockOrderItem {
   id                   String  @id @default(cuid())
   orderId              String
-  stockItemId          String
+  stockItemId          String? // null for custom (one-off) items added at order time
   nameSnapshot         String
+  descriptionSnapshot  String?
   supplierNameSnapshot String
   unitPriceExGst       Decimal @db.Decimal(10, 2)
   qty                  Int
   lineTotalExGst       Decimal @db.Decimal(12, 2)
 
   order     StockOrder @relation(fields: [orderId], references: [id])
-  stockItem StockItem  @relation(fields: [stockItemId], references: [id])
+  stockItem StockItem? @relation(fields: [stockItemId], references: [id])
 
   @@index([orderId])
   @@index([stockItemId])
@@ -1985,4 +2050,59 @@ model PricingSettings {
   /// automatically at the prices in effect the morning after dispatch, so
   /// later supplier price moves cannot rewrite history. Null = manual only.
   cogsLockFromDate DateTime? @db.Date
+}
+
+// --- Pricing Lab operator price sheets ------------------------------------
+// A city operator buys the same recipes from different suppliers at different
+// prices. A sheet is that operator's answer to "what do you pay?", applied as
+// an in-memory overlay on the cost index when the Pricing Lab costs a recipe.
+//
+// Nothing here is ever written back into Component.totalCost,
+// ProductVariant.totalCost, PricePoint or CostOverride: these prices belong to
+// the sheet alone and must not move the real books.
+
+model PriceSheet {
+  id        String   @id @default(uuid())
+  /// Operator or city the sheet belongs to — "Christchurch", "Tauranga".
+  name      String   @unique
+  notes     String?
+  isActive  Boolean  @default(true)
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entries PriceSheetEntry[]
+}
+
+/// One ingredient priced by one operator, as a pack rather than a unit cost:
+/// operators know what they pay for a carton, not what it works out to per kg.
+model PriceSheetEntry {
+  id      String     @id @default(uuid())
+  sheetId String
+  sheet   PriceSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+
+  /// 'Gilmours' | 'Bidfood' | 'ProduceCo' | 'Other' — the recipe-ref convention.
+  source       String
+  /// Row id in the matching catalogue table.
+  sourceId     String
+  /// Who this operator actually buys it from. Display only.
+  supplierName String?
+
+  packPrice    Float
+  unitsPerPack Float  @default(1)
+  sizePerUnit  Float  @default(1)
+  /// kg | g | l | ml | each
+  sizeUnit     String @default("each")
+
+  /// Derived on write by deriveSheetUnitCost, in unitCostUnit. Stored so the
+  /// overlay is a map lookup rather than a re-parse per request.
+  unitCost     Float
+  /// kg | l | each
+  unitCostUnit String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sheetId, source, sourceId])
+  @@index([sheetId])
 }

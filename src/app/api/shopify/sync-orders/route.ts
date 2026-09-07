@@ -4,6 +4,7 @@ import { transformShopifyOrder } from '../../../../lib/data-transformer';
 import { prisma } from '../../../../lib/prisma';
 import { resolveDeliveryDateResolved } from '@/lib/delivery-date-resolver';
 import { canonicalizeOrderScheduling } from '@/lib/order-canonicalize';
+import { parseAndUpsertCompanyForOrder } from '@/lib/company-matching';
 
 export async function GET() {
   return NextResponse.json({
@@ -112,6 +113,15 @@ export async function POST() {
               needsSchedulingReview: scheduling.needsSchedulingReview,
             }
           });
+
+          try {
+            await parseAndUpsertCompanyForOrder({
+              shopifyOrder: shopifyOrder as any,
+              transformedOrder: transformedOrder as any,
+            });
+          } catch (companyError) {
+            console.error(`⚠️ Company parse failed for order ${shopifyOrder.id}:`, companyError);
+          }
           
           console.log(`✅ Synced new order ${shopifyOrder.id}`);
           return { success: true, orderId: shopifyOrder.id, skipped: false };

@@ -58,6 +58,8 @@ function isModifierOnlyName(value: string): boolean {
   if (normalized.startsWith('addon:') || normalized.startsWith('add on:') || normalized.startsWith('add-on:')) {
     return true
   }
+  // Option toggles rendered as their own line items ("Yes Serveware", "No Vegan Aioli", ...)
+  if (normalized.startsWith('yes ') || normalized.startsWith('no ')) return true
   if (
     normalized === 'no serveware' ||
     normalized === 'yes serveware' ||
@@ -99,8 +101,16 @@ function productName(item: Record<string, any>): string | null {
   while (parts.length > 1 && isOptionSegment(parts[parts.length - 1])) {
     parts.pop()
   }
-  const cleaned = (parts.join(' - ') || normalized).replace(/[.,;:\s]+$/g, '').trim()
+  // Strip trailing separators too: "Loaded Potato Station -" must merge with
+  // "Loaded Potato Station" (a bare " -" suffix does not split on ' - ').
+  const cleaned = (parts.join(' - ') || normalized).replace(/[-.,;:\s]+$/g, '').trim()
   if (!cleaned || isModifierOnlyName(cleaned)) return null
+  // Bare numbers ("75") are size/quantity fragments left over from splitting,
+  // not products.
+  if (/^\d[\d\s-]*$/.test(cleaned)) return null
+  // A whole name that reads as an option ("Chicken (DF)", "Pork Belly (DF)",
+  // "Korean Fried Chicken") is a modifier line, not a product.
+  if (isOptionSegment(cleaned)) return null
   return cleaned
 }
 
@@ -272,7 +282,15 @@ export async function getProductPerformance(filters: ExecutiveFilters) {
   const sortedByRevenue = [...rows].sort((a, b) => b.revenue - a.revenue)
   const heroProducts = sortedByRevenue.filter((row) => row.revenueSharePct >= 2 && row.repeatPurchaseRate >= 20).slice(0, 20)
 
-  const months = monthsBetween(filters.startDate, filters.endDate).map(monthKey)
+  // Ranked views need a materiality floor so junk rows (e.g. a $3 subscription
+  // with 3 orders and 100% repeat rate) cannot top a ranking.
+  const MIN_RANKED_ORDERS = 5
+  const MIN_RANKED_REVENUE = 500
+  const meetsRankingThreshold = (row: { orders: number; revenue: number }) =>
+    row.orders >= MIN_RANKED_ORDERS && row.revenue >= MIN_RANKED_REVENUE
+
+  const monthDates = monthsBetween(filters.startDate, filters.endDate)
+  const months = monthDates.map(monthKey)
   const growthRows = rows.map((row) => {
     const firstHalf = months.slice(0, Math.floor(months.length / 2))
     const secondHalf = months.slice(Math.floor(months.length / 2))
@@ -281,23 +299,29 @@ export async function getProductPerformance(filters: ExecutiveFilters) {
     const growthPct = first > 0 ? ((second - first) / first) * 100 : second > 0 ? 100 : 0
     return { ...row, growthPct: toCurrency(growthPct) }
   })
-  const fastestGrowingProducts = [...growthRows].sort((a, b) => b.growthPct - a.growthPct).slice(0, 20)
+  const fastestGrowingProducts = growthRows
+    .filter(meetsRankingThreshold)
+    .sort((a, b) => b.growthPct - a.growthPct)
+    .slice(0, 20)
   const productsIncreasingAov = rows
-    .filter((row) => row.averageOrderValueWhenIncluded > averageOrderValueOverall)
+    .filter((row) => meetsRankingThreshold(row) && row.averageOrderValueWhenIncluded > averageOrderValueOverall)
     .sort((a, b) => b.averageOrderValueWhenIncluded - a.averageOrderValueWhenIncluded)
     .slice(0, 20)
   const underperformingProducts = rows
-    .filter((row) => row.revenueSharePct < 0.5 && row.orderSharePct < 0.5)
+    .filter((row) => meetsRankingThreshold(row) && row.revenueSharePct < 0.5 && row.orderSharePct < 0.5)
     .sort((a, b) => a.revenue - b.revenue)
     .slice(0, 20)
-  const repeatRateRanking = [...rows].sort(
-    (a, b) => b.repeatPurchaseRate - a.repeatPurchaseRate || b.orders - a.orders
-  )
+  const repeatRateRanking = rows
+    .filter(meetsRankingThreshold)
+    .sort((a, b) => b.repeatPurchaseRate - a.repeatPurchaseRate || b.orders - a.orders)
 
-  const productRevenueTrend = months.map((month) => {
+  const productRevenueTrend = monthDates.map((monthStart) => {
+    const month = monthKey(monthStart)
+    const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0, 23, 59, 59, 999)
     const monthMap = trendMap.get(month) || new Map<string, number>()
     return {
       month,
+      isPartial: monthEnd > filters.endDate,
       revenue: toCurrency(Array.from(monthMap.values()).reduce((sum, value) => sum + value, 0)),
     }
   })

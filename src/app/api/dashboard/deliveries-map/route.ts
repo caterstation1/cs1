@@ -42,13 +42,22 @@ export async function GET(request: NextRequest) {
         deliveryTime: true,
         shippingAddress: true,
         totalPrice: true,
+        region: true,
+        lineItems: true,
+        travelTime: true,
+        driverId: true,
+        customerFirstName: true,
+        customerLastName: true,
       }
     })
 
-    // Filter to Auckland region if requested
+    // Filter to the requested region. Auckland keeps the original address
+    // heuristic; Wellington uses the canonical region column.
     const filtered = region === 'auckland'
       ? orders.filter(o => isAucklandAddress(o.shippingAddress as any))
-      : orders
+      : region === 'wellington'
+        ? orders.filter(o => o.region === 'WLG')
+        : orders
 
     // Geocode with server-side API key
     const geocodeCache = new Map<string, { lat: number; lng: number }>()
@@ -86,6 +95,13 @@ export async function GET(request: NextRequest) {
         const resolved = await geocode(address)
         const coords = resolved ?? defaultNZ
         const coordinates: [number, number] = [coords.lat, coords.lng]
+        const customerName = [order.customerFirstName, order.customerLastName].filter(Boolean).join(' ').trim()
+        const company = String(sa?.company || '').trim() || customerName || null
+        const rawItems = Array.isArray(order.lineItems) ? (order.lineItems as any[]) : []
+        const products = rawItems.map((li) => ({
+          title: String(li?.title || li?.name || 'Item'),
+          quantity: Number(li?.quantity || 1),
+        }))
         return {
           orderId: order.id,
           orderNumber: order.orderNumber?.toString() || `Order ${index + 1}`,
@@ -93,6 +109,10 @@ export async function GET(request: NextRequest) {
           address,
           coordinates,
           salesValue: Number(order.totalPrice || 0),
+          company,
+          products,
+          travelTime: order.travelTime || null,
+          driverId: order.driverId || null,
         }
       })
     )

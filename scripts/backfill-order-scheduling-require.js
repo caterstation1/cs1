@@ -1,11 +1,12 @@
 // Temporary wrapper to handle ES module imports
 const path = require('path')
 const { PrismaClient } = require('@prisma/client')
+const { scriptPrismaOptions } = require('./lib/script-prisma-url.cjs')
 
 // Use dynamic import for ES modules
 async function run() {
   const { canonicalizeOrderScheduling } = await import('../src/lib/order-canonicalize.ts')
-  const prisma = new PrismaClient()
+  const prisma = new PrismaClient(scriptPrismaOptions())
   const BATCH_SIZE = 500
 
   console.log('🔄 Starting backfill of order scheduling fields...')

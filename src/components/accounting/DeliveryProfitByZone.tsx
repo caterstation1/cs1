@@ -5,7 +5,7 @@ import { useAccountingGet } from '@/lib/use-accounting'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 export default function DeliveryProfitByZone({ params }: { params: Record<string, any> }) {
-  const [groupBy, setGroupBy] = useState<'zone' | 'suburb'>('suburb')
+  const [groupBy, setGroupBy] = useState<'zone' | 'suburb' | 'postcode'>('suburb')
   const [metric, setMetric] = useState<'revenue' | 'profit'>('revenue')
   const merged = { ...params, groupBy, sortBy: metric }
   const { data, error, isLoading } = useAccountingGet<any>('/api/accounting/delivery-profitability', merged)
@@ -21,9 +21,11 @@ export default function DeliveryProfitByZone({ params }: { params: Record<string
         <h2 className="text-lg font-semibold">Delivery Profitability by Zone</h2>
         <div className="flex items-center gap-2 text-sm">
           <div className="inline-flex rounded-md border overflow-hidden">
-            {(['zone','suburb'] as const).map(k => (
+            {(['zone','suburb','postcode'] as const).map(k => (
               <button key={k} onClick={() => setGroupBy(k)}
-                className={`px-2 py-1 ${groupBy === k ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}>{k}</button>
+                className={`px-2 py-1 ${groupBy === k ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}>
+                {k === 'postcode' ? 'post code' : k}
+              </button>
             ))}
           </div>
           <div className="inline-flex rounded-md border overflow-hidden">
@@ -51,7 +53,7 @@ export default function DeliveryProfitByZone({ params }: { params: Record<string
         <table className="min-w-full text-sm">
           <thead className="text-left">
             <tr className="border-b">
-              <th className="py-2 pr-4">Zone/Suburb</th>
+              <th className="py-2 pr-4">{groupBy === 'postcode' ? 'Post code' : 'Zone/Suburb'}</th>
               <th className="py-2 pr-4 text-right">Orders</th>
               <th className="py-2 pr-4 text-right">Revenue</th>
               <th className="py-2 pr-4 text-right">COGS</th>

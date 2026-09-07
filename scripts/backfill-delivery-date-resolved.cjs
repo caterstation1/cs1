@@ -2,7 +2,8 @@
 /* Backfill deliveryDateResolved for existing orders in batches */
 // Use Prisma generated client directly from src/generated/prisma
 const { PrismaClient } = require('../src/generated/prisma')
-const prisma = new PrismaClient()
+const { scriptPrismaOptions } = require('./lib/script-prisma-url.cjs')
+const prisma = new PrismaClient(scriptPrismaOptions())
 
 async function main() {
   const BATCH = parseInt(process.env.BATCH || '1000', 10)

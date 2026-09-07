@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { AskAIButton } from '@/components/ai/AskAI'
 
 const navItems = [
   { name: 'Orders', href: '/orders' },
@@ -35,7 +34,6 @@ export function MainNav() {
             </Link>
           ))}
         </div>
-        <AskAIButton />
       </div>
     </nav>
   )

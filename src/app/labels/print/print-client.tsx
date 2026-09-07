@@ -1,26 +1,76 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { jsPDF } from 'jspdf'
 import { LabelCard } from '@/components/labels/LabelCard'
+import { AllergenLabelCard } from '@/components/labels/AllergenLabelCard'
 
 type LabelData = any
+type RenderJob =
+  | { kind: 'primary'; data: LabelData }
+  | {
+      kind: 'secondary'
+      data: {
+        orderNumber: number
+        labelIndex: number
+        labelCount: number
+        productTitle: string
+        components: Array<{ name: string; allergens: string[] }>
+        dietaryMarker?: string | null
+      }
+    }
 
-export default function PrintLabelsClient({ date, orderIds }: { date: string; orderIds?: string }) {
+const buildLabelKey = (orderNumber: number, labelIndex: number, productTitle: string) =>
+  `${orderNumber}|${labelIndex}|${String(productTitle || '').trim().toLowerCase()}`
+
+export default function PrintLabelsClient({
+  date,
+  orderIds,
+  labelKeys,
+  orderNumber,
+}: {
+  date: string
+  orderIds?: string
+  labelKeys?: string
+  orderNumber?: string
+}) {
   const [labels, setLabels] = useState<LabelData[]>([])
   const [renderIndex, setRenderIndex] = useState<number | null>(null)
-  const [images, setImages] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState<string>('Loading labels…')
   const hiddenRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const pdfRef = useRef<jsPDF | null>(null)
+  const objectUrlRef = useRef<string | null>(null)
+
+  const selectedLabelKeySet = useMemo(() => {
+    const keys = String(labelKeys || '')
+      .split(',')
+      .map((key) => key.trim())
+      .filter(Boolean)
+    return new Set(keys)
+  }, [labelKeys])
 
   useEffect(() => {
     const run = async () => {
       try {
+        let resolvedDate = date
+        let resolvedOrderIds = orderIds
+
+        if (orderNumber && !date) {
+          setStatus(`Looking up order #${orderNumber}…`)
+          const lookup = await fetch(`/api/labels/resolve-order?orderNumber=${encodeURIComponent(orderNumber)}`)
+          const lookupJson = await lookup.json()
+          if (!lookup.ok) throw new Error(lookupJson?.error || 'Order not found')
+          resolvedDate = lookupJson.date
+          resolvedOrderIds = lookupJson.orderId
+        }
+
+        if (!resolvedDate) throw new Error('Missing delivery date for labels')
+
         const params = new URLSearchParams()
-        if (date) params.set('date', date)
-        if (orderIds) params.set('orderIds', orderIds)
+        params.set('date', resolvedDate)
+        if (resolvedOrderIds) params.set('orderIds', resolvedOrderIds)
         const res = await fetch(`/api/labels?${params.toString()}`)
         if (!res.ok) throw new Error('Failed to load labels')
         const json = await res.json()
@@ -31,6 +81,11 @@ export default function PrintLabelsClient({ date, orderIds }: { date: string; or
           customerName: l.customerName,
           company: l.company,
           address: l.address,
+          shippingAddress1: l.shippingAddress1,
+          shippingAddress2: l.shippingAddress2,
+          shippingCity: l.shippingCity,
+          shippingProvince: l.shippingProvince,
+          shippingZip: l.shippingZip,
           deliveryWindow: l.deliveryWindow,
           productTitle: l.productTitle,
           peopleText: l.peopleText,
@@ -43,44 +98,86 @@ export default function PrintLabelsClient({ date, orderIds }: { date: string; or
           notes: l.notes,
           phonePrimary: l.phonePrimary,
           phoneSecondary: l.phoneSecondary,
+          secondary: l.secondary,
         }))
-        setLabels(mapped)
-        if (mapped.length > 0) setRenderIndex(0)
-        else setError('No labels found for selected date')
+        const filtered =
+          selectedLabelKeySet.size === 0
+            ? mapped
+            : mapped.filter((label) =>
+                selectedLabelKeySet.has(
+                  buildLabelKey(
+                    Number(label.orderNumber || 0),
+                    Number(label.labelIndex || 0),
+                    String(label.productTitle || '')
+                  )
+                )
+              )
+
+        setLabels(filtered)
+        if (filtered.length > 0) {
+          // Build PDF incrementally to avoid very large in-memory image arrays.
+          pdfRef.current = new jsPDF({ unit: 'mm', format: [100, 62], orientation: 'landscape' })
+          setStatus(`Preparing labels for ${resolvedDate || 'selected date'}... (1/${filtered.length})`)
+          setRenderIndex(0)
+        } else setError('No labels found for selected date')
       } catch (e: any) {
         setError(e?.message || 'Unknown error')
       }
     }
     run()
-  }, [date, orderIds])
+  }, [date, orderIds, orderNumber, selectedLabelKeySet])
+
+  const renderJobs: RenderJob[] = labels.flatMap((label) => {
+    const secondary = label.secondary
+    if (!secondary) return [{ kind: 'primary', data: label }]
+    return [
+      { kind: 'primary', data: label },
+      {
+        kind: 'secondary',
+        data: {
+          orderNumber: label.orderNumber,
+          labelIndex: label.labelIndex,
+          labelCount: label.labelCount,
+          productTitle: secondary.productTitle || label.productTitle || '',
+          components: Array.isArray(secondary.components) ? secondary.components : [],
+          dietaryMarker: secondary.dietaryMarker || null,
+        },
+      },
+    ]
+  })
 
   useEffect(() => {
     if (renderIndex === null) return
     const el = hiddenRef.current
     if (!el) return
-    const label = labels[renderIndex]
-    if (!label) return
+    const job = renderJobs[renderIndex]
+    if (!job) return
 
     const run = async () => {
       try {
         await new Promise((r) => setTimeout(r, 60))
         const { toPng } = await import('html-to-image')
         const dataUrl: string = await toPng(el, {
-          pixelRatio: 2,
+          pixelRatio: 1.5,
           quality: 1,
           backgroundColor: '#ffffff',
           skipFonts: true,
         })
-        setImages((prev) => [...prev, dataUrl])
-        if (renderIndex < labels.length - 1) setRenderIndex(renderIndex + 1)
-        else {
-          const pdf = new jsPDF({ unit: 'mm', format: [100, 62], orientation: 'landscape' })
-          images.concat(dataUrl).forEach((img: string, idx: number) => {
-            if (idx > 0) pdf.addPage([100, 62], 'landscape')
-            pdf.addImage(img, 'PNG', 0, 0, 100, 62)
-          })
+        const pdf = pdfRef.current
+        if (!pdf) throw new Error('Label PDF session not initialized')
+
+        if (renderIndex > 0) pdf.addPage([100, 62], 'landscape')
+        pdf.addImage(dataUrl, 'PNG', 0, 0, 100, 62, undefined, 'FAST')
+
+        if (renderIndex < renderJobs.length - 1) {
+          setStatus(`Preparing labels for ${date || 'selected date'}... (${renderIndex + 2}/${renderJobs.length})`)
+          setRenderIndex(renderIndex + 1)
+        } else {
           const blob = pdf.output('blob')
+          if (!(blob instanceof Blob)) throw new Error('Could not create labels PDF blob')
+          if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
           const url = URL.createObjectURL(blob)
+          objectUrlRef.current = url
           setStatus('Opening print dialog…')
 
           // Ensure we only close after print completes
@@ -142,7 +239,13 @@ export default function PrintLabelsClient({ date, orderIds }: { date: string; or
     }
     void run()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [renderIndex])
+  }, [renderIndex, renderJobs.length, date])
+
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
+    }
+  }, [])
 
   return (
     <div style={{ padding: 16, fontFamily: 'sans-serif' }}>
@@ -150,9 +253,13 @@ export default function PrintLabelsClient({ date, orderIds }: { date: string; or
       {error ? <div style={{ color: 'red' }}>{error}</div> : <div style={{ color: '#444' }}>{status}</div>}
       <iframe ref={iframeRef} style={{ width: 0, height: 0, border: 0 }} />
       <div style={{ position: 'fixed', left: -9999, top: 0 }}>
-        {renderIndex !== null && labels[renderIndex] && (
+        {renderIndex !== null && renderJobs[renderIndex] && (
           <div ref={hiddenRef}>
-            <LabelCard data={labels[renderIndex]} landscape />
+            {renderJobs[renderIndex].kind === 'primary' ? (
+              <LabelCard data={renderJobs[renderIndex].data} landscape />
+            ) : (
+              <AllergenLabelCard data={renderJobs[renderIndex].data} landscape />
+            )}
           </div>
         )}
       </div>

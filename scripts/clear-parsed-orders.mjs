@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
+import { scriptPrismaOptions } from './lib/script-prisma-url.cjs';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient(scriptPrismaOptions());
 
 async function clearParsedOrders() {
   try {

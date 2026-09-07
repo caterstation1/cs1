@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useShiftLocationTracking } from '@/hooks/useShiftLocationTracking'
 import { useDeliveryNotes } from '@/hooks/useDeliveryNotes'
 import { DeliveryNotesButton } from '@/components/realtime-orders/delivery-notes-modal'
+import { deliveryRunKey, ordinalLabel } from '@/lib/delivery-sequence'
 
 interface Assignment {
   id: string
@@ -27,6 +28,7 @@ interface OrderLite {
   deliveryTime?: string | null
   travelTime?: string | null
   driverId?: string | null
+  deliverySequence?: number | null
   isDispatched?: boolean
   shippingAddress?: any
   shippingLines?: Array<{ phone?: string }>
@@ -172,9 +174,16 @@ export default function BasicDashboard() {
             if (currentUserId && o?.driverId) return String(o.driverId) === String(currentUserId)
             return false
           })
-          .sort((a: OrderLite, b: OrderLite) =>
-            String(a.leaveTime || a.deliveryTime || '99:99').localeCompare(String(b.leaveTime || b.deliveryTime || '99:99'))
-          )
+          .sort((a: OrderLite, b: OrderLite) => {
+            const timeCompare = String(a.leaveTime || a.deliveryTime || '99:99')
+              .localeCompare(String(b.leaveTime || b.deliveryTime || '99:99'))
+            if (timeCompare !== 0) return timeCompare
+            // Same dispatch time: deliver in the assigned stop order (1st, 2nd, 3rd...)
+            const seqA = a.deliverySequence ?? Number.MAX_SAFE_INTEGER
+            const seqB = b.deliverySequence ?? Number.MAX_SAFE_INTEGER
+            if (seqA !== seqB) return seqA - seqB
+            return String(a.deliveryTime || '99:99').localeCompare(String(b.deliveryTime || '99:99'))
+          })
         setMyDeliveriesToday(deliveries)
       }
       if (r2.ok) {
@@ -184,6 +193,24 @@ export default function BasicDashboard() {
     }
     run()
   }, [myStaffId, currentUserId])
+
+  // Size of each delivery run (same driver + dispatch time) among my deliveries;
+  // a stop-order badge only makes sense when the run has more than one delivery
+  const myRunSizes = useMemo(() => {
+    const counts: Record<string, number> = {}
+    myDeliveriesToday.forEach(o => {
+      const key = deliveryRunKey(o)
+      if (key) counts[key] = (counts[key] || 0) + 1
+    })
+    return counts
+  }, [myDeliveriesToday])
+
+  const getStopOrderLabel = (o: OrderLite): string | null => {
+    if (o.deliverySequence == null) return null
+    const key = deliveryRunKey(o)
+    if (!key || (myRunSizes[key] || 0) < 2) return null
+    return ordinalLabel(o.deliverySequence)
+  }
 
   const getOrderPhone = (order: OrderLite) =>
     order.customerPhone || order.shippingLines?.find((s) => !!s.phone)?.phone || ''
@@ -440,6 +467,14 @@ export default function BasicDashboard() {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-2">
                       <span className="text-sm font-bold text-slate-900">{o.leaveTime || o.deliveryTime || '--:--'}</span>
+                      {getStopOrderLabel(o) && (
+                        <span
+                          className="rounded-full bg-green-600 px-2.5 py-0.5 text-xs font-black text-white"
+                          title="Deliver this order in this position on your run"
+                        >
+                          Deliver {getStopOrderLabel(o)}
+                        </span>
+                      )}
                       <span className="truncate text-xs font-medium text-slate-600">#{o.orderNumber}</span>
                     </div>
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${

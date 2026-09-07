@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Users, TrendingUp } from 'lucide-react'
+import { Users, TrendingUp, DollarSign, Plus } from 'lucide-react'
 import { getTodayLocal, formatLocalDate } from '@/lib/date-utils'
 import StaffDetailSheet from './StaffDetailSheet'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import RunPayrunModal from './RunPayrunModal'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 
 type WeeklyResponse = {
@@ -28,6 +29,13 @@ type WeeklyResponse = {
   overallTotals: { hours: number; mileage: number; reimbursed: number; notesCount: number }
 }
 
+type AdminStaffOption = {
+  id: string
+  firstName: string
+  lastName: string
+  isActive?: boolean
+}
+
 export default function AdminTimesheetsTab() {
   const [q, setQ] = useState('')
   const [debouncedQ, setDebouncedQ] = useState('')
@@ -41,6 +49,25 @@ export default function AdminTimesheetsTab() {
   const [weekly, setWeekly] = useState<WeeklyResponse | null>(null)
   const [openStaff, setOpenStaff] = useState<string | null>(null)
   const [openDay, setOpenDay] = useState<{ staffId: string; date: string } | null>(null)
+  const [runPayrunOpen, setRunPayrunOpen] = useState(false)
+  const [staffOptions, setStaffOptions] = useState<AdminStaffOption[]>([])
+  const [addShiftOpen, setAddShiftOpen] = useState(false)
+  const [creatingShift, setCreatingShift] = useState(false)
+  const [newShift, setNewShift] = useState<{
+    staffId: string
+    date: string
+    clockIn: string
+    clockOut: string
+    mileage: string
+    notes: string
+  }>({
+    staffId: '',
+    date: weekStart,
+    clockIn: `${weekStart}T09:00`,
+    clockOut: `${weekStart}T17:00`,
+    mileage: '',
+    notes: '',
+  })
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQ(q), 300)
@@ -64,6 +91,22 @@ export default function AdminTimesheetsTab() {
   }, [weekStart, debouncedQ])
 
   useEffect(() => { fetchAll() }, [fetchAll])
+
+  useEffect(() => {
+    const loadStaffOptions = async () => {
+      try {
+        const res = await fetch('/api/staff', { cache: 'no-store' })
+        if (!res.ok) return
+        const data = await res.json()
+        if (Array.isArray(data)) {
+          setStaffOptions(data)
+        }
+      } catch {
+        // silent
+      }
+    }
+    loadStaffOptions()
+  }, [])
 
   const kpis = useMemo(() => {
     const o = weekly?.overallTotals || { hours: 0, mileage: 0, reimbursed: 0, notesCount: 0 }
@@ -113,6 +156,44 @@ export default function AdminTimesheetsTab() {
     setWeekStart(formatLocalDate(mon))
   }
 
+  const openAddShiftDialog = () => {
+    const firstStaffId = staffOptions.find((s) => s.isActive !== false)?.id || staffOptions[0]?.id || ''
+    setNewShift({
+      staffId: firstStaffId,
+      date: weekStart,
+      clockIn: `${weekStart}T09:00`,
+      clockOut: `${weekStart}T17:00`,
+      mileage: '',
+      notes: '',
+    })
+    setAddShiftOpen(true)
+  }
+
+  const createShiftForStaff = async () => {
+    if (!newShift.staffId || !newShift.clockIn) return
+    setCreatingShift(true)
+    try {
+      const res = await fetch('/api/timesheet/shifts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          staffId: newShift.staffId,
+          date: newShift.date,
+          clockIn: newShift.clockIn,
+          clockOut: newShift.clockOut || null,
+          mileage: newShift.mileage ? parseFloat(newShift.mileage) : null,
+          notes: newShift.notes || null,
+          status: newShift.clockOut ? 'completed' : 'active',
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to create shift')
+      setAddShiftOpen(false)
+      await fetchAll()
+    } finally {
+      setCreatingShift(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
@@ -128,6 +209,12 @@ export default function AdminTimesheetsTab() {
             <Input placeholder="Search staff…" value={q} onChange={(e) => setQ(e.target.value)} className="w-56" />
             <Button onClick={fetchAll} className="bg-blue-600 hover:bg-blue-700">Apply</Button>
             <Button variant="outline" onClick={exportCsv}>Export CSV</Button>
+            <Button variant="outline" onClick={openAddShiftDialog} className="gap-2">
+              <Plus className="h-4 w-4" /> Add Shift
+            </Button>
+            <Button variant="outline" onClick={() => setRunPayrunOpen(true)} className="gap-2">
+              <DollarSign className="h-4 w-4" /> Run Payrun
+            </Button>
           </div>
         </div>
       </div>
@@ -166,13 +253,13 @@ export default function AdminTimesheetsTab() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="min-w-[180px]">Staff</TableHead>
-                  {(weekly?.days || []).map((d) => (
-                    <TableHead key={d} className="text-center min-w-[140px]">{new Date(d).toLocaleDateString('en-NZ', { weekday: 'short' })}</TableHead>
-                  ))}
                   <TableHead className="text-right">Hours</TableHead>
                   <TableHead className="text-right">Mileage</TableHead>
                   <TableHead className="text-right">Reimbursed</TableHead>
                   <TableHead className="text-right">Notes</TableHead>
+                  {(weekly?.days || []).map((d) => (
+                    <TableHead key={d} className="text-center min-w-[140px]">{new Date(d).toLocaleDateString('en-NZ', { weekday: 'short' })}</TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -182,6 +269,10 @@ export default function AdminTimesheetsTab() {
                       {s.isActiveNow && <span className="w-2 h-2 rounded-full bg-green-500" />}
                       {s.name}
                     </TableCell>
+                    <TableCell className="text-right font-semibold">{s.totals.hours.toFixed(2)}h</TableCell>
+                    <TableCell className="text-right font-semibold">{s.totals.mileage.toFixed(0)}km</TableCell>
+                    <TableCell className="text-right font-semibold">${s.totals.reimbursed.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-semibold">{s.totals.notesCount}</TableCell>
                     {(weekly?.days || []).map((d) => {
                       const cell = (s as any).byDay?.[d]
                       if (!cell) {
@@ -217,20 +308,16 @@ export default function AdminTimesheetsTab() {
                         </TableCell>
                       )
                     })}
-                    <TableCell className="text-right font-semibold">{s.totals.hours.toFixed(2)}h</TableCell>
-                    <TableCell className="text-right font-semibold">{s.totals.mileage.toFixed(0)}km</TableCell>
-                    <TableCell className="text-right font-semibold">${s.totals.reimbursed.toFixed(2)}</TableCell>
-                    <TableCell className="text-right font-semibold">{s.totals.notesCount}</TableCell>
                   </TableRow>
                 ))}
                 {weekly?.staff?.length ? (
                   <TableRow>
                     <TableCell className="font-semibold">All Staff</TableCell>
-                    {(weekly?.days || []).map((d) => <TableCell key={d} />)}
                     <TableCell className="text-right font-semibold">{weekly?.overallTotals?.hours?.toFixed(2)}h</TableCell>
                     <TableCell className="text-right font-semibold">{weekly?.overallTotals?.mileage?.toFixed(0)}km</TableCell>
                     <TableCell className="text-right font-semibold">${weekly?.overallTotals?.reimbursed?.toFixed(2)}</TableCell>
                     <TableCell className="text-right font-semibold">{weekly?.overallTotals?.notesCount}</TableCell>
+                    {(weekly?.days || []).map((d) => <TableCell key={d} />)}
                   </TableRow>
                 ) : null}
               </TableBody>
@@ -248,6 +335,68 @@ export default function AdminTimesheetsTab() {
       />
 
       <StaffDaySheet openState={openDay} onClose={() => setOpenDay(null)} />
+
+      <RunPayrunModal
+        open={runPayrunOpen}
+        onOpenChange={setRunPayrunOpen}
+        weekStart={weekStart}
+        onSuccess={fetchAll}
+      />
+
+      <Dialog open={addShiftOpen} onOpenChange={setAddShiftOpen}>
+        <DialogContent className="sm:max-w-[560px]">
+          <DialogHeader>
+            <DialogTitle>Add Shift</DialogTitle>
+            <DialogDescription>Create a shift for a selected staff member.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div>
+              <Label className="text-sm">Staff member</Label>
+              <select
+                value={newShift.staffId}
+                onChange={(e) => setNewShift((p) => ({ ...p, staffId: e.target.value }))}
+                className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Select staff…</option>
+                {staffOptions
+                  .filter((s) => s.isActive !== false)
+                  .sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`))
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>{`${s.firstName} ${s.lastName}`.trim()}</option>
+                  ))}
+              </select>
+            </div>
+            <div>
+              <Label className="text-sm">Shift date</Label>
+              <Input type="date" value={newShift.date} onChange={(e) => setNewShift((p) => ({ ...p, date: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-sm">Clock in</Label>
+                <Input type="datetime-local" value={newShift.clockIn} onChange={(e) => setNewShift((p) => ({ ...p, clockIn: e.target.value }))} />
+              </div>
+              <div>
+                <Label className="text-sm">Clock out</Label>
+                <Input type="datetime-local" value={newShift.clockOut} onChange={(e) => setNewShift((p) => ({ ...p, clockOut: e.target.value }))} />
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm">Mileage (km)</Label>
+              <Input type="number" value={newShift.mileage} onChange={(e) => setNewShift((p) => ({ ...p, mileage: e.target.value }))} />
+            </div>
+            <div>
+              <Label className="text-sm">Notes</Label>
+              <Textarea rows={3} value={newShift.notes} onChange={(e) => setNewShift((p) => ({ ...p, notes: e.target.value }))} />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setAddShiftOpen(false)}>Cancel</Button>
+            <Button onClick={createShiftForStaff} disabled={creatingShift || !newShift.staffId || !newShift.clockIn}>
+              {creatingShift ? 'Adding…' : 'Add Shift'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -317,6 +466,7 @@ function StaffDaySheet({ openState, onClose }: { openState: { staffId: string; d
       <DialogContent className="w-full sm:max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Shifts — {openState?.date}</DialogTitle>
+          <DialogDescription>Edit shifts and add reimbursements for this day.</DialogDescription>
         </DialogHeader>
         {loading ? (
           <div className="p-4 text-sm text-gray-600">Loading…</div>

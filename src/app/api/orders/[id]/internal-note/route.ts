@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { buildOrderChangeEntries, writeOrderChangeLog } from '@/lib/order-change-log'
 
 export async function PUT(
   request: NextRequest,
@@ -9,9 +12,37 @@ export async function PUT(
     const { internalNote } = await request.json()
     
     const { id } = await params
+    const existing = await prisma.order.findUnique({
+      where: { id },
+      select: { internalNote: true },
+    })
+    if (!existing) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+    }
+
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: { internalNote }
+    })
+
+    const session = await getServerSession(authOptions).catch(() => null)
+    const changes = buildOrderChangeEntries(
+      { internalNote: existing.internalNote },
+      { internalNote: updatedOrder.internalNote },
+      ['internalNote']
+    )
+    await writeOrderChangeLog({
+      orderId: id,
+      action: 'ORDER_INTERNAL_NOTE_UPDATED',
+      changes,
+      actor: session?.user
+        ? {
+            id: session.user.id,
+            name: session.user.name ?? null,
+            email: session.user.email ?? null,
+          }
+        : undefined,
+      source: new URL(request.url).pathname,
     })
 
     return NextResponse.json(updatedOrder)

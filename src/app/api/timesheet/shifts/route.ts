@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getNZDateRangeForYmd, parseLocalDate } from '@/lib/date-utils'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -65,19 +67,48 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    
+    const session = await getServerSession(authOptions)
+
+    let staffId: string | undefined = body.staffId
+    if (!staffId) {
+      const email = session?.user?.email || null
+      if (!email) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      const staff = await prisma.staff.findUnique({ where: { email } })
+      if (!staff) {
+        return NextResponse.json({ error: 'Staff member not found' }, { status: 404 })
+      }
+      staffId = staff.id
+    }
+
+    const clockIn = body.clockIn ? new Date(body.clockIn) : new Date()
+    const clockOut = body.clockOut ? new Date(body.clockOut) : null
+    const inferredStatus = clockOut ? 'completed' : 'active'
+    const totalHours =
+      typeof body.totalHours === 'number'
+        ? body.totalHours
+        : clockOut
+          ? parseFloat(((clockOut.getTime() - clockIn.getTime()) / (1000 * 60 * 60)).toFixed(2))
+          : null
+
     console.log('📝 Creating new shift:', body)
     
     const shift = await prisma.shift.create({
       data: {
-        staffId: body.staffId || 'system', // TODO: Get from auth context
-        clockIn: new Date(body.clockIn || new Date()),
-        date: new Date(body.date || new Date()),
-        status: 'active'
+        staffId,
+        clockIn,
+        clockOut,
+        totalHours,
+        date: new Date(body.date || clockIn),
+        mileage: typeof body.mileage === 'number' ? body.mileage : null,
+        notes: typeof body.notes === 'string' ? body.notes : null,
+        status: body.status || inferredStatus
       },
       include: {
         staff: true,
-        reimbursements: true
+        reimbursements: true,
+        tasks: true
       }
     })
     

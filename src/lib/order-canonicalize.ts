@@ -22,6 +22,16 @@ export interface CanonicalizedScheduling {
   needsSchedulingReview: boolean
 }
 
+function buildNzLocalInstant(ymd: string, timeRaw?: string | null): Date {
+  // Start is the UTC instant corresponding to NZ local midnight for `ymd`.
+  // Add wall-clock hours/minutes in milliseconds to avoid any server-local TZ conversion.
+  const { start } = getNZDateRangeForYmd(ymd)
+  const timeMatch = (timeRaw || '').match(/(\d{1,2}):(\d{2})/)
+  const hh = timeMatch ? parseInt(timeMatch[1], 10) : 0
+  const mm = timeMatch ? parseInt(timeMatch[2], 10) : 0
+  return new Date(start.getTime() + (hh * 60 + mm) * 60 * 1000)
+}
+
 /**
  * Derives canonical region from order data
  * Uses existing priority-based region logic
@@ -58,31 +68,8 @@ export function extractDeliveryDateTime(order: any): { value: Date | null; sourc
   if (order?.deliveryDate) {
     const date = parseLocalDate(order.deliveryDate)
     if (date) {
-      // Combine with deliveryTime if available
-      // Store as UTC DateTime representing Auckland local time
-      let dateTime = date
-      if (order?.deliveryTime) {
-        const timeMatch = order.deliveryTime.match(/(\d{1,2}):(\d{2})/)
-        if (timeMatch) {
-          const [, hours, minutes] = timeMatch
-          // Create date in Auckland timezone, then convert to UTC for storage
-          const aucklandDateStr = formatLocalDate(date)
-          // Use proper Auckland timezone handling
-          const { start } = getNZDateRangeForYmd(aucklandDateStr)
-          dateTime = new Date(start)
-          dateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0)
-        } else {
-          // No time, use start of Auckland day
-          const aucklandDateStr = formatLocalDate(date)
-          const { start } = getNZDateRangeForYmd(aucklandDateStr)
-          dateTime = start
-        }
-      } else {
-        // No time specified, use start of Auckland day
-        const aucklandDateStr = formatLocalDate(date)
-        const { start } = getNZDateRangeForYmd(aucklandDateStr)
-        dateTime = start
-      }
+      const aucklandDateStr = formatLocalDate(date)
+      const dateTime = buildNzLocalInstant(aucklandDateStr, order?.deliveryTime || null)
       return { value: dateTime, source: 'field' }
     }
   }
@@ -113,23 +100,8 @@ export function extractDeliveryDateTime(order: any): { value: Date | null; sourc
     if (dateAttr?.value) {
       const date = parseLocalDate(dateAttr.value)
         if (date) {
-          // Store as UTC DateTime representing Auckland local time
           const aucklandDateStr = formatLocalDate(date)
-          const { start } = getNZDateRangeForYmd(aucklandDateStr)
-          let dateTime: Date
-          
-          if (timeAttr?.value) {
-            const timeMatch = String(timeAttr.value).match(/(\d{1,2}):(\d{2})/)
-            if (timeMatch) {
-              const [, hours, minutes] = timeMatch
-              dateTime = new Date(start)
-              dateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0)
-            } else {
-              dateTime = start
-            }
-          } else {
-            dateTime = start
-          }
+          const dateTime = buildNzLocalInstant(aucklandDateStr, timeAttr?.value ? String(timeAttr.value) : null)
           return { value: dateTime, source: 'noteAttributes' }
         }
     }
@@ -153,7 +125,6 @@ export function extractDeliveryDateTime(order: any): { value: Date | null; sourc
         if (date) {
           // Try to extract time from tags (e.g. "11:45 AM - 12:00 PM")
           const aucklandDateStr = formatLocalDate(date)
-          const { start } = getNZDateRangeForYmd(aucklandDateStr)
           let dateTime: Date
           const timeMatch = order.tags.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i)
           if (timeMatch) {
@@ -162,10 +133,9 @@ export function extractDeliveryDateTime(order: any): { value: Date | null; sourc
             const ampm = timeMatch[3]?.toUpperCase()
             if (ampm === 'PM' && hours !== 12) hours += 12
             if (ampm === 'AM' && hours === 12) hours = 0
-            dateTime = new Date(start)
-            dateTime.setHours(hours, minutes, 0, 0)
+            dateTime = buildNzLocalInstant(aucklandDateStr, `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`)
           } else {
-            dateTime = start
+            dateTime = buildNzLocalInstant(aucklandDateStr, null)
           }
           return { value: dateTime, source: 'tags' }
         }

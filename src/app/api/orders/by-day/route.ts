@@ -7,14 +7,16 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma, withRetry } from '@/lib/prisma'
+import { getDayWindowForYmd, parseCalendarRegion } from '@/lib/calendar-query'
+import { parseLocalDate } from '@/lib/date-utils'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const region = searchParams.get('region') // AKL or WLG
+    const region = parseCalendarRegion(searchParams.get('region'))
     const date = searchParams.get('date') // YYYY-MM-DD
     const page = parseInt(searchParams.get('page') || '1')
-    const pageSize = parseInt(searchParams.get('pageSize') || '50')
+    const pageSize = Math.min(5000, Math.max(1, parseInt(searchParams.get('pageSize') || '5000')))
     
     if (!region || !date) {
       return NextResponse.json(
@@ -23,21 +25,20 @@ export async function GET(request: NextRequest) {
       )
     }
     
-    if (region !== 'AKL' && region !== 'WLG') {
+    if (!region) {
       return NextResponse.json(
         { error: 'Region must be AKL or WLG' },
         { status: 400 }
       )
     }
-    
-    // Parse date (half-open range: [date 00:00 Auckland, date+1 00:00 Auckland))
-    // Use proper Auckland timezone handling
-    const { getNZDateRangeForYmd, addDaysNZ } = await import('@/lib/date-utils')
-    const { start: dateObj } = getNZDateRangeForYmd(date)
-    const nextDayStr = addDaysNZ(date, 1)
-    const { start: nextDate } = getNZDateRangeForYmd(nextDayStr)
-    
-    if (isNaN(dateObj.getTime())) {
+
+    let dateObj: Date
+    let nextDate: Date
+    try {
+      const range = getDayWindowForYmd(date)
+      dateObj = range.start
+      nextDate = range.endExclusive
+    } catch {
       return NextResponse.json(
         { error: 'Invalid date format. Use YYYY-MM-DD' },
         { status: 400 }
@@ -46,29 +47,33 @@ export async function GET(request: NextRequest) {
     
     // Query orders for the day
     const [orders, total] = await withRetry(async () => {
+      const fallbackResolvedStart = parseLocalDate(date) || new Date(date)
+      const fallbackResolvedEnd = new Date(
+        fallbackResolvedStart.getFullYear(),
+        fallbackResolvedStart.getMonth(),
+        fallbackResolvedStart.getDate() + 1
+      )
+      const fallbackResolvedRange = {
+        gte: fallbackResolvedStart,
+        lt: fallbackResolvedEnd,
+      }
       return await Promise.all([
         prisma.order.findMany({
           where: {
             region,
-            deliveryDateTime: {
-              gte: dateObj,
-              lt: nextDate // Half-open: [dateObj, nextDate)
-            }
-          },
-          select: {
-            id: true,
-            orderNumber: true,
-            customerFirstName: true,
-            customerLastName: true,
-            customerEmail: true,
-            customerPhone: true,
-            shippingAddress: true,
-            deliveryDateTime: true,
-            deliveryTime: true,
-            tags: true,
-            fulfillmentStatus: true,
-            isDispatched: true,
-            needsSchedulingReview: true,
+            cancelledAt: null,
+            OR: [
+              {
+                deliveryDateTime: {
+                  gte: dateObj,
+                  lt: nextDate // Half-open: [dateObj, nextDate)
+                }
+              },
+              {
+                deliveryDateTime: null,
+                deliveryDateResolved: fallbackResolvedRange as any,
+              }
+            ]
           },
           orderBy: {
             deliveryDateTime: 'asc'
@@ -79,10 +84,19 @@ export async function GET(request: NextRequest) {
         prisma.order.count({
           where: {
             region,
-            deliveryDateTime: {
-              gte: dateObj,
-              lt: nextDate // Half-open: [dateObj, nextDate)
-            }
+            cancelledAt: null,
+            OR: [
+              {
+                deliveryDateTime: {
+                  gte: dateObj,
+                  lt: nextDate // Half-open: [dateObj, nextDate)
+                }
+              },
+              {
+                deliveryDateTime: null,
+                deliveryDateResolved: fallbackResolvedRange as any,
+              }
+            ]
           }
         })
       ])

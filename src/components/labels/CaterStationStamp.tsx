@@ -1,52 +1,35 @@
 'use client'
 
 import React from 'react'
-import { INK } from './label-styles'
 
-/** Small circular stamp mark — fashion-label treatment, top-right corner */
-export function CaterStationStamp({ size = 52 }: { size?: number }) {
-  const fontSize = Math.round(size * 0.17)
+/** Standalone monochrome CaterStation logo mark */
+export function CaterStationStamp({ size = 66 }: { size?: number }) {
   return (
     <div
       style={{
         width: size,
         height: size,
-        borderRadius: '50%',
-        border: `1.5px solid ${INK}`,
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
+        boxSizing: 'border-box',
         flexShrink: 0,
-        background: '#fff',
       }}
     >
-      <svg width={size} height={size} viewBox="0 0 52 52" aria-hidden>
-        <circle cx="26" cy="26" r="24" fill="none" stroke={INK} strokeWidth="1.5" />
-        <text
-          x="26"
-          y="22"
-          textAnchor="middle"
-          fill={INK}
-          fontSize={fontSize}
-          fontWeight="700"
-          fontFamily="Impact, 'Arial Black', sans-serif"
-          letterSpacing="0.08em"
-        >
-          CS
-        </text>
-        <text
-          x="26"
-          y="34"
-          textAnchor="middle"
-          fill={INK}
-          fontSize={fontSize * 0.55}
-          fontWeight="600"
-          fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
-          letterSpacing="0.12em"
-        >
-          STATION
-        </text>
-      </svg>
+      <img
+        src="/caterstationlabellogo.svg"
+        alt="CaterStation"
+        style={{
+          width: Math.round(size * 0.95),
+          height: Math.round(size * 0.95),
+          objectFit: 'contain',
+          objectPosition: 'top center',
+          // Source SVG has large top whitespace in its internal viewBox.
+          // Shift image up so visible mark sits near the physical top print area.
+          transform: 'translateY(-30%)',
+          filter: 'grayscale(1) contrast(1.25)',
+        }}
+      />
     </div>
   )
 }

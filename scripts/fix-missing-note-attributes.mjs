@@ -2,8 +2,9 @@
 
 import { PrismaClient } from '@prisma/client';
 import { env } from '../src/env.mjs';
+import { scriptPrismaOptions } from './lib/script-prisma-url.cjs';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient(scriptPrismaOptions());
 
 async function fixMissingNoteAttributes() {
   try {

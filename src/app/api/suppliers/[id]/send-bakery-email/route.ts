@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import nodemailer from 'nodemailer';
 import { formatNZYMD, getNZDateRangeForYmd, addDaysNZ } from '@/lib/date-utils';
 import { format } from 'date-fns';
+import { resolveBundleItems } from '@/lib/product-service';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -52,6 +53,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const runType = (request.nextUrl.searchParams.get('run') || '').toLowerCase();
+    const isFinalRun = runType === 'final';
     // Allow internal calls from cron (skip auth check for internal)
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
@@ -118,8 +121,8 @@ export async function POST(
         bakeryVariantIds.add(variant.variantId);
       });
     });
-    
-    // Parse line items and filter bakery items
+
+    // Parse line items helper function
     const parseLineItems = (li: any): any[] => {
       if (Array.isArray(li)) return li;
       if (typeof li === 'string') {
@@ -127,6 +130,61 @@ export async function POST(
       }
       return [];
     };
+
+    // Build products map for bundle resolution
+    const allVariantIds = new Set<string>();
+    for (const o of orders) {
+      const lineItems = parseLineItems(o.lineItems);
+      lineItems.forEach((it: any) => {
+        const variantId = it.variant_id?.toString() || it.variantId?.toString();
+        if (variantId) allVariantIds.add(variantId);
+      });
+    }
+
+    // Fetch all product variants
+    const productVariants = await prisma.productVariant.findMany({
+      where: { variantId: { in: Array.from(allVariantIds) } },
+      include: { product: true }
+    });
+    const productsMap: Record<string, any> = {};
+    productVariants.forEach(v => {
+      productsMap[v.variantId] = {
+        ...v,
+        isPartyPack: v.isPartyPack,
+        bundleItems: v.bundleItems,
+        productIsPartyPackDefault: v.product.isPartyPackDefault,
+        productBundleDefaultItems: v.product.bundleDefaultItems
+      };
+    });
+
+    // Fetch child variants that might be in bundles
+    const childVariantIds = new Set<string>();
+    productVariants.forEach(v => {
+      const children = resolveBundleItems({
+        ...v,
+        isPartyPack: v.isPartyPack,
+        bundleItems: v.bundleItems,
+        productIsPartyPackDefault: v.product.isPartyPackDefault,
+        productBundleDefaultItems: v.product.bundleDefaultItems
+      });
+      children.forEach(c => childVariantIds.add(c.variantId));
+    });
+    
+    if (childVariantIds.size > 0) {
+      const childVariants = await prisma.productVariant.findMany({
+        where: { variantId: { in: Array.from(childVariantIds) } },
+        include: { product: true }
+      });
+      childVariants.forEach(v => {
+        productsMap[v.variantId] = {
+          ...v,
+          isPartyPack: v.isPartyPack,
+          bundleItems: v.bundleItems,
+          productIsPartyPackDefault: v.product.isPartyPackDefault,
+          productBundleDefaultItems: v.product.bundleDefaultItems
+        };
+      });
+    }
     
     // Group bakery items by date and AM/PM
     const tomorrowAM: Record<string, number> = {};
@@ -152,7 +210,39 @@ export async function POST(
       
       const lineItems = parseLineItems(order.lineItems);
       
+      // Expand party packs into their nested products
+      const expandedItems: any[] = [];
       for (const item of lineItems) {
+        const variantId = String(item.variant_id || item.variantId || '');
+        const product = productsMap[variantId];
+        const qty = Number(item.quantity || 0);
+        
+        if (product) {
+          const bundleChildren = resolveBundleItems(product);
+          if (bundleChildren.length > 0) {
+            // This is a party pack - expand it
+            for (const child of bundleChildren) {
+              const childProduct = productsMap[child.variantId];
+              expandedItems.push({
+                ...item,
+                variant_id: child.variantId,
+                variantId: child.variantId,
+                quantity: qty * Math.max(1, parseInt(String(child.quantity || '1'), 10)),
+                title: childProduct?.displayName || childProduct?.shopifyName || item.title,
+                _isPackChild: true
+              });
+            }
+          } else {
+            // Not a party pack, add as-is
+            expandedItems.push(item);
+          }
+        } else {
+          // Product not found, add as-is
+          expandedItems.push(item);
+        }
+      }
+      
+      for (const item of expandedItems) {
         const variantId = String(item.variant_id || item.variantId || '');
         if (!bakeryVariantIds.has(variantId)) continue;
         
@@ -230,7 +320,7 @@ export async function POST(
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: supplier.contactEmail,
-      subject: `Bakery Order - ${formatDate(tomorrowNZ)} & ${formatDate(dayAfterNZ)}`,
+      subject: `${isFinalRun ? 'FINAL - ' : ''}Bakery Order - ${formatDate(tomorrowNZ)} & ${formatDate(dayAfterNZ)}`,
       html: emailBody
     });
     

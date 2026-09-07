@@ -2,8 +2,16 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -14,8 +22,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { formatValue } from '@/lib/format'
+import { ChartCard, FormattedTooltip, axisTick } from './primitives/ChartCard'
+import { useChartColors } from './primitives/chart-colors'
+import { KpiCard } from './primitives/KpiCard'
+import { DataTable } from './primitives/DataTable'
+import { CohortHeatmap } from './CohortHeatmap'
+import { RetentionFunnel } from './RetentionFunnel'
 
 export function CompanyBehaviourPanel({ data, onRefresh }: { data?: any; onRefresh?: () => Promise<void> | void }) {
+  const palette = useChartColors()
   const [recoveryOptions, setRecoveryOptions] = useState<string[]>([])
   const [selectedAction, setSelectedAction] = useState('')
   const [customAction, setCustomAction] = useState('')
@@ -99,165 +115,179 @@ export function CompanyBehaviourPanel({ data, onRefresh }: { data?: any; onRefre
     }
   }
 
-  if (!data || data.notEnoughData) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Company behaviour</CardTitle>
-        </CardHeader>
-        <CardContent>Not enough data yet</CardContent>
-      </Card>
-    )
-  }
+  const lapsedChartData = useMemo(() => {
+    const lapsed: any[] = Array.isArray(data?.lapsedCompanies) ? data.lapsedCompanies : []
+    const top = lapsed.slice(0, 10).map((row) => ({
+      name: row.companyName,
+      lifetimeRevenue: Number(row.lifetimeRevenue || 0),
+    }))
+    const rest = lapsed.slice(10)
+    if (rest.length) {
+      top.push({
+        name: `Other (${rest.length})`,
+        lifetimeRevenue: rest.reduce((sum, row) => sum + Number(row.lifetimeRevenue || 0), 0),
+      })
+    }
+    return top
+  }, [data?.lapsedCompanies])
+
+  if (!data || data.notEnoughData) return null
+
+  const orderNumberColumns = [
+    { key: 'bucket', label: 'Order number' },
+    { key: 'revenue', label: 'Revenue', format: 'currency' as const },
+    { key: 'orders', label: 'Orders', format: 'count' as const },
+    { key: 'averageOrderValue', label: 'AOV', format: 'currency' as const },
+  ]
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Order frequency distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.frequencyDistribution}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="bucket" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="companies" fill="#2563eb" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <RetentionFunnel buckets={data.frequencyDistribution} />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue by company order number</CardTitle>
-          </CardHeader>
-          <CardContent className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.revenueByOrderNumber}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="bucket" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="revenue" fill="#16a34a" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <ChartCard
+          title="Revenue by company order number"
+          subtitle="Period revenue split by whether it came from a company's 1st, 2nd, 3rd or later order"
+          data={data.revenueByOrderNumber || []}
+          columns={orderNumberColumns}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data.revenueByOrderNumber}>
+              <CartesianGrid strokeDasharray="3 3" stroke={palette.ink.grid} />
+              <XAxis dataKey="bucket" tick={axisTick(palette.ink.axis)} />
+              <YAxis
+                tick={axisTick(palette.ink.axis)}
+                tickFormatter={(v) => formatValue(v, 'currencyCompact')}
+                width={56}
+              />
+              <Tooltip content={<FormattedTooltip columns={orderNumberColumns} />} />
+              <Bar dataKey="revenue" name="Revenue" fill={palette.semantic.revenue} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
 
+      <CohortHeatmap data={data.cohortRetention} />
+
       <Card>
-        <CardHeader>
-          <CardTitle>Company value segmentation</CardTitle>
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="text-sm font-semibold">Company value segmentation</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Buckets are based on lifetime revenue; the Revenue and Orders columns cover the selected period only.
+          </p>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Bucket</TableHead>
-                <TableHead>Companies</TableHead>
-                <TableHead>Revenue</TableHead>
-                <TableHead>Orders</TableHead>
-                <TableHead>Avg orders/company</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.valueSegmentation.map((row: any) => (
-                <TableRow key={row.bucket}>
-                  <TableCell>{row.bucket}</TableCell>
-                  <TableCell>{row.companies}</TableCell>
-                  <TableCell>{row.revenue}</TableCell>
-                  <TableCell>{row.orders}</TableCell>
-                  <TableCell>{row.averageOrdersPerCompany}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <CardContent className="p-4 pt-2">
+          <DataTable
+            columns={[
+              { key: 'bucket', label: 'Lifetime revenue bucket', sortable: false },
+              { key: 'companies', label: 'Companies', format: 'count' },
+              { key: 'revenue', label: 'Revenue (selected period)', format: 'currency' },
+              { key: 'orders', label: 'Orders (selected period)', format: 'count' },
+              { key: 'averageOrdersPerCompany', label: 'Avg orders / company (period)', format: 'count' },
+            ]}
+            rows={data.valueSegmentation || []}
+            rowKey={(row: any) => row.bucket}
+          />
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Time between company orders</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="rounded border p-3">
-            <p className="text-xs text-muted-foreground">1st to 2nd</p>
-            <p className="text-lg font-semibold">{data.timeBetweenOrders.firstToSecond}</p>
-          </div>
-          <div className="rounded border p-3">
-            <p className="text-xs text-muted-foreground">2nd to 3rd</p>
-            <p className="text-lg font-semibold">{data.timeBetweenOrders.secondToThird}</p>
-          </div>
-          <div className="rounded border p-3">
-            <p className="text-xs text-muted-foreground">3rd to 4th</p>
-            <p className="text-lg font-semibold">{data.timeBetweenOrders.thirdToFourth}</p>
-          </div>
-          <div className="rounded border p-3">
-            <p className="text-xs text-muted-foreground">4th+ average</p>
-            <p className="text-lg font-semibold">{data.timeBetweenOrders.fourthPlus}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Time between company orders
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <KpiCard label="1st to 2nd" value={data.timeBetweenOrders.firstToSecond} format="days" size="compact" />
+          <KpiCard label="2nd to 3rd" value={data.timeBetweenOrders.secondToThird} format="days" size="compact" />
+          <KpiCard label="3rd to 4th" value={data.timeBetweenOrders.thirdToFourth} format="days" size="compact" />
+          <KpiCard label="4th+ average" value={data.timeBetweenOrders.fourthPlus} format="days" size="compact" />
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Lapsed companies and suggested approach</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {actionError ? <p className="text-sm text-red-600">{actionError}</p> : null}
-          {!data.lapsedCompanies?.length ? (
-            <p className="text-sm text-muted-foreground">No lapsed companies in this date range.</p>
-          ) : (
-            <>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.lapsedCompanies.slice(0, 12)}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="companyName" hide />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="lifetimeRevenue" fill="#dc2626" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Lifetime revenue</TableHead>
-                    <TableHead>Orders</TableHead>
-                    <TableHead>Days since last order</TableHead>
-                    <TableHead>Suggested approach</TableHead>
-                    <TableHead>Estimated recovery value</TableHead>
-                    <TableHead>Actions taken</TableHead>
-                    <TableHead>Recovered</TableHead>
-                    <TableHead>$ Post recovery</TableHead>
-                    <TableHead>Action taken</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.lapsedCompanies.map((row: any) => (
-                    <TableRow key={row.companyId}>
-                      <TableCell>{row.companyName}</TableCell>
-                      <TableCell>{row.lifetimeRevenue}</TableCell>
-                      <TableCell>{row.lifetimeOrders}</TableCell>
-                      <TableCell>{row.daysSinceLastOrder ?? '-'}</TableCell>
-                      <TableCell>{row.suggestedApproach}</TableCell>
-                      <TableCell>{row.estimatedRecoveryValue}</TableCell>
-                      <TableCell>
+      <div className="space-y-4">
+        {actionError ? <p className="text-sm text-red-600">{actionError}</p> : null}
+        {!data.lapsedCompanies?.length ? (
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">No lapsed companies in this date range.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            <ChartCard
+              title="Lapsed companies by lifetime revenue"
+              subtitle="Top 10 highest-value lapsed companies (of the top 25 shown below)"
+              data={lapsedChartData}
+              columns={[
+                { key: 'name', label: 'Company' },
+                { key: 'lifetimeRevenue', label: 'Lifetime revenue', format: 'currency' },
+              ]}
+              height={Math.max(240, lapsedChartData.length * 32 + 40)}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={lapsedChartData} layout="vertical" margin={{ left: 8, right: 64 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={palette.ink.grid} horizontal={false} />
+                  <XAxis
+                    type="number"
+                    tick={axisTick(palette.ink.axis)}
+                    tickFormatter={(v) => formatValue(v, 'currencyCompact')}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={170}
+                    tick={{ ...axisTick(palette.ink.axis), fontSize: 11 }}
+                  />
+                  <Tooltip
+                    content={
+                      <FormattedTooltip
+                        columns={[{ key: 'lifetimeRevenue', label: 'Lifetime revenue', format: 'currency' }]}
+                      />
+                    }
+                  />
+                  <Bar dataKey="lifetimeRevenue" name="Lifetime revenue" fill={palette.categorical[0]}>
+                    <LabelList
+                      dataKey="lifetimeRevenue"
+                      position="right"
+                      formatter={(value: number) => formatValue(value, 'currencyCompact')}
+                      style={{ fontSize: 11, fill: palette.ink.axis }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <Card>
+              <CardHeader className="p-4 pb-2">
+                <CardTitle className="text-sm font-semibold">Lapsed companies and suggested approach</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-2">
+                <DataTable
+                  columns={[
+                    {
+                      key: 'companyName',
+                      label: 'Company',
+                      render: (row: any) => (
+                        <a href={`/admin/companies/${row.companyId}`} className="underline underline-offset-2">
+                          {row.companyName}
+                        </a>
+                      ),
+                    },
+                    { key: 'lifetimeRevenue', label: 'Lifetime revenue', format: 'currency' },
+                    { key: 'lifetimeOrders', label: 'Orders', format: 'count' },
+                    { key: 'daysSinceLastOrder', label: 'Days since last order', format: 'count' },
+                    { key: 'suggestedApproach', label: 'Suggested approach', sortable: false },
+                    { key: 'estimatedRecoveryValue', label: 'Est. recovery value', format: 'currency' },
+                    {
+                      key: 'recoveryActions',
+                      label: 'Actions taken',
+                      sortable: false,
+                      render: (row: any) => (
                         <div className="flex max-w-[260px] flex-wrap gap-1">
                           {Array.isArray(row.recoveryActions) && row.recoveryActions.length > 0 ? (
                             row.recoveryActions.map((action: any, idx: number) => (
                               <span
                                 key={`${row.companyId}-${action.actionLabel}-${idx}`}
-                                title={
-                                  action.note
-                                    ? `${action.actionLabel}: ${action.note}`
-                                    : action.actionLabel
-                                }
+                                title={action.note ? `${action.actionLabel}: ${action.note}` : action.actionLabel}
                                 className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs"
                               >
                                 {action.actionLabel}
@@ -267,22 +297,34 @@ export function CompanyBehaviourPanel({ data, onRefresh }: { data?: any; onRefre
                             <span className="text-xs text-muted-foreground">-</span>
                           )}
                         </div>
-                      </TableCell>
-                      <TableCell>{row.recovered ? 'Yes' : 'No'}</TableCell>
-                      <TableCell>{row.postRecoveryRevenue ?? 0}</TableCell>
-                      <TableCell>
+                      ),
+                    },
+                    {
+                      key: 'recovered',
+                      label: 'Recovered',
+                      render: (row: any) => (row.recovered ? 'Yes' : 'No'),
+                    },
+                    { key: 'postRecoveryRevenue', label: '$ post recovery', format: 'currency' },
+                    {
+                      key: 'actions',
+                      label: 'Log action',
+                      sortable: false,
+                      render: (row: any) => (
                         <Button size="sm" variant="outline" onClick={() => openActionModal(row)}>
                           +
                         </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </>
-          )}
-        </CardContent>
-      </Card>
+                      ),
+                    },
+                  ]}
+                  rows={data.lapsedCompanies}
+                  rowKey={(row: any) => row.companyId}
+                />
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
+
       <Dialog open={!!activeCompany} onOpenChange={(open) => (!open ? closeActionModal() : null)}>
         <DialogContent>
           <DialogHeader>

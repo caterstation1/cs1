@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma, withRetry } from '@/lib/prisma'
+import { getRangeWindowForYmd, parseCalendarRegion } from '@/lib/calendar-query'
 
 // Simple in-memory cache (5 minute TTL)
 const cache = new Map<string, { data: any; expires: number }>()
@@ -37,9 +38,10 @@ function setCache(key: string, data: any): void {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const region = searchParams.get('region') // AKL or WLG
+    const region = parseCalendarRegion(searchParams.get('region')) // AKL or WLG
     const start = searchParams.get('start') // YYYY-MM-DD
     const end = searchParams.get('end') // YYYY-MM-DD
+    const fresh = searchParams.get('fresh') === '1'
     
     if (!region || !start || !end) {
       return NextResponse.json(
@@ -48,25 +50,32 @@ export async function GET(request: NextRequest) {
       )
     }
     
-    if (region !== 'AKL' && region !== 'WLG') {
+    if (!region) {
       return NextResponse.json(
         { error: 'Region must be AKL or WLG' },
         { status: 400 }
       )
     }
     
-    // Check cache
+    // Check cache unless explicitly bypassed.
     const cacheKey = getCacheKey(region, start, end)
-    const cached = getCached(cacheKey)
-    if (cached) {
-      return NextResponse.json(cached)
+    if (!fresh) {
+      const cached = getCached(cacheKey)
+      if (cached) {
+        return NextResponse.json(cached)
+      }
     }
     
-    // Parse dates (half-open range: [start, end))
-    const startDate = new Date(start + 'T00:00:00.000Z')
-    const endDate = new Date(end + 'T00:00:00.000Z')
-    
-    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    let startDate: Date
+    let endDate: Date
+    try {
+      const range = getRangeWindowForYmd({
+        startYmd: start,
+        endYmdExclusive: end,
+      })
+      startDate = range.start
+      endDate = range.endExclusive
+    } catch {
       return NextResponse.json(
         { error: 'Invalid date format. Use YYYY-MM-DD' },
         { status: 400 }
@@ -76,25 +85,72 @@ export async function GET(request: NextRequest) {
     // Query orders using Prisma $queryRaw for GROUP BY performance
     // Group by Auckland date (Pacific/Auckland timezone) to ensure correct day grouping
     const result = await withRetry(async () => {
-      return await prisma.$queryRaw<Array<{ date: Date; count: bigint }>>`
+      return await prisma.$queryRaw<
+        Array<{
+          ymd: string
+          total_count: number
+          morning_count: number
+          needs_review_count: number
+          dispatched_count: number
+        }>
+      >`
         SELECT 
-          DATE("deliveryDateTime" AT TIME ZONE 'UTC' AT TIME ZONE 'Pacific/Auckland') as date,
-          COUNT(*)::int as count
+          TO_CHAR(
+            COALESCE(
+              DATE("deliveryDateTime" AT TIME ZONE 'UTC' AT TIME ZONE 'Pacific/Auckland'),
+              "deliveryDateResolved"
+            ),
+            'YYYY-MM-DD'
+          ) as ymd,
+          COUNT(*)::int as total_count,
+          COUNT(*) FILTER (
+            WHERE "deliveryDateTime" IS NOT NULL
+              AND EXTRACT(HOUR FROM ("deliveryDateTime" AT TIME ZONE 'UTC' AT TIME ZONE 'Pacific/Auckland')) < 12
+          )::int AS morning_count,
+          COUNT(*) FILTER (WHERE "needsSchedulingReview" = true)::int AS needs_review_count,
+          COUNT(*) FILTER (WHERE "isDispatched" = true)::int AS dispatched_count
         FROM "Order"
         WHERE 
           "region" = ${region}
-          AND "deliveryDateTime" >= ${startDate}
-          AND "deliveryDateTime" < ${endDate}
-          AND "deliveryDateTime" IS NOT NULL
-        GROUP BY DATE("deliveryDateTime" AT TIME ZONE 'UTC' AT TIME ZONE 'Pacific/Auckland')
-        ORDER BY date ASC
+          AND "cancelledAt" IS NULL
+          AND (
+            (
+              "deliveryDateTime" IS NOT NULL
+              AND "deliveryDateTime" >= ${startDate}
+              AND "deliveryDateTime" < ${endDate}
+            )
+            OR (
+              "deliveryDateTime" IS NULL
+              AND "deliveryDateResolved" IS NOT NULL
+              AND "deliveryDateResolved" >= CAST(${start} AS DATE)
+              AND "deliveryDateResolved" < CAST(${end} AS DATE)
+            )
+          )
+        GROUP BY COALESCE(
+          DATE("deliveryDateTime" AT TIME ZONE 'UTC' AT TIME ZONE 'Pacific/Auckland'),
+          "deliveryDateResolved"
+        )
+        ORDER BY COALESCE(
+          DATE("deliveryDateTime" AT TIME ZONE 'UTC' AT TIME ZONE 'Pacific/Auckland'),
+          "deliveryDateResolved"
+        ) ASC
       `
     })
     
-    // Convert to array of { date: string, count: number }
-    const countsByDay = result.map(row => ({
-      date: row.date.toISOString().split('T')[0], // YYYY-MM-DD
-      count: Number(row.count)
+    const days = result.map((row) => {
+      return {
+        date: row.ymd,
+        totalCount: Number(row.total_count || 0),
+        morningCount: Number(row.morning_count || 0),
+        needsReviewCount: Number(row.needs_review_count || 0),
+        dispatchedCount: Number(row.dispatched_count || 0),
+      }
+    })
+
+    // Backward compatibility for existing clients.
+    const countsByDay = days.map((d) => ({
+      date: d.date,
+      count: d.totalCount,
     }))
     
     // Get needs review count
@@ -102,7 +158,8 @@ export async function GET(request: NextRequest) {
       return await prisma.order.count({
         where: {
           region,
-          needsSchedulingReview: true
+          needsSchedulingReview: true,
+          cancelledAt: null,
         }
       })
     })
@@ -111,13 +168,16 @@ export async function GET(request: NextRequest) {
       region,
       start,
       end,
+      days,
       countsByDay,
       needsReviewCount,
       cached: false
     }
     
-    // Cache the result
-    setCache(cacheKey, response)
+    // Cache the result only for non-fresh requests.
+    if (!fresh) {
+      setCache(cacheKey, response)
+    }
     
     return NextResponse.json(response)
   } catch (error) {

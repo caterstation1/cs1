@@ -56,6 +56,8 @@ interface ProductVariant {
   isDraft: boolean;
   ingredients?: any;
   totalCost?: number;
+  /** Server-derived: parent base + costing-tab choices + unique variant rows. */
+  displayCost?: number;
   // Bundle override
   isPartyPack?: boolean;
   bundleItems?: Array<{ variantId: string; quantity: number }>;
@@ -71,12 +73,80 @@ interface ProductVariant {
  * loss-making product read as the healthiest on the page. The count of what
  * was actually included is returned so the number can be read honestly.
  */
-function productMargin(variants: ProductVariant[]) {
+const endsWithFullStop = (value?: string | null) => String(value || '').trim().endsWith('.')
+
+const isWellingtonProduct = (product: ShopifyProduct) =>
+  endsWithFullStop(product.productTitle) || endsWithFullStop(product.displayName)
+
+const isPartyPackProduct = (product: ShopifyProduct) =>
+  Boolean(product.isPartyPackDefault) ||
+  (Array.isArray(product.bundleDefaultItems) && product.bundleDefaultItems.length > 0)
+
+const isPartyPackVariant = (variant: ProductVariant, product: ShopifyProduct) =>
+  Boolean(variant.isPartyPack) ||
+  (Array.isArray(variant.bundleItems) && variant.bundleItems.length > 0) ||
+  isPartyPackProduct(product)
+
+function visibleVariantsForFilters(
+  product: ShopifyProduct,
+  opts: { hidePartyPacks: boolean; hideDrafts: boolean }
+): ProductVariant[] {
+  const variants = Array.isArray(product.variants) ? product.variants : []
+  return variants.filter((variant) => {
+    if (!variant || typeof variant !== 'object') return false
+    if (opts.hideDrafts && variant.isDraft) return false
+    if (opts.hidePartyPacks && isPartyPackVariant(variant, product)) return false
+    return true
+  })
+}
+
+function recipeLineKey(line: any): string {
+  const source = String(line?.source || '').trim().toLowerCase()
+  const id = String(line?.id || '').trim().toLowerCase()
+  if (id) return `${source}:${id}`
+  return `${source}:name:${String(line?.name || '').trim().toLowerCase()}`
+}
+
+function recipeLineCost(line: any): number {
+  const qty = Number(line?.quantity || 0)
+  const cost = Number(line?.cost ?? 0)
+  if (!Number.isFinite(qty) || !Number.isFinite(cost)) return 0
+  return qty * cost
+}
+
+/**
+ * Cost shown on this tab: parent base + costing-tab option recipes + unique
+ * variant rows. Prefer the server figure, which is the only one that can see
+ * the Costing tab catalogue. The local sum is a fallback if that field is
+ * missing — it cannot include option recipes, so it is incomplete.
+ */
+function variantDisplayCost(variant: ProductVariant, product: ShopifyProduct): number {
+  if (typeof variant.displayCost === 'number' && Number.isFinite(variant.displayCost)) {
+    return variant.displayCost
+  }
+  const base = Array.isArray(product.baseIngredients) ? product.baseIngredients : []
+  const own = Array.isArray(variant.ingredients) ? variant.ingredients : []
+  if (base.length === 0 && own.length === 0) {
+    return Number(variant.totalCost || 0)
+  }
+  const seen = new Set<string>()
+  let total = 0
+  for (const line of [...base, ...own]) {
+    if (!line || typeof line !== 'object') continue
+    const key = recipeLineKey(line)
+    if (seen.has(key)) continue
+    seen.add(key)
+    total += recipeLineCost(line)
+  }
+  return total
+}
+
+function productMargin(product: ShopifyProduct, variants: ProductVariant[]) {
   let sum = 0
   let costed = 0
   for (const variant of variants) {
     const priceEx = Number(variant.shopifyPrice) / 1.15
-    const cost = Number(variant.totalCost || 0)
+    const cost = variantDisplayCost(variant, product)
     if (!isFinite(priceEx) || priceEx <= 0 || cost <= 0) continue
     sum += ((priceEx - cost) / priceEx) * 100
     costed += 1
@@ -120,6 +190,12 @@ export function ProductsTab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof ShopifyProduct>('productTitle');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [hidePartyPacks, setHidePartyPacks] = useState(false);
+  const [hideWellington, setHideWellington] = useState(false);
+  const [hideDrafts, setHideDrafts] = useState(false);
+  const [sortByMostSold, setSortByMostSold] = useState(false);
+  const [soldByProductId, setSoldByProductId] = useState<Record<string, number>>({});
+  const [soldLoading, setSoldLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null);
   const [isSetRuleModalOpen, setIsSetRuleModalOpen] = useState(false);
@@ -158,36 +234,40 @@ export function ProductsTab() {
   const filteredAndSortedProducts = useMemo((): ShopifyProduct[] => {
     // Ensure products is always an array
     const productsArray = Array.isArray(products) ? products : [];
-    let filtered = productsArray;
-    
-    if (searchTerm) {
-      filtered = productsArray.filter(product => {
-        // Validate product structure
-        if (!product || typeof product !== 'object') return false;
-        
-        // Search in product-level fields
-        if (
-          (product.productTitle && product.productTitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (product.displayName && product.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
-        ) {
-          return true;
-        }
-        // Search in variant-level fields - ensure variants exists and is an array
-        if (product.variants && Array.isArray(product.variants)) {
-          return product.variants.some(variant => {
-            if (!variant || typeof variant !== 'object') return false;
-            return (
-              (variant.shopifyName && variant.shopifyName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-              (variant.shopifyTitle && variant.shopifyTitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
-              (variant.displayName && variant.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
-            );
-          });
-        }
-        return false;
-      });
-    }
+    const q = searchTerm.trim().toLowerCase();
+
+    const filtered = productsArray.flatMap((product) => {
+      if (!product || typeof product !== 'object') return [];
+      if (hideWellington && isWellingtonProduct(product)) return [];
+
+      const variants = visibleVariantsForFilters(product, { hidePartyPacks, hideDrafts });
+      if (!variants.length) return [];
+
+      if (q) {
+        const inProduct =
+          (product.productTitle && product.productTitle.toLowerCase().includes(q)) ||
+          (product.displayName && product.displayName.toLowerCase().includes(q));
+        const inVariants = variants.some((variant) =>
+          Boolean(
+            (variant.shopifyName && variant.shopifyName.toLowerCase().includes(q)) ||
+            (variant.shopifyTitle && variant.shopifyTitle.toLowerCase().includes(q)) ||
+            (variant.displayName && variant.displayName.toLowerCase().includes(q))
+          )
+        );
+        if (!inProduct && !inVariants) return [];
+      }
+
+      return [{ ...product, variants }];
+    });
 
     return filtered.sort((a, b) => {
+      if (sortByMostSold) {
+        const soldA = soldByProductId[a.id] || 0;
+        const soldB = soldByProductId[b.id] || 0;
+        if (soldA !== soldB) return soldB - soldA;
+        return a.productTitle.localeCompare(b.productTitle, 'en', { sensitivity: 'base' });
+      }
+
       const aValue = a[sortField as keyof ShopifyProduct];
       const bValue = b[sortField as keyof ShopifyProduct];
       
@@ -199,7 +279,7 @@ export function ProductsTab() {
       if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [products, searchTerm, sortField, sortDirection]);
+  }, [products, searchTerm, sortField, sortDirection, hidePartyPacks, hideWellington, hideDrafts, sortByMostSold, soldByProductId]);
 
   // Built from the unfiltered list so bundle rows stay named while the table is
   // narrowed by a search term.
@@ -276,6 +356,27 @@ export function ProductsTab() {
     };
     loadCatalogs();
   }, []);
+
+  useEffect(() => {
+    if (!sortByMostSold) return
+    let cancelled = false
+    setSoldLoading(true)
+    fetch('/api/products/sales')
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`Sales failed (${res.status})`))))
+      .then((data) => {
+        if (!cancelled) setSoldByProductId(data.byProductId && typeof data.byProductId === 'object' ? data.byProductId : {})
+      })
+      .catch((error) => {
+        console.error('Failed to load product sales:', error)
+        if (!cancelled) setSoldByProductId({})
+      })
+      .finally(() => {
+        if (!cancelled) setSoldLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [sortByMostSold])
 
   // Fetch products function
   const fetchProducts = useCallback(async () => {
@@ -426,7 +527,7 @@ export function ProductsTab() {
             '', // Timer A
             '', // Timer B
             variant.ingredients ? JSON.stringify(variant.ingredients) : '',
-            variant.totalCost || ''
+            variantDisplayCost(variant, product) || ''
           ]);
         });
       });
@@ -953,6 +1054,42 @@ export function ProductsTab() {
         </div>
       </div>
 
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={hidePartyPacks}
+            onChange={(e) => setHidePartyPacks(e.target.checked)}
+          />
+          Hide party packs
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={hideWellington}
+            onChange={(e) => setHideWellington(e.target.checked)}
+          />
+          Hide Wellington
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={hideDrafts}
+            onChange={(e) => setHideDrafts(e.target.checked)}
+          />
+          Hide drafts
+        </label>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={sortByMostSold}
+            onChange={(e) => setSortByMostSold(e.target.checked)}
+          />
+          List by most sold
+          {sortByMostSold && soldLoading && <span className="text-xs text-gray-500">loading…</span>}
+        </label>
+      </div>
+
       <div className="border rounded-lg">
       <Table>
         <TableHeader>
@@ -972,7 +1109,7 @@ export function ProductsTab() {
               <TableHead>Variant</TableHead>
               <TableHead>SKU</TableHead>
               <TableHead>Price (ex GST)</TableHead>
-              <TableHead>Total Cost</TableHead>
+              <TableHead title="Parent base ingredients, Costing-tab choices, and this variant's own rows">Total Cost</TableHead>
               <TableHead>Margin %</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -1013,6 +1150,9 @@ export function ProductsTab() {
                               )}
                               <div className="text-sm text-gray-500">
                                 {variants.length} variant{variants.length !== 1 ? 's' : ''}
+                                {sortByMostSold && (
+                                  <> · {Math.round(soldByProductId[product.id] || 0).toLocaleString()} sold</>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -1087,7 +1227,7 @@ export function ProductsTab() {
                         </TableCell>
                         <TableCell>
                           {(() => {
-                            const { average, costed, total } = productMargin(variants);
+                            const { average, costed, total } = productMargin(product, variants);
                             if (average === null) {
                               return (
                                 <div className="text-sm text-red-600" title="No variant on this product has a cost yet">
@@ -1323,12 +1463,17 @@ export function ProductsTab() {
                             <div className="text-sm">${(Number(variant.shopifyPrice) / 1.15).toFixed(2)}</div>
                           </TableCell>
                           <TableCell>
-                            <div className="text-sm">${(variant.totalCost || 0).toFixed(2)}</div>
+                            <div
+                              className="text-sm"
+                              title="Includes parent base ingredients, Costing-tab choices, and this variant's own rows"
+                            >
+                              ${variantDisplayCost(variant, product).toFixed(2)}
+                            </div>
                           </TableCell>
                           <TableCell>
                             {(() => {
                               const priceEx = Number(variant.shopifyPrice) / 1.15
-                              const cost = Number(variant.totalCost || 0)
+                              const cost = variantDisplayCost(variant, product)
                               // A variant with no cost is not a 100% margin, it
                               // is an unanswered question, and printing a number
                               // there is how it stays unanswered.

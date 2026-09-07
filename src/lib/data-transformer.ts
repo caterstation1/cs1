@@ -22,7 +22,7 @@ export interface TransformedOrder {
     phone?: string;
   };
   deliveryTime: string;
-  deliveryDate: string;
+  deliveryDate: string | null;
   lineItems: Array<{
     id: string;
     variant_id: number;
@@ -87,9 +87,9 @@ function extractPhoneNumber(order: ShopifyOrder): string {
 }
 
 // Parse delivery information with business logic
-function parseDeliveryInfo(order: ShopifyOrder): { deliveryTime: string; deliveryDate: string } {
+function parseDeliveryInfo(order: ShopifyOrder): { deliveryTime: string; deliveryDate: string | null } {
   let deliveryTime = '';
-  let deliveryDate = '';
+  let deliveryDate: string | null = null;
   
   // Extract from note_attributes (most reliable)
   if (order.note_attributes) {
@@ -140,11 +140,6 @@ function parseDeliveryInfo(order: ShopifyOrder): { deliveryTime: string; deliver
         }
       }
     }
-  }
-  
-  // Fallback to current date in local time
-  if (!deliveryDate) {
-    deliveryDate = formatLocalDate(new Date());
   }
   
   return { deliveryTime, deliveryDate };

@@ -47,12 +47,23 @@ export async function POST() {
     const clockIn = new Date(activeShift.clockIn)
     const totalHours = Math.round((clockOut.getTime() - clockIn.getTime()) / (1000 * 60 * 60) * 100) / 100
 
-    // Update the shift
+    const trackingWasActive =
+      (activeShift.trackingStatus === 'active_delivery_run' || activeShift.trackingAllowed) &&
+      !activeShift.trackingStoppedAt
+
+    // Update the shift. Clock-out always stops delivery-run tracking immediately.
     const shift = await prisma.shift.update({
       where: { id: activeShift.id },
       data: {
         clockOut,
-        totalHours
+        totalHours,
+        ...(trackingWasActive
+          ? {
+              trackingStatus: 'stopped',
+              trackingStoppedAt: clockOut,
+              trackingStopReason: 'clock_out',
+            }
+          : {}),
       }
     })
 

@@ -10,10 +10,11 @@
  */
 
 const { PrismaClient } = require('../src/generated/prisma')
+const { scriptPrismaOptions } = require('./lib/script-prisma-url.cjs')
 // Use dynamic import for ES module
 let canonicalizeOrderScheduling
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient(scriptPrismaOptions())
 
 const BATCH_SIZE = 500
 

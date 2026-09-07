@@ -33,16 +33,20 @@ export interface Order {
   }>
   currency: string
   createdAt: string
+  cancelledAt?: string | null
   leaveTime?: string
   travelTime?: string
   driverId?: string
   /** Optional assigned delivery vehicle (references Car.id) */
   carId?: string
+  /** Stop order (1 = 1st, 2 = 2nd, ...) within a driver's multi-delivery run (same driver + dispatch time) */
+  deliverySequence?: number | null
   deliveryTime?: string
   deliveryDate?: string
   hasLocalEdits?: boolean
   isDispatched?: boolean
   internalNote?: string
+  customerNote?: string
   // New server-computed delivery day (Auckland-local day stored as DATE in DB)
   deliveryDateResolved?: string
 } 

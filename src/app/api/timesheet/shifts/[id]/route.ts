@@ -50,10 +50,19 @@ export async function PUT(
     
     if (body.clockIn) updateData.clockIn = new Date(body.clockIn)
     if (body.clockOut) updateData.clockOut = new Date(body.clockOut)
-    if (body.mileage !== undefined) updateData.mileage = parseFloat(body.mileage) || null
-    if (body.notes !== undefined) updateData.notes = body.notes
+    if (body.mileage !== undefined) {
+      const mileage =
+        body.mileage === null || body.mileage === ''
+          ? null
+          : Number.isFinite(Number(body.mileage))
+            ? Number(body.mileage)
+            : null
+      updateData.mileage = mileage
+    }
+    if (body.notes !== undefined) updateData.notes = body.notes || null
     if (body.status) updateData.status = body.status
     if (body.date) updateData.date = new Date(body.date)
+    if (body.approved !== undefined) updateData.approved = !!body.approved
     
     // Calculate total hours if both clock in and out are provided
     if (body.clockIn && body.clockOut) {

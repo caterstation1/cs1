@@ -23,6 +23,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const weekStartStr = searchParams.get('weekStart')
     const q = (searchParams.get('q') || '').trim().toLowerCase()
+    // includeUnapproved=true (default): show all shifts for admin review. false: approved only (for payroll)
+    const includeUnapproved = searchParams.get('includeUnapproved') !== 'false'
     if (!weekStartStr) return NextResponse.json({ error: 'weekStart is required (YYYY-MM-DD)' }, { status: 400 })
     // Assume client provides Monday-aligned NZ date; trust it
     const days: string[] = []
@@ -32,8 +34,14 @@ export async function GET(req: NextRequest) {
     const startDt = getNZDateRangeForYmd(weekStartStr).start
     const endDt = getNZDateRangeForYmd(addDaysNZ(weekStartStr, 6)).end
 
+    const shiftWhere: { date: { gte: Date; lte: Date }; approved?: boolean } = {
+      date: { gte: startDt, lte: endDt },
+    }
+    if (!includeUnapproved) {
+      shiftWhere.approved = true
+    }
     const shifts = await prisma.shift.findMany({
-      where: { date: { gte: startDt, lte: endDt } },
+      where: shiftWhere,
       include: { staff: true, reimbursements: true },
       orderBy: { date: 'asc' },
     })
@@ -44,7 +52,7 @@ export async function GET(req: NextRequest) {
     const activeSet = new Set(active.map(a => a.staffId))
 
     type DayCell = {
-      shifts: Array<{ id: string; clockIn: Date; clockOut: Date | null; totalHours: number | null; mileage: number | null; notes: string | null; reimbursementsTotal: number }>
+      shifts: Array<{ id: string; clockIn: Date; clockOut: Date | null; totalHours: number | null; mileage: number | null; notes: string | null; reimbursementsTotal: number; approved: boolean }>
       totals: { hours: number; mileage: number; reimbursed: number; notesCount: number }
     }
     const byStaff = new Map<string, {
@@ -81,7 +89,8 @@ export async function GET(req: NextRequest) {
         totalHours: s.totalHours,
         mileage: s.mileage,
         notes: s.notes,
-        reimbursementsTotal: reimb
+        reimbursementsTotal: reimb,
+        approved: (s as any).approved ?? false,
       })
       cell.totals.hours += hours
       cell.totals.mileage += mileage

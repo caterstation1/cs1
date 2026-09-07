@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Loader2, RefreshCw, Calendar, IdCard } from 'lucide-react'
+import { Loader2, Calendar, IdCard } from 'lucide-react'
 import { ComponentCard } from './ComponentCard'
 
 interface ComponentRequirement {
@@ -14,6 +14,8 @@ interface ComponentRequirement {
   unit: string
   totalCost: number
 }
+
+type KitchenSection = 'cold' | 'hot'
 
 interface DailyComponentsResponse {
   date: string
@@ -175,6 +177,51 @@ export function StockPanel({
     return 0
   })
 
+  const getKitchenSection = (component: ComponentRequirement): KitchenSection => {
+    if (component.id.startsWith('Cold kitchen:')) return 'cold'
+    // Keep all non-cold items in the lower list so only two lists are shown.
+    return 'hot'
+  }
+
+  const coldComponents = sortedComponents.filter((component) => getKitchenSection(component) === 'cold')
+  const hotComponents = sortedComponents.filter((component) => getKitchenSection(component) === 'hot')
+
+  const renderComponentRow = (component: ComponentRequirement) => {
+    const isCompleted = completedItems.has(component.id)
+    return (
+      <div
+        key={component.id}
+        className={`flex items-center justify-between p-2 rounded-md border cursor-pointer transition-all duration-150 ${
+          isCompleted
+            ? 'bg-gray-100 text-gray-500 border-gray-200'
+            : 'hover:bg-gray-50 border-gray-200'
+        }`}
+        onClick={() => handleItemClick(component.id)}
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <button
+            type="button"
+            aria-label="View recipe card"
+            className="flex-shrink-0 p-1 rounded border hover:bg-gray-50"
+            onClick={(e) => { e.stopPropagation(); openRecipeCard(component.name); }}
+          >
+            <IdCard className="h-4 w-4" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <p className={`font-medium truncate text-sm ${isCompleted ? 'line-through' : ''}`}>
+              {component.name}
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className={`font-medium text-xs ${isCompleted ? 'text-gray-400' : ''}`}>
+            {component.quantity}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
     <div className={`border rounded-lg bg-white ${className}`}>
@@ -188,28 +235,23 @@ export function StockPanel({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {refreshing && (
-              <div className="flex items-center gap-1 text-xs text-blue-600">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Refreshing...
-              </div>
-            )}
+            <div className="text-xs text-blue-600 min-w-[82px] text-right">{refreshing ? 'Refreshing...' : ''}</div>
             {showRefreshButton && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="h-8 w-8 p-0"
+                className="h-8 px-3"
               >
-                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh
               </Button>
             )}
           </div>
         </div>
       </div>
       
-      <div className="h-[400px]">
+      <div className="h-[960px]">
         {loading && componentRequirements.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="flex items-center gap-2 text-gray-500">
@@ -240,45 +282,32 @@ export function StockPanel({
             </div>
           </div>
         ) : (
-          <ScrollArea className="h-full">
-            <div className="p-3 space-y-1.5">
-              {sortedComponents.map((component) => {
-                const isCompleted = completedItems.has(component.id)
-                return (
-                  <div 
-                    key={component.id} 
-                    className={`flex items-center justify-between p-2 rounded-md border cursor-pointer transition-all duration-150 ${
-                      isCompleted 
-                        ? 'bg-gray-100 text-gray-500 border-gray-200' 
-                        : 'hover:bg-gray-50 border-gray-200'
-                    }`}
-                    onClick={() => handleItemClick(component.id)}
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <button
-                        type="button"
-                        aria-label="View recipe card"
-                        className="flex-shrink-0 p-1 rounded border hover:bg-gray-50"
-                        onClick={(e) => { e.stopPropagation(); openRecipeCard(component.name); }}
-                      >
-                        <IdCard className="h-4 w-4" />
-                      </button>
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-medium truncate text-sm ${isCompleted ? 'line-through' : ''}`}>
-                          {component.name}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`font-medium text-xs ${isCompleted ? 'text-gray-400' : ''}`}>
-                        {component.quantity}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
+          <div className="h-full p-3 flex flex-col gap-3">
+            <div className="flex-1 min-h-0 border rounded-md flex flex-col">
+              <div className="px-3 py-2 border-b bg-blue-50 text-sm font-semibold text-blue-800">Cold Kitchen</div>
+              <ScrollArea className="flex-1 min-h-0">
+                <div className="p-2 space-y-1.5">
+                  {coldComponents.length > 0 ? (
+                    coldComponents.map(renderComponentRow)
+                  ) : (
+                    <div className="text-xs text-gray-500 p-2">No cold kitchen items</div>
+                  )}
+                </div>
+              </ScrollArea>
             </div>
-          </ScrollArea>
+            <div className="flex-1 min-h-0 border rounded-md flex flex-col">
+              <div className="px-3 py-2 border-b bg-orange-50 text-sm font-semibold text-orange-800">Hot Kitchen</div>
+              <ScrollArea className="flex-1 min-h-0">
+                <div className="p-2 space-y-1.5">
+                  {hotComponents.length > 0 ? (
+                    hotComponents.map(renderComponentRow)
+                  ) : (
+                    <div className="text-xs text-gray-500 p-2">No hot kitchen items</div>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+          </div>
         )}
       </div>
       
@@ -297,7 +326,6 @@ export function StockPanel({
               </>
             ) : (
               <>
-                <RefreshCw className="mr-2 h-4 w-4" />
                 Update Components
               </>
             )}

@@ -117,7 +117,12 @@ function getAucklandOffsetSuffixForYmd(ymd: string): string {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      // IMPORTANT: use hourCycle 'h23' (00-23), NOT hour12: false.
+      // With hour12: false some ICU versions format midnight as "24",
+      // which broke the '00' check below and made this function return
+      // '+13:00' year-round. During NZST (winter) that shifted day windows
+      // and made addDaysNZ(ymd, 1) return the same day (empty day ranges).
+      hourCycle: 'h23',
     }).formatToParts(date);
     const y = parts.find(p => p.type === 'year')?.value || '1970';
     const m = parts.find(p => p.type === 'month')?.value || '01';
@@ -127,7 +132,8 @@ function getAucklandOffsetSuffixForYmd(ymd: string): string {
   };
   const c12 = new Date(`${ymd}T00:00:00.000+12:00`);
   const p12 = fmt(c12);
-  if (p12.ymd === ymd && p12.hh === '00') return '+12:00';
+  // Accept '24' defensively in case an ICU build still uses the h24 cycle.
+  if (p12.ymd === ymd && (p12.hh === '00' || p12.hh === '24')) return '+12:00';
   return '+13:00';
 }
 
@@ -143,12 +149,15 @@ export function getNZDateRangeForYmd(ymd: string): { start: Date; end: Date } {
 }
 
 /**
- * Adds N days to a YYYY-MM-DD string and returns the resulting NZ date string (YYYY-MM-DD).
- * This uses Date arithmetic then formats back in NZ time to be DST-safe.
+ * Adds N days to a YYYY-MM-DD string and returns the resulting date string (YYYY-MM-DD).
+ * Pure calendar arithmetic (no timezone involved), so it is immune to DST
+ * transition days that are 23 or 25 hours long.
  */
 export function addDaysNZ(ymd: string, days: number): string {
-  // Use the start of NZ day to anchor, then add 24h*days, then format in NZ.
-  const { start } = getNZDateRangeForYmd(ymd);
-  const next = new Date(start.getTime() + days * 24 * 60 * 60 * 1000);
-  return formatNZYMD(next);
+  const [y, m, d] = ymd.split('-').map(Number);
+  const next = new Date(Date.UTC(y, m - 1, d + days));
+  const yy = next.getUTCFullYear();
+  const mm = String(next.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(next.getUTCDate()).padStart(2, '0');
+  return `${yy}-${mm}-${dd}`;
 }

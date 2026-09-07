@@ -31,7 +31,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/components/ui/use-toast'
 
-const ALL_ROLES = ['basic', 'pricing_lab', 'wlg_team', 'wlg_admin', 'admin', 'owner'] as const
+const ALL_ROLES = ['basic', 'pricing_lab', 'wlg_team', 'wlg_admin', 'admin', 'owner', 'bakery'] as const
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -39,8 +39,13 @@ const formSchema = z.object({
   phone: z.string().min(1, 'Phone number is required'),
   email: z.string().email('Invalid email address'),
   payRate: z.number().min(0, 'Pay rate must be positive'),
-  accessLevel: z.enum(['basic', 'pricing_lab', 'admin', 'owner', 'wlg_team', 'wlg_admin']),
+  accessLevel: z.enum(['basic', 'pricing_lab', 'admin', 'owner', 'wlg_team', 'wlg_admin', 'bakery']),
   isDriver: z.boolean(),
+  createInXero: z.boolean().optional(),
+  dateOfBirth: z.string().optional(),
+  addressLine1: z.string().optional(),
+  addressCity: z.string().optional(),
+  addressPostCode: z.string().optional(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -70,16 +75,29 @@ export function AddStaffDialog({ open, onOpenChange, onSuccess, allowedRoleOptio
       payRate: 0,
       accessLevel: roleOptions[0] as any,
       isDriver: false,
+      createInXero: false,
+      dateOfBirth: '',
+      addressLine1: '',
+      addressCity: '',
+      addressPostCode: '',
     },
   })
 
   const onSubmit = async (values: FormData) => {
     setIsSubmitting(true)
     try {
+      const payload: Record<string, unknown> = { ...values }
+      if (values.createInXero) {
+        payload.createInXero = true
+        if (values.dateOfBirth) payload.dateOfBirth = values.dateOfBirth
+        if (values.addressLine1) payload.addressLine1 = values.addressLine1
+        if (values.addressCity) payload.addressCity = values.addressCity
+        if (values.addressPostCode) payload.addressPostCode = values.addressPostCode
+      }
       const response = await fetch('/api/staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
@@ -229,6 +247,80 @@ export function AddStaffDialog({ open, onOpenChange, onSuccess, allowedRoleOptio
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="createInXero"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel>Create in Xero Payroll</FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {form.watch('createInXero') && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date of Birth (for Xero)</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} value={field.value || ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="addressLine1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address (for Xero)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Street address" {...field} value={field.value || ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="addressCity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ''} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="addressPostCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Post Code</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ''} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : 'Create Staff Member'}
             </Button>

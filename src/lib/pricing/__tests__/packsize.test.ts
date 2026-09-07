@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { deriveUnitPricing, parsePackSize, parsePackStructure } from '../packsize'
+import { deriveUnitPricing, parsePackSize, parsePackStructure, unitNamesPackFor } from '../packsize'
 
 function approx(actual: number | null | undefined, expected: number, message: string, tolerance = 1e-6) {
   assert.ok(actual != null, `${message}: expected ~${expected}, got ${actual}`)
@@ -98,6 +98,49 @@ function run() {
     `a multi-piece pack with a single-piece UOM is ambiguous, got ${piece?.confidence}`
   )
   assert.ok(piece?.structure.notes.some((n) => n.includes('ambiguous')))
+
+  // ...unless the supplier's unit is known to name the whole pack. Gilmours
+  // list 'Best Ugly Bagels Sesame Bagels 40 x 90g' at 'Price per Each $64.88',
+  // which buys the 3.6kg box. Read per piece it came out at $720/kg.
+  const gilmoursEach = deriveUnitPricing({
+    packSize: '40x90g',
+    uom: 'each',
+    price: 64.88,
+    unitNamesPack: true,
+  })
+  assert.equal(gilmoursEach?.basis, 'per-pack')
+  approx(gilmoursEach?.unitCost, 64.88 / 3.6, '40 x 90g box at $64.88')
+  assert.ok(
+    (gilmoursEach?.confidence ?? 0) > 0.5,
+    'a known pack-priced supplier is not ambiguous, so confidence must not be docked'
+  )
+  // Cups sold '50pk' per Each: $6.05 buys fifty, not one.
+  approx(
+    deriveUnitPricing({ packSize: '50pk', uom: 'each', price: 6.05, unitNamesPack: true })?.unitCost,
+    6.05 / 50,
+    '50pk of cups at $6.05'
+  )
+  // A pack with no multiplier reads the same either way, so nothing shifts.
+  approx(
+    deriveUnitPricing({ packSize: '10kg', uom: 'each', price: 29.9, unitNamesPack: true })?.unitCost,
+    2.99,
+    'a single-piece pack is unaffected by the rule'
+  )
+  approx(deriveUnitPricing({ packSize: '10kg', uom: 'each', price: 29.9 })?.unitCost, 2.99, 'and without it')
+
+  // Bidfood must keep reading per piece: '[12X400G/Tin]' at $4.02 is one tin.
+  approx(
+    deriveUnitPricing({ packSize: '12X400G', uom: 'Tin', price: 4.02 })?.unitCost,
+    10.05,
+    'a Bidfood tin is priced per tin, not per carton'
+  )
+
+  // The supplier rule itself, so callers cannot drift apart.
+  assert.equal(unitNamesPackFor('Gilmours'), true)
+  assert.equal(unitNamesPackFor('ProduceCo'), true)
+  assert.equal(unitNamesPackFor('Produce Company'), true)
+  assert.equal(unitNamesPackFor('Bidfood'), false)
+  assert.equal(unitNamesPackFor(null), false)
 
   // A single-piece pack with a piece UOM is not ambiguous.
   const unambiguousPiece = deriveUnitPricing({ packSize: '2.5kg', uom: 'BAG', price: 10 })

@@ -1,17 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { isOptionPart, loadPartArrays, partArraysUpdateData } from '@/lib/variant-part-edit'
 
-export async function POST(request: NextRequest) {
+// Clears meat/timer values that are provably junk:
+//  - at indices beyond the title's actual parts (orphaned by a title change);
+//  - at indices >= 2 whose part is an option ("Yes/No …"), which can never
+//    carry a meat or timer.
+// Indices 0/1 are never touched here: they mirror the legacy meat1/meat2 that
+// runsheets and labels read. Three-meat titles keep their index-2 meat.
+
+export async function POST() {
   try {
     const variants = await prisma.productVariant.findMany({
       select: {
         variantId: true,
-        meats: true,
-        timers: true,
-        meat1: true,
-        meat2: true,
-        timer1: true,
-        timer2: true,
+        shopifyName: true,
+        meats: true, timers: true, options: true,
+        meat1: true, meat2: true, timer1: true, timer2: true, option1: true, option2: true,
       },
     })
 
@@ -22,33 +27,28 @@ export async function POST(request: NextRequest) {
     for (const v of variants) {
       scanned++
       try {
-        const meatsArr: (string | null)[] = Array.isArray(v.meats)
-          ? (v.meats as any[]).map((m) => (m ?? null) as string | null)
-          : [v.meat1 ?? null, v.meat2 ?? null]
-        const timersArr: (number | null)[] = Array.isArray(v.timers)
-          ? (v.timers as any[]).map((t) => (t ?? null) as number | null)
-          : [v.timer1 ?? null, v.timer2 ?? null]
+        const arrays = loadPartArrays(v)
+        const maxLen = Math.max(arrays.meats.length, arrays.timers.length, arrays.options.length)
 
         let changed = false
-        // Null out indices >= 2 for meats and timers
-        for (let i = 2; i < Math.max(meatsArr.length, timersArr.length); i++) {
-          if (meatsArr[i] != null && meatsArr[i] !== '') { meatsArr[i] = null; changed = true }
-          if (timersArr[i] != null) { timersArr[i] = null; changed = true }
+        for (let i = 2; i < maxLen; i++) {
+          const orphaned = i >= arrays.parts.length
+          const optionOnly = !orphaned && isOptionPart(arrays.parts[i])
+          if (!orphaned && !optionOnly) continue
+          if (arrays.meats[i] != null && arrays.meats[i] !== '') { arrays.meats[i] = null; changed = true }
+          if (arrays.timers[i] != null) { arrays.timers[i] = null; changed = true }
+          if (orphaned && arrays.options[i] != null && arrays.options[i] !== '') { arrays.options[i] = null; changed = true }
         }
 
         if (!changed) continue
 
-        const updateData: any = { meats: meatsArr, timers: timersArr }
-        // Mirror back to legacy fields (0/1)
-        if (meatsArr.length > 0) updateData.meat1 = meatsArr[0]
-        if (meatsArr.length > 1) updateData.meat2 = meatsArr[1]
-        if (timersArr.length > 0) updateData.timer1 = timersArr[0]
-        if (timersArr.length > 1) updateData.timer2 = timersArr[1]
-
-        await prisma.productVariant.update({ where: { variantId: v.variantId }, data: updateData })
+        await prisma.productVariant.update({
+          where: { variantId: v.variantId },
+          data: partArraysUpdateData(arrays),
+        })
         cleaned++
-      } catch (e: any) {
-        errors.push({ variantId: v.variantId, reason: e?.message || 'unknown' })
+      } catch (e) {
+        errors.push({ variantId: v.variantId, reason: e instanceof Error ? e.message : 'unknown' })
       }
     }
 
@@ -58,7 +58,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to cleanup options' }, { status: 500 })
   }
 }
-
-
-
-

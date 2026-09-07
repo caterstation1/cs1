@@ -9,26 +9,47 @@ export async function POST(req: NextRequest) {
     if (!createdBy || !createdByName) return NextResponse.json({ error: 'createdBy and createdByName required' }, { status: 400 })
 
     // Load stock items referenced and compute totals
-    const itemIds = items.map((i: any) => String(i.stockItemId))
-    const records = await prisma.stockItem.findMany({ where: { id: { in: itemIds } }, include: { supplier: true } })
+    const itemIds = items.filter((i: any) => i.stockItemId).map((i: any) => String(i.stockItemId))
+    const records = itemIds.length > 0
+      ? await prisma.stockItem.findMany({ where: { id: { in: itemIds } }, include: { supplier: true } })
+      : []
     const byId = new Map(records.map(r => [r.id, r]))
     let subtotal = 0
     const orderItemsData: any[] = []
     for (const it of items) {
-      const rec = byId.get(String(it.stockItemId))
-      if (!rec) continue
       const qty = Math.max(1, parseInt(String(it.qty || '1'), 10))
-      const unit = Number(rec.priceExGst as any)
-      const line = unit * qty
-      subtotal += line
-      orderItemsData.push({
-        stockItemId: rec.id,
-        nameSnapshot: rec.name,
-        supplierNameSnapshot: rec.supplier?.name || '',
-        unitPriceExGst: unit,
-        qty,
-        lineTotalExGst: line
-      })
+      if (it.stockItemId) {
+        const rec = byId.get(String(it.stockItemId))
+        if (!rec) continue
+        const unit = Number(rec.priceExGst as any)
+        const line = unit * qty
+        subtotal += line
+        orderItemsData.push({
+          stockItemId: rec.id,
+          nameSnapshot: rec.name,
+          descriptionSnapshot: rec.description || null,
+          supplierNameSnapshot: rec.supplier?.name || '',
+          unitPriceExGst: unit,
+          qty,
+          lineTotalExGst: line
+        })
+      } else {
+        // Custom one-off item entered in the order modal
+        const name = String(it.name || '').trim()
+        const unit = Number(it.unitPriceExGst)
+        if (!name || !Number.isFinite(unit) || unit < 0) continue
+        const line = unit * qty
+        subtotal += line
+        orderItemsData.push({
+          stockItemId: null,
+          nameSnapshot: name,
+          descriptionSnapshot: it.description ? String(it.description).trim() || null : null,
+          supplierNameSnapshot: it.supplierName ? String(it.supplierName).trim() : '',
+          unitPriceExGst: unit,
+          qty,
+          lineTotalExGst: line
+        })
+      }
     }
     if (orderItemsData.length === 0) return NextResponse.json({ error: 'No valid items' }, { status: 400 })
     const gst = Math.round(subtotal * 0.15 * 100) / 100
@@ -47,7 +68,10 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    const summaryLines = orderItemsData.map(i => `- ${i.qty} x ${i.nameSnapshot} @ $${i.unitPriceExGst} = $${i.lineTotalExGst}`)
+    const summaryLines = orderItemsData.map(i => {
+      const label = i.descriptionSnapshot ? `${i.nameSnapshot} (${i.descriptionSnapshot})` : i.nameSnapshot
+      return `- ${i.qty} x ${label} @ $${i.unitPriceExGst} = $${i.lineTotalExGst}`
+    })
     const content = `WLG Stock Order\n\n${summaryLines.join('\n')}\n\nSubtotal (ex GST): $${subtotal}\nGST 15%: $${gst}\nTotal (inc GST): $${total}`
     const message = await prisma.wLGMessage.create({
       data: {

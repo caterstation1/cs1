@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { computeComponentCost } from '@/lib/pricing/persist';
 
 export async function GET() {
   try {
@@ -32,24 +33,27 @@ export async function POST(request: Request) {
     const trimWasteWeight = body.trimWasteWeight !== undefined ? Number(body.trimWasteWeight) : null;
     const weightUnit = body.weightUnit ?? null;
 
-    // Compute normalized unit and cost per output unit
-    const toBase = (qty: number, unit: string): { value: number; normalizedUnit: string } => {
-      const u = (unit || '').toLowerCase();
-      if (u === 'g') return { value: qty / 1000, normalizedUnit: 'kg' };
-      if (u === 'ml') return { value: qty / 1000, normalizedUnit: 'l' };
-      if (u === 'kg' || u === 'l') return { value: qty, normalizedUnit: u };
-      return { value: qty, normalizedUnit: 'unit' };
-    };
-    const base = toBase(producedQuantity, producedUnit);
-    const totalCost = Number(body.totalCost || 0);
-    const costPerOutputUnit = base.value > 0 ? totalCost / base.value : 0;
-    
+    // Cost is derived here, not taken from the browser. body.totalCost is kept
+    // only as a fallback for a recipe the engine cannot resolve.
+    const cost = await computeComponentCost({
+      name: body.name,
+      ingredients: body.ingredients,
+      producedQuantity,
+      producedUnit,
+      clientTotalCost: Number(body.totalCost || 0),
+    });
+    if (!cost.serverDerived) {
+      console.warn(
+        `⚠️  Component "${body.name}" could not be fully costed (${cost.reasons.join(', ')}); kept the submitted total.`
+      );
+    }
+
     const component = await (prisma as any).component.create({
       data: {
         name: body.name,
         description: body.description,
         ingredients: body.ingredients,
-        totalCost,
+        totalCost: cost.totalCost,
         prepCategory: body.prepCategory ?? null,
         prepCategories: body.prepCategories ?? null,
         producedQuantity,
@@ -58,8 +62,8 @@ export async function POST(request: Request) {
         cookedWeight: cookedWeight as any,
         trimWasteWeight: trimWasteWeight as any,
         weightUnit: weightUnit as any,
-        costPerOutputUnit,
-        normalizedOutputUnit: base.normalizedUnit,
+        costPerOutputUnit: cost.costPerOutputUnit,
+        normalizedOutputUnit: cost.normalizedOutputUnit,
         hasGluten: body.hasGluten || false,
         hasDairy: body.hasDairy || false,
         hasSoy: body.hasSoy || false,

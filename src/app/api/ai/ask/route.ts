@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { askRequestSchema } from '@/lib/ai/schemas'
 import { routeQuestion } from '@/lib/ai/router'
 import { getAccessLevel } from '@/lib/authz'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { ZodError } from 'zod'
 
 // very simple in-memory rate limiter (best-effort)
@@ -44,7 +46,10 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const result = await routeQuestion(payload)
+    const session = await getServerSession(authOptions).catch(() => null)
+    const actorEmail = session?.user?.email ?? null
+
+    const result = await routeQuestion(payload, actorEmail)
 
     return NextResponse.json(result)
   } catch (err) {

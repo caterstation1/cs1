@@ -5,26 +5,56 @@ import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { signIn, signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, ExternalLink } from 'lucide-react'
+import { RefreshCw, ExternalLink, LogOut, LogIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import dynamic from 'next/dynamic'
+import { AskAIButton } from '@/components/ai/AskAI'
+import { MobileAppHeader } from '@/components/ui/MobileAppHeader'
+import { getNavLinksForAccess } from '@/lib/nav-links'
 
 const MobileTabBar = dynamic(() => import('./MobileTabBar'), { ssr: false })
 
 export function Nav() {
   const pathname = usePathname()
-  const sessionData = useSession()
-  const session = sessionData?.data
-  const access = session?.user?.accessLevel
+  const { data: session, status } = useSession()
+  const [serverAccess, setServerAccess] = useState<string | null>(null)
+  const [accessChecked, setAccessChecked] = useState(false)
+  const isAuthScreen = pathname === '/login' || pathname?.startsWith('/reset-password')
+
+  // useSession() can lag behind cookie auth — confirm via server
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/me/access')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) {
+          setServerAccess(typeof d?.accessLevel === 'string' ? d.accessLevel : null)
+          setAccessChecked(true)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAccessChecked(true)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const sessionAccess = session?.user?.accessLevel as string | undefined
+  const access = sessionAccess ?? serverAccess ?? undefined
+  const accessReady = Boolean(sessionAccess) || accessChecked
+  const isAuthenticated = Boolean(session?.user) || Boolean(serverAccess)
+  const canAskAI = ['owner', 'admin', 'manager'].includes((access ?? '').toLowerCase())
+  const authPending = status === 'loading' && !accessChecked
   const [productionUrl, setProductionUrl] = useState<string>('')
   const [newMessagesCount, setNewMessagesCount] = useState(0)
 
   // Fetch the current production URL only when user is authenticated
   useEffect(() => {
-    if (!session?.user) {
-      return // Don't fetch if user is not authenticated
+    if (!isAuthenticated) {
+      return
     }
 
     const fetchProductionUrl = async () => {
@@ -42,11 +72,11 @@ export function Nav() {
     }
 
     fetchProductionUrl()
-  }, [session?.user])
+  }, [isAuthenticated])
 
   // Fetch new messages count for badge (for admin/owner/wlg_admin)
   useEffect(() => {
-    if (!session?.user || !['admin', 'owner', 'wlg_admin'].includes(access as string)) {
+    if (!isAuthenticated || !['admin', 'owner', 'wlg_admin'].includes(access ?? '')) {
       return
     }
 
@@ -66,26 +96,34 @@ export function Nav() {
     // Refresh every 60 seconds
     const interval = setInterval(fetchNewMessages, 60000)
     return () => clearInterval(interval)
-  }, [session?.user, access])
+  }, [isAuthenticated, access])
 
-  const baseLinks = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/orders', label: 'All Orders' },
-    { href: '/realtime-orders', label: 'Realtime Orders' },
-    { href: '/products', label: 'Products' },
-    { href: '/stock', label: 'Stock' },
-    { href: '/cart', label: 'Cart' },
-    { href: '/customers', label: 'Customers' },
-    { href: '/calendar', label: 'Calendar' },
-    { href: '/wlg-calendar', label: 'WLG Calendar' },
-    { href: '/wlg-staff', label: 'WLG Staff' },
-    { href: '/wlg-comms', label: 'WLG Comms' },
-    { href: '/staff', label: 'Staff' },
-    { href: '/roster', label: 'Roster' },
-    { href: '/timesheet', label: 'Timesheet' },
-    { href: '/pricing-lab', label: 'Pricing Lab' },
-    { href: '/settings', label: 'Settings' },
-  ]
+  const authControls = authPending ? null : isAuthenticated ? (
+    <>
+      {canAskAI && <AskAIButton className="h-8 px-3 py-0 text-xs sm:text-sm" />}
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        onClick={() => signOut({ callbackUrl: '/login' })}
+      >
+        <LogOut className="mr-1.5 h-4 w-4" />
+        Logout
+      </Button>
+    </>
+  ) : (
+    <Button
+      type="button"
+      size="sm"
+      variant="outline"
+      onClick={() => signIn(undefined, { callbackUrl: '/products' })}
+    >
+      <LogIn className="mr-1.5 h-4 w-4" />
+      Login
+    </Button>
+  )
+
+  const links = accessReady ? getNavLinksForAccess(access) : []
 
   const handleSyncToLatest = () => {
     if (productionUrl) {
@@ -93,21 +131,50 @@ export function Nav() {
     }
   }
 
-  let links = baseLinks
-  if (access === 'pricing_lab') {
-    links = baseLinks.filter(l => l.href === '/pricing-lab')
-  } else if (access === 'wlg_team') {
-    links = baseLinks.filter(l => l.href === '/wlg-calendar' || l.href === '/wlg-staff')
-  } else if (access === 'wlg_admin') {
-    links = baseLinks.filter(l => l.href === '/wlg-calendar' || l.href === '/wlg-staff' || l.href === '/wlg-comms' || l.href === '/pricing-lab' || l.href === '/stock')
-  } else if (access === 'admin' || access === 'owner') {
-    // Admin and owner: hide wlg-calendar/wlg-staff but show wlg-comms
-    links = baseLinks.filter(l => l.href !== '/wlg-calendar' && l.href !== '/wlg-staff')
+  // Keep login/reset pages quiet: no route links while unauthenticated.
+  // This prevents repeated protected-route fetches and redirect churn.
+  if (!isAuthenticated && isAuthScreen) {
+    return (
+      <>
+        <div className="app-mobile-chrome fixed right-3 top-3 z-50 md:hidden">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-9 px-3 shadow-sm"
+            onClick={() => signIn(undefined, { callbackUrl: '/dashboard' })}
+          >
+            <LogIn className="mr-1.5 h-4 w-4" />
+            Login
+          </Button>
+        </div>
+        <nav className="app-desktop-nav fixed inset-x-0 top-0 z-40 hidden border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:block">
+          <div className="flex h-16 items-center px-4">
+            <Link href="/" className="font-bold" prefetch={false}>
+              CaterStation
+            </Link>
+            <div className="ml-auto">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => signIn(undefined, { callbackUrl: '/dashboard' })}
+              >
+                <LogIn className="mr-1.5 h-4 w-4" />
+                Login
+              </Button>
+            </div>
+          </div>
+        </nav>
+        <MobileTabBar />
+      </>
+    )
   }
 
   return (
     <>
-    <nav className="border-b hidden md:block">
+    {isAuthenticated ? <MobileAppHeader /> : null}
+    <nav className="app-desktop-nav fixed inset-x-0 top-0 z-40 hidden border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 md:block">
       <div className="flex h-16 items-center px-4">
         <Link href="/" className="font-bold" prefetch={false}>
           CaterStation
@@ -153,11 +220,7 @@ export function Nav() {
             <span className="hidden sm:inline">Sync to Latest</span>
             <ExternalLink className="h-3 w-3 sm:hidden" />
           </Button>
-          {session?.user ? (
-            <button className="text-sm underline" onClick={() => signOut({ callbackUrl: '/' })}>Logout</button>
-          ) : (
-            <button className="text-sm underline" onClick={() => signIn(undefined, { callbackUrl: '/products' })}>Login</button>
-          )}
+          {authControls}
         </div>
       </div>
     </nav>

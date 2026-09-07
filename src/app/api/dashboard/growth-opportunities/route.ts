@@ -6,8 +6,9 @@ export async function GET(req: NextRequest) {
   try {
     await requireRole(['owner', 'admin', 'manager'])
     const filters = parseExecutiveFilters(req.nextUrl.searchParams)
-    const data = await getGrowthOpportunities(filters)
     if (filters.format === 'csv') {
+      // CSV export always includes every row, not just the current page
+      const data = await getGrowthOpportunities({ ...filters, page: 1, pageSize: Number.MAX_SAFE_INTEGER })
       const csv = toCsv(data.rows)
       return new NextResponse(csv, {
         status: 200,
@@ -17,6 +18,7 @@ export async function GET(req: NextRequest) {
         },
       })
     }
+    const data = await getGrowthOpportunities(filters)
     return NextResponse.json(data)
   } catch (error: any) {
     const status = error?.status === 403 ? 403 : 500

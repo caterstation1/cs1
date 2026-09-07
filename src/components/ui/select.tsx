@@ -14,6 +14,7 @@ interface SelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 interface SelectContentProps {
   children: React.ReactNode
+  className?: string
 }
 
 interface SelectItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -24,6 +25,7 @@ interface SelectItemProps extends React.HTMLAttributes<HTMLDivElement> {
 
 interface SelectValueProps {
   placeholder?: string
+  children?: React.ReactNode
 }
 
 const SelectContext = React.createContext<{
@@ -38,10 +40,12 @@ const SelectContext = React.createContext<{
 
 export function Select({ children, defaultValue, value, onValueChange }: SelectProps) {
   const [isOpen, setIsOpen] = React.useState(false)
-  const [selectedValue, setSelectedValue] = React.useState(defaultValue || value || '')
+  const [internalValue, setInternalValue] = React.useState(defaultValue || value || '')
+  // Controlled when a `value` prop is provided; otherwise fall back to internal state.
+  const selectedValue = value !== undefined ? value : internalValue
 
   const handleValueChange = (newValue: string) => {
-    setSelectedValue(newValue)
+    setInternalValue(newValue)
     onValueChange?.(newValue)
     setIsOpen(false)
   }
@@ -83,7 +87,7 @@ export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerPr
 SelectTrigger.displayName = 'SelectTrigger'
 
 export const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
-  ({ children }, ref) => {
+  ({ children, className }, ref) => {
     const { isOpen } = React.useContext(SelectContext)
     
     if (!isOpen) return null
@@ -91,10 +95,13 @@ export const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps
     return (
       <div
         ref={ref}
-        className="absolute z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+        className={cn(
+          'absolute z-50 min-w-[8rem] rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95',
+          className
+        )}
         style={{ top: '100%', left: 0, right: 0, marginTop: '4px' }}
       >
-        <div className="p-1">
+        <div className="max-h-60 overflow-y-auto overscroll-contain p-1">
           {children}
         </div>
       </div>
@@ -135,12 +142,12 @@ export const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
 SelectItem.displayName = 'SelectItem'
 
 export const SelectValue = React.forwardRef<HTMLSpanElement, SelectValueProps>(
-  ({ placeholder }, ref) => {
+  ({ placeholder, children }, ref) => {
     const { value } = React.useContext(SelectContext)
     
     return (
       <span ref={ref}>
-        {value || placeholder}
+        {children ?? (value || placeholder)}
       </span>
     )
   }

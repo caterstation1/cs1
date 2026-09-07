@@ -9,11 +9,6 @@ const geocodingCache: Record<string, {lat: number, lng: number, formattedAddress
 
 // Default origin address
 const DEFAULT_ORIGIN_ADDRESS = '562 Richmond Road, Grey Lynn, Auckland 1021';
-const ORIGIN_COORDINATES = {
-  lat: -36.8675,
-  lng: 174.7375,
-  formattedAddress: DEFAULT_ORIGIN_ADDRESS
-};
 
 interface Stop {
   orderId: string
@@ -56,13 +51,15 @@ export default function DeliveryMapModal({
 }: DeliveryMapModalProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [travelTime, setTravelTime] = useState<number | null>(null)
+  const [isTrafficEstimate, setIsTrafficEstimate] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
   // Get coordinates for street view
   const [coordinates, setCoordinates] = useState<{lat: number, lng: number} | null>(null);
   
-  // Calculate heading when both coordinates are available
+  // Destination coordinates from geocoding
   const [heading, setHeading] = useState<number>(210); // Default heading
+  const [streetViewCoordinates, setStreetViewCoordinates] = useState<{lat: number, lng: number} | null>(null);
 
   // Driver run mode state
   const [mode, setMode] = useState<'single' | 'run'>('single')
@@ -211,10 +208,50 @@ export default function DeliveryMapModal({
     }
   }
 
+  // Find the nearest outdoor Street View pano close to the destination.
+  const fetchStreetViewCameraPoint = async (destination: { lat: number; lng: number }) => {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    if (!apiKey) return null
+
+    try {
+      const metadataUrl = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${destination.lat},${destination.lng}&source=outdoor&radius=150&key=${apiKey}`
+      const response = await fetch(metadataUrl)
+      if (!response.ok) return null
+
+      const data = await response.json()
+      if (data?.status === 'OK' && data?.location?.lat && data?.location?.lng) {
+        return {
+          lat: Number(data.location.lat),
+          lng: Number(data.location.lng),
+        }
+      }
+      return null
+    } catch (err) {
+      console.warn('Street View metadata lookup failed:', err)
+      return null
+    }
+  }
+
   useEffect(() => {
-    if (coordinates) {
-      const calculatedHeading = calculateHeading(ORIGIN_COORDINATES, coordinates);
-      setHeading(calculatedHeading);
+    let isMounted = true
+
+    const updateStreetViewPointAndHeading = async () => {
+      if (!coordinates) return
+
+      const cameraPoint = await fetchStreetViewCameraPoint(coordinates)
+      if (!isMounted) return
+
+      const effectiveCameraPoint = cameraPoint || coordinates
+      setStreetViewCoordinates(effectiveCameraPoint)
+
+      // Make Street View look at the destination from the camera point.
+      const calculatedHeading = calculateHeading(effectiveCameraPoint, coordinates)
+      setHeading(calculatedHeading)
+    }
+
+    updateStreetViewPointAndHeading()
+    return () => {
+      isMounted = false
     }
   }, [coordinates]);
 
@@ -285,8 +322,9 @@ export default function DeliveryMapModal({
         throw new Error('Could not calculate travel time for the given addresses');
       }
       
-      console.log('✅ Travel time calculated:', data.durationInMinutes, 'minutes');
+      console.log('✅ Travel time calculated:', data.durationInMinutes, 'minutes', data.withTraffic ? '(live traffic)' : '');
       setTravelTime(data.durationInMinutes);
+      setIsTrafficEstimate(Boolean(data.withTraffic));
       
       // Update the order's travel time if it wasn't manually set
       if (!hasManualTravelTime) {
@@ -311,7 +349,7 @@ export default function DeliveryMapModal({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className="w-[96vw] max-w-6xl">
         <DialogHeader>
           <DialogTitle>Delivery Information</DialogTitle>
           <DialogDescription>
@@ -349,7 +387,7 @@ export default function DeliveryMapModal({
           {/* Google Maps Route View and Street View - Side by Side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Google Maps Route View */}
-            <div className="h-80 bg-gray-100 rounded-md overflow-hidden">
+            <div className="h-[30rem] bg-gray-100 rounded-md overflow-hidden">
               {mode === 'run' && isLoadingDriverRun ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
@@ -405,7 +443,7 @@ export default function DeliveryMapModal({
             </div>
             
             {/* Google Street View */}
-            <div className="h-80 bg-gray-100 rounded-md overflow-hidden">
+            <div className="h-[30rem] bg-gray-100 rounded-md overflow-hidden">
               {isLoading ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
@@ -428,7 +466,7 @@ export default function DeliveryMapModal({
                 </div>
               ) : coordinates ? (
                 <iframe
-                  src={`https://www.google.com/maps/embed/v1/streetview?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&location=${coordinates.lat},${coordinates.lng}&heading=${heading}&pitch=10&fov=90&radius=50`}
+                  src={`https://www.google.com/maps/embed/v1/streetview?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&location=${(streetViewCoordinates || coordinates).lat},${(streetViewCoordinates || coordinates).lng}&heading=${heading}&pitch=5&fov=80&radius=150&source=outdoor`}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -517,7 +555,9 @@ export default function DeliveryMapModal({
               ) : (
                 <div className="text-center">
                   <div className="text-4xl font-bold text-blue-600">{travelTime}</div>
-                  <div className="text-gray-600 mt-1">minutes</div>
+                  <div className="text-gray-600 mt-1">
+                    minutes{isTrafficEstimate ? ' (with current traffic)' : ''}
+                  </div>
                 </div>
               )}
             </div>

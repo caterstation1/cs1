@@ -2,11 +2,12 @@
 
 import { PrismaClient } from '../src/generated/prisma/index.js'
 import { config } from 'dotenv'
+import { scriptPrismaOptions } from './lib/script-prisma-url.cjs'
 
 // Load environment variables from .env file
 config()
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient(scriptPrismaOptions())
 
 // Get environment variables from .env file
 const shopUrl = process.env.SHOPIFY_SHOP_URL

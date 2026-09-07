@@ -7,10 +7,11 @@ import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
-import { Activity, Calendar, Car, CheckCircle, Clock, DollarSign, Edit } from 'lucide-react'
+import { Activity, Calendar, Car, CheckCircle, Clock, DollarSign, Edit, Plus } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
 import { getTodayLocal, formatLocalDate } from '@/lib/date-utils'
 import { Badge } from '@/components/ui/badge'
+import { useShiftLocationTracking } from '@/hooks/useShiftLocationTracking'
 
 type ShiftTask = {
   id: string
@@ -36,6 +37,9 @@ type Shift = {
   mileage: number | null
   notes: string | null
   status: string
+  trackingAllowed?: boolean
+  trackingStartedAt?: string | null
+  trackingStoppedAt?: string | null
   reimbursements: Reimbursement[]
   tasks: ShiftTask[]
 }
@@ -56,14 +60,24 @@ export default function MyTimesheetTab() {
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [reimbursementDialogOpen, setReimbursementDialogOpen] = useState(false)
   const [taskDialogOpen, setTaskDialogOpen] = useState(false)
+  const [clockInDialogOpen, setClockInDialogOpen] = useState(false)
+  const [addShiftDialogOpen, setAddShiftDialogOpen] = useState(false)
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null)
   const [newReimbursement, setNewReimbursement] = useState({ amount: '', description: '' })
+  const [newShift, setNewShift] = useState<{ date: string; clockIn: string; clockOut: string; mileage: string; notes: string }>({
+    date: formatLocalDate(getTodayLocal()),
+    clockIn: '',
+    clockOut: '',
+    mileage: '',
+    notes: ''
+  })
   const [editShift, setEditShift] = useState<{ clockIn: string; clockOut: string; mileage: string; notes: string }>({
     clockIn: '',
     clockOut: '',
     mileage: '',
     notes: ''
   })
+  const { stopTracking, refreshServerStatus } = useShiftLocationTracking()
 
   const fetchShifts = useCallback(async () => {
     try {
@@ -94,8 +108,19 @@ export default function MyTimesheetTab() {
 
   const handleClockIn = async () => {
     try {
-      const res = await fetch('/api/timesheet/clock-in', { method: 'POST' })
+      const fitForWork = window.confirm(
+        'Are you feeling fit and well for work today?\n\nPress OK for Yes, Cancel for No.'
+      )
+      const res = await fetch('/api/timesheet/clock-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fitForWork }),
+      })
       if (!res.ok) throw new Error()
+      // Clock-in does NOT start location tracking. Delivery-run location
+      // sharing only activates when a dispatched order is assigned to this
+      // driver (handled by the tracking provider's status sync).
+      await refreshServerStatus().catch(() => null)
       await fetchShifts()
       toast({ title: 'Clocked in' })
     } catch {
@@ -114,6 +139,7 @@ export default function MyTimesheetTab() {
     try {
       const res = await fetch('/api/timesheet/clock-out', { method: 'POST' })
       if (!res.ok) throw new Error()
+      await stopTracking(true, 'clock_out')
       await fetchShifts()
       toast({ title: 'Clocked out' })
     } catch {
@@ -132,6 +158,7 @@ export default function MyTimesheetTab() {
       }
       const res = await fetch('/api/timesheet/clock-out', { method: 'POST' })
       if (!res.ok) throw new Error()
+      await stopTracking(true, 'clock_out')
       setTaskDialogOpen(false)
       await fetchShifts()
       toast({ title: 'Clocked out' })
@@ -196,6 +223,45 @@ export default function MyTimesheetTab() {
     }
   }
 
+  const openAddShiftDialog = () => {
+    const today = formatLocalDate(getTodayLocal())
+    setNewShift({
+      date: today,
+      clockIn: `${today}T09:00`,
+      clockOut: `${today}T17:00`,
+      mileage: '',
+      notes: ''
+    })
+    setAddShiftDialogOpen(true)
+  }
+
+  const handleCreateHistoricShift = async () => {
+    if (!newShift.clockIn) {
+      toast({ title: 'Clock in required', variant: 'destructive' })
+      return
+    }
+    try {
+      const res = await fetch('/api/timesheet/shifts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: newShift.date,
+          clockIn: newShift.clockIn,
+          clockOut: newShift.clockOut || null,
+          mileage: newShift.mileage ? parseFloat(newShift.mileage) : null,
+          notes: newShift.notes || null,
+          status: newShift.clockOut ? 'completed' : 'active'
+        })
+      })
+      if (!res.ok) throw new Error()
+      setAddShiftDialogOpen(false)
+      await fetchShifts()
+      toast({ title: 'Historic shift added' })
+    } catch {
+      toast({ title: 'Failed to add shift', variant: 'destructive' })
+    }
+  }
+
   const totalHours = useMemo(
     () => shifts.reduce((a, s) => a + (typeof s.totalHours === 'number' ? s.totalHours : 0), 0),
     [shifts]
@@ -209,13 +275,14 @@ export default function MyTimesheetTab() {
     [shifts]
   )
   const completedShifts = useMemo(() => shifts.filter(s => s.clockOut).length, [shifts])
+  const pastShifts = useMemo(() => shifts.filter(s => !!s.clockOut), [shifts])
 
   const fmtTime = (dt: string) => new Date(dt).toLocaleTimeString('en-NZ', { hour: '2-digit', minute: '2-digit' })
   const fmtDateLong = (dt: string) =>
     new Date(dt).toLocaleDateString('en-NZ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 md:pb-6">
       {/* Filter toolbar */}
       <Card>
         <CardContent className="p-4">
@@ -275,14 +342,88 @@ export default function MyTimesheetTab() {
               </div>
             )}
             <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={openAddShiftDialog}>
+                <Plus className="h-4 w-4 mr-1" />
+                Add Shift
+              </Button>
               <Button onClick={() => fetchShifts()} className="bg-blue-600 hover:bg-blue-700">Apply</Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Add historic shift dialog */}
+      <Dialog open={addShiftDialogOpen} onOpenChange={setAddShiftDialogOpen}>
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Plus className="h-5 w-5" /> Add Historic Shift</DialogTitle>
+            <DialogDescription>Create a past shift entry for your timesheet.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div>
+              <Label htmlFor="newShiftDate" className="text-sm font-medium">Shift Date</Label>
+              <Input
+                id="newShiftDate"
+                type="date"
+                value={newShift.date}
+                onChange={(e) => setNewShift({ ...newShift, date: e.target.value })}
+                className="mt-2"
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="newClockIn" className="text-sm font-medium">Clock In</Label>
+                <Input
+                  id="newClockIn"
+                  type="datetime-local"
+                  value={newShift.clockIn}
+                  onChange={(e) => setNewShift({ ...newShift, clockIn: e.target.value })}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newClockOut" className="text-sm font-medium">Clock Out</Label>
+                <Input
+                  id="newClockOut"
+                  type="datetime-local"
+                  value={newShift.clockOut}
+                  onChange={(e) => setNewShift({ ...newShift, clockOut: e.target.value })}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="newShiftMileage" className="text-sm font-medium">Mileage (km)</Label>
+              <Input
+                id="newShiftMileage"
+                type="number"
+                placeholder="0"
+                value={newShift.mileage}
+                onChange={(e) => setNewShift({ ...newShift, mileage: e.target.value })}
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <Label htmlFor="newShiftNotes" className="text-sm font-medium">Notes</Label>
+              <Textarea
+                id="newShiftNotes"
+                rows={3}
+                placeholder="Optional notes..."
+                value={newShift.notes}
+                onChange={(e) => setNewShift({ ...newShift, notes: e.target.value })}
+                className="mt-2"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="outline" onClick={() => setAddShiftDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreateHistoricShift} className="min-w-[120px]">Add Shift</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* KPI cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardContent className="p-4"><div className="flex items-center gap-2"><Clock className="h-5 w-5 text-blue-600" /><div><p className="text-sm text-muted-foreground">Total Hours</p><p className="text-2xl font-bold">{totalHours.toFixed(1)}h</p></div></div></CardContent></Card>
         <Card><CardContent className="p-4"><div className="flex items-center gap-2"><Car className="h-5 w-5 text-green-600" /><div><p className="text-sm text-muted-foreground">Mileage</p><p className="text-2xl font-bold">{totalMileage.toFixed(0)}km</p></div></div></CardContent></Card>
         <Card><CardContent className="p-4"><div className="flex items-center gap-2"><DollarSign className="h-5 w-5 text-purple-600" /><div><p className="text-sm text-muted-foreground">Reimbursements</p><p className="text-2xl font-bold">${totalReimbursements.toFixed(2)}</p></div></div></CardContent></Card>
@@ -313,67 +454,156 @@ export default function MyTimesheetTab() {
                   <p className="text-sm text-gray-600">Click the button below to start your shift</p>
                 </div>
               </div>
-              <Button onClick={handleClockIn} className="bg-green-600 hover:bg-green-700">Clock In</Button>
+              <Button onClick={() => setClockInDialogOpen(true)} className="bg-green-600 hover:bg-green-700">Clock In</Button>
             </div>
           )}
         </CardContent>
       </Card>
 
+      <Dialog open={clockInDialogOpen} onOpenChange={setClockInDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Clock In</DialogTitle>
+            <DialogDescription>About delivery run location sharing</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="rounded-lg border p-3">
+              <p className="font-medium">Location sharing is not active just because you are clocked in.</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                It is only used while you are on an assigned dispatched delivery run, so dispatch can provide
+                customer ETAs, avoid calling drivers while driving, and see when drivers are returning to base.
+                It stops when you return to base, tap Stop Tracking, or clock out.
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setClockInDialogOpen(false)}>Cancel</Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700"
+              onClick={async () => {
+                setClockInDialogOpen(false)
+                await handleClockIn()
+              }}
+            >
+              Continue Clock In
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Shifts table */}
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5" /> My Shifts</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5" /> Shift History</CardTitle></CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Clock In</TableHead>
-                <TableHead>Clock Out</TableHead>
-                <TableHead>Hours</TableHead>
-                <TableHead>Mileage</TableHead>
-                <TableHead>Tasks</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {shifts.map(shift => (
-                <TableRow key={shift.id}>
-                  <TableCell className="font-medium">{fmtDateLong(shift.date)}</TableCell>
-                  <TableCell>{fmtTime(shift.clockIn)}</TableCell>
-                  <TableCell>{shift.clockOut ? fmtTime(shift.clockOut) : '-'}</TableCell>
-                  <TableCell>
-                    {typeof shift.totalHours === 'number' ? (
-                      <Badge variant="secondary" className="font-mono">{shift.totalHours.toFixed(2)}h</Badge>
-                    ) : '-'}
-                  </TableCell>
-                  <TableCell>{typeof shift.mileage === 'number' ? `${shift.mileage}km` : '-'}</TableCell>
-                  <TableCell>
-                    {shift.tasks?.length ? (
-                      <Badge variant="outline" className="text-xs">
-                        {shift.tasks.filter(t => t.isCompleted).length}/{shift.tasks.length}
-                      </Badge>
-                    ) : '-'}
-                  </TableCell>
-                  <TableCell>
+          <div className="md:hidden space-y-3">
+            {pastShifts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No past shifts in this date range.</p>
+            ) : (
+              pastShifts.map((shift) => (
+                <div key={shift.id} className="rounded-lg border p-3 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-medium">{fmtDateLong(shift.date)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {fmtTime(shift.clockIn)} - {shift.clockOut ? fmtTime(shift.clockOut) : 'Active'}
+                      </p>
+                    </div>
                     <Badge variant={shift.clockOut ? 'secondary' : 'default'}>
                       {shift.clockOut ? 'Completed' : 'Active'}
                     </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => openEditDialog(shift)} className="h-8 px-2">
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => openReimbursementDialog(shift)} className="h-8 px-2">
-                        <DollarSign className="h-3 w-3" />
-                      </Button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded bg-slate-50 px-2 py-1">
+                      <span className="text-muted-foreground">Hours</span>
+                      <p className="font-medium">{typeof shift.totalHours === 'number' ? `${shift.totalHours.toFixed(2)}h` : '-'}</p>
                     </div>
-                  </TableCell>
+                    <div className="rounded bg-slate-50 px-2 py-1">
+                      <span className="text-muted-foreground">Mileage</span>
+                      <p className="font-medium">{typeof shift.mileage === 'number' ? `${shift.mileage}km` : '-'}</p>
+                    </div>
+                    <div className="rounded bg-slate-50 px-2 py-1">
+                      <span className="text-muted-foreground">Tasks</span>
+                      <p className="font-medium">
+                        {shift.tasks?.length ? `${shift.tasks.filter(t => t.isCompleted).length}/${shift.tasks.length}` : '-'}
+                      </p>
+                    </div>
+                    <div className="rounded bg-slate-50 px-2 py-1">
+                      <span className="text-muted-foreground">Reimbursements</span>
+                      <p className="font-medium">
+                        ${((shift.reimbursements || []).reduce((sum, r) => sum + (r.amount || 0), 0)).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => openEditDialog(shift)} className="flex-1">
+                      <Edit className="h-3.5 w-3.5 mr-1" />
+                      Edit Shift
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => openReimbursementDialog(shift)} className="flex-1">
+                      <DollarSign className="h-3.5 w-3.5 mr-1" />
+                      Add Expense
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Clock In</TableHead>
+                  <TableHead>Clock Out</TableHead>
+                  <TableHead>Hours</TableHead>
+                  <TableHead>Mileage</TableHead>
+                  <TableHead>Tasks</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {shifts.map(shift => (
+                  <TableRow key={shift.id}>
+                    <TableCell className="font-medium">{fmtDateLong(shift.date)}</TableCell>
+                    <TableCell>{fmtTime(shift.clockIn)}</TableCell>
+                    <TableCell>{shift.clockOut ? fmtTime(shift.clockOut) : '-'}</TableCell>
+                    <TableCell>
+                      {typeof shift.totalHours === 'number' ? (
+                        <Badge variant="secondary" className="font-mono">{shift.totalHours.toFixed(2)}h</Badge>
+                      ) : '-'}
+                    </TableCell>
+                    <TableCell>{typeof shift.mileage === 'number' ? `${shift.mileage}km` : '-'}</TableCell>
+                    <TableCell>
+                      {shift.tasks?.length ? (
+                        <Badge variant="outline" className="text-xs">
+                          {shift.tasks.filter(t => t.isCompleted).length}/{shift.tasks.length}
+                        </Badge>
+                      ) : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={shift.clockOut ? 'secondary' : 'default'}>
+                        {shift.clockOut ? 'Completed' : 'Active'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => openEditDialog(shift)} className="h-8 px-2">
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => openReimbursementDialog(shift)} className="h-8 px-2">
+                          <DollarSign className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 

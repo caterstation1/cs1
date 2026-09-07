@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { AlertCircle, Heart } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import { IconCircle, pickComponentIcon } from './label-icons'
 import {
   FONT_BODY,
@@ -18,6 +18,7 @@ export interface AllergenLabelData {
   labelIndex: number
   labelCount: number
   productTitle: string
+  dietaryMarker?: string | null
   components: Array<{
     name: string
     allergens: string[]
@@ -31,10 +32,12 @@ function AllergenHeader({
   orderNumber,
   labelIndex,
   labelCount,
+  dietaryMarker,
 }: {
   orderNumber: number
   labelIndex: number
   labelCount: number
+  dietaryMarker?: string | null
 }) {
   return (
     <div>
@@ -52,11 +55,28 @@ function AllergenHeader({
             Allergen detail label
           </span>
         </div>
-        <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em' }}>
-          {orderNumber} ({labelIndex}/{labelCount})
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {dietaryMarker ? (
+            <span
+              style={{
+                border: `2px solid ${INK}`,
+                borderRadius: 999,
+                padding: '2px 10px',
+                fontSize: 18,
+                fontWeight: 800,
+                lineHeight: 1.1,
+                letterSpacing: '0.02em',
+              }}
+            >
+              {dietaryMarker}
+            </span>
+          ) : null}
+          <span style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em' }}>
+            {orderNumber} ({labelIndex}/{labelCount})
+          </span>
+        </div>
       </div>
-      <div style={{ marginTop: 10, borderTop: `1px solid ${INK}` }} />
+      <div style={{ marginTop: 10, borderTop: `2px solid ${INK}` }} />
     </div>
   )
 }
@@ -65,11 +85,11 @@ function AllergenProductTitle({ title }: { title: string }) {
   return (
     <h2
       style={{
-        margin: '12px 0 0',
+        margin: '10px 0 0',
         fontFamily: FONT_HERO,
-        fontSize: 48,
-        fontWeight: 400,
-        lineHeight: 1,
+        fontSize: 46,
+        fontWeight: 700,
+        lineHeight: 0.98,
         letterSpacing: '-0.02em',
         textTransform: 'uppercase',
         wordBreak: 'break-word',
@@ -110,10 +130,10 @@ function IngredientGrid({
         flex: 1,
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        columnGap: 20,
-        rowGap: 16,
+        columnGap: 16,
+        rowGap: 12,
         alignContent: 'start',
-        marginTop: 14,
+        marginTop: 12,
         paddingBottom: 8,
         overflow: 'hidden',
       }}
@@ -121,13 +141,27 @@ function IngredientGrid({
       {components.map((component, idx) => {
         const Icon = pickComponentIcon(component.name, component.allergens)
         return (
-          <div key={`${component.name}-${idx}`} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <IconCircle Icon={Icon} size={42} />
-            <div style={{ minWidth: 0, flex: 1 }}>
+          <div
+            key={`${component.name}-${idx}`}
+            style={{
+              display: 'flex',
+              gap: 10,
+              alignItems: 'flex-start',
+              borderTop: `2px solid ${INK}`,
+              borderBottom: `2px solid ${INK_LIGHT}`,
+              borderLeft: `1.5px solid ${INK_LIGHT}`,
+              borderRight: `1.5px solid ${INK_LIGHT}`,
+              borderRadius: 8,
+              padding: '10px 10px',
+              minHeight: 82,
+            }}
+          >
+            <IconCircle Icon={Icon} size={38} />
+            <div style={{ minWidth: 0, flex: 1, paddingTop: 2 }}>
               <div
                 style={{
-                  fontSize: 22,
-                  fontWeight: 700,
+                  fontSize: 21,
+                  fontWeight: 800,
                   lineHeight: 1.2,
                   marginBottom: 3,
                   wordBreak: 'break-word',
@@ -137,10 +171,10 @@ function IngredientGrid({
               </div>
               <div
                 style={{
-                  fontSize: 18,
+                  fontSize: 17,
                   lineHeight: 1.3,
-                  color: INK_LIGHT,
-                  fontWeight: 500,
+                  color: '#111111',
+                  fontWeight: 600,
                 }}
               >
                 {component.allergens.length > 0
@@ -161,21 +195,17 @@ function DisclaimerFooter() {
       style={{
         marginTop: 'auto',
         paddingTop: 10,
-        borderTop: `1px dotted ${INK_MUTED}`,
-        display: 'flex',
-        gap: 8,
-        alignItems: 'flex-start',
+        borderTop: `2px solid ${INK_MUTED}`,
       }}
     >
-      <Heart size={18} strokeWidth={2.25} color={INK_MUTED} style={{ flexShrink: 0, marginTop: 2 }} aria-hidden />
       <p
         style={{
           margin: 0,
-          fontSize: 17,
+          fontSize: 16,
           lineHeight: 1.35,
-          color: INK_MUTED,
+          color: '#2f2f2f',
           fontFamily: FONT_BODY,
-          fontWeight: 500,
+          fontWeight: 600,
         }}
       >
         {DISCLAIMER_TEXT}
@@ -196,6 +226,7 @@ export const AllergenLabelCard: React.FC<{ data: AllergenLabelData; landscape?: 
         orderNumber={data.orderNumber}
         labelIndex={data.labelIndex}
         labelCount={data.labelCount}
+        dietaryMarker={data.dietaryMarker}
       />
       <AllergenProductTitle title={data.productTitle} />
       <IngredientGrid components={data.components} />

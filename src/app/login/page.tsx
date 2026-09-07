@@ -1,20 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
-import { signIn, useSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [loginError, setLoginError] = useState<string | null>(null)
   const { toast } = useToast()
-  const { status, data } = useSession()
 
   // Don't auto-redirect authenticated users - let them manually navigate or login again
   // This prevents refresh loops when session is detected
@@ -22,6 +20,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setLoginError(null)
 
     try {
       const rawParam = (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')) || undefined
@@ -43,7 +42,9 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        throw new Error(result.error)
+        // Intentionally generic: we do not disclose whether the email exists or
+        // why the login failed, to avoid an unauthenticated enumeration/oracle.
+        throw new Error('Login failed. Please check your email and password and try again.')
       }
       
       toast({
@@ -66,7 +67,15 @@ export default function LoginPage() {
               // Prefer callbackUrl if provided (and not '/')
               const redirectTo = callbackUrl && callbackUrl !== '/' ? callbackUrl : undefined
               const accessLevel = data?.user?.accessLevel || data?.accessLevel
-              const fallback = accessLevel === 'pricing_lab' ? '/pricing-lab' : accessLevel === 'basic' ? '/realtime-orders' : (accessLevel === 'wlg_team' || accessLevel === 'wlg_admin') ? '/wlg-calendar' : '/dashboard'
+              const fallback = accessLevel === 'pricing_lab'
+                ? '/pricing-lab'
+                : accessLevel === 'basic'
+                  ? '/dashboard'
+                  : (accessLevel === 'wlg_team' || accessLevel === 'wlg_admin')
+                    ? '/wlg-calendar'
+                    : accessLevel === 'bakery'
+                      ? '/bakery'
+                      : '/dashboard'
               // Use hard redirect to guarantee middleware sees session cookie
               if (typeof window !== 'undefined') {
                 window.location.replace(redirectTo || fallback)
@@ -85,9 +94,11 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
+      const description = error instanceof Error ? error.message : 'Login failed'
+      setLoginError(description)
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Login failed',
+        description,
         variant: 'destructive',
       })
     } finally {
@@ -96,7 +107,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center px-4 pb-8 pt-[max(2rem,env(safe-area-inset-top))]">
       <div className="w-full max-w-md space-y-8 rounded-lg border p-6 shadow-md">
         <div className="text-center">
           <h1 className="text-2xl font-bold">CaterStation Login</h1>
@@ -113,7 +124,10 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  if (loginError) setLoginError(null)
+                }}
                 required
                 placeholder="Enter your email"
               />
@@ -125,12 +139,21 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  if (loginError) setLoginError(null)
+                }}
                 required
                 placeholder="Enter your password"
               />
             </div>
           </div>
+
+          {loginError ? (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {loginError}
+            </div>
+          ) : null}
           
           <Button
             type="submit"

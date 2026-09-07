@@ -4,7 +4,13 @@ export const ingredientSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   quantity: z.number().min(0, 'Quantity must be positive'),
   cost: z.number().min(0, 'Cost must be positive'),
-  source: z.enum(['Gilmours', 'Bidfood', 'Other', 'Components', 'Products']),
+  source: z.enum(['Gilmours', 'Bidfood', 'ProduceCo', 'Other', 'Components', 'Products']),
+  // The unit `quantity` is expressed in. Rows written before this field existed
+  // omit it, so the pricing engine still has to infer one.
+  unit: z.string().optional(),
+  // Reference into the Ingredient master. Absent on every row until the
+  // Phase 3 backfill stamps it; the engine falls back to (source, id).
+  ingredientId: z.string().optional(),
 })
 
 export const productSchema = z.object({

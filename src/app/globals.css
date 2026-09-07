@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Flash animation for order updates */
+@keyframes flash-update {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(59, 130, 246, 0.1); }
+}
+
+.flash-update {
+  animation: flash-update 1s ease-in-out;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -44,6 +54,7 @@
 }
 
 :root {
+  --mobile-tabbar-height: 72px;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -55,8 +66,8 @@
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted: oklch(0.96 0.005 250);
+  --muted-foreground: oklch(0.42 0.02 250);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -128,6 +139,146 @@
 @layer utilities {
   .cursor-context-menu {
     cursor: context-menu;
+  }
+}
+
+/* Dashboard (owner / admin / basic): CaterStation light brand surfaces */
+@layer components {
+  .dashboard-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, rgb(248 250 252) 0%, rgb(241 245 249) 100%);
+    color: rgb(15 23 42);
+    -webkit-font-smoothing: antialiased;
+  }
+  .dashboard-card {
+    border-color: rgb(191 219 254 / 0.55) !important;
+    background-color: rgb(255 255 255 / 0.98) !important;
+    color: rgb(15 23 42) !important;
+    box-shadow:
+      0 1px 2px 0 rgb(15 23 42 / 0.05),
+      0 8px 24px -18px rgb(37 99 235 / 0.4);
+  }
+  @media (max-width: 767px) {
+    .dashboard-page {
+      min-height: auto;
+      padding-bottom: calc(var(--mobile-tabbar-height, 72px) + env(safe-area-inset-bottom) + 16px);
+    }
+    .dashboard-card > div:first-child {
+      padding: 1rem 1rem 0.5rem;
+    }
+    .dashboard-card > div:last-child {
+      padding: 0 1rem 1rem;
+    }
+    .dashboard-card h3 {
+      font-size: 1.125rem;
+      line-height: 1.5rem;
+      color: rgb(15 23 42);
+    }
+  }
+  .dashboard-tab {
+    min-height: 2.5rem;
+    white-space: nowrap;
+    border-radius: 0.375rem;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: rgb(51 65 85);
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .dashboard-tab:hover {
+    border-color: rgb(147 197 253 / 0.7);
+    background-color: rgb(239 246 255);
+    color: rgb(30 64 175);
+  }
+  .dashboard-tab[data-state="active"] {
+    border-color: rgb(37 99 235 / 0.55) !important;
+    background: linear-gradient(180deg, rgb(37 99 235) 0%, rgb(29 78 216) 100%) !important;
+    color: rgb(255 255 255) !important;
+    font-weight: 600;
+    box-shadow: 0 6px 14px -10px rgb(37 99 235 / 0.7) !important;
+  }
+  .dashboard-btn-quiet {
+    border-radius: 0.375rem;
+    border: 1px solid rgb(147 197 253 / 0.6);
+    background-color: rgb(239 246 255);
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: rgb(30 64 175);
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .dashboard-btn-quiet:hover {
+    background-color: rgb(219 234 254);
+    border-color: rgb(59 130 246 / 0.75);
+    color: rgb(29 78 216);
+  }
+
+  /* Mobile shell: readable surfaces on phones / Capacitor wrapper */
+  .mobile-shell-page {
+    background: linear-gradient(180deg, rgb(248 250 252) 0%, rgb(241 245 249) 100%);
+    color: rgb(15 23 42);
+  }
+  .mobile-inset-panel {
+    border: 1px solid rgb(226 232 240);
+    background-color: rgb(248 250 252);
+    border-radius: 0.75rem;
+  }
+  .mobile-list-row {
+    border: 1px solid rgb(226 232 240);
+    background-color: rgb(255 255 255);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+  }
+  .mobile-empty {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: rgb(71 85 105);
+  }
+  .mobile-subtext {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: rgb(71 85 105);
+  }
+  .mobile-tabbar {
+    border-color: rgb(226 232 240) !important;
+    background-color: rgb(255 255 255 / 0.98) !important;
+  }
+  .mobile-tab-active {
+    color: rgb(29 78 216) !important;
+  }
+  .mobile-tab-inactive {
+    color: rgb(71 85 105) !important;
+  }
+
+  /* Capacitor wrapper: always show mobile chrome (tab bar, header) */
+  html[data-native-app='true'] .app-mobile-chrome,
+  html[data-mobile-shell='true'] .app-mobile-chrome {
+    display: block !important;
+  }
+  html[data-native-app='true'] .app-desktop-nav,
+  html[data-mobile-shell='true'] .app-desktop-nav {
+    display: none !important;
+  }
+  html[data-native-app='true'] .app-desktop-top-pad,
+  html[data-mobile-shell='true'] .app-desktop-top-pad {
+    padding-top: 0 !important;
+  }
+  html[data-native-app='true'] main.mobile-shell-page,
+  html[data-mobile-shell='true'] main.mobile-shell-page {
+    background: linear-gradient(180deg, rgb(248 250 252) 0%, rgb(241 245 249) 100%) !important;
+    color: rgb(15 23 42) !important;
+    padding-bottom: calc(var(--mobile-tabbar-height, 72px) + env(safe-area-inset-bottom) + 16px) !important;
+  }
+  html[data-native-app='true'] .mobile-tabbar > div,
+  html[data-mobile-shell='true'] .mobile-tabbar > div {
+    display: grid;
   }
 }
 

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/generated/prisma';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { requireRole } from '@/lib/authz';
 
 // List of allowed SQL keywords for SELECT queries only
 const ALLOWED_KEYWORDS = ['SELECT', 'FROM', 'WHERE', 'ORDER', 'BY', 'LIMIT', 'OFFSET', 'GROUP', 'HAVING', 'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'ON', 'AS', 'DISTINCT', 'COUNT', 'SUM', 'AVG', 'MAX', 'MIN', 'AND', 'OR', 'NOT', 'LIKE', 'ILIKE', 'IN', 'BETWEEN', 'IS', 'NULL', 'ASC', 'DESC'];
@@ -11,6 +10,13 @@ const FORBIDDEN_KEYWORDS = ['INSERT', 'UPDATE', 'DELETE', 'DROP', 'CREATE', 'ALT
 
 export async function POST(request: NextRequest) {
   try {
+    // Admin-only: this executes arbitrary read queries against the whole DB.
+    try {
+      await requireRole(['owner', 'admin']);
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const { query } = await request.json();
 
     if (!query || typeof query !== 'string') {

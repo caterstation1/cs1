@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { requireRole } from '@/lib/authz'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, token } = await req.json()
-    if (!email || !password || !token) {
-      return NextResponse.json({ error: 'email, password and token are required' }, { status: 400 })
+    // Admin-only: setting another user's password requires an authenticated
+    // admin/owner session (previously guarded only by a shared secret token).
+    try {
+      await requireRole(['owner', 'admin'])
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Use NEXTAUTH_SECRET as the admin guard token (no new env needed)
-    const adminToken = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET
-    if (!adminToken || token !== adminToken) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { email, password } = await req.json()
+    if (!email || !password) {
+      return NextResponse.json({ error: 'email and password are required' }, { status: 400 })
     }
 
     const staff = await prisma.staff.findUnique({

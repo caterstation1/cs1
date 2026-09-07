@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { StockPanel } from '@/components/StockPanel'
 import OrderCardList from '@/components/realtime-orders/order-card-list'
-import { format, isSameDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, subDays } from 'date-fns'
+import { format, isSameDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth } from 'date-fns'
 import { Order } from '@/types/order'
 import { getTodayLocal } from '@/lib/date-utils'
 import { Button } from '@/components/ui/button'
@@ -18,11 +18,26 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Plus, RefreshCw, AlertCircle } from 'lucide-react'
+import LiveMapModal from '@/components/live-map/LiveMapModal'
+import DeliveryMap from '@/components/DeliveryMap'
+import {
+  CalendarDayAlertBanner,
+  CalendarDayAlertButton,
+  CalendarDayAlertModal,
+  useCalendarDayAlert,
+} from '@/components/calendar/CalendarDayAlertControls'
 
 interface CalendarSummary {
   region: string
   start: string
   end: string
+  days?: Array<{
+    date: string
+    totalCount: number
+    morningCount: number
+    needsReviewCount: number
+    dispatchedCount: number
+  }>
   countsByDay: Array<{ date: string; count: number }>
   needsReviewCount: number
 }
@@ -35,6 +50,7 @@ export default function WlgCalendarPage() {
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [summaryError, setSummaryError] = useState<string | null>(null)
   const [lastSummaryFetch, setLastSummaryFetch] = useState<Date | null>(null)
+  const [alertRefreshToken, setAlertRefreshToken] = useState(0)
   
   // Orders for selected day (fetched on demand)
   const [dayOrders, setDayOrders] = useState<Order[]>([])
@@ -48,6 +64,13 @@ export default function WlgCalendarPage() {
 
   // Add Order Modal state
   const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false)
+  const [isLiveMapOpen, setIsLiveMapOpen] = useState(false)
+
+  // Day deliveries map (same map as the owner dashboard, numbered by delivery time)
+  const [isDeliveriesMapOpen, setIsDeliveriesMapOpen] = useState(false)
+  const [deliveriesMapPoints, setDeliveriesMapPoints] = useState<any[]>([])
+  const [deliveriesMapLoading, setDeliveriesMapLoading] = useState(false)
+
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
   const [newOrderData, setNewOrderData] = useState({
     customerFirstName: '',
@@ -67,22 +90,15 @@ export default function WlgCalendarPage() {
     noteAttributes: [{ name: 'City', value: 'WLG' }]
   })
 
-  // Fetch calendar summary for visible range + buffer
-  const fetchCalendarSummary = useCallback(async (viewMonth: Date) => {
+  // Fetch calendar summary for rolling 29-day window (selected day -14 to +14)
+  const fetchCalendarSummary = useCallback(async (anchorDate: Date) => {
     setSummaryLoading(true)
     setSummaryError(null)
     
     try {
-      // Compute grid range
-      const monthStart = startOfMonth(viewMonth)
-      const monthEnd = endOfMonth(monthStart)
-      const gridStart = startOfWeek(monthStart, { weekStartsOn: 0 })
-      const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 0 })
-      
-      // Add safety buffer (7 days before/after)
-      const fetchStart = subDays(gridStart, 7)
-      const fetchEnd = addDays(gridEnd, 7)
-      
+      const fetchStart = addDays(anchorDate, -14)
+      // End is exclusive, so +15 gives [today-14, today+14]
+      const fetchEnd = addDays(anchorDate, 15)
       const startStr = format(fetchStart, 'yyyy-MM-dd')
       const endStr = format(fetchEnd, 'yyyy-MM-dd')
       
@@ -100,6 +116,21 @@ export default function WlgCalendarPage() {
     }
   }, [region])
 
+  const openDeliveriesMap = useCallback(async () => {
+    setIsDeliveriesMapOpen(true)
+    setDeliveriesMapLoading(true)
+    try {
+      const dateStr = format(selectedDate, 'yyyy-MM-dd')
+      const res = await fetch(`/api/dashboard/deliveries-map?date=${dateStr}&region=wellington`, { cache: 'no-store' })
+      const data = await res.json()
+      setDeliveriesMapPoints(Array.isArray(data.points) ? data.points : [])
+    } catch {
+      setDeliveriesMapPoints([])
+    } finally {
+      setDeliveriesMapLoading(false)
+    }
+  }, [selectedDate])
+
   // Fetch orders for a specific day
   const fetchDayOrders = useCallback(async (date: Date) => {
     setDayOrdersLoading(true)
@@ -107,7 +138,7 @@ export default function WlgCalendarPage() {
     
     try {
       const dateStr = format(date, 'yyyy-MM-dd')
-      const response = await fetch(`/api/orders/by-day?region=${region}&date=${dateStr}`)
+      const response = await fetch(`/api/orders/by-day?region=${region}&date=${dateStr}&page=1&pageSize=5000`)
       if (!response.ok) throw new Error('Failed to fetch day orders')
       
       const data = await response.json()
@@ -145,15 +176,23 @@ export default function WlgCalendarPage() {
     fetchDayOrders(selectedDate)
   }, [selectedDate, fetchDayOrders])
 
-  // Auto-refresh summary every 2 minutes
+  // Auto-refresh rolling window + selected day every 90 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing WLG calendar summary...')
+      console.log('🔄 Auto-refreshing WLG calendar summary + selected day...')
       fetchCalendarSummary(selectedDate)
-    }, 120000) // 2 minutes
+      fetchDayOrders(selectedDate)
+      setAlertRefreshToken((token) => token + 1)
+    }, 90000)
 
     return () => clearInterval(interval)
-  }, [selectedDate, fetchCalendarSummary])
+  }, [selectedDate, fetchCalendarSummary, fetchDayOrders])
+
+  const calendarAlert = useCalendarDayAlert({
+    region,
+    selectedDate,
+    refreshToken: alertRefreshToken,
+  })
 
   // Calendar rendering helpers
   const monthStart = startOfMonth(selectedDate)
@@ -165,7 +204,11 @@ export default function WlgCalendarPage() {
   // Build counts map from summary
   const countsByDay = useMemo(() => {
     const map: Record<string, number> = {}
-    if (summary?.countsByDay) {
+    if (Array.isArray(summary?.days) && summary.days.length > 0) {
+      for (const item of summary.days) {
+        map[item.date] = Number(item.totalCount || 0)
+      }
+    } else if (summary?.countsByDay) {
       for (const item of summary.countsByDay) {
         map[item.date] = item.count
       }
@@ -355,7 +398,7 @@ export default function WlgCalendarPage() {
               </div>
               {lastSummaryFetch && (
                 <div className="text-xs text-muted-foreground">
-                  Last updated: {format(lastSummaryFetch, 'HH:mm:ss')} • Auto-refresh every 2 min
+                  Last updated: {format(lastSummaryFetch, 'HH:mm:ss')} • Auto-refresh every 90s
                 </div>
               )}
             </div>
@@ -375,14 +418,25 @@ export default function WlgCalendarPage() {
                 </Button>
               )}
               <Button 
-                onClick={() => fetchCalendarSummary(selectedDate)} 
+                onClick={() => {
+                  fetchCalendarSummary(selectedDate)
+                  fetchDayOrders(selectedDate)
+                  setAlertRefreshToken((token) => token + 1)
+                }}
                 size="sm" 
                 variant="outline"
                 disabled={summaryLoading}
                 className="flex items-center gap-2"
               >
-                <RefreshCw className={`w-4 h-4 ${summaryLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${summaryLoading || dayOrdersLoading ? 'animate-spin' : ''}`} />
                 Refresh
+              </Button>
+              <CalendarDayAlertButton onClick={() => calendarAlert.setModalOpen(true)} />
+              <Button onClick={() => setIsLiveMapOpen(true)} size="sm" variant="outline">
+                Live Map
+              </Button>
+              <Button onClick={openDeliveriesMap} size="sm" variant="outline">
+                Map
               </Button>
               <Button onClick={openAddOrderModal} size="sm" className="flex items-center gap-2">
                 <Plus className="w-4 h-4" />
@@ -390,6 +444,11 @@ export default function WlgCalendarPage() {
               </Button>
             </div>
           </div>
+          <CalendarDayAlertBanner
+            alert={calendarAlert.alert}
+            dismissing={calendarAlert.dismissing}
+            onDismiss={calendarAlert.handleDismiss}
+          />
           <div className="min-h-[300px] w-full max-w-full overflow-x-hidden">
             {summaryError && (
               <div className="text-center py-2 text-red-500 text-sm mb-2">{summaryError}</div>
@@ -401,11 +460,9 @@ export default function WlgCalendarPage() {
               <div className="text-center py-8 text-muted-foreground">Loading orders...</div>
             ) : (
               <>
-                {dayOrdersLoading && dayOrders.length > 0 && (
-                  <div className="text-center py-1 text-xs text-muted-foreground mb-2">
-                    🔄 Refreshing...
-                  </div>
-                )}
+                {/* Background refreshes are indicated via the header Refresh
+                    button spinner instead of an in-flow banner, so the order
+                    card list doesn't jump while auto-refreshing. */}
                 <OrderCardList 
                   orders={dayOrders} 
                   onUpdateOrder={handleUpdateOrder}
@@ -617,6 +674,56 @@ export default function WlgCalendarPage() {
               {isCreatingOrder ? 'Creating...' : 'Create Order'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <CalendarDayAlertModal
+        open={calendarAlert.modalOpen}
+        onOpenChange={calendarAlert.setModalOpen}
+        selectedDate={selectedDate}
+        note={calendarAlert.note}
+        onNoteChange={calendarAlert.setNote}
+        posting={calendarAlert.posting}
+        onPost={calendarAlert.handlePost}
+      />
+      <LiveMapModal open={isLiveMapOpen} onOpenChange={setIsLiveMapOpen} />
+
+      {/* Day deliveries map (numbered stops, same as owner dashboard) */}
+      <Dialog
+        open={isDeliveriesMapOpen}
+        onOpenChange={(open) => {
+          setIsDeliveriesMapOpen(open)
+          // Pull in any travel-time / driver edits made in the map so the
+          // order cards reflect them without a manual refresh.
+          if (!open) fetchDayOrders(selectedDate)
+        }}
+      >
+        <DialogContent className="sm:max-w-[95vw]">
+          <DialogHeader>
+            <DialogTitle>Deliveries Map — {format(selectedDate, 'yyyy-MM-dd')}</DialogTitle>
+            <DialogDescription>
+              All deliveries for the day plotted in delivery-time order
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2">
+            {deliveriesMapLoading ? (
+              <div className="text-center py-12 text-muted-foreground">Loading deliveries...</div>
+            ) : deliveriesMapPoints.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">No deliveries found for this day</div>
+            ) : (
+              (() => {
+                const modalH = (typeof window !== 'undefined' && window.innerHeight) ? Math.round(window.innerHeight * 0.72) : 640
+                return (
+                  <DeliveryMap
+                    deliveryPoints={deliveriesMapPoints}
+                    heightPx={modalH}
+                    listPosition="right"
+                    originAddress="9 Ganges Road, Khandallah, Wellington 6035"
+                    allowAssignDriver
+                  />
+                )
+              })()
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
