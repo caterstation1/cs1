@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { normalizeUom } from '../ingest/apply'
 import { identifySupplier } from '../ingest/identify'
+import { bodyCandidates, stripHtml } from '../ingest/index'
 import {
   parseBidfoodCsv,
   parseBidfoodFullReportCsv,
@@ -256,6 +257,32 @@ function run() {
   // A misread line (qty × price ≠ subtotal) is rejected.
   const badLine = parseBidfoodInvoiceText('Invoiced 108917 Muffin [36PC/Carton] 3.00 $20.96 $999.99')
   assert.equal(badLine, null)
+
+  // --- which part of the email a parser gets to see ---
+  // Gilmours' plain-text part is an unfilled template; the order is only in the
+  // HTML. Both parts must be offered, or every direct Gilmours email fails
+  // while the same order forwarded from Gmail succeeds.
+  const gilmoursStub = {
+    text: 'Congratulations!\nThis is the plain text version<br />\ninclude component here',
+    html:
+      '<table><tr><td>Tatua Sour Cream 12 x 1kg Product Code: 1036696</td>' +
+      '<td>Quantity 1.0 Case Price per Case $90.71 Total $90.71</td></tr></table>',
+  }
+  const candidates = bodyCandidates(gilmoursStub)
+  assert.equal(candidates.length, 2, 'the HTML is offered alongside the text part')
+  const fromHtml = parseGilmoursOrderText(candidates[1])
+  assert.equal(parseGilmoursOrderText(candidates[0]), null, 'the stub text part yields nothing')
+  assert.ok(fromHtml, 'the HTML body carries the order')
+  assert.equal(fromHtml!.rows[0].description, 'Tatua Sour Cream')
+  assert.equal(fromHtml!.rows[0].packSize, '12x1kg')
+
+  // Identical parts are not offered twice, and an HTML-only email still works.
+  assert.deepEqual(bodyCandidates({ text: 'same', html: '<p>same</p>' }), ['same'])
+  assert.deepEqual(bodyCandidates({ text: '  ', html: '<p>only html</p>' }), ['only html'])
+  assert.deepEqual(bodyCandidates({}), [])
+
+  // A price written as an entity has to survive as a price.
+  assert.equal(stripHtml('<p>Total&nbsp;&#36;5.72 &amp; more</p>'), 'Total $5.72 & more')
 
   // --- uom normalization used by apply() to skip Each-vs-Case mismatches ---
   assert.equal(normalizeUom('Case'), 'case')

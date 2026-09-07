@@ -43,14 +43,62 @@ const isCsvAttachment = (filename: string, contentType: string): boolean =>
 const isSpreadsheet = (filename: string, contentType: string): boolean =>
   /\.(xlsx?|ods)$/i.test(filename) || /spreadsheet|ms-excel/i.test(contentType)
 
-const stripHtml = (html: string): string =>
+const HTML_ENTITIES: Record<string, string> = {
+  nbsp: ' ',
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  '#39': "'",
+}
+
+export const stripHtml = (html: string): string =>
   html
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
+    .replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (whole, name: string) => {
+      const key = name.toLowerCase()
+      if (HTML_ENTITIES[key]) return HTML_ENTITIES[key]
+      // A price written as &#36;5.72 has to come back as a dollar sign, or the
+      // row reads as having no price at all.
+      if (key.startsWith('#x')) return String.fromCodePoint(parseInt(key.slice(2), 16))
+      if (key.startsWith('#')) return String.fromCodePoint(Number(key.slice(1)))
+      return whole
+    })
     .replace(/\s+/g, ' ')
     .trim()
+
+/**
+ * The bodies worth handing to a parser, in the order they should be tried.
+ *
+ * Not simply `text ?? stripHtml(html)`. Gilmours sends a plain-text part that is
+ * an unfilled template — literally 'This is the plain text version' — with the
+ * real order only in the HTML. Preferring the text part meant every order
+ * emailed straight from Gilmours parsed that placeholder and failed, while the
+ * same order forwarded from Gmail succeeded, because Gmail regenerates the text
+ * from the HTML. Rather than guess which part is the real one, hand the parser
+ * both and let it decide: a parser returning rows is the only reliable signal
+ * that a body was the right one.
+ */
+export function bodyCandidates(email: { text?: string | null; html?: string | null }): string[] {
+  const candidates: string[] = []
+  const text = email.text?.trim()
+  if (text) candidates.push(text)
+  const fromHtml = email.html ? stripHtml(email.html) : ''
+  if (fromHtml && fromHtml !== text) candidates.push(fromHtml)
+  return candidates
+}
+
+/** Runs one parser over each candidate body, stopping at the first that yields rows. */
+function firstParsed(bodies: string[], parse: (body: string) => ParseOutcome | null): ParseOutcome | null {
+  for (const body of bodies) {
+    const outcome = parse(body)
+    if (outcome) return outcome
+  }
+  return null
+}
 
 /**
  * Processes one received email and updates its EmailIngestion row in place.
@@ -97,18 +145,10 @@ export async function processInboundEmail(resendEmailId: string, ingestionId: st
     }
 
     // 2. Order-confirmation bodies in each supplier's own layout.
-    if (!outcome && supplier === 'gilmours') {
-      const bodyText = email.text?.trim() || (email.html ? stripHtml(email.html) : '')
-      outcome = parseGilmoursOrderText(bodyText)
-    }
-    if (!outcome && supplier === 'bidfood') {
-      const bodyText = email.text?.trim() || (email.html ? stripHtml(email.html) : '')
-      outcome = parseBidfoodInvoiceText(bodyText)
-    }
-    if (!outcome && supplier === 'produceco') {
-      const bodyText = email.text?.trim() || (email.html ? stripHtml(email.html) : '')
-      outcome = parseProduceCoOrderText(bodyText)
-    }
+    const bodies = bodyCandidates(email)
+    if (!outcome && supplier === 'gilmours') outcome = firstParsed(bodies, parseGilmoursOrderText)
+    if (!outcome && supplier === 'bidfood') outcome = firstParsed(bodies, parseBidfoodInvoiceText)
+    if (!outcome && supplier === 'produceco') outcome = firstParsed(bodies, parseProduceCoOrderText)
 
     // 3. HTML tables in the body — order confirmations that kept their table.
     if (!outcome && email.html) {
@@ -119,10 +159,13 @@ export async function processInboundEmail(resendEmailId: string, ingestionId: st
     // were looking at: without it, fixing the parser means waiting for the next
     // email and hoping to catch it. Stored before the LLM runs, so it survives
     // the LLM throwing (a dead API key used to lose the evidence entirely).
+    // The richest candidate, not the first: a stub text part next to a full HTML
+    // one would otherwise store the stub and hide the layout that needs fixing.
+    const bestBody = bodies.reduce((longest, body) => (body.length > longest.length ? body : longest), '')
+
     let bodySample: string | null = null
     if (!outcome) {
-      const bodyText = email.text?.trim() || (email.html ? stripHtml(email.html) : '')
-      bodySample = bodyText.slice(0, MAX_BODY_SAMPLE_CHARS)
+      bodySample = bestBody.slice(0, MAX_BODY_SAMPLE_CHARS)
       notes.push('No deterministic parser matched this layout; body sample captured for review.')
       await prisma.emailIngestion
         .update({
@@ -134,8 +177,7 @@ export async function processInboundEmail(resendEmailId: string, ingestionId: st
 
     // 4. LLM extraction as the last resort.
     if (!outcome) {
-      const bodyText = email.text?.trim() || (email.html ? stripHtml(email.html) : '')
-      outcome = await llmExtractRows(bodyText).catch((err) => {
+      outcome = await llmExtractRows(bestBody).catch((err) => {
         // A dead or out-of-credit LLM must not discard a readable email; the
         // body sample above is what makes the layout fixable.
         notes.push(`LLM extraction unavailable: ${err instanceof Error ? err.message : 'unknown error'}`)
@@ -168,9 +210,7 @@ export async function processInboundEmail(resendEmailId: string, ingestionId: st
     const report: Record<string, unknown> = {
       resendEmailId,
       notes,
-      bodySample:
-        bodySample ??
-        (email.text?.trim() || (email.html ? stripHtml(email.html) : '')).slice(0, MAX_BODY_SAMPLE_CHARS),
+      bodySample: bodySample ?? bestBody.slice(0, MAX_BODY_SAMPLE_CHARS),
       ...applied,
     }
     const status =
