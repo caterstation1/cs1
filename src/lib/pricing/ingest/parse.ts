@@ -317,19 +317,48 @@ const GILMOURS_BLOCK = new RegExp(
 )
 
 /**
+ * Things that can sit in front of a product name but can never be part of one:
+ * the previous item's total, and the headings Gilmours puts above each delivery
+ * group. An order split across two deliveries repeats them mid-email, so the
+ * first item of every group has a heading stuck to the front of its name.
+ */
+const GILMOURS_NOT_A_NAME = new RegExp(
+  [
+    '\\$\\s*[\\d,]+\\.?\\d*',                                                     // previous line total
+    'Order part \\d+ of \\d+',
+    '\\b\\d+ items\\b',
+    // 'Delivery by Gilmours on Tue 8 Sep', 'Delivery of fresh produce by
+    // Fresh Connection on Tue 8 Sep'
+    'Delivery (?:by|of)[^$]{0,80}?on (?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*\\s+\\d{1,2}\\s+[A-Za-z]+',
+    'Delivery notes',
+    'Product requests',
+    '\\bn/a\\b',
+    '\\bThanks\\b',
+  ].join('|'),
+  'gi'
+)
+
+/**
  * The product name sits in the text before 'Product Code:'. That run also holds
- * the tail of whatever came before it, so it is cut back to the last thing that
- * cannot be part of a name: the previous item's price, or a sentence end.
+ * everything since the previous item, so it is cut back to whatever came last
+ * that cannot belong to a name.
  */
 function gilmoursNameFromSegment(segment: string): string {
   let text = segment.replace(/\s+/g, ' ').trim()
-  const lastMoney = text.lastIndexOf('$')
-  if (lastMoney >= 0) text = text.slice(lastMoney).replace(/^\$\s*[\d,]+\.?\d*/, '')
+
+  GILMOURS_NOT_A_NAME.lastIndex = 0
+  let cut = 0
+  let m: RegExpExecArray | null
+  while ((m = GILMOURS_NOT_A_NAME.exec(text)) !== null) cut = m.index + m[0].length
+  text = text.slice(cut)
+
+  // A delivery note is free text and can end in a full stop mid-segment.
   const lastStop = text.lastIndexOf('. ')
   if (lastStop >= 0) text = text.slice(lastStop + 2)
-  // Header and label words that can only precede a name, never belong to one.
-  text = text.replace(/^.*\b(?:items|Product requests|Delivery notes|n\/a|Thanks)\b[.:]?\s*/i, '')
-  return text.replace(/^[^A-Za-z0-9]+/, '').trim().slice(-90).trim()
+
+  // Leading separators only. Gilmours really does sell a '#3 Brown Sugar', so
+  // stripping every non-alphanumeric would rename the product.
+  return text.replace(/^[\s,;:.|\-–—]+/, '').trim().slice(-90).trim()
 }
 
 export function parseGilmoursOrderText(rawText: string): ParseOutcome | null {

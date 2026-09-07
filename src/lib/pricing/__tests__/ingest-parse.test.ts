@@ -169,6 +169,44 @@ function run() {
   assert.equal(byGilmoursSku.get('5329277')!.price, 6.05, 'qty 3 at $6.05 reconciles against the $18.15 total')
   assert.equal(byGilmoursSku.get('1036696')!.uom, 'case')
 
+  // An order split across two deliveries repeats the group heading mid-email,
+  // which used to end up glued to the front of the next product's name.
+  const gilmoursSplit = parseGilmoursOrderText(
+    'Order confirmation Thank you for ordering with Gilmours. Order information Order number O-0005710338 ' +
+      'Shipping address The Cater Station 562 Richmond Road Auckland, Grey Lynn 1021 New Zealand ' +
+      'Order part 1 of 2 7 items Delivery by Gilmours on Tue 8 Sep ' +
+      'Janola Regular Premium Bleach 2.5L Product Code: 1090586 Quantity 2.0 Each Price per Each $5.72 Total $11.44 ' +
+      'Obento Sushi Rice 10kg Product Code: 5306695 Quantity 4.0 Each Price per Each $29.90 Total $119.60 ' +
+      'Order part 2 of 2 33 items Delivery of fresh produce by Fresh Connection on Tue 8 Sep ' +
+      'Fresh Connection Strawberry Punnet 125g Product Code: 5276997 Quantity 1.0 Each Price per Each $6.41 Total $6.41 ' +
+      'Fresh Connection Bananas kg Product Code: 5276847 Quantity 1.0 KG Price per KG $3.52 Total $3.52 ' +
+      'Subtotal $301.31 Estimated GST $45.20'
+  )
+  assert.ok(gilmoursSplit, 'a split delivery should parse')
+  assert.equal(gilmoursSplit!.rows.length, 4)
+  const bySplitSku = new Map(gilmoursSplit!.rows.map((r) => [r.sku, r]))
+  assert.equal(
+    bySplitSku.get('1090586')!.description,
+    'Janola Regular Premium Bleach',
+    'the delivery heading is not part of the first product name'
+  )
+  assert.equal(
+    bySplitSku.get('5276997')!.description,
+    'Fresh Connection Strawberry Punnet',
+    'the second group heading is stripped too'
+  )
+  assert.equal(bySplitSku.get('5276997')!.packSize, '125g')
+  assert.equal(bySplitSku.get('5306695')!.description, 'Obento Sushi Rice')
+  // Gilmours sell a '#3 Brown Sugar'; leading punctuation is part of the name.
+  const hashName = parseGilmoursOrderText(
+    'Total $1.00 #3 Brown Sugar 15kg Product Code: 1011079 Quantity 1.0 Each Price per Each $44.10 Total $44.10'
+  )
+  assert.equal(hashName!.rows[0].description, '#3 Brown Sugar')
+  assert.equal(bySplitSku.get('5306695')!.packSize, '10kg')
+  // A weight-priced line keeps its unit; 'kg' is the pack, not part of the name.
+  assert.equal(bySplitSku.get('5276847')!.uom, 'kg')
+  assert.equal(bySplitSku.get('5276847')!.price, 3.52)
+
   // --- trailing pack sizes ---
   assert.deepEqual(splitTrailingPackSize('Gilmours Premium Flour 20kg'), {
     description: 'Gilmours Premium Flour',
