@@ -11,6 +11,9 @@
 
 const ATTRIBUTE_NAME = 'thank you note file'
 
+/** Spelled exactly as the cart writes it, so a staff upload is indistinguishable from a customer one. */
+export const THANK_YOU_ATTRIBUTE_LABEL = 'Thank you note file'
+
 /** Filenames are minted as `thankyou-<YYYYMMDD>-<HHmm>-<cartToken>-<original>`. */
 const UPLOAD_PREFIX = /^thankyou-\d{8}-\d{4}-[^-]+-/
 
@@ -58,4 +61,20 @@ export function getThankYouNote(order: unknown): ThankYouNote | null {
     filename: stored.replace(UPLOAD_PREFIX, '') || stored,
     isImage: /\.(png|jpe?g|gif|webp)$/i.test(path),
   }
+}
+
+/**
+ * Returns the order's note attributes with the thank-you file pointed at `url`,
+ * replacing any existing entry and leaving the other attributes (delivery date,
+ * city, and so on) untouched.
+ */
+export function withThankYouNote(
+  existingNoteAttributes: unknown,
+  url: string
+): Array<{ name: string; value: string }> {
+  const others = parseNoteAttributes(existingNoteAttributes)
+    .filter((attr) => String(attr?.name ?? '').trim().toLowerCase() !== ATTRIBUTE_NAME)
+    .map((attr) => ({ name: String(attr?.name ?? ''), value: String(attr?.value ?? '') }))
+
+  return [...others, { name: THANK_YOU_ATTRIBUTE_LABEL, value: url }]
 }

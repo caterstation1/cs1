@@ -22,7 +22,8 @@ import { PaymentAlertBadge } from './payment-alert-badge'
 import { requestTrackingStatusSync } from '@/contexts/shift-location-tracking'
 import { ordinalLabel } from '@/lib/delivery-sequence'
 import { resolveBundleItems } from '@/lib/product-service'
-import { getThankYouNote } from '@/lib/thankyou-note'
+import { getThankYouNote, withThankYouNote } from '@/lib/thankyou-note'
+import { QUICK_ADD_PRODUCTS, type QuickAddProduct } from '@/lib/quick-add-products'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -156,6 +157,8 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [productImagePreview, setProductImagePreview] = useState<ProductImagePreview | null>(null)
   const [isThankYouNoteOpen, setIsThankYouNoteOpen] = useState(false)
+  const [isUploadingSticker, setIsUploadingSticker] = useState(false)
+  const stickerInputRef = useRef<HTMLInputElement>(null)
   const [isDDModalOpen, setIsDDModalOpen] = useState(false)
   const [ddKm, setDdKm] = useState<number>(0)
   const [ddRate, setDdRate] = useState<number>(2)
@@ -283,6 +286,35 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     }
     image.src = thankYouNote.url
     doc.body.appendChild(image)
+  }
+
+  // Staff-side equivalent of the cart upload: pushes the file into Shopify
+  // Files through the same route the storefront uses, then writes the same
+  // note attribute, so the artwork is indistinguishable from a customer upload.
+  const handleStickerUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = '' // let the same file be picked again after a failure
+    if (!file) return
+
+    setIsUploadingSticker(true)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      form.append('cart_token', `ord${order.orderNumber}`)
+
+      const response = await fetch('/api/thankyou/upload', { method: 'POST', body: form })
+      const result = await response.json().catch(() => null)
+      if (!response.ok || !result?.ok || !result?.url) {
+        throw new Error(result?.error || `Upload failed (${response.status})`)
+      }
+
+      await handleUpdate({ noteAttributes: withThankYouNote(order.noteAttributes, result.url) })
+    } catch (error) {
+      console.error('Error uploading sticker:', error)
+      alert(error instanceof Error ? error.message : 'Could not upload the sticker.')
+    } finally {
+      setIsUploadingSticker(false)
+    }
   }
   // Expand party packs into child display (UI only; DB stays unchanged until saved via Edit Order)
   const expandedDisplayLineItems: any[] = useMemo(() => {
@@ -892,6 +924,28 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     }
 
     return rawTitle && rawTitle !== 'Default Title' ? rawTitle : ''
+  }
+
+  const handleQuickAdd = (item: QuickAddProduct) => {
+    const newItem = {
+      sku: item.sku,
+      title: item.title,
+      variant_id: item.variantId,
+      variantId: item.variantId,
+      quantity: 1,
+      price: "0.00",
+      variant_title: null,
+      vendor: "Cater Station",
+      properties: [],
+      taxable: true,
+      requires_shipping: true,
+      fulfillment_status: null
+    } as any;
+    handleUpdate({ lineItems: [...editedLineItems, newItem] });
+    setIsSearching(false);
+    setSearchQuery('');
+    setSearchResults([]);
+    setExpandedProductIds({});
   }
 
   const handleAddVariantFromGroup = (group: SearchProductGroup, variant: SearchVariant) => {
@@ -2402,6 +2456,25 @@ ${itemsSummary}`
           </div>
 
           <DialogFooter>
+            <input
+              ref={stickerInputRef}
+              type="file"
+              accept="image/png,image/jpeg,.pdf,.doc,.docx"
+              className="hidden"
+              onChange={handleStickerUpload}
+            />
+            <Button
+              variant="outline"
+              onClick={() => stickerInputRef.current?.click()}
+              disabled={isUploadingSticker}
+              title={
+                thankYouNote
+                  ? `Replace the box sticker (currently ${thankYouNote.filename})`
+                  : 'Upload artwork to stick on the box'
+              }
+            >
+              {isUploadingSticker ? 'Uploading...' : thankYouNote ? 'Sticker ✓' : 'Sticker'}
+            </Button>
             <Button
               variant={isOrderCancelled ? 'outline' : 'destructive'}
               onClick={async () => {
@@ -2471,6 +2544,24 @@ ${itemsSummary}`
           </DialogHeader>
 
           <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-gray-700">Popular add-ons</div>
+              <div className="flex flex-wrap gap-2">
+                {QUICK_ADD_PRODUCTS.map((item) => (
+                  <Button
+                    key={item.variantId}
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleQuickAdd(item)}
+                    title={`${item.title} - SKU: ${item.sku}`}
+                  >
+                    <Plus className="h-4 w-4" />
+                    {item.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
               <Input
