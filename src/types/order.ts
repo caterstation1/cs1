@@ -19,6 +19,8 @@ export interface Order {
     price: string
   }>
   note: string
+  /** Shopify cart/note attributes, e.g. the "Thank you note file" upload URL */
+  noteAttributes?: Array<{ name: string; value: string }> | string | null
   tags: string
   fulfillmentStatus: string
   /** Shopify financial status (e.g. "pending" = Awaiting payment, "paid") */

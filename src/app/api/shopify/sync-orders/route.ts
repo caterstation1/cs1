@@ -97,6 +97,7 @@ export async function POST() {
               customerPhone: transformedOrder.customerPhone,
               shippingAddress: transformedOrder.shippingAddress,
               lineItems: transformedOrder.lineItems,
+              noteAttributes: (shopifyOrder.note_attributes ?? []) as any,
               source: 'shopify',
               hasLocalEdits: transformedOrder.hasLocalEdits,
               syncedAt: new Date(transformedOrder.syncedAt),

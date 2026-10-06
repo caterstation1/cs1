@@ -23,6 +23,7 @@ import { DeliveryNotesButton } from './delivery-notes-modal'
 import { PaymentAlertBadge } from './payment-alert-badge'
 import { useDeliveryNotes } from '@/hooks/useDeliveryNotes'
 import { deliveryRunKey, ordinalLabel } from '@/lib/delivery-sequence'
+import { getThankYouNote } from '@/lib/thankyou-note'
 interface OrderCardListProps {
   orders: Order[]
   onUpdateOrder: (orderId: string, updates: Partial<Order>) => Promise<Order>
@@ -948,6 +949,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
                 (() => {
                   const company = getOrderCompany(order)
                   const compactItems = getCompactOrderItems(order)
+                  const thankYouNote = getThankYouNote(order)
                   return (
                     <div
                       key={order.id}
@@ -1006,7 +1008,7 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
                         ) : null}
                       </div>
 
-                      {compactItems.length > 0 && (
+                      {(compactItems.length > 0 || thankYouNote) && (
                         <div className="mt-2 space-y-1">
                           {compactItems.map((it) => (
                             <div key={it.key} className="flex items-center justify-between text-xs text-slate-700">
@@ -1017,6 +1019,17 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
                               <span className="ml-2 text-slate-500">x{it.qty}</span>
                             </div>
                           ))}
+                          {thankYouNote && (
+                            <button
+                              type="button"
+                              onClick={() => window.open(thankYouNote.url, '_blank', 'noopener,noreferrer')}
+                              className="flex w-full items-center text-xs text-left"
+                              title={`Thank-you note from the customer: ${thankYouNote.filename}`}
+                            >
+                              <span className="w-7 flex-shrink-0" />
+                              <span className="text-blue-600 underline underline-offset-2">NOTE ON BOX</span>
+                            </button>
+                          )}
                         </div>
                       )}
 

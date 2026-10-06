@@ -88,6 +88,7 @@ export async function syncShopifyOrders(): Promise<OrderSyncResult> {
             customerPhone: transformed.customerPhone,
             shippingAddress: transformed.shippingAddress as any,
             lineItems: transformed.lineItems as any,
+            noteAttributes: (order.note_attributes ?? []) as any,
             source: 'shopify',
             hasLocalEdits: false,
             syncedAt: new Date(transformed.syncedAt),

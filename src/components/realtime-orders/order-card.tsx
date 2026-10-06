@@ -15,13 +15,14 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Search, Car, MessageSquare, Settings, Phone, StickyNote, Plus, Minus } from 'lucide-react'
+import { Search, Car, MessageSquare, Settings, Phone, StickyNote, Plus, Minus, Printer } from 'lucide-react'
 import { TextOrdersModal } from '@/components/TextOrdersModal'
 import { DeliveryNotesButton, type DeliveryNoteEntry } from './delivery-notes-modal'
 import { PaymentAlertBadge } from './payment-alert-badge'
 import { requestTrackingStatusSync } from '@/contexts/shift-location-tracking'
 import { ordinalLabel } from '@/lib/delivery-sequence'
 import { resolveBundleItems } from '@/lib/product-service'
+import { getThankYouNote } from '@/lib/thankyou-note'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -154,6 +155,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [isClientTextOpen, setIsClientTextOpen] = useState(false)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [productImagePreview, setProductImagePreview] = useState<ProductImagePreview | null>(null)
+  const [isThankYouNoteOpen, setIsThankYouNoteOpen] = useState(false)
   const [isDDModalOpen, setIsDDModalOpen] = useState(false)
   const [ddKm, setDdKm] = useState<number>(0)
   const [ddRate, setDdRate] = useState<number>(2)
@@ -239,6 +241,48 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     const parentDisplay = ((product as any).productDisplayName || '').trim()
     if (parentDisplay) return parentDisplay
     return product.shopifyName || product.shopifyTitle || product.name || item.title || 'Product'
+  }
+  // Artwork the customer uploaded on the cart page, shown as a "NOTE ON BOX" line under the items
+  const thankYouNote = useMemo(() => getThankYouNote(order), [order])
+
+  // Prints the artwork on its own so it can be cut out and stuck on the box.
+  // Uses an offscreen iframe rather than window.open so popup blockers don't eat it.
+  const printThankYouNote = () => {
+    if (!thankYouNote) return
+    const frame = document.createElement('iframe')
+    frame.setAttribute('aria-hidden', 'true')
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'
+    document.body.appendChild(frame)
+
+    const doc = frame.contentDocument
+    if (!doc) {
+      frame.remove()
+      return
+    }
+    doc.open()
+    doc.write(
+      '<!doctype html><html><head><style>' +
+        '@page{margin:10mm}html,body{margin:0;padding:0}' +
+        'img{display:block;margin:0 auto;max-width:100%;max-height:100vh;object-fit:contain}' +
+        '</style></head><body></body></html>'
+    )
+    doc.close()
+    doc.title = thankYouNote.filename
+
+    const image = doc.createElement('img')
+    image.alt = ''
+    const cleanUp = () => window.setTimeout(() => frame.remove(), 1000)
+    image.onload = () => {
+      frame.contentWindow?.focus()
+      frame.contentWindow?.print()
+      cleanUp()
+    }
+    image.onerror = () => {
+      frame.remove()
+      alert('Could not load the thank-you note image to print.')
+    }
+    image.src = thankYouNote.url
+    doc.body.appendChild(image)
   }
   // Expand party packs into child display (UI only; DB stays unchanged until saved via Edit Order)
   const expandedDisplayLineItems: any[] = useMemo(() => {
@@ -2138,6 +2182,17 @@ ${itemsSummary}`
                 );
               });
             })}
+            {thankYouNote && (
+              <button
+                type="button"
+                onClick={() => setIsThankYouNoteOpen(true)}
+                className={`${isTvMode ? 'text-[1.75rem]' : 'text-[1.125rem]'} flex w-full items-center cursor-pointer hover:bg-gray-50 p-0.5 rounded leading-tight text-left`}
+                title={`Thank-you note from the customer: ${thankYouNote.filename}`}
+              >
+                <span className="flex-shrink-0 w-10" />
+                <span className="whitespace-nowrap text-blue-600 underline underline-offset-4 decoration-2">NOTE ON BOX</span>
+              </button>
+            )}
           </div>
           
           {/* Mobile actions row (shown when desktop actions are hidden) */}
@@ -2662,6 +2717,57 @@ ${itemsSummary}`
             ) : (
               <p className="text-gray-500 text-sm py-8 text-center">No image on file for this product.</p>
             )}
+          </div>
+        </div>
+      )}
+      {isThankYouNoteOpen && thankYouNote && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Thank-you note"
+          onClick={() => setIsThankYouNoteOpen(false)}
+        >
+          <div
+            className="relative bg-white rounded-lg shadow-xl max-w-[min(90vw,42rem)] max-h-[90vh] overflow-auto p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="absolute top-2 right-2 z-10 h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg leading-none flex items-center justify-center"
+              onClick={() => setIsThankYouNoteOpen(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 className="font-semibold text-lg pr-10">Thank-you note</h3>
+            <p className="text-sm text-gray-500 mb-3 break-all">{thankYouNote.filename}</p>
+            {thankYouNote.isImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={thankYouNote.url}
+                alt={thankYouNote.filename}
+                className="max-w-full max-h-[70vh] w-auto mx-auto object-contain rounded border border-gray-100"
+              />
+            ) : (
+              <p className="text-gray-500 text-sm py-8 text-center">
+                This note is a document. Open it to read or print it.
+              </p>
+            )}
+            <div className="mt-3 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => window.open(thankYouNote.url, '_blank', 'noopener,noreferrer')}
+              >
+                Open file
+              </Button>
+              {thankYouNote.isImage && (
+                <Button onClick={printThankYouNote} className="flex items-center gap-2">
+                  <Printer className="h-4 w-4" />
+                  Print
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       )}
