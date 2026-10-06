@@ -26,6 +26,7 @@ const PUBLIC_PREFIXES = [
   '/api/production-url',
   '/api/order-notifications/opt-out',
   '/api/vip', // VIP shop order intake — anonymous storefront callers, protected in the route handler (origin check, VIPUSER tag, optional x-vip-key)
+  '/api/thankyou', // Thank-you note uploads from the cart page — anonymous storefront callers, protected in the route handler (CORS origin allow-list, type/size limits)
   '/api/cron', // Allow cron jobs (they authenticate via CRON_SECRET in route handler)
   '/api/inbound', // Resend inbound webhooks (authenticated via svix signature in route handler)
   '/api/suppliers', // Allow supplier endpoints (they authenticate via CRON_SECRET in route handler for internal calls)
