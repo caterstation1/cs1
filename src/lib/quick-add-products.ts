@@ -2,10 +2,11 @@
  * The add-ons staff reach for most often, offered as one-tap buttons at the top
  * of the Add Product dialog so they don't have to search for them.
  *
- * Pinned by variant id rather than SKU on purpose: ADD-TFN and ADD-GFD are each
+ * Pinned by variant id rather than SKU on purpose. ADD-TFN and ADD-GFD are each
  * shared by two different products in Shopify (Side of Tofu / Side of Falafel,
- * and x3 Gluten-Friendly Donuts / x3 Gluten-Friendly Bagels), so looking these
- * up by SKU can add the wrong item.
+ * and x3 Gluten-Friendly Donuts / x3 Gluten-Friendly Bagels), and TaterTots and
+ * the GF tacos each exist twice under near-identical names, so looking these up
+ * by SKU or title can add the wrong item.
  */
 
 export interface QuickAddProduct {
@@ -41,5 +42,11 @@ export const QUICK_ADD_PRODUCTS: QuickAddProduct[] = [
     sku: 'ADD-GFD',
     title: 'ADDON: x3 Gluten-Friendly Donuts',
     label: 'x3 GF donuts',
+  },
+  {
+    variantId: '43043839934719',
+    sku: 'ADD-CTT',
+    title: 'ADDON: Crispy TaterTots',
+    label: 'TaterTots',
   },
 ]
