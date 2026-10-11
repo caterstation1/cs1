@@ -1747,7 +1747,17 @@ ${itemsSummary}`
               onClick={() => setIsMapModalOpen(true)}
             >
               {/* Order number and customer before address */}
-              <span className="mr-3">{`#${order.orderNumber || ''}`}</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsDetailsModalOpen(true)
+                }}
+                className="mr-3 underline underline-offset-2 decoration-dotted hover:text-blue-700"
+                title="View order details"
+              >
+                {`#${order.orderNumber || ''}`}
+              </button>
               <span className="mr-3">{customerDisplayName}</span>
               {deliveryAddress || 'No address'}
             </div>
@@ -2862,7 +2872,7 @@ ${itemsSummary}`
           </div>
         </div>
       )}
-      {/* Order Details Modal (opens when clicking phone number) */}
+      {/* Order Details Modal (opens when clicking the order number or phone number) */}
       <Dialog modal open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
         <DialogContent className="w-full max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
