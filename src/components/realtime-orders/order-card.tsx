@@ -31,6 +31,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { ProductEditModal, Product as ProductEditType } from '@/components/ProductEditModal';
+import { OrderAllDataModal } from '@/components/orders/order-all-data-modal';
 import { SetRuleModal } from '@/components/SetRuleModal';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -155,6 +156,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const [isCustomerNoteModalOpen, setIsCustomerNoteModalOpen] = useState(false)
   const [isClientTextOpen, setIsClientTextOpen] = useState(false)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [isAllDataModalOpen, setIsAllDataModalOpen] = useState(false)
   const [productImagePreview, setProductImagePreview] = useState<ProductImagePreview | null>(null)
   const [isThankYouNoteOpen, setIsThankYouNoteOpen] = useState(false)
   const [isUploadingSticker, setIsUploadingSticker] = useState(false)
@@ -1049,13 +1051,24 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     };
   }
 
+  // An emptied number input reaches the form as NaN, which a bare z.number()
+  // rejects — the submit would abort with no visible error, so clearing a
+  // timer silently did nothing. Treat "no value" as null instead.
+  const optionalTimer = z.preprocess(
+    (value) =>
+      value === '' || value === null || value === undefined || (typeof value === 'number' && Number.isNaN(value))
+        ? null
+        : value,
+    z.number().nullable()
+  );
+
   const customDataSchema = z.object({
     variantId: z.string().min(1, 'variantId is required'),
     displayName: z.string().optional(),
     meat1: z.string().optional(),
     meat2: z.string().optional(),
-    timer1: z.number().nullable().optional(),
-    timer2: z.number().nullable().optional(),
+    timer1: optionalTimer,
+    timer2: optionalTimer,
     option1: z.string().optional(),
     option2: z.string().optional(),
     serveware: z.boolean().optional(),
@@ -1220,8 +1233,8 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     try {
       const payload = {
         ...data,
-        timer1: Number.isFinite(Number(data.timer1)) ? Number(data.timer1) : null,
-        timer2: Number.isFinite(Number(data.timer2)) ? Number(data.timer2) : null,
+        timer1: toTimerValue(data.timer1),
+        timer2: toTimerValue(data.timer2),
       }
 
       const response = await fetch(`/api/products/variant/${data.variantId}`, {
@@ -1751,10 +1764,10 @@ ${itemsSummary}`
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation()
-                  setIsDetailsModalOpen(true)
+                  setIsAllDataModalOpen(true)
                 }}
                 className="mr-3 underline underline-offset-2 decoration-dotted hover:text-blue-700"
-                title="View order details"
+                title="View all order data"
               >
                 {`#${order.orderNumber || ''}`}
               </button>
@@ -2104,6 +2117,11 @@ ${itemsSummary}`
                 const timersArr: (number | null)[] = Array.isArray(vAny?.timers) ? vAny.timers : [product?.timer1 ?? null, product?.timer2 ?? null];
                 const hasTimers = timersArr.some(t => t != null);
                 const timerTimes = hasTimers ? calculateTimerTimes(leaveTime, timersArr[0] ?? null, timersArr[1] ?? null) : [];
+                // Option slots line up with the title's parts, so blank ones have to
+                // be dropped rather than rendered as stray bullet separators.
+                const optionsArr: string[] = (Array.isArray(vAny?.options) ? vAny.options : [product?.option1, product?.option2])
+                  .map((o: unknown) => (o ?? '').toString().trim())
+                  .filter((o: string) => o.length > 0);
                 return (
                   <ContextMenu key={`${index}-${itemIndex}`}>
                     <ContextMenuTrigger asChild>
@@ -2186,30 +2204,27 @@ ${itemsSummary}`
                       if (!anyTimer) return null
                       return (
                         <span className={`absolute left-[62%] top-0 text-blue-500 ${isTvMode ? 'text-[2rem]' : 'text-[1.4rem]'} font-medium align-middle whitespace-nowrap`}>
-                          {timerTimes.map((time, i) => (
-                            <span key={i} className={time && isTimerPassed(variantId, i, time) ? 'text-red-600 font-bold' : ''}>
-                              {i > 0 && <span className="mx-1">•</span>}
-                              {time || ''}
-                            </span>
-                          ))}
+                          {timerTimes
+                            .map((time, i) => ({ time, i }))
+                            .filter(({ time }) => !!time)
+                            .map(({ time, i }, j) => (
+                              <span key={i} className={isTimerPassed(variantId, i, time as string) ? 'text-red-600 font-bold' : ''}>
+                                {j > 0 && <span className="mx-1">•</span>}
+                                {time}
+                              </span>
+                            ))}
                         </span>
                       )
                     })()}
                     {/* Options inline with product */}
-                    {(() => {
-                      const optionsArr = Array.isArray((product as any)?.options) ? (product as any).options as string[] : [product?.option1, product?.option2].filter(Boolean) as string[];
-                      return optionsArr.length > 0;
-                    })() && (
+                    {optionsArr.length > 0 && (
                       <span className={`absolute left-[78%] top-0 text-blue-500 ${isTvMode ? 'text-[2rem]' : 'text-[1.4rem]'} align-middle whitespace-nowrap`}>
-                        {(() => {
-                          const optionsArr = Array.isArray((product as any)?.options) ? (product as any).options as string[] : [product?.option1, product?.option2].filter(Boolean) as string[];
-                          return optionsArr.map((o, i) => (
-                            <span key={i}>
-                              {i > 0 && <span className="mx-1">•</span>}
-                              {o}
-                            </span>
-                          ));
-                        })()}
+                        {optionsArr.map((o, i) => (
+                          <span key={i}>
+                            {i > 0 && <span className="mx-1">•</span>}
+                            {o}
+                          </span>
+                        ))}
                       </span>
                     )}
                   </div>
@@ -2872,7 +2887,14 @@ ${itemsSummary}`
           </div>
         </div>
       )}
-      {/* Order Details Modal (opens when clicking the order number or phone number) */}
+      {/* Complete order data (opens when clicking the order number) */}
+      <OrderAllDataModal
+        open={isAllDataModalOpen}
+        onOpenChange={setIsAllDataModalOpen}
+        orderId={order.id}
+      />
+
+      {/* Order Details Modal (opens when clicking the phone number) */}
       <Dialog modal open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
         <DialogContent className="w-full max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
@@ -3014,6 +3036,7 @@ ${itemsSummary}`
           {editingProduct && (
             <div className="mb-4 p-2 bg-gray-50 rounded">
               <div><b>Shopify Title:</b> {editingProduct.shopifyTitle || editingProduct.shopify_title}</div>
+              <div><b>Variant Title:</b> {editingProduct.variantTitle || editingProduct.shopifyName || editingProduct.variant_title || '-'}</div>
               <div><b>SKU:</b> {editingProduct.shopifySku || editingProduct.shopify_sku}</div>
               <div><b>Price:</b> ${editingProduct.shopifyPrice || editingProduct.shopify_price}</div>
               <div><b>Variant ID:</b> {editingProduct.variantId}</div>
@@ -3286,6 +3309,14 @@ ${itemsSummary}`
       </Dialog>
     </div>
   )
+}
+
+// An empty timer must persist as null. Number(null) is 0, so a plain
+// isFinite check would store a real 0-minute timer for a blank field.
+function toTimerValue(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
 }
 
 // Remove delivery date/time tokens from public order notes
