@@ -21,6 +21,7 @@ import { DeliveryNotesButton, type DeliveryNoteEntry } from './delivery-notes-mo
 import { PaymentAlertBadge } from './payment-alert-badge'
 import { requestTrackingStatusSync } from '@/contexts/shift-location-tracking'
 import { ordinalLabel } from '@/lib/delivery-sequence'
+import { UBER_DRIVER_ID, UBER_DRIVER_LABEL, driverDisplayName } from '@/lib/drivers'
 import { resolveBundleItems } from '@/lib/product-service'
 import { getThankYouNote, withThankYouNote } from '@/lib/thankyou-note'
 import { QUICK_ADD_PRODUCTS, type QuickAddProduct } from '@/lib/quick-add-products'
@@ -501,7 +502,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
   const customerPhone = order.customerPhone || 'No phone'
   const isOrderCancelled = !!order.cancelledAt
   const selectedDriver = drivers.find((driver) => driver.id === driverId)
-  const selectedDriverFirstName = selectedDriver?.firstName?.trim() || ''
+  const selectedDriverFirstName = driverDisplayName(driverId, selectedDriver)
   
   // Initialize state from order data
   useEffect(() => {
@@ -1710,6 +1711,7 @@ ${itemsSummary}`
                     {driver.firstName} {driver.lastName}
                   </option>
                 ))}
+                <option value={UBER_DRIVER_ID}>{UBER_DRIVER_LABEL}</option>
               </select>
               {driverId && selectedDriverFirstName && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-1 text-lg sm:text-xl font-bold text-black truncate">

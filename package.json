@@ -24,6 +24,7 @@
     "test:recipe-lines": "npx tsx src/lib/recipe-builder/__tests__/lines.test.ts",
     "test:variant-part-edit": "npx tsx src/lib/__tests__/variant-part-edit.test.ts",
     "test:order-line-overrides": "npx tsx src/lib/__tests__/order-line-overrides.test.ts",
+    "test:delivery-sequence": "npx tsx src/lib/__tests__/delivery-sequence.test.ts",
     "test:roster-labour-target": "npx tsx src/lib/roster/__tests__/labour-target.test.ts",
     "test:roster-week-dates": "TZ=Pacific/Auckland npx tsx src/lib/roster/__tests__/week-dates.test.ts",
     "test:pricing": "npm run test:pricing-units && npm run test:pricing-packsize && npm run test:pricing-cost && npm run test:pricing-recalc && npm run test:pricing-bundle && npm run test:pricing-variant-save && npm run test:pricing-ingest && npm run test:pricing-pricesheet && npm run test:costing-options && npm run test:recipe-lines",

@@ -22,7 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { DeliveryNotesButton } from './delivery-notes-modal'
 import { PaymentAlertBadge } from './payment-alert-badge'
 import { useDeliveryNotes } from '@/hooks/useDeliveryNotes'
-import { deliveryRunKey, ordinalLabel } from '@/lib/delivery-sequence'
+import { deliveryRunKey, ordinalLabel, sortOrdersIntoRuns } from '@/lib/delivery-sequence'
 import { getThankYouNote } from '@/lib/thankyou-note'
 interface OrderCardListProps {
   orders: Order[]
@@ -423,82 +423,8 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       return true;
     });
 
-    // Sort orders by dispatch time (earliest first)
-    const sorted = [...filtered].sort((a, b) => {
-      // Orders on the same delivery run (same driver + leave time) sort by assigned stop order
-      const runA = runInfo[a.id]
-      const runB = runInfo[b.id]
-      if (runA && runB && runA.runKey === runB.runKey) {
-        const seqA = a.deliverySequence ?? Number.MAX_SAFE_INTEGER
-        const seqB = b.deliverySequence ?? Number.MAX_SAFE_INTEGER
-        if (seqA !== seqB) return seqA - seqB
-      }
-      // Calculate dispatch time: delivery time - travel time
-      const getDispatchTime = (order: Order) => {
-        // Extract delivery time from order - use deliveryTime field first, then fallback to tags
-        const deliveryTime = order.deliveryTime || 
-          order.tags?.match(/(\d{1,2}:\d{2}\s*[AP]M\s*-\s*\d{1,2}:\d{2}\s*[AP]M)/)?.[1];
-        
-        if (!deliveryTime) return null;
-        
-        // Parse time - handle both 24-hour format (16:30) and 12-hour format (9:00 AM)
-        let timeMatch = deliveryTime.match(/(\d{1,2}:\d{2})\s*([AP]M)/);
-        let deliveryTimeStr;
-        
-        if (timeMatch) {
-          // 12-hour format like "9:00 AM"
-          deliveryTimeStr = timeMatch[1] + ' ' + timeMatch[2];
-        } else {
-          // 24-hour format like "16:30"
-          timeMatch = deliveryTime.match(/(\d{1,2}:\d{2})/);
-          if (timeMatch) {
-            deliveryTimeStr = timeMatch[1];
-          } else {
-            return null;
-          }
-        }
-        
-        // Convert delivery time to minutes since midnight
-        const deliveryDate = new Date(`2000-01-01 ${deliveryTimeStr}`);
-        if (isNaN(deliveryDate.getTime())) return null;
-        const deliveryMinutes = deliveryDate.getHours() * 60 + deliveryDate.getMinutes();
-        
-        // Get travel time in minutes
-        const travelTimeMinutes = order.travelTime ? parseInt(order.travelTime) : 0;
-        
-        // Calculate dispatch time: delivery time - travel time
-        const dispatchMinutes = deliveryMinutes - travelTimeMinutes;
-        
-        return dispatchMinutes;
-      };
-      
-      const dispatchTimeA = getDispatchTime(a);
-      const dispatchTimeB = getDispatchTime(b);
-      
-      // Debug logging for first few orders
-      if (Math.random() < 0.05) { // Only log 5% of the time to avoid spam
-        console.log('🔍 Sorting debug:', {
-          orderA: a.orderNumber,
-          deliveryTimeA: a.deliveryTime,
-          dispatchTimeA,
-          orderB: b.orderNumber,
-          deliveryTimeB: b.deliveryTime,
-          dispatchTimeB
-        });
-      }
-      
-      // If both have dispatch times, compare them
-      if (dispatchTimeA !== null && dispatchTimeB !== null) {
-        return dispatchTimeA - dispatchTimeB;
-      }
-      
-      // If only one has dispatch time, prioritize the one with dispatch time
-      if (dispatchTimeA !== null && dispatchTimeB === null) return -1;
-      if (dispatchTimeA === null && dispatchTimeB !== null) return 1;
-      
-      // If neither has dispatch time, fall back to creation date (newest first)
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+    // Earliest dispatch first, with each driver's run kept together
+    const sorted = sortOrdersIntoRuns(filtered, order => runInfo[order.id]?.runKey)
 
     return { filteredOrders: filtered, sortedOrders: sorted, runInfoByOrderId: runInfo };
   }, [localOrders, orders, filter, recentlyDispatchedOrders]);
