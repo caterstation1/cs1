@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { computeVariantCost } from '@/lib/pricing/persist';
+import { mirrorScalarsToArrays, type ScalarEdit } from '@/lib/variant-part-edit';
 
 /**
  * Re-derives and stores this variant's cost after its recipe changed.
@@ -29,6 +30,13 @@ async function recostVariant(variantId: string): Promise<number | null> {
     console.error(`❌ Failed to recost variant ${variantId}:`, error);
     return null;
   }
+}
+
+/** Number(null) is 0, so a cleared timer must be caught before coercing. */
+function toTimerValue(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function calcTotal(ings: any[]): number {
@@ -269,6 +277,39 @@ export async function PATCH(
       return acc;
     }, {} as any);
 
+    // A scalar-only edit still has to reach the arrays; see mirrorScalarsToArrays.
+    const arrayForScalar = {
+      meat1: 'meats', meat2: 'meats',
+      timer1: 'timers', timer2: 'timers',
+      option1: 'options', option2: 'options',
+    } as const;
+
+    const scalarEdit: ScalarEdit = {};
+    for (const [scalar, array] of Object.entries(arrayForScalar)) {
+      // An explicit array in the payload wins; that path already mirrors downward.
+      if (scalar in filteredData && !Array.isArray(filteredData[array])) {
+        scalarEdit[scalar as keyof ScalarEdit] = filteredData[scalar];
+      }
+    }
+
+    if (Object.keys(scalarEdit).length > 0) {
+      const existing = await prisma.productVariant.findUnique({
+        where: { variantId },
+        select: {
+          shopifyName: true,
+          meats: true, timers: true, options: true,
+          meat1: true, meat2: true, timer1: true, timer2: true, option1: true, option2: true,
+        },
+      });
+
+      if (existing) {
+        Object.assign(
+          filteredData,
+          mirrorScalarsToArrays({ ...existing, shopifyName: existing.shopifyName ?? '' }, scalarEdit)
+        );
+      }
+    }
+
     // Mirror arrays to legacy fields for compatibility
     if (Array.isArray(filteredData.meats)) {
       const meats = filteredData.meats as any[];
@@ -288,12 +329,10 @@ export async function PATCH(
 
     // Normalize scalar compatibility fields to avoid invalid payloads.
     if ('timer1' in filteredData) {
-      const value = Number(filteredData.timer1);
-      filteredData.timer1 = Number.isFinite(value) ? value : null;
+      filteredData.timer1 = toTimerValue(filteredData.timer1);
     }
     if ('timer2' in filteredData) {
-      const value = Number(filteredData.timer2);
-      filteredData.timer2 = Number.isFinite(value) ? value : null;
+      filteredData.timer2 = toTimerValue(filteredData.timer2);
     }
     if ('serveware' in filteredData) {
       filteredData.serveware = Boolean(filteredData.serveware);

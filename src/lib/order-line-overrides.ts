@@ -40,16 +40,24 @@ export function applyOverridesToProduct(
   if (ov.option2 !== undefined) merged.option2 = ov.option2
   if (ov.serveware !== undefined) merged.serveware = ov.serveware
 
+  // Slots 0/1 are the overridable pair; anything beyond belongs to an extra
+  // title part ("A / B / C") and has to survive the merge.
+  const withOverriddenPair = (base: unknown, slot0: unknown, slot1: unknown): unknown[] => {
+    const next = Array.isArray(base) ? [...base] : []
+    while (next.length < 2) next.push(null)
+    next[0] = slot0 ?? null
+    next[1] = slot1 ?? null
+    return next
+  }
+
   if (ov.meat1 !== undefined || ov.meat2 !== undefined) {
-    merged.meats = [merged.meat1 ?? null, merged.meat2 ?? null]
+    merged.meats = withOverriddenPair(base.meats, merged.meat1, merged.meat2)
   }
   if (ov.timer1 !== undefined || ov.timer2 !== undefined) {
-    merged.timers = [merged.timer1 ?? null, merged.timer2 ?? null]
+    merged.timers = withOverriddenPair(base.timers, merged.timer1, merged.timer2)
   }
   if (ov.option1 !== undefined || ov.option2 !== undefined) {
-    const o1 = (merged.option1 as string) ?? ''
-    const o2 = (merged.option2 as string) ?? ''
-    merged.options = [o1, o2].filter((x) => String(x).trim() !== '')
+    merged.options = withOverriddenPair(base.options, merged.option1, merged.option2)
   }
   return merged
 }

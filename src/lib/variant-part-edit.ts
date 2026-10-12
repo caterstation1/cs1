@@ -114,6 +114,64 @@ export function applyPartEdit(
   return touched
 }
 
+export interface ScalarEdit {
+  meat1?: unknown
+  meat2?: unknown
+  timer1?: unknown
+  timer2?: unknown
+  option1?: unknown
+  option2?: unknown
+}
+
+const toText = (value: unknown): string | null => {
+  if (value == null) return null
+  const text = String(value).trim()
+  return text === '' ? null : text
+}
+
+/** Number(null) is 0, so a cleared timer must be caught before coercing. */
+const toTimer = (value: unknown): number | null => {
+  if (value == null || value === '') return null
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+/**
+ * Mirrors legacy-scalar edits onto the arrays. Callers that edit one field at
+ * a time (the order card's product modal, the Products tab) send scalars only,
+ * but the order card, labels and stock summaries read the arrays whenever they
+ * are populated — without this the edit looks like it never saved.
+ *
+ * Only the keys present in `edit` are written, and only at slots 0/1; slots 2+
+ * belong to extra title parts ("A / B / C") and are left alone. Returns just
+ * the arrays the edit touched, so untouched ones stay out of the update.
+ */
+export function mirrorScalarsToArrays(
+  v: VariantPartFields,
+  edit: ScalarEdit
+): Partial<Pick<PartArrays, 'meats' | 'timers' | 'options'>> {
+  const arrays = loadPartArrays(v)
+  const result: Partial<Pick<PartArrays, 'meats' | 'timers' | 'options'>> = {}
+
+  if ('meat1' in edit || 'meat2' in edit) {
+    if ('meat1' in edit) arrays.meats[0] = toText(edit.meat1)
+    if ('meat2' in edit) arrays.meats[1] = toText(edit.meat2)
+    result.meats = arrays.meats
+  }
+  if ('timer1' in edit || 'timer2' in edit) {
+    if ('timer1' in edit) arrays.timers[0] = toTimer(edit.timer1)
+    if ('timer2' in edit) arrays.timers[1] = toTimer(edit.timer2)
+    result.timers = arrays.timers
+  }
+  if ('option1' in edit || 'option2' in edit) {
+    if ('option1' in edit) arrays.options[0] = toText(edit.option1)
+    if ('option2' in edit) arrays.options[1] = toText(edit.option2)
+    result.options = arrays.options
+  }
+
+  return result
+}
+
 /**
  * The Prisma update payload: arrays plus the legacy mirror. Safe because
  * loadPartArrays seeded slots 0/1 from legacy before any edit.
