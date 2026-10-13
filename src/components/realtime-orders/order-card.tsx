@@ -23,6 +23,12 @@ import { requestTrackingStatusSync } from '@/contexts/shift-location-tracking'
 import { ordinalLabel } from '@/lib/delivery-sequence'
 import { UBER_DRIVER_ID, UBER_DRIVER_LABEL, driverDisplayName } from '@/lib/drivers'
 import { resolveBundleItems } from '@/lib/product-service'
+import {
+  isAddonLine,
+  isServewareLine,
+  orderHasStandaloneServeware,
+  showsServewareMarker,
+} from '@/lib/line-item-kind'
 import { getThankYouNote, withThankYouNote } from '@/lib/thankyou-note'
 import { QUICK_ADD_PRODUCTS, type QuickAddProduct } from '@/lib/quick-add-products'
 import {
@@ -354,15 +360,27 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     return out
   }, [lineItems, products])
 
+  const productForLine = useMemo(
+    () => (item: any) => {
+      const variantId = item?.variant_id?.toString() || item?.variantId?.toString()
+      return variantId ? ((products as any)[variantId] ?? null) : null
+    },
+    [products]
+  )
+
+  // Serveware bought as its own line marks every product in the order.
+  const orderHasServeware = useMemo(
+    () => orderHasStandaloneServeware(lineItems as any[], productForLine),
+    [lineItems, productForLine]
+  )
+
   const nonAddonDisplayRowCount = useMemo(() => {
-    const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
     return expandedDisplayLineItems.reduce((count: number, item: any) => {
-      const variantId = item.variant_id?.toString() || item.variantId?.toString()
-      const product = variantId ? (products as any)[variantId] : null
-      if (isAddon(item.sku) || isAddon(product?.shopifySku)) return count
+      const product = productForLine(item)
+      if (isAddonLine(item, product) || isServewareLine(item, product)) return count
       return count + Math.max(1, Number(item.quantity || 1))
     }, 0)
-  }, [expandedDisplayLineItems, products])
+  }, [expandedDisplayLineItems, productForLine])
 
   const internalNoteReserveClass = useMemo(() => {
     const text = [order.customerNote, order.internalNote]
@@ -1868,8 +1886,7 @@ ${itemsSummary}`
                 products as unknown as Record<string, Record<string, unknown>>,
                 sourceLine
               ) as Product | null;
-              const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
-              if (!isAddon(item.sku) && !isAddon(baseProduct?.shopifySku)) return null
+              if (!isAddonLine(item, baseProduct)) return null
               return (
                 <ContextMenu key={index}>
                   <ContextMenuTrigger asChild>
@@ -2109,9 +2126,9 @@ ${itemsSummary}`
                 });
               }
               
-              const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
-              // Skip addon products (child addons will now be excluded too)
-              if (isAddon(item.sku) || isAddon(baseProduct?.shopifySku)) return null
+              // Skip addon products (child addons will now be excluded too) and
+              // standalone serveware, which only marks the rows below with SW.
+              if (isAddonLine(item, baseProduct) || isServewareLine(item, baseProduct)) return null
               // Create an array of items based on quantity (pack children already multiplied)
               return Array(item.quantity).fill(null).map((_, itemIndex) => {
                 // Only calculate timer times if we have a valid product with timers
@@ -2136,7 +2153,7 @@ ${itemsSummary}`
                             </span>
                           )}
                           <span className="flex-shrink-0 w-10 text-sm font-black text-red-600">
-                            {product?.serveware ? 'SW' : ''}
+                            {showsServewareMarker(product, item, orderHasServeware) ? 'SW' : ''}
                           </span>
                           <button
                             type="button"

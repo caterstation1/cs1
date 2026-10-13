@@ -23,6 +23,12 @@ import { DeliveryNotesButton } from './delivery-notes-modal'
 import { PaymentAlertBadge } from './payment-alert-badge'
 import { useDeliveryNotes } from '@/hooks/useDeliveryNotes'
 import { deliveryRunKey, ordinalLabel, sortOrdersIntoRuns } from '@/lib/delivery-sequence'
+import {
+  isAddonLine,
+  isServewareLine,
+  orderHasStandaloneServeware,
+  showsServewareMarker,
+} from '@/lib/line-item-kind'
 import { getThankYouNote } from '@/lib/thankyou-note'
 interface OrderCardListProps {
   orders: Order[]
@@ -723,27 +729,33 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
       }
     }
 
-    return base.map((it: any, idx: number) => {
-      const variantId = it.variant_id?.toString() || it.variantId?.toString()
-      const product = variantId ? (products as any)[variantId] : null
-      const name = (() => {
-        if (product?.displayName?.trim()) return product.displayName
-        const shopifyName = product?.shopifyName
-        if (shopifyName && shopifyName !== 'Default Title') return shopifyName
-        return product?.shopifyTitle || product?.name || it.title || 'Item'
-      })()
-      const qty = Number(it.quantity || 1)
-      const hasSW =
-        !!product?.serveware ||
-        ((it.variant_title || it.variantTitle || '').toLowerCase().includes('yes serveware'))
+    const productForLine = (it: any) => {
+      const variantId = it?.variant_id?.toString() || it?.variantId?.toString()
+      return variantId ? ((products as any)[variantId] ?? null) : null
+    }
+    const orderHasServeware = orderHasStandaloneServeware(base, productForLine)
 
-      return {
-        key: `${variantId || it.id || idx}-${idx}`,
-        qty,
-        name,
-        hasSW,
-      }
-    })
+    return base
+      .filter((it: any) => !isServewareLine(it, productForLine(it)))
+      .map((it: any, idx: number) => {
+        const variantId = it.variant_id?.toString() || it.variantId?.toString()
+        const product = productForLine(it)
+        const name = (() => {
+          if (product?.displayName?.trim()) return product.displayName
+          const shopifyName = product?.shopifyName
+          if (shopifyName && shopifyName !== 'Default Title') return shopifyName
+          return product?.shopifyTitle || product?.name || it.title || 'Item'
+        })()
+        const qty = Number(it.quantity || 1)
+
+        return {
+          key: `${variantId || it.id || idx}-${idx}`,
+          qty,
+          name,
+          // An order-level serveware purchase marks the stations, not the addons.
+          hasSW: showsServewareMarker(product, it, orderHasServeware && !isAddonLine(it, product)),
+        }
+      })
   }
 
   const getItemCount = (order: Order) => {
