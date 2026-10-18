@@ -6,6 +6,27 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Loader2 } from 'lucide-react'
+import { formatLocalDate, parseLocalDate } from '@/lib/date-utils'
+
+const PRESETS: Array<{ label: string; offset: number; span: number }> = [
+  { label: 'Today', offset: 0, span: 1 },
+  { label: 'Tomorrow', offset: 1, span: 1 },
+  { label: 'Next 2 days', offset: 0, span: 2 },
+  { label: 'Next 7 days', offset: 0, span: 7 },
+]
+
+function shiftToday(offset: number): Date {
+  const d = new Date()
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + offset)
+}
+
+function describeRange(start: string, end: string): string {
+  const from = parseLocalDate(start)
+  const to = parseLocalDate(end)
+  if (!from || !to) return 'selected dates'
+  const fmt = (d: Date) => d.toLocaleDateString('en-NZ', { weekday: 'short', day: 'numeric', month: 'short' })
+  return from.getTime() === to.getTime() ? fmt(from) : `${fmt(from)} – ${fmt(to)}`
+}
 
 type Suggestion = { id: string; name: string; sku?: string; supplier: string; requiredQty: number; unit?: string; breakdown?: Array<{ source: string; name: string; unit?: string; qty: number }> }
 type CartItem = { id: string; name: string; sku?: string | null; supplier: string; qty: number; notes?: string | null }
@@ -20,19 +41,39 @@ export default function CartPage() {
   const [manual, setManual] = useState({ name: '', supplier: 'Other', sku: '', qty: 1, notes: '' })
   const [detailOpen, setDetailOpen] = useState(false)
   const [detail, setDetail] = useState<Suggestion | null>(null)
+  const [range, setRange] = useState(() => ({
+    start: formatLocalDate(shiftToday(0)),
+    end: formatLocalDate(shiftToday(1)),
+  }))
+  const [orderCount, setOrderCount] = useState(0)
+
+  const suggestQuery = `city=${city}&start=${range.start}&end=${range.end}`
 
   const fetchAll = async () => {
     setLoading(true)
     try {
-      const s = await fetch(`/api/cart/suggest?city=${city}&days=2`, { cache: 'no-store' }).then(r=>r.json())
+      const res = await fetch(`/api/cart/suggest?${suggestQuery}`, { cache: 'no-store' })
+      const s = await res.json()
       const c = await fetch(`/api/cart?city=${city}`, { cache: 'no-store' }).then(r=>r.json())
       setSuggestions(Array.isArray(s) ? s : [])
+      setOrderCount(Number(res.headers.get('X-Order-Count') || '0'))
       setCart(Array.isArray(c) ? c : [])
     } finally {
       setLoading(false)
     }
   }
-  useEffect(()=> { fetchAll() }, [city])
+  useEffect(()=> { fetchAll() }, [city, range.start, range.end])
+
+  const applyPreset = (offset: number, span: number) => {
+    setRange({
+      start: formatLocalDate(shiftToday(offset)),
+      end: formatLocalDate(shiftToday(offset + span - 1)),
+    })
+  }
+
+  // Keep the range valid when either end is typed past the other.
+  const setStart = (value: string) => setRange(prev => ({ start: value, end: prev.end < value ? value : prev.end }))
+  const setEnd = (value: string) => setRange(prev => ({ start: value < prev.start ? value : prev.start, end: value }))
 
   const addToCart = async (s: Suggestion, qty: number) => {
     if (!qty || qty <= 0) return
@@ -92,10 +133,43 @@ export default function CartPage() {
         </div>
       </div>
 
+      <div className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border p-3">
+        <div>
+          <label className="block text-xs text-muted-foreground">From</label>
+          <Input type="date" value={range.start} onChange={e=> setStart(e.target.value)} className="w-40" />
+        </div>
+        <div>
+          <label className="block text-xs text-muted-foreground">To</label>
+          <Input type="date" value={range.end} onChange={e=> setEnd(e.target.value)} className="w-40" />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map(preset => (
+            <Button
+              key={preset.label}
+              variant={
+                range.start === formatLocalDate(shiftToday(preset.offset))
+                  && range.end === formatLocalDate(shiftToday(preset.offset + preset.span - 1))
+                  ? 'default'
+                  : 'outline'
+              }
+              size="sm"
+              onClick={()=> applyPreset(preset.offset, preset.span)}
+            >
+              {preset.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Suggestions */}
         <div>
-          <h2 className="font-semibold mb-2">Suggestions (next 2 days)</h2>
+          <div className="mb-2">
+            <h2 className="font-semibold">Needed for {describeRange(range.start, range.end)}</h2>
+            <p className="text-xs text-muted-foreground">
+              {orderCount} {orderCount === 1 ? 'order' : 'orders'} · {suggestions.length} items to cover
+            </p>
+          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full border">
               <thead>
@@ -109,6 +183,15 @@ export default function CartPage() {
                 </tr>
               </thead>
               <tbody>
+                {!loading && sortedSuggestions.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="border px-2 py-4 text-center text-sm text-muted-foreground">
+                      {orderCount === 0
+                        ? `No ${city} orders scheduled for ${describeRange(range.start, range.end)}.`
+                        : `No mapped ingredients for the ${orderCount} order(s) in this range.`}
+                    </td>
+                  </tr>
+                ) : null}
                 {sortedSuggestions.map(s => (
                   <tr key={s.id}>
                     <td className="border px-2 py-1">{s.name}</td>
@@ -116,12 +199,13 @@ export default function CartPage() {
                     <td className="border px-2 py-1">{s.sku || ''}</td>
                     <td className="border px-2 py-1 text-right">{s.requiredQty.toFixed(2)} {s.unit || ''}</td>
                     <td className="border px-2 py-1 text-right">
-                      <Input defaultValue={s.requiredQty} type="number" min="0" step="0.01" className="w-24 text-right" id={`qty-${s.id}`} />
+                      {/* remount on range change so the default follows the recalculated requirement */}
+                      <Input key={`${range.start}:${range.end}`} defaultValue={s.requiredQty} type="number" min="0" step="0.01" className="w-24 text-right" id={`qty-${s.id}`} />
                     </td>
                     <td className="border px-2 py-1 text-center space-x-2">
                       <Button variant="outline" size="sm" onClick={async () => {
                         // fetch with debug=1 to get breakdown
-                        const arr: Suggestion[] = await fetch(`/api/cart/suggest?city=${city}&days=2&debug=1`, { cache: 'no-store' }).then(r => r.json())
+                        const arr: Suggestion[] = await fetch(`/api/cart/suggest?${suggestQuery}&debug=1`, { cache: 'no-store' }).then(r => r.json())
                         const found = arr.find(x => x.id === s.id) || s
                         setDetail(found)
                         setDetailOpen(true)

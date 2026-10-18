@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { parseLocalDate } from '@/lib/date-utils'
 import { buildComponentMap, expandToRawLeaves } from '@/lib/components-expander'
+import { resolveSuggestRange } from '@/lib/cart-range'
 import { isWellingtonOrder } from '@/lib/region'
 
 function toDayKey(d: Date): string {
@@ -38,10 +39,8 @@ export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url)
     const city = (url.searchParams.get('city') || 'AKL').toUpperCase()
-    const days = Math.min(7, Math.max(1, parseInt(url.searchParams.get('days') || '2', 10)))
     const debug = url.searchParams.get('debug') === '1'
-    const today = new Date(); const start = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-    const end = new Date(start); end.setDate(end.getDate()+days)
+    const { start, end } = resolveSuggestRange(url.searchParams)
 
     // Fetch relevant orders (resolved range + recent unresolved)
     const ordersResolved = await prisma.order.findMany({
@@ -119,7 +118,7 @@ export async function GET(req: NextRequest) {
     const components = await prisma.component.findMany({ select: { id: true, name: true, ingredients: true } })
     const compMap = buildComponentMap(components as any)
 
-    // Aggregate required RAW ingredient quantities for next 2 days
+    // Aggregate required RAW ingredient quantities across the selected range
     const contrib: Map<string, Array<{ source: string; name: string; unit?: string; qty: number }>> = new Map()
     const requiredByKey: Map<string, { name: string; unit?: string; qty: number }> = new Map()
     for (const it of lineItems) {
@@ -201,7 +200,15 @@ export async function GET(req: NextRequest) {
 
     suggestions.sort((a, b) => b.requiredQty - a.requiredQty)
 
-    return NextResponse.json(suggestions, { headers: { 'Cache-Control': 'no-store' } })
+    const lastDay = new Date(end); lastDay.setDate(lastDay.getDate() - 1)
+    return NextResponse.json(suggestions, {
+      headers: {
+        'Cache-Control': 'no-store',
+        'X-Range-Start': toDayKey(start),
+        'X-Range-End': toDayKey(lastDay),
+        'X-Order-Count': String(allOrders.length),
+      }
+    })
   } catch (e) {
     console.error('cart suggest error', e)
     return NextResponse.json({ error: 'Failed to build suggestions' }, { status: 500 })
