@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Loader2 } from 'lucide-react'
+import { Download, Loader2 } from 'lucide-react'
 import { formatLocalDate, parseLocalDate } from '@/lib/date-utils'
+import { toCsv } from '@/lib/dashboard/csv'
 
 const PRESETS: Array<{ label: string; offset: number; span: number }> = [
   { label: 'Today', offset: 0, span: 1 },
@@ -114,6 +115,29 @@ export default function CartPage() {
 
   const sortedSuggestions = useMemo(() => [...suggestions].sort((a, b)=> b.requiredQty - a.requiredQty), [suggestions])
 
+  const downloadCsv = () => {
+    const csv = toCsv(
+      sortedSuggestions.map(s => ({
+        Name: s.name,
+        Supplier: s.supplier,
+        SKU: s.sku || '',
+        Required: s.requiredQty.toFixed(2),
+        Unit: s.unit || '',
+      })),
+      ['Name', 'Supplier', 'SKU', 'Required', 'Unit']
+    )
+    const span = range.start === range.end ? range.start : `${range.start}_to_${range.end}`
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `needed-${city}-${span}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex items-center justify-between mb-4">
@@ -164,11 +188,16 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Suggestions */}
         <div>
-          <div className="mb-2">
-            <h2 className="font-semibold">Needed for {describeRange(range.start, range.end)}</h2>
-            <p className="text-xs text-muted-foreground">
-              {orderCount} {orderCount === 1 ? 'order' : 'orders'} · {suggestions.length} items to cover
-            </p>
+          <div className="mb-2 flex items-start justify-between gap-3">
+            <div>
+              <h2 className="font-semibold">Needed for {describeRange(range.start, range.end)}</h2>
+              <p className="text-xs text-muted-foreground">
+                {orderCount} {orderCount === 1 ? 'order' : 'orders'} · {suggestions.length} items to cover
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={downloadCsv} disabled={sortedSuggestions.length === 0}>
+              <Download className="h-4 w-4 mr-1" />Download CSV
+            </Button>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full border">
