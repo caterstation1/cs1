@@ -15,16 +15,20 @@ import {
  * user's first name and can be overridden (typically to "Kitchen" on a shared
  * kitchen screen). The choice is per-device, so it survives reloads but doesn't
  * follow the user to another screen.
+ *
+ * The first name comes from /api/me/access rather than useSession(), which
+ * often hasn't resolved by the time this renders. An empty identity means the
+ * screen isn't listening to anything.
  */
 export function useVoiceIdentity() {
   const { data: session } = useSession()
   const [storedIdentity, setStoredIdentity] = useState('')
-  const [hydrated, setHydrated] = useState(false)
+  const [serverFirstName, setServerFirstName] = useState('')
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     const sync = () => setStoredIdentity(readStoredIdentity())
     sync()
-    setHydrated(true)
 
     window.addEventListener(VOICE_IDENTITY_CHANGE_EVENT, sync)
     window.addEventListener('storage', sync)
@@ -34,7 +38,23 @@ export function useVoiceIdentity() {
     }
   }, [])
 
-  const myFirstName = firstNameFromFullName(session?.user?.name)
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/me/access', { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setServerFirstName(firstNameFromFullName(data?.firstName))
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setReady(true)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const myFirstName = serverFirstName || firstNameFromFullName(session?.user?.name)
   const identity = storedIdentity || myFirstName
 
   const options = useMemo(() => {
@@ -55,5 +75,5 @@ export function useVoiceIdentity() {
     setStoredIdentity(value)
   }, [])
 
-  return { identity, setIdentity, options, myFirstName, hydrated }
+  return { identity, setIdentity, options, myFirstName, ready }
 }

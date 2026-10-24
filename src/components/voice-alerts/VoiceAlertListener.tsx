@@ -50,7 +50,7 @@ function speakAloud(text: string) {
  * and shows a popup that stays until it's explicitly closed.
  */
 export function VoiceAlertListener() {
-  const { identity, hydrated } = useVoiceIdentity()
+  const { identity, ready } = useVoiceIdentity()
   const [queue, setQueue] = useState<VoiceAlertPayload[]>([])
   const handledIdsRef = useRef<Set<string>>(new Set())
   const spokenIdRef = useRef<string | null>(null)
@@ -58,7 +58,7 @@ export function VoiceAlertListener() {
   const active = queue[0] ?? null
 
   useEffect(() => {
-    if (!hydrated || !identity) return
+    if (!ready || !identity) return
 
     handledIdsRef.current = new Set()
     setQueue([])
@@ -88,7 +88,7 @@ export function VoiceAlertListener() {
       cancelled = true
       clearInterval(interval)
     }
-  }, [hydrated, identity])
+  }, [ready, identity])
 
   useEffect(() => {
     if (!active || spokenIdRef.current === active.id) return

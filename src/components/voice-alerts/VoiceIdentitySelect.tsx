@@ -7,9 +7,9 @@ import { useVoiceIdentity } from './useVoiceIdentity'
  * Nav-bar picker for the name this screen answers to when voice alerts are sent.
  */
 export function VoiceIdentitySelect({ className = '' }: { className?: string }) {
-  const { identity, setIdentity, options, hydrated } = useVoiceIdentity()
+  const { identity, setIdentity, options, ready } = useVoiceIdentity()
 
-  if (!hydrated || options.length === 0) return null
+  if (!ready) return null
 
   return (
     <div
@@ -23,6 +23,8 @@ export function VoiceIdentitySelect({ className = '' }: { className?: string }) 
         onChange={(e) => setIdentity(e.target.value)}
         className="bg-transparent text-sm font-medium outline-none cursor-pointer pr-1"
       >
+        {/* Only reachable before a name resolves — picking a real option replaces it. */}
+        {!identity && <option value="">Not listening</option>}
         {options.map((option) => (
           <option key={option} value={option}>
             {option}

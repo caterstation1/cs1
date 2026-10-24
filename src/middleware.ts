@@ -47,7 +47,7 @@ function isAllowedForPricing(path: string): boolean {
 
 // WLG role allow-lists
 const WLG_TEAM_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/labels/print', '/login', '/reset-password']
-const WLG_TEAM_API_PREFIXES = ['/api/orders', '/api/staff', '/api/products', '/api/labels', '/api/maps', '/api/calendar', '/api/delivery-notes', '/api/voice-alerts', '/api/health']
+const WLG_TEAM_API_PREFIXES = ['/api/orders', '/api/staff', '/api/products', '/api/labels', '/api/maps', '/api/calendar', '/api/delivery-notes', '/api/voice-alerts', '/api/me', '/api/health']
 
 const WLG_ADMIN_PAGE_PREFIXES = ['/wlg-calendar', '/wlg-staff', '/wlg-comms', '/pricing-lab', '/labels/print', '/login', '/reset-password']
 const WLG_ADMIN_API_PREFIXES = [
@@ -59,6 +59,7 @@ const WLG_ADMIN_API_PREFIXES = [
   '/api/calendar',
   '/api/delivery-notes',
   '/api/voice-alerts',
+  '/api/me',
   '/api/health',
 ]
 
