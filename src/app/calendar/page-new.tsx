@@ -29,6 +29,7 @@ import {
   useCalendarDayAlert,
 } from '@/components/calendar/CalendarDayAlertControls'
 import { RosterDrawer, RosterDrawerButton } from '@/components/calendar/RosterDrawer'
+import { VoiceAlertListener } from '@/components/voice-alerts/VoiceAlertListener'
 
 interface CalendarSummary {
   region: string
@@ -360,6 +361,7 @@ export default function CalendarPage() {
 
   return (
     <div className="w-full flex flex-col md:flex-row gap-6">
+      <VoiceAlertListener />
       {/* Left sidebar: Calendar + StockList */}
       <div className="flex flex-col w-full md:w-[340px] md:min-w-[280px] md:max-w-[400px]">
         <div className="mb-6 rounded-lg bg-white shadow p-4">

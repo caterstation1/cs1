@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import dynamic from 'next/dynamic'
 import { AskAIButton } from '@/components/ai/AskAI'
 import { MobileAppHeader } from '@/components/ui/MobileAppHeader'
+import { VoiceIdentitySelect } from '@/components/voice-alerts/VoiceIdentitySelect'
 import { getNavLinksForAccess } from '@/lib/nav-links'
 
 const MobileTabBar = dynamic(() => import('./MobileTabBar'), { ssr: false })
@@ -208,6 +209,7 @@ export function Nav() {
           ))}
         </div>
         <div className="ml-auto flex items-center gap-3">
+          {isAuthenticated && <VoiceIdentitySelect />}
           <Button
             onClick={handleSyncToLatest}
             variant="outline"

@@ -30,6 +30,7 @@ import {
   showsServewareMarker,
 } from '@/lib/line-item-kind'
 import { getThankYouNote } from '@/lib/thankyou-note'
+import { VoiceAlertComposer } from '@/components/voice-alerts/VoiceAlertComposer'
 interface OrderCardListProps {
   orders: Order[]
   onUpdateOrder: (orderId: string, updates: Partial<Order>) => Promise<Order>
@@ -838,6 +839,9 @@ export default function OrderCardList({ orders, onUpdateOrder, onBulkUpdateCompl
               <VolumeX className="h-4 w-4" />
             )}
           </Button>
+
+          {/* Voice Alert Composer */}
+          <VoiceAlertComposer />
           
           <Button 
             onClick={handleBulkTravelTimeUpdate} 

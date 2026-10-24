@@ -1807,6 +1807,20 @@ model CalendarDayAlert {
   @@index([region, date, dismissedAt])
 }
 
+/// Spoken "voice alert" sent to a station or person (e.g. Kitchen).
+/// Recipients poll for unacknowledged alerts, speak them aloud, then acknowledge.
+model VoiceAlert {
+  id             String    @id @default(cuid())
+  recipient      String
+  message        String
+  createdByEmail String?
+  createdByName  String?
+  createdAt      DateTime  @default(now())
+  acknowledgedAt DateTime?
+
+  @@index([recipient, acknowledgedAt, createdAt])
+}
+
 /// Persistent internal delivery note keyed by normalized delivery address + client scope
 /// (business email domain, or exact email for generic-domain customers)
 model DeliveryAddressNote {

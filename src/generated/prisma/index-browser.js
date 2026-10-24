@@ -1341,6 +1341,16 @@ exports.Prisma.CalendarDayAlertScalarFieldEnum = {
   dismissedAt: 'dismissedAt'
 };
 
+exports.Prisma.VoiceAlertScalarFieldEnum = {
+  id: 'id',
+  recipient: 'recipient',
+  message: 'message',
+  createdByEmail: 'createdByEmail',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  acknowledgedAt: 'acknowledgedAt'
+};
+
 exports.Prisma.DeliveryAddressNoteScalarFieldEnum = {
   id: 'id',
   normalizedAddressKey: 'normalizedAddressKey',
@@ -1781,6 +1791,7 @@ exports.Prisma.ModelName = {
   FcpPeriodicCleaningTask: 'FcpPeriodicCleaningTask',
   FcpContact: 'FcpContact',
   CalendarDayAlert: 'CalendarDayAlert',
+  VoiceAlert: 'VoiceAlert',
   DeliveryAddressNote: 'DeliveryAddressNote',
   DailyCogsLock: 'DailyCogsLock',
   VariantPartAlignment: 'VariantPartAlignment',

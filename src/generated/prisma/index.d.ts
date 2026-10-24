@@ -428,6 +428,12 @@ export type FcpContact = $Result.DefaultSelection<Prisma.$FcpContactPayload>
  */
 export type CalendarDayAlert = $Result.DefaultSelection<Prisma.$CalendarDayAlertPayload>
 /**
+ * Model VoiceAlert
+ * Spoken "voice alert" sent to a station or person (e.g. Kitchen).
+ * Recipients poll for unacknowledged alerts, speak them aloud, then acknowledge.
+ */
+export type VoiceAlert = $Result.DefaultSelection<Prisma.$VoiceAlertPayload>
+/**
  * Model DeliveryAddressNote
  * Persistent internal delivery note keyed by normalized delivery address + client scope
  * (business email domain, or exact email for generic-domain customers)
@@ -518,325 +524,208 @@ export type PriceSheetEntry = $Result.DefaultSelection<Prisma.$PriceSheetEntryPa
  */
 export namespace $Enums {
   export const SmsTemplateType: {
-    delivery: 'delivery',
-    pickup: 'pickup'
-  } = {
-    delivery: 'delivery',
-    pickup: 'pickup'
-  };
+  delivery: 'delivery',
+  pickup: 'pickup'
+};
 
 export type SmsTemplateType = (typeof SmsTemplateType)[keyof typeof SmsTemplateType]
 
 
 export const DeliveryDateResolvedSource: {
-    FIELD: 'FIELD',
-    NOTE: 'NOTE',
-    TAG: 'TAG',
-    CREATED_AT: 'CREATED_AT'
-  } = {
-    FIELD: 'FIELD',
-    NOTE: 'NOTE',
-    TAG: 'TAG',
-    CREATED_AT: 'CREATED_AT'
-  };
+  FIELD: 'FIELD',
+  NOTE: 'NOTE',
+  TAG: 'TAG',
+  CREATED_AT: 'CREATED_AT'
+};
 
 export type DeliveryDateResolvedSource = (typeof DeliveryDateResolvedSource)[keyof typeof DeliveryDateResolvedSource]
 
 
 export const CompanyMatchMethod: {
-    DOMAIN_EXACT: 'DOMAIN_EXACT',
-    NAME_EXACT: 'NAME_EXACT',
-    NAME_AND_ADDRESS: 'NAME_AND_ADDRESS',
-    DOMAIN_AND_ADDRESS: 'DOMAIN_AND_ADDRESS',
-    ADDRESS_EXACT: 'ADDRESS_EXACT',
-    FUZZY: 'FUZZY',
-    MANUAL_OVERRIDE: 'MANUAL_OVERRIDE'
-  } = {
-    DOMAIN_EXACT: 'DOMAIN_EXACT',
-    NAME_EXACT: 'NAME_EXACT',
-    NAME_AND_ADDRESS: 'NAME_AND_ADDRESS',
-    DOMAIN_AND_ADDRESS: 'DOMAIN_AND_ADDRESS',
-    ADDRESS_EXACT: 'ADDRESS_EXACT',
-    FUZZY: 'FUZZY',
-    MANUAL_OVERRIDE: 'MANUAL_OVERRIDE'
-  };
+  DOMAIN_EXACT: 'DOMAIN_EXACT',
+  NAME_EXACT: 'NAME_EXACT',
+  NAME_AND_ADDRESS: 'NAME_AND_ADDRESS',
+  DOMAIN_AND_ADDRESS: 'DOMAIN_AND_ADDRESS',
+  ADDRESS_EXACT: 'ADDRESS_EXACT',
+  FUZZY: 'FUZZY',
+  MANUAL_OVERRIDE: 'MANUAL_OVERRIDE'
+};
 
 export type CompanyMatchMethod = (typeof CompanyMatchMethod)[keyof typeof CompanyMatchMethod]
 
 
 export const CompanyReviewStatus: {
-    pending: 'pending',
-    approved: 'approved',
-    rejected: 'rejected'
-  } = {
-    pending: 'pending',
-    approved: 'approved',
-    rejected: 'rejected'
-  };
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected'
+};
 
 export type CompanyReviewStatus = (typeof CompanyReviewStatus)[keyof typeof CompanyReviewStatus]
 
 
 export const CompanyAssignmentActionType: {
-    rename_company: 'rename_company',
-    mark_domain_generic: 'mark_domain_generic',
-    reassign_contact: 'reassign_contact',
-    reassign_order: 'reassign_order',
-    merge_company: 'merge_company',
-    split_company: 'split_company',
-    mark_private: 'mark_private'
-  } = {
-    rename_company: 'rename_company',
-    mark_domain_generic: 'mark_domain_generic',
-    reassign_contact: 'reassign_contact',
-    reassign_order: 'reassign_order',
-    merge_company: 'merge_company',
-    split_company: 'split_company',
-    mark_private: 'mark_private'
-  };
+  rename_company: 'rename_company',
+  mark_domain_generic: 'mark_domain_generic',
+  reassign_contact: 'reassign_contact',
+  reassign_order: 'reassign_order',
+  merge_company: 'merge_company',
+  split_company: 'split_company',
+  mark_private: 'mark_private'
+};
 
 export type CompanyAssignmentActionType = (typeof CompanyAssignmentActionType)[keyof typeof CompanyAssignmentActionType]
 
 
 export const PostPurchaseFollowupStatus: {
-    pending_review: 'pending_review',
-    previewed: 'previewed',
-    test_sent: 'test_sent',
-    sent: 'sent',
-    skipped: 'skipped',
-    no_followup: 'no_followup',
-    completed: 'completed',
-    blocked: 'blocked'
-  } = {
-    pending_review: 'pending_review',
-    previewed: 'previewed',
-    test_sent: 'test_sent',
-    sent: 'sent',
-    skipped: 'skipped',
-    no_followup: 'no_followup',
-    completed: 'completed',
-    blocked: 'blocked'
-  };
+  pending_review: 'pending_review',
+  previewed: 'previewed',
+  test_sent: 'test_sent',
+  sent: 'sent',
+  skipped: 'skipped',
+  no_followup: 'no_followup',
+  completed: 'completed',
+  blocked: 'blocked'
+};
 
 export type PostPurchaseFollowupStatus = (typeof PostPurchaseFollowupStatus)[keyof typeof PostPurchaseFollowupStatus]
 
 
 export const PostPurchaseFollowupActionType: {
-    previewed: 'previewed',
-    test_sent: 'test_sent',
-    send_attempted: 'send_attempted',
-    sent: 'sent',
-    skipped: 'skipped',
-    no_followup: 'no_followup',
-    marked_blocked: 'marked_blocked',
-    marked_fulfilled: 'marked_fulfilled',
-    reward_selected: 'reward_selected',
-    reward_issued: 'reward_issued',
-    strategic_marked: 'strategic_marked'
-  } = {
-    previewed: 'previewed',
-    test_sent: 'test_sent',
-    send_attempted: 'send_attempted',
-    sent: 'sent',
-    skipped: 'skipped',
-    no_followup: 'no_followup',
-    marked_blocked: 'marked_blocked',
-    marked_fulfilled: 'marked_fulfilled',
-    reward_selected: 'reward_selected',
-    reward_issued: 'reward_issued',
-    strategic_marked: 'strategic_marked'
-  };
+  previewed: 'previewed',
+  test_sent: 'test_sent',
+  send_attempted: 'send_attempted',
+  sent: 'sent',
+  skipped: 'skipped',
+  no_followup: 'no_followup',
+  marked_blocked: 'marked_blocked',
+  marked_fulfilled: 'marked_fulfilled',
+  reward_selected: 'reward_selected',
+  reward_issued: 'reward_issued',
+  strategic_marked: 'strategic_marked'
+};
 
 export type PostPurchaseFollowupActionType = (typeof PostPurchaseFollowupActionType)[keyof typeof PostPurchaseFollowupActionType]
 
 
 export const FcpPlanStatus: {
-    ACTIVE: 'ACTIVE',
-    INACTIVE: 'INACTIVE',
-    ARCHIVED: 'ARCHIVED'
-  } = {
-    ACTIVE: 'ACTIVE',
-    INACTIVE: 'INACTIVE',
-    ARCHIVED: 'ARCHIVED'
-  };
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  ARCHIVED: 'ARCHIVED'
+};
 
 export type FcpPlanStatus = (typeof FcpPlanStatus)[keyof typeof FcpPlanStatus]
 
 
 export const FcpCardGroup: {
-    STARTING: 'STARTING',
-    PREPARING: 'PREPARING',
-    MAKING_COOKING: 'MAKING_COOKING',
-    CLOSING: 'CLOSING',
-    TROUBLESHOOTING: 'TROUBLESHOOTING'
-  } = {
-    STARTING: 'STARTING',
-    PREPARING: 'PREPARING',
-    MAKING_COOKING: 'MAKING_COOKING',
-    CLOSING: 'CLOSING',
-    TROUBLESHOOTING: 'TROUBLESHOOTING'
-  };
+  STARTING: 'STARTING',
+  PREPARING: 'PREPARING',
+  MAKING_COOKING: 'MAKING_COOKING',
+  CLOSING: 'CLOSING',
+  TROUBLESHOOTING: 'TROUBLESHOOTING'
+};
 
 export type FcpCardGroup = (typeof FcpCardGroup)[keyof typeof FcpCardGroup]
 
 
 export const FcpTriggerType: {
-    STAFF_BASED: 'STAFF_BASED',
-    EQUIPMENT_BASED: 'EQUIPMENT_BASED',
-    MANUAL: 'MANUAL',
-    DAILY: 'DAILY',
-    WEEKLY: 'WEEKLY',
-    MONTHLY: 'MONTHLY',
-    ORDER_BASED: 'ORDER_BASED',
-    INCIDENT_BASED: 'INCIDENT_BASED'
-  } = {
-    STAFF_BASED: 'STAFF_BASED',
-    EQUIPMENT_BASED: 'EQUIPMENT_BASED',
-    MANUAL: 'MANUAL',
-    DAILY: 'DAILY',
-    WEEKLY: 'WEEKLY',
-    MONTHLY: 'MONTHLY',
-    ORDER_BASED: 'ORDER_BASED',
-    INCIDENT_BASED: 'INCIDENT_BASED'
-  };
+  STAFF_BASED: 'STAFF_BASED',
+  EQUIPMENT_BASED: 'EQUIPMENT_BASED',
+  MANUAL: 'MANUAL',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  ORDER_BASED: 'ORDER_BASED',
+  INCIDENT_BASED: 'INCIDENT_BASED'
+};
 
 export type FcpTriggerType = (typeof FcpTriggerType)[keyof typeof FcpTriggerType]
 
 
 export const FcpFrequency: {
-    DAILY: 'DAILY',
-    CLOSING: 'CLOSING',
-    WEEKLY: 'WEEKLY',
-    MONTHLY: 'MONTHLY',
-    SIX_MONTHLY: 'SIX_MONTHLY',
-    PER_BATCH: 'PER_BATCH',
-    PER_ORDER: 'PER_ORDER',
-    PER_DELIVERY: 'PER_DELIVERY'
-  } = {
-    DAILY: 'DAILY',
-    CLOSING: 'CLOSING',
-    WEEKLY: 'WEEKLY',
-    MONTHLY: 'MONTHLY',
-    SIX_MONTHLY: 'SIX_MONTHLY',
-    PER_BATCH: 'PER_BATCH',
-    PER_ORDER: 'PER_ORDER',
-    PER_DELIVERY: 'PER_DELIVERY'
-  };
+  DAILY: 'DAILY',
+  CLOSING: 'CLOSING',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  SIX_MONTHLY: 'SIX_MONTHLY',
+  PER_BATCH: 'PER_BATCH',
+  PER_ORDER: 'PER_ORDER',
+  PER_DELIVERY: 'PER_DELIVERY'
+};
 
 export type FcpFrequency = (typeof FcpFrequency)[keyof typeof FcpFrequency]
 
 
 export const FcpSeverity: {
-    LOW: 'LOW',
-    MEDIUM: 'MEDIUM',
-    HIGH: 'HIGH',
-    CRITICAL: 'CRITICAL'
-  } = {
-    LOW: 'LOW',
-    MEDIUM: 'MEDIUM',
-    HIGH: 'HIGH',
-    CRITICAL: 'CRITICAL'
-  };
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+};
 
 export type FcpSeverity = (typeof FcpSeverity)[keyof typeof FcpSeverity]
 
 
 export const FcpTaskStatus: {
-    OPEN: 'OPEN',
-    IN_PROGRESS: 'IN_PROGRESS',
-    COMPLETED: 'COMPLETED',
-    SKIPPED: 'SKIPPED',
-    CANCELLED: 'CANCELLED'
-  } = {
-    OPEN: 'OPEN',
-    IN_PROGRESS: 'IN_PROGRESS',
-    COMPLETED: 'COMPLETED',
-    SKIPPED: 'SKIPPED',
-    CANCELLED: 'CANCELLED'
-  };
+  OPEN: 'OPEN',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  SKIPPED: 'SKIPPED',
+  CANCELLED: 'CANCELLED'
+};
 
 export type FcpTaskStatus = (typeof FcpTaskStatus)[keyof typeof FcpTaskStatus]
 
 
 export const FcpRecordStatus: {
-    DRAFT: 'DRAFT',
-    SUBMITTED: 'SUBMITTED',
-    APPROVED: 'APPROVED',
-    REJECTED: 'REJECTED'
-  } = {
-    DRAFT: 'DRAFT',
-    SUBMITTED: 'SUBMITTED',
-    APPROVED: 'APPROVED',
-    REJECTED: 'REJECTED'
-  };
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
 
 export type FcpRecordStatus = (typeof FcpRecordStatus)[keyof typeof FcpRecordStatus]
 
 
 export const FcpIncidentStatus: {
-    OPEN: 'OPEN',
-    INVESTIGATING: 'INVESTIGATING',
-    RESOLVED: 'RESOLVED',
-    CLOSED: 'CLOSED'
-  } = {
-    OPEN: 'OPEN',
-    INVESTIGATING: 'INVESTIGATING',
-    RESOLVED: 'RESOLVED',
-    CLOSED: 'CLOSED'
-  };
+  OPEN: 'OPEN',
+  INVESTIGATING: 'INVESTIGATING',
+  RESOLVED: 'RESOLVED',
+  CLOSED: 'CLOSED'
+};
 
 export type FcpIncidentStatus = (typeof FcpIncidentStatus)[keyof typeof FcpIncidentStatus]
 
 
 export const FcpAssetType: {
-    FRIDGE: 'FRIDGE',
-    FREEZER: 'FREEZER',
-    THERMOMETER: 'THERMOMETER',
-    EQUIPMENT: 'EQUIPMENT',
-    OTHER: 'OTHER'
-  } = {
-    FRIDGE: 'FRIDGE',
-    FREEZER: 'FREEZER',
-    THERMOMETER: 'THERMOMETER',
-    EQUIPMENT: 'EQUIPMENT',
-    OTHER: 'OTHER'
-  };
+  FRIDGE: 'FRIDGE',
+  FREEZER: 'FREEZER',
+  THERMOMETER: 'THERMOMETER',
+  EQUIPMENT: 'EQUIPMENT',
+  OTHER: 'OTHER'
+};
 
 export type FcpAssetType = (typeof FcpAssetType)[keyof typeof FcpAssetType]
 
 
 export const FcpPeriodicFrequency: {
-    WEEKLY: 'WEEKLY',
-    FORTNIGHTLY: 'FORTNIGHTLY',
-    MONTHLY: 'MONTHLY',
-    QUARTERLY: 'QUARTERLY'
-  } = {
-    WEEKLY: 'WEEKLY',
-    FORTNIGHTLY: 'FORTNIGHTLY',
-    MONTHLY: 'MONTHLY',
-    QUARTERLY: 'QUARTERLY'
-  };
+  WEEKLY: 'WEEKLY',
+  FORTNIGHTLY: 'FORTNIGHTLY',
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY'
+};
 
 export type FcpPeriodicFrequency = (typeof FcpPeriodicFrequency)[keyof typeof FcpPeriodicFrequency]
 
 
 export const FcpContactType: {
-    SUPPLIER: 'SUPPLIER',
-    MAINTENANCE: 'MAINTENANCE',
-    PEST_CONTROL: 'PEST_CONTROL',
-    VERIFIER: 'VERIFIER',
-    COUNCIL: 'COUNCIL',
-    MPI: 'MPI',
-    OTHER: 'OTHER'
-  } = {
-    SUPPLIER: 'SUPPLIER',
-    MAINTENANCE: 'MAINTENANCE',
-    PEST_CONTROL: 'PEST_CONTROL',
-    VERIFIER: 'VERIFIER',
-    COUNCIL: 'COUNCIL',
-    MPI: 'MPI',
-    OTHER: 'OTHER'
-  };
+  SUPPLIER: 'SUPPLIER',
+  MAINTENANCE: 'MAINTENANCE',
+  PEST_CONTROL: 'PEST_CONTROL',
+  VERIFIER: 'VERIFIER',
+  COUNCIL: 'COUNCIL',
+  MPI: 'MPI',
+  OTHER: 'OTHER'
+};
 
 export type FcpContactType = (typeof FcpContactType)[keyof typeof FcpContactType]
 
@@ -844,58 +733,76 @@ export type FcpContactType = (typeof FcpContactType)[keyof typeof FcpContactType
 
 export type SmsTemplateType = $Enums.SmsTemplateType
 
-export const SmsTemplateType: typeof $Enums.SmsTemplateType = $Enums.SmsTemplateType;
+export const SmsTemplateType: typeof $Enums.SmsTemplateType
+
 export type DeliveryDateResolvedSource = $Enums.DeliveryDateResolvedSource
 
-export const DeliveryDateResolvedSource: typeof $Enums.DeliveryDateResolvedSource = $Enums.DeliveryDateResolvedSource;
+export const DeliveryDateResolvedSource: typeof $Enums.DeliveryDateResolvedSource
+
 export type CompanyMatchMethod = $Enums.CompanyMatchMethod
 
-export const CompanyMatchMethod: typeof $Enums.CompanyMatchMethod = $Enums.CompanyMatchMethod;
+export const CompanyMatchMethod: typeof $Enums.CompanyMatchMethod
+
 export type CompanyReviewStatus = $Enums.CompanyReviewStatus
 
-export const CompanyReviewStatus: typeof $Enums.CompanyReviewStatus = $Enums.CompanyReviewStatus;
+export const CompanyReviewStatus: typeof $Enums.CompanyReviewStatus
+
 export type CompanyAssignmentActionType = $Enums.CompanyAssignmentActionType
 
-export const CompanyAssignmentActionType: typeof $Enums.CompanyAssignmentActionType = $Enums.CompanyAssignmentActionType;
+export const CompanyAssignmentActionType: typeof $Enums.CompanyAssignmentActionType
+
 export type PostPurchaseFollowupStatus = $Enums.PostPurchaseFollowupStatus
 
-export const PostPurchaseFollowupStatus: typeof $Enums.PostPurchaseFollowupStatus = $Enums.PostPurchaseFollowupStatus;
+export const PostPurchaseFollowupStatus: typeof $Enums.PostPurchaseFollowupStatus
+
 export type PostPurchaseFollowupActionType = $Enums.PostPurchaseFollowupActionType
 
-export const PostPurchaseFollowupActionType: typeof $Enums.PostPurchaseFollowupActionType = $Enums.PostPurchaseFollowupActionType;
+export const PostPurchaseFollowupActionType: typeof $Enums.PostPurchaseFollowupActionType
+
 export type FcpPlanStatus = $Enums.FcpPlanStatus
 
-export const FcpPlanStatus: typeof $Enums.FcpPlanStatus = $Enums.FcpPlanStatus;
+export const FcpPlanStatus: typeof $Enums.FcpPlanStatus
+
 export type FcpCardGroup = $Enums.FcpCardGroup
 
-export const FcpCardGroup: typeof $Enums.FcpCardGroup = $Enums.FcpCardGroup;
+export const FcpCardGroup: typeof $Enums.FcpCardGroup
+
 export type FcpTriggerType = $Enums.FcpTriggerType
 
-export const FcpTriggerType: typeof $Enums.FcpTriggerType = $Enums.FcpTriggerType;
+export const FcpTriggerType: typeof $Enums.FcpTriggerType
+
 export type FcpFrequency = $Enums.FcpFrequency
 
-export const FcpFrequency: typeof $Enums.FcpFrequency = $Enums.FcpFrequency;
+export const FcpFrequency: typeof $Enums.FcpFrequency
+
 export type FcpSeverity = $Enums.FcpSeverity
 
-export const FcpSeverity: typeof $Enums.FcpSeverity = $Enums.FcpSeverity;
+export const FcpSeverity: typeof $Enums.FcpSeverity
+
 export type FcpTaskStatus = $Enums.FcpTaskStatus
 
-export const FcpTaskStatus: typeof $Enums.FcpTaskStatus = $Enums.FcpTaskStatus;
+export const FcpTaskStatus: typeof $Enums.FcpTaskStatus
+
 export type FcpRecordStatus = $Enums.FcpRecordStatus
 
-export const FcpRecordStatus: typeof $Enums.FcpRecordStatus = $Enums.FcpRecordStatus;
+export const FcpRecordStatus: typeof $Enums.FcpRecordStatus
+
 export type FcpIncidentStatus = $Enums.FcpIncidentStatus
 
-export const FcpIncidentStatus: typeof $Enums.FcpIncidentStatus = $Enums.FcpIncidentStatus;
+export const FcpIncidentStatus: typeof $Enums.FcpIncidentStatus
+
 export type FcpAssetType = $Enums.FcpAssetType
 
-export const FcpAssetType: typeof $Enums.FcpAssetType = $Enums.FcpAssetType;
+export const FcpAssetType: typeof $Enums.FcpAssetType
+
 export type FcpPeriodicFrequency = $Enums.FcpPeriodicFrequency
 
-export const FcpPeriodicFrequency: typeof $Enums.FcpPeriodicFrequency = $Enums.FcpPeriodicFrequency;
+export const FcpPeriodicFrequency: typeof $Enums.FcpPeriodicFrequency
+
 export type FcpContactType = $Enums.FcpContactType
 
-export const FcpContactType: typeof $Enums.FcpContactType = $Enums.FcpContactType;
+export const FcpContactType: typeof $Enums.FcpContactType
+
 /**
  * ##  Prisma Client ʲˢ
  *
@@ -1832,6 +1739,16 @@ export class PrismaClient<
   get calendarDayAlert(): Prisma.CalendarDayAlertDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.voiceAlert`: Exposes CRUD operations for the **VoiceAlert** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VoiceAlerts
+    * const voiceAlerts = await prisma.voiceAlert.findMany()
+    * ```
+    */
+  get voiceAlert(): Prisma.VoiceAlertDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.deliveryAddressNote`: Exposes CRUD operations for the **DeliveryAddressNote** model.
     * Example usage:
     * ```ts
@@ -2491,102 +2408,7 @@ export namespace Prisma {
     FcpPeriodicCleaningTask: 'FcpPeriodicCleaningTask',
     FcpContact: 'FcpContact',
     CalendarDayAlert: 'CalendarDayAlert',
-    DeliveryAddressNote: 'DeliveryAddressNote',
-    DailyCogsLock: 'DailyCogsLock',
-    VariantPartAlignment: 'VariantPartAlignment',
-    Ingredient: 'Ingredient',
-    IngredientSupplierLink: 'IngredientSupplierLink',
-    PricePoint: 'PricePoint',
-    EmailIngestion: 'EmailIngestion',
-    PriceAlert: 'PriceAlert',
-    CostOverride: 'CostOverride',
-    RecalcRun: 'RecalcRun',
-    IngredientMergeSuggestion: 'IngredientMergeSuggestion',
-    PricingSettings: 'PricingSettings',
-    PriceSheet: 'PriceSheet',
-    PriceSheetEntry: 'PriceSheetEntry'
-  } = {
-    SmsTemplate: 'SmsTemplate',
-    GilmoursProduct: 'GilmoursProduct',
-    BidfoodProduct: 'BidfoodProduct',
-    OtherProduct: 'OtherProduct',
-    BakeryCostAlignment: 'BakeryCostAlignment',
-    ProduceCoProduct: 'ProduceCoProduct',
-    Supplier: 'Supplier',
-    Component: 'Component',
-    ComponentImage: 'ComponentImage',
-    Product: 'Product',
-    ProductCustomData: 'ProductCustomData',
-    ProductWithCustomData: 'ProductWithCustomData',
-    ProductRule: 'ProductRule',
-    Staff: 'Staff',
-    ShiftType: 'ShiftType',
-    Shift: 'Shift',
-    StaffLocationPing: 'StaffLocationPing',
-    ShiftTask: 'ShiftTask',
-    RosterAssignment: 'RosterAssignment',
-    RosterAssignmentTask: 'RosterAssignmentTask',
-    Reimbursement: 'Reimbursement',
-    PayrollRun: 'PayrollRun',
-    XeroConnection: 'XeroConnection',
-    XeroPayrollConfig: 'XeroPayrollConfig',
-    Order: 'Order',
-    OrderChangeLog: 'OrderChangeLog',
-    ShopifyOrder: 'ShopifyOrder',
-    ParsedOrder: 'ParsedOrder',
-    ParsedLineItem: 'ParsedLineItem',
-    RawShopifyOrder: 'RawShopifyOrder',
-    RawShopifyCustomer: 'RawShopifyCustomer',
-    Company: 'Company',
-    GenericDomain: 'GenericDomain',
-    CompanyContact: 'CompanyContact',
-    CompanyOrder: 'CompanyOrder',
-    CompanyMatchReview: 'CompanyMatchReview',
-    CompanyAssignmentAudit: 'CompanyAssignmentAudit',
-    RecoveryActionOption: 'RecoveryActionOption',
-    CompanyRecoveryAction: 'CompanyRecoveryAction',
-    CompanyMetricsMonthly: 'CompanyMetricsMonthly',
-    CustomerMetricsMonthly: 'CustomerMetricsMonthly',
-    ShopifyProduct: 'ShopifyProduct',
-    CostingOption: 'CostingOption',
-    CostingOptionAlias: 'CostingOptionAlias',
-    ProductOptionQuantity: 'ProductOptionQuantity',
-    ProductVariant: 'ProductVariant',
-    EmailSetting: 'EmailSetting',
-    FulfillmentCommsSetting: 'FulfillmentCommsSetting',
-    DayPriorEmailSetting: 'DayPriorEmailSetting',
-    OrderNotificationOptOut: 'OrderNotificationOptOut',
-    OrderNotificationSendLog: 'OrderNotificationSendLog',
-    LifecycleCommsSetting: 'LifecycleCommsSetting',
-    RewardCatalog: 'RewardCatalog',
-    RewardIssue: 'RewardIssue',
-    LifecycleEmailSendLog: 'LifecycleEmailSendLog',
-    PostPurchaseFollowup: 'PostPurchaseFollowup',
-    PostPurchaseFollowupAction: 'PostPurchaseFollowupAction',
-    DayPriorOrderOverride: 'DayPriorOrderOverride',
-    WLGMessage: 'WLGMessage',
-    CartItem: 'CartItem',
-    StockItem: 'StockItem',
-    StockOrder: 'StockOrder',
-    StockOrderItem: 'StockOrderItem',
-    Car: 'Car',
-    DashboardTodo: 'DashboardTodo',
-    DataDriver: 'DataDriver',
-    DataDriverApplication: 'DataDriverApplication',
-    DeliveryJob: 'DeliveryJob',
-    JobOffer: 'JobOffer',
-    JobEvent: 'JobEvent',
-    FcpPlan: 'FcpPlan',
-    FcpCard: 'FcpCard',
-    FcpRule: 'FcpRule',
-    FcpAsset: 'FcpAsset',
-    FcpTask: 'FcpTask',
-    FcpRecordType: 'FcpRecordType',
-    FcpRecord: 'FcpRecord',
-    FcpIncident: 'FcpIncident',
-    FcpPeriodicCleaningTask: 'FcpPeriodicCleaningTask',
-    FcpContact: 'FcpContact',
-    CalendarDayAlert: 'CalendarDayAlert',
+    VoiceAlert: 'VoiceAlert',
     DeliveryAddressNote: 'DeliveryAddressNote',
     DailyCogsLock: 'DailyCogsLock',
     VariantPartAlignment: 'VariantPartAlignment',
@@ -2619,7 +2441,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "smsTemplate" | "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "bakeryCostAlignment" | "produceCoProduct" | "supplier" | "component" | "componentImage" | "product" | "productCustomData" | "productWithCustomData" | "productRule" | "staff" | "shiftType" | "shift" | "staffLocationPing" | "shiftTask" | "rosterAssignment" | "rosterAssignmentTask" | "reimbursement" | "payrollRun" | "xeroConnection" | "xeroPayrollConfig" | "order" | "orderChangeLog" | "shopifyOrder" | "parsedOrder" | "parsedLineItem" | "rawShopifyOrder" | "rawShopifyCustomer" | "company" | "genericDomain" | "companyContact" | "companyOrder" | "companyMatchReview" | "companyAssignmentAudit" | "recoveryActionOption" | "companyRecoveryAction" | "companyMetricsMonthly" | "customerMetricsMonthly" | "shopifyProduct" | "costingOption" | "costingOptionAlias" | "productOptionQuantity" | "productVariant" | "emailSetting" | "fulfillmentCommsSetting" | "dayPriorEmailSetting" | "orderNotificationOptOut" | "orderNotificationSendLog" | "lifecycleCommsSetting" | "rewardCatalog" | "rewardIssue" | "lifecycleEmailSendLog" | "postPurchaseFollowup" | "postPurchaseFollowupAction" | "dayPriorOrderOverride" | "wLGMessage" | "cartItem" | "stockItem" | "stockOrder" | "stockOrderItem" | "car" | "dashboardTodo" | "dataDriver" | "dataDriverApplication" | "deliveryJob" | "jobOffer" | "jobEvent" | "fcpPlan" | "fcpCard" | "fcpRule" | "fcpAsset" | "fcpTask" | "fcpRecordType" | "fcpRecord" | "fcpIncident" | "fcpPeriodicCleaningTask" | "fcpContact" | "calendarDayAlert" | "deliveryAddressNote" | "dailyCogsLock" | "variantPartAlignment" | "ingredient" | "ingredientSupplierLink" | "pricePoint" | "emailIngestion" | "priceAlert" | "costOverride" | "recalcRun" | "ingredientMergeSuggestion" | "pricingSettings" | "priceSheet" | "priceSheetEntry"
+      modelProps: "smsTemplate" | "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "bakeryCostAlignment" | "produceCoProduct" | "supplier" | "component" | "componentImage" | "product" | "productCustomData" | "productWithCustomData" | "productRule" | "staff" | "shiftType" | "shift" | "staffLocationPing" | "shiftTask" | "rosterAssignment" | "rosterAssignmentTask" | "reimbursement" | "payrollRun" | "xeroConnection" | "xeroPayrollConfig" | "order" | "orderChangeLog" | "shopifyOrder" | "parsedOrder" | "parsedLineItem" | "rawShopifyOrder" | "rawShopifyCustomer" | "company" | "genericDomain" | "companyContact" | "companyOrder" | "companyMatchReview" | "companyAssignmentAudit" | "recoveryActionOption" | "companyRecoveryAction" | "companyMetricsMonthly" | "customerMetricsMonthly" | "shopifyProduct" | "costingOption" | "costingOptionAlias" | "productOptionQuantity" | "productVariant" | "emailSetting" | "fulfillmentCommsSetting" | "dayPriorEmailSetting" | "orderNotificationOptOut" | "orderNotificationSendLog" | "lifecycleCommsSetting" | "rewardCatalog" | "rewardIssue" | "lifecycleEmailSendLog" | "postPurchaseFollowup" | "postPurchaseFollowupAction" | "dayPriorOrderOverride" | "wLGMessage" | "cartItem" | "stockItem" | "stockOrder" | "stockOrderItem" | "car" | "dashboardTodo" | "dataDriver" | "dataDriverApplication" | "deliveryJob" | "jobOffer" | "jobEvent" | "fcpPlan" | "fcpCard" | "fcpRule" | "fcpAsset" | "fcpTask" | "fcpRecordType" | "fcpRecord" | "fcpIncident" | "fcpPeriodicCleaningTask" | "fcpContact" | "calendarDayAlert" | "voiceAlert" | "deliveryAddressNote" | "dailyCogsLock" | "variantPartAlignment" | "ingredient" | "ingredientSupplierLink" | "pricePoint" | "emailIngestion" | "priceAlert" | "costOverride" | "recalcRun" | "ingredientMergeSuggestion" | "pricingSettings" | "priceSheet" | "priceSheetEntry"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -8617,6 +8439,80 @@ export namespace Prisma {
           }
         }
       }
+      VoiceAlert: {
+        payload: Prisma.$VoiceAlertPayload<ExtArgs>
+        fields: Prisma.VoiceAlertFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VoiceAlertFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VoiceAlertFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload>
+          }
+          findFirst: {
+            args: Prisma.VoiceAlertFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VoiceAlertFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload>
+          }
+          findMany: {
+            args: Prisma.VoiceAlertFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload>[]
+          }
+          create: {
+            args: Prisma.VoiceAlertCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload>
+          }
+          createMany: {
+            args: Prisma.VoiceAlertCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.VoiceAlertCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload>[]
+          }
+          delete: {
+            args: Prisma.VoiceAlertDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload>
+          }
+          update: {
+            args: Prisma.VoiceAlertUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload>
+          }
+          deleteMany: {
+            args: Prisma.VoiceAlertDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VoiceAlertUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.VoiceAlertUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload>[]
+          }
+          upsert: {
+            args: Prisma.VoiceAlertUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VoiceAlertPayload>
+          }
+          aggregate: {
+            args: Prisma.VoiceAlertAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVoiceAlert>
+          }
+          groupBy: {
+            args: Prisma.VoiceAlertGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VoiceAlertGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VoiceAlertCountArgs<ExtArgs>
+            result: $Utils.Optional<VoiceAlertCountAggregateOutputType> | number
+          }
+        }
+      }
       DeliveryAddressNote: {
         payload: Prisma.$DeliveryAddressNotePayload<ExtArgs>
         fields: Prisma.DeliveryAddressNoteFieldRefs
@@ -9818,6 +9714,7 @@ export namespace Prisma {
     fcpPeriodicCleaningTask?: FcpPeriodicCleaningTaskOmit
     fcpContact?: FcpContactOmit
     calendarDayAlert?: CalendarDayAlertOmit
+    voiceAlert?: VoiceAlertOmit
     deliveryAddressNote?: DeliveryAddressNoteOmit
     dailyCogsLock?: DailyCogsLockOmit
     variantPartAlignment?: VariantPartAlignmentOmit
@@ -105136,6 +105033,1027 @@ export namespace Prisma {
 
 
   /**
+   * Model VoiceAlert
+   */
+
+  export type AggregateVoiceAlert = {
+    _count: VoiceAlertCountAggregateOutputType | null
+    _min: VoiceAlertMinAggregateOutputType | null
+    _max: VoiceAlertMaxAggregateOutputType | null
+  }
+
+  export type VoiceAlertMinAggregateOutputType = {
+    id: string | null
+    recipient: string | null
+    message: string | null
+    createdByEmail: string | null
+    createdByName: string | null
+    createdAt: Date | null
+    acknowledgedAt: Date | null
+  }
+
+  export type VoiceAlertMaxAggregateOutputType = {
+    id: string | null
+    recipient: string | null
+    message: string | null
+    createdByEmail: string | null
+    createdByName: string | null
+    createdAt: Date | null
+    acknowledgedAt: Date | null
+  }
+
+  export type VoiceAlertCountAggregateOutputType = {
+    id: number
+    recipient: number
+    message: number
+    createdByEmail: number
+    createdByName: number
+    createdAt: number
+    acknowledgedAt: number
+    _all: number
+  }
+
+
+  export type VoiceAlertMinAggregateInputType = {
+    id?: true
+    recipient?: true
+    message?: true
+    createdByEmail?: true
+    createdByName?: true
+    createdAt?: true
+    acknowledgedAt?: true
+  }
+
+  export type VoiceAlertMaxAggregateInputType = {
+    id?: true
+    recipient?: true
+    message?: true
+    createdByEmail?: true
+    createdByName?: true
+    createdAt?: true
+    acknowledgedAt?: true
+  }
+
+  export type VoiceAlertCountAggregateInputType = {
+    id?: true
+    recipient?: true
+    message?: true
+    createdByEmail?: true
+    createdByName?: true
+    createdAt?: true
+    acknowledgedAt?: true
+    _all?: true
+  }
+
+  export type VoiceAlertAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VoiceAlert to aggregate.
+     */
+    where?: VoiceAlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VoiceAlerts to fetch.
+     */
+    orderBy?: VoiceAlertOrderByWithRelationInput | VoiceAlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VoiceAlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VoiceAlerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VoiceAlerts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned VoiceAlerts
+    **/
+    _count?: true | VoiceAlertCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VoiceAlertMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VoiceAlertMaxAggregateInputType
+  }
+
+  export type GetVoiceAlertAggregateType<T extends VoiceAlertAggregateArgs> = {
+        [P in keyof T & keyof AggregateVoiceAlert]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVoiceAlert[P]>
+      : GetScalarType<T[P], AggregateVoiceAlert[P]>
+  }
+
+
+
+
+  export type VoiceAlertGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VoiceAlertWhereInput
+    orderBy?: VoiceAlertOrderByWithAggregationInput | VoiceAlertOrderByWithAggregationInput[]
+    by: VoiceAlertScalarFieldEnum[] | VoiceAlertScalarFieldEnum
+    having?: VoiceAlertScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VoiceAlertCountAggregateInputType | true
+    _min?: VoiceAlertMinAggregateInputType
+    _max?: VoiceAlertMaxAggregateInputType
+  }
+
+  export type VoiceAlertGroupByOutputType = {
+    id: string
+    recipient: string
+    message: string
+    createdByEmail: string | null
+    createdByName: string | null
+    createdAt: Date
+    acknowledgedAt: Date | null
+    _count: VoiceAlertCountAggregateOutputType | null
+    _min: VoiceAlertMinAggregateOutputType | null
+    _max: VoiceAlertMaxAggregateOutputType | null
+  }
+
+  type GetVoiceAlertGroupByPayload<T extends VoiceAlertGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VoiceAlertGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VoiceAlertGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VoiceAlertGroupByOutputType[P]>
+            : GetScalarType<T[P], VoiceAlertGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VoiceAlertSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    recipient?: boolean
+    message?: boolean
+    createdByEmail?: boolean
+    createdByName?: boolean
+    createdAt?: boolean
+    acknowledgedAt?: boolean
+  }, ExtArgs["result"]["voiceAlert"]>
+
+  export type VoiceAlertSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    recipient?: boolean
+    message?: boolean
+    createdByEmail?: boolean
+    createdByName?: boolean
+    createdAt?: boolean
+    acknowledgedAt?: boolean
+  }, ExtArgs["result"]["voiceAlert"]>
+
+  export type VoiceAlertSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    recipient?: boolean
+    message?: boolean
+    createdByEmail?: boolean
+    createdByName?: boolean
+    createdAt?: boolean
+    acknowledgedAt?: boolean
+  }, ExtArgs["result"]["voiceAlert"]>
+
+  export type VoiceAlertSelectScalar = {
+    id?: boolean
+    recipient?: boolean
+    message?: boolean
+    createdByEmail?: boolean
+    createdByName?: boolean
+    createdAt?: boolean
+    acknowledgedAt?: boolean
+  }
+
+  export type VoiceAlertOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "recipient" | "message" | "createdByEmail" | "createdByName" | "createdAt" | "acknowledgedAt", ExtArgs["result"]["voiceAlert"]>
+
+  export type $VoiceAlertPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "VoiceAlert"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      recipient: string
+      message: string
+      createdByEmail: string | null
+      createdByName: string | null
+      createdAt: Date
+      acknowledgedAt: Date | null
+    }, ExtArgs["result"]["voiceAlert"]>
+    composites: {}
+  }
+
+  type VoiceAlertGetPayload<S extends boolean | null | undefined | VoiceAlertDefaultArgs> = $Result.GetResult<Prisma.$VoiceAlertPayload, S>
+
+  type VoiceAlertCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<VoiceAlertFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: VoiceAlertCountAggregateInputType | true
+    }
+
+  export interface VoiceAlertDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['VoiceAlert'], meta: { name: 'VoiceAlert' } }
+    /**
+     * Find zero or one VoiceAlert that matches the filter.
+     * @param {VoiceAlertFindUniqueArgs} args - Arguments to find a VoiceAlert
+     * @example
+     * // Get one VoiceAlert
+     * const voiceAlert = await prisma.voiceAlert.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VoiceAlertFindUniqueArgs>(args: SelectSubset<T, VoiceAlertFindUniqueArgs<ExtArgs>>): Prisma__VoiceAlertClient<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one VoiceAlert that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {VoiceAlertFindUniqueOrThrowArgs} args - Arguments to find a VoiceAlert
+     * @example
+     * // Get one VoiceAlert
+     * const voiceAlert = await prisma.voiceAlert.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VoiceAlertFindUniqueOrThrowArgs>(args: SelectSubset<T, VoiceAlertFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VoiceAlertClient<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VoiceAlert that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VoiceAlertFindFirstArgs} args - Arguments to find a VoiceAlert
+     * @example
+     * // Get one VoiceAlert
+     * const voiceAlert = await prisma.voiceAlert.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VoiceAlertFindFirstArgs>(args?: SelectSubset<T, VoiceAlertFindFirstArgs<ExtArgs>>): Prisma__VoiceAlertClient<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VoiceAlert that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VoiceAlertFindFirstOrThrowArgs} args - Arguments to find a VoiceAlert
+     * @example
+     * // Get one VoiceAlert
+     * const voiceAlert = await prisma.voiceAlert.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VoiceAlertFindFirstOrThrowArgs>(args?: SelectSubset<T, VoiceAlertFindFirstOrThrowArgs<ExtArgs>>): Prisma__VoiceAlertClient<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more VoiceAlerts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VoiceAlertFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all VoiceAlerts
+     * const voiceAlerts = await prisma.voiceAlert.findMany()
+     * 
+     * // Get first 10 VoiceAlerts
+     * const voiceAlerts = await prisma.voiceAlert.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const voiceAlertWithIdOnly = await prisma.voiceAlert.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends VoiceAlertFindManyArgs>(args?: SelectSubset<T, VoiceAlertFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a VoiceAlert.
+     * @param {VoiceAlertCreateArgs} args - Arguments to create a VoiceAlert.
+     * @example
+     * // Create one VoiceAlert
+     * const VoiceAlert = await prisma.voiceAlert.create({
+     *   data: {
+     *     // ... data to create a VoiceAlert
+     *   }
+     * })
+     * 
+     */
+    create<T extends VoiceAlertCreateArgs>(args: SelectSubset<T, VoiceAlertCreateArgs<ExtArgs>>): Prisma__VoiceAlertClient<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many VoiceAlerts.
+     * @param {VoiceAlertCreateManyArgs} args - Arguments to create many VoiceAlerts.
+     * @example
+     * // Create many VoiceAlerts
+     * const voiceAlert = await prisma.voiceAlert.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends VoiceAlertCreateManyArgs>(args?: SelectSubset<T, VoiceAlertCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many VoiceAlerts and returns the data saved in the database.
+     * @param {VoiceAlertCreateManyAndReturnArgs} args - Arguments to create many VoiceAlerts.
+     * @example
+     * // Create many VoiceAlerts
+     * const voiceAlert = await prisma.voiceAlert.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many VoiceAlerts and only return the `id`
+     * const voiceAlertWithIdOnly = await prisma.voiceAlert.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends VoiceAlertCreateManyAndReturnArgs>(args?: SelectSubset<T, VoiceAlertCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a VoiceAlert.
+     * @param {VoiceAlertDeleteArgs} args - Arguments to delete one VoiceAlert.
+     * @example
+     * // Delete one VoiceAlert
+     * const VoiceAlert = await prisma.voiceAlert.delete({
+     *   where: {
+     *     // ... filter to delete one VoiceAlert
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VoiceAlertDeleteArgs>(args: SelectSubset<T, VoiceAlertDeleteArgs<ExtArgs>>): Prisma__VoiceAlertClient<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one VoiceAlert.
+     * @param {VoiceAlertUpdateArgs} args - Arguments to update one VoiceAlert.
+     * @example
+     * // Update one VoiceAlert
+     * const voiceAlert = await prisma.voiceAlert.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VoiceAlertUpdateArgs>(args: SelectSubset<T, VoiceAlertUpdateArgs<ExtArgs>>): Prisma__VoiceAlertClient<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more VoiceAlerts.
+     * @param {VoiceAlertDeleteManyArgs} args - Arguments to filter VoiceAlerts to delete.
+     * @example
+     * // Delete a few VoiceAlerts
+     * const { count } = await prisma.voiceAlert.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VoiceAlertDeleteManyArgs>(args?: SelectSubset<T, VoiceAlertDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VoiceAlerts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VoiceAlertUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many VoiceAlerts
+     * const voiceAlert = await prisma.voiceAlert.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VoiceAlertUpdateManyArgs>(args: SelectSubset<T, VoiceAlertUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VoiceAlerts and returns the data updated in the database.
+     * @param {VoiceAlertUpdateManyAndReturnArgs} args - Arguments to update many VoiceAlerts.
+     * @example
+     * // Update many VoiceAlerts
+     * const voiceAlert = await prisma.voiceAlert.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more VoiceAlerts and only return the `id`
+     * const voiceAlertWithIdOnly = await prisma.voiceAlert.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends VoiceAlertUpdateManyAndReturnArgs>(args: SelectSubset<T, VoiceAlertUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one VoiceAlert.
+     * @param {VoiceAlertUpsertArgs} args - Arguments to update or create a VoiceAlert.
+     * @example
+     * // Update or create a VoiceAlert
+     * const voiceAlert = await prisma.voiceAlert.upsert({
+     *   create: {
+     *     // ... data to create a VoiceAlert
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the VoiceAlert we want to update
+     *   }
+     * })
+     */
+    upsert<T extends VoiceAlertUpsertArgs>(args: SelectSubset<T, VoiceAlertUpsertArgs<ExtArgs>>): Prisma__VoiceAlertClient<$Result.GetResult<Prisma.$VoiceAlertPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of VoiceAlerts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VoiceAlertCountArgs} args - Arguments to filter VoiceAlerts to count.
+     * @example
+     * // Count the number of VoiceAlerts
+     * const count = await prisma.voiceAlert.count({
+     *   where: {
+     *     // ... the filter for the VoiceAlerts we want to count
+     *   }
+     * })
+    **/
+    count<T extends VoiceAlertCountArgs>(
+      args?: Subset<T, VoiceAlertCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VoiceAlertCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a VoiceAlert.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VoiceAlertAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VoiceAlertAggregateArgs>(args: Subset<T, VoiceAlertAggregateArgs>): Prisma.PrismaPromise<GetVoiceAlertAggregateType<T>>
+
+    /**
+     * Group by VoiceAlert.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VoiceAlertGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VoiceAlertGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VoiceAlertGroupByArgs['orderBy'] }
+        : { orderBy?: VoiceAlertGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VoiceAlertGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVoiceAlertGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the VoiceAlert model
+   */
+  readonly fields: VoiceAlertFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for VoiceAlert.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VoiceAlertClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the VoiceAlert model
+   */
+  interface VoiceAlertFieldRefs {
+    readonly id: FieldRef<"VoiceAlert", 'String'>
+    readonly recipient: FieldRef<"VoiceAlert", 'String'>
+    readonly message: FieldRef<"VoiceAlert", 'String'>
+    readonly createdByEmail: FieldRef<"VoiceAlert", 'String'>
+    readonly createdByName: FieldRef<"VoiceAlert", 'String'>
+    readonly createdAt: FieldRef<"VoiceAlert", 'DateTime'>
+    readonly acknowledgedAt: FieldRef<"VoiceAlert", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * VoiceAlert findUnique
+   */
+  export type VoiceAlertFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * Filter, which VoiceAlert to fetch.
+     */
+    where: VoiceAlertWhereUniqueInput
+  }
+
+  /**
+   * VoiceAlert findUniqueOrThrow
+   */
+  export type VoiceAlertFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * Filter, which VoiceAlert to fetch.
+     */
+    where: VoiceAlertWhereUniqueInput
+  }
+
+  /**
+   * VoiceAlert findFirst
+   */
+  export type VoiceAlertFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * Filter, which VoiceAlert to fetch.
+     */
+    where?: VoiceAlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VoiceAlerts to fetch.
+     */
+    orderBy?: VoiceAlertOrderByWithRelationInput | VoiceAlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VoiceAlerts.
+     */
+    cursor?: VoiceAlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VoiceAlerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VoiceAlerts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VoiceAlerts.
+     */
+    distinct?: VoiceAlertScalarFieldEnum | VoiceAlertScalarFieldEnum[]
+  }
+
+  /**
+   * VoiceAlert findFirstOrThrow
+   */
+  export type VoiceAlertFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * Filter, which VoiceAlert to fetch.
+     */
+    where?: VoiceAlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VoiceAlerts to fetch.
+     */
+    orderBy?: VoiceAlertOrderByWithRelationInput | VoiceAlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VoiceAlerts.
+     */
+    cursor?: VoiceAlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VoiceAlerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VoiceAlerts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VoiceAlerts.
+     */
+    distinct?: VoiceAlertScalarFieldEnum | VoiceAlertScalarFieldEnum[]
+  }
+
+  /**
+   * VoiceAlert findMany
+   */
+  export type VoiceAlertFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * Filter, which VoiceAlerts to fetch.
+     */
+    where?: VoiceAlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VoiceAlerts to fetch.
+     */
+    orderBy?: VoiceAlertOrderByWithRelationInput | VoiceAlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing VoiceAlerts.
+     */
+    cursor?: VoiceAlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VoiceAlerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VoiceAlerts.
+     */
+    skip?: number
+    distinct?: VoiceAlertScalarFieldEnum | VoiceAlertScalarFieldEnum[]
+  }
+
+  /**
+   * VoiceAlert create
+   */
+  export type VoiceAlertCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * The data needed to create a VoiceAlert.
+     */
+    data: XOR<VoiceAlertCreateInput, VoiceAlertUncheckedCreateInput>
+  }
+
+  /**
+   * VoiceAlert createMany
+   */
+  export type VoiceAlertCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many VoiceAlerts.
+     */
+    data: VoiceAlertCreateManyInput | VoiceAlertCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * VoiceAlert createManyAndReturn
+   */
+  export type VoiceAlertCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * The data used to create many VoiceAlerts.
+     */
+    data: VoiceAlertCreateManyInput | VoiceAlertCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * VoiceAlert update
+   */
+  export type VoiceAlertUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * The data needed to update a VoiceAlert.
+     */
+    data: XOR<VoiceAlertUpdateInput, VoiceAlertUncheckedUpdateInput>
+    /**
+     * Choose, which VoiceAlert to update.
+     */
+    where: VoiceAlertWhereUniqueInput
+  }
+
+  /**
+   * VoiceAlert updateMany
+   */
+  export type VoiceAlertUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update VoiceAlerts.
+     */
+    data: XOR<VoiceAlertUpdateManyMutationInput, VoiceAlertUncheckedUpdateManyInput>
+    /**
+     * Filter which VoiceAlerts to update
+     */
+    where?: VoiceAlertWhereInput
+    /**
+     * Limit how many VoiceAlerts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * VoiceAlert updateManyAndReturn
+   */
+  export type VoiceAlertUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * The data used to update VoiceAlerts.
+     */
+    data: XOR<VoiceAlertUpdateManyMutationInput, VoiceAlertUncheckedUpdateManyInput>
+    /**
+     * Filter which VoiceAlerts to update
+     */
+    where?: VoiceAlertWhereInput
+    /**
+     * Limit how many VoiceAlerts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * VoiceAlert upsert
+   */
+  export type VoiceAlertUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * The filter to search for the VoiceAlert to update in case it exists.
+     */
+    where: VoiceAlertWhereUniqueInput
+    /**
+     * In case the VoiceAlert found by the `where` argument doesn't exist, create a new VoiceAlert with this data.
+     */
+    create: XOR<VoiceAlertCreateInput, VoiceAlertUncheckedCreateInput>
+    /**
+     * In case the VoiceAlert was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<VoiceAlertUpdateInput, VoiceAlertUncheckedUpdateInput>
+  }
+
+  /**
+   * VoiceAlert delete
+   */
+  export type VoiceAlertDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+    /**
+     * Filter which VoiceAlert to delete.
+     */
+    where: VoiceAlertWhereUniqueInput
+  }
+
+  /**
+   * VoiceAlert deleteMany
+   */
+  export type VoiceAlertDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VoiceAlerts to delete
+     */
+    where?: VoiceAlertWhereInput
+    /**
+     * Limit how many VoiceAlerts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * VoiceAlert without action
+   */
+  export type VoiceAlertDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VoiceAlert
+     */
+    select?: VoiceAlertSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VoiceAlert
+     */
+    omit?: VoiceAlertOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model DeliveryAddressNote
    */
 
@@ -120728,23 +121646,12 @@ export namespace Prisma {
     ReadCommitted: 'ReadCommitted',
     RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
-  } = {
-    ReadUncommitted: 'ReadUncommitted',
-    ReadCommitted: 'ReadCommitted',
-    RepeatableRead: 'RepeatableRead',
-    Serializable: 'Serializable'
   };
 
   export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
   export const SmsTemplateScalarFieldEnum: {
-    id: 'id',
-    type: 'type',
-    content: 'content',
-    updatedAt: 'updatedAt',
-    createdAt: 'createdAt'
-  } = {
     id: 'id',
     type: 'type',
     content: 'content',
@@ -120769,43 +121676,12 @@ export namespace Prisma {
     quantity: 'quantity',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    sku: 'sku',
-    brand: 'brand',
-    description: 'description',
-    isPreferred: 'isPreferred',
-    preferredReference: 'preferredReference',
-    preferredAllergens: 'preferredAllergens',
-    packSize: 'packSize',
-    uom: 'uom',
-    price: 'price',
-    quantity: 'quantity',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type GilmoursProductScalarFieldEnum = (typeof GilmoursProductScalarFieldEnum)[keyof typeof GilmoursProductScalarFieldEnum]
 
 
   export const BidfoodProductScalarFieldEnum: {
-    id: 'id',
-    productCode: 'productCode',
-    brand: 'brand',
-    description: 'description',
-    isPreferred: 'isPreferred',
-    preferredReference: 'preferredReference',
-    preferredAllergens: 'preferredAllergens',
-    packSize: 'packSize',
-    ctnQty: 'ctnQty',
-    uom: 'uom',
-    qty: 'qty',
-    lastPricePaid: 'lastPricePaid',
-    totalExGST: 'totalExGST',
-    contains: 'contains',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     productCode: 'productCode',
     brand: 'brand',
@@ -120844,35 +121720,12 @@ export namespace Prisma {
     prepCategories: 'prepCategories',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    name: 'name',
-    supplier: 'supplier',
-    description: 'description',
-    isPreferred: 'isPreferred',
-    preferredReference: 'preferredReference',
-    preferredAllergens: 'preferredAllergens',
-    listOnLabel: 'listOnLabel',
-    isVegetarian: 'isVegetarian',
-    isVegan: 'isVegan',
-    isHalal: 'isHalal',
-    cost: 'cost',
-    prepCategory: 'prepCategory',
-    prepCategories: 'prepCategories',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type OtherProductScalarFieldEnum = (typeof OtherProductScalarFieldEnum)[keyof typeof OtherProductScalarFieldEnum]
 
 
   export const BakeryCostAlignmentScalarFieldEnum: {
-    id: 'id',
-    bakeryItemName: 'bakeryItemName',
-    otherProductId: 'otherProductId',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     bakeryItemName: 'bakeryItemName',
     otherProductId: 'otherProductId',
@@ -120897,39 +121750,12 @@ export namespace Prisma {
     preferredAllergens: 'preferredAllergens',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    productCode: 'productCode',
-    productName: 'productName',
-    packSize: 'packSize',
-    uom: 'uom',
-    totalUnits: 'totalUnits',
-    totalSales: 'totalSales',
-    price: 'price',
-    isPreferred: 'isPreferred',
-    preferredReference: 'preferredReference',
-    preferredAllergens: 'preferredAllergens',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type ProduceCoProductScalarFieldEnum = (typeof ProduceCoProductScalarFieldEnum)[keyof typeof ProduceCoProductScalarFieldEnum]
 
 
   export const SupplierScalarFieldEnum: {
-    id: 'id',
-    name: 'name',
-    contactName: 'contactName',
-    contactNumber: 'contactNumber',
-    contactEmail: 'contactEmail',
-    mpiNumber: 'mpiNumber',
-    accountNumber: 'accountNumber',
-    loginAccessLevel: 'loginAccessLevel',
-    password: 'password',
-    emailSettings: 'emailSettings',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     name: 'name',
     contactName: 'contactName',
@@ -120976,50 +121802,12 @@ export namespace Prisma {
     isComponentListItem: 'isComponentListItem',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    name: 'name',
-    description: 'description',
-    ingredients: 'ingredients',
-    totalCost: 'totalCost',
-    prepCategory: 'prepCategory',
-    prepCategories: 'prepCategories',
-    producedQuantity: 'producedQuantity',
-    producedUnit: 'producedUnit',
-    rawWeight: 'rawWeight',
-    cookedWeight: 'cookedWeight',
-    trimWasteWeight: 'trimWasteWeight',
-    weightUnit: 'weightUnit',
-    costPerOutputUnit: 'costPerOutputUnit',
-    normalizedOutputUnit: 'normalizedOutputUnit',
-    hasGluten: 'hasGluten',
-    hasDairy: 'hasDairy',
-    hasSoy: 'hasSoy',
-    hasOnionGarlic: 'hasOnionGarlic',
-    hasSesame: 'hasSesame',
-    hasNuts: 'hasNuts',
-    hasEgg: 'hasEgg',
-    isVegetarian: 'isVegetarian',
-    isVegan: 'isVegan',
-    isHalal: 'isHalal',
-    isComponentListItem: 'isComponentListItem',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
 
 
   export const ComponentImageScalarFieldEnum: {
-    id: 'id',
-    componentId: 'componentId',
-    publicId: 'publicId',
-    url: 'url',
-    alt: 'alt',
-    position: 'position',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     componentId: 'componentId',
     publicId: 'publicId',
@@ -121055,48 +121843,12 @@ export namespace Prisma {
     realizedMargin: 'realizedMargin',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    name: 'name',
-    description: 'description',
-    addon: 'addon',
-    handle: 'handle',
-    meat1: 'meat1',
-    meat2: 'meat2',
-    option1: 'option1',
-    option2: 'option2',
-    serveware: 'serveware',
-    timerA: 'timerA',
-    timerB: 'timerB',
-    skuSearch: 'skuSearch',
-    variantSku: 'variantSku',
-    variant_title: 'variant_title',
-    ingredients: 'ingredients',
-    totalCost: 'totalCost',
-    sellingPrice: 'sellingPrice',
-    realizedMargin: 'realizedMargin',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
 
 
   export const ProductCustomDataScalarFieldEnum: {
-    id: 'id',
-    variantId: 'variantId',
-    meat1: 'meat1',
-    meat2: 'meat2',
-    option1: 'option1',
-    option2: 'option2',
-    serveware: 'serveware',
-    timerA: 'timerA',
-    timerB: 'timerB',
-    ingredients: 'ingredients',
-    totalCost: 'totalCost',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     variantId: 'variantId',
     meat1: 'meat1',
@@ -121140,57 +121892,12 @@ export namespace Prisma {
     isDraft: 'isDraft',
     ingredients: 'ingredients',
     totalCost: 'totalCost'
-  } = {
-    id: 'id',
-    variantId: 'variantId',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
-    shopifyProductId: 'shopifyProductId',
-    shopifySku: 'shopifySku',
-    shopifyName: 'shopifyName',
-    shopifyTitle: 'shopifyTitle',
-    shopifyPrice: 'shopifyPrice',
-    shopifyInventory: 'shopifyInventory',
-    shopifyVendor: 'shopifyVendor',
-    shopifyMarket: 'shopifyMarket',
-    heroImageUrl: 'heroImageUrl',
-    displayName: 'displayName',
-    meat1: 'meat1',
-    meat2: 'meat2',
-    timer1: 'timer1',
-    timer2: 'timer2',
-    option1: 'option1',
-    option2: 'option2',
-    serveware: 'serveware',
-    isDraft: 'isDraft',
-    ingredients: 'ingredients',
-    totalCost: 'totalCost'
   };
 
   export type ProductWithCustomDataScalarFieldEnum = (typeof ProductWithCustomDataScalarFieldEnum)[keyof typeof ProductWithCustomDataScalarFieldEnum]
 
 
   export const ProductRuleScalarFieldEnum: {
-    id: 'id',
-    name: 'name',
-    description: 'description',
-    isActive: 'isActive',
-    priority: 'priority',
-    matchPattern: 'matchPattern',
-    matchType: 'matchType',
-    setDisplayName: 'setDisplayName',
-    setMeat1: 'setMeat1',
-    setMeat2: 'setMeat2',
-    setTimer1: 'setTimer1',
-    setTimer2: 'setTimer2',
-    setOption1: 'setOption1',
-    setOption2: 'setOption2',
-    setServeware: 'setServeware',
-    setIngredients: 'setIngredients',
-    setTotalCost: 'setTotalCost',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     name: 'name',
     description: 'description',
@@ -121242,33 +121949,6 @@ export namespace Prisma {
     latestFoodSafetyQuizStatus: 'latestFoodSafetyQuizStatus',
     latestScore: 'latestScore',
     latestCompletedAt: 'latestCompletedAt'
-  } = {
-    id: 'id',
-    firstName: 'firstName',
-    lastName: 'lastName',
-    phone: 'phone',
-    email: 'email',
-    payRate: 'payRate',
-    accessLevel: 'accessLevel',
-    isDriver: 'isDriver',
-    isActive: 'isActive',
-    includeInOpsLabour: 'includeInOpsLabour',
-    xeroEmployeeId: 'xeroEmployeeId',
-    payMode: 'payMode',
-    fixedWeeklyHours: 'fixedWeeklyHours',
-    dateOfBirth: 'dateOfBirth',
-    addressLine1: 'addressLine1',
-    addressCity: 'addressCity',
-    addressPostCode: 'addressPostCode',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
-    lastLogin: 'lastLogin',
-    password: 'password',
-    resetToken: 'resetToken',
-    resetTokenExpiry: 'resetTokenExpiry',
-    latestFoodSafetyQuizStatus: 'latestFoodSafetyQuizStatus',
-    latestScore: 'latestScore',
-    latestCompletedAt: 'latestCompletedAt'
   };
 
   export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
@@ -121283,45 +121963,12 @@ export namespace Prisma {
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    name: 'name',
-    startTime: 'startTime',
-    endTime: 'endTime',
-    color: 'color',
-    isActive: 'isActive',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type ShiftTypeScalarFieldEnum = (typeof ShiftTypeScalarFieldEnum)[keyof typeof ShiftTypeScalarFieldEnum]
 
 
   export const ShiftScalarFieldEnum: {
-    id: 'id',
-    staffId: 'staffId',
-    clockIn: 'clockIn',
-    clockOut: 'clockOut',
-    totalHours: 'totalHours',
-    date: 'date',
-    mileage: 'mileage',
-    notes: 'notes',
-    status: 'status',
-    approved: 'approved',
-    approvedAt: 'approvedAt',
-    approvedBy: 'approvedBy',
-    trackingAllowed: 'trackingAllowed',
-    trackingStartedAt: 'trackingStartedAt',
-    trackingStoppedAt: 'trackingStoppedAt',
-    lastLocationPingAt: 'lastLocationPingAt',
-    trackingStatus: 'trackingStatus',
-    trackingStopReason: 'trackingStopReason',
-    activeDeliveryRunStartedAt: 'activeDeliveryRunStartedAt',
-    activeDeliveryOrderIds: 'activeDeliveryOrderIds',
-    lastKnownDistanceFromBaseMeters: 'lastKnownDistanceFromBaseMeters',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     staffId: 'staffId',
     clockIn: 'clockIn',
@@ -121361,32 +122008,12 @@ export namespace Prisma {
     heading: 'heading',
     capturedAt: 'capturedAt',
     createdAt: 'createdAt'
-  } = {
-    id: 'id',
-    staffId: 'staffId',
-    shiftId: 'shiftId',
-    latitude: 'latitude',
-    longitude: 'longitude',
-    accuracy: 'accuracy',
-    speed: 'speed',
-    heading: 'heading',
-    capturedAt: 'capturedAt',
-    createdAt: 'createdAt'
   };
 
   export type StaffLocationPingScalarFieldEnum = (typeof StaffLocationPingScalarFieldEnum)[keyof typeof StaffLocationPingScalarFieldEnum]
 
 
   export const ShiftTaskScalarFieldEnum: {
-    id: 'id',
-    shiftId: 'shiftId',
-    title: 'title',
-    description: 'description',
-    isCompleted: 'isCompleted',
-    completedAt: 'completedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     shiftId: 'shiftId',
     title: 'title',
@@ -121411,17 +122038,6 @@ export namespace Prisma {
     assignedBy: 'assignedBy',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    staffId: 'staffId',
-    shiftTypeId: 'shiftTypeId',
-    startTime: 'startTime',
-    endTime: 'endTime',
-    date: 'date',
-    notes: 'notes',
-    assignedBy: 'assignedBy',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type RosterAssignmentScalarFieldEnum = (typeof RosterAssignmentScalarFieldEnum)[keyof typeof RosterAssignmentScalarFieldEnum]
@@ -121434,26 +122050,12 @@ export namespace Prisma {
     description: 'description',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    rosterAssignmentId: 'rosterAssignmentId',
-    title: 'title',
-    description: 'description',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type RosterAssignmentTaskScalarFieldEnum = (typeof RosterAssignmentTaskScalarFieldEnum)[keyof typeof RosterAssignmentTaskScalarFieldEnum]
 
 
   export const ReimbursementScalarFieldEnum: {
-    id: 'id',
-    shiftId: 'shiftId',
-    amount: 'amount',
-    description: 'description',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     shiftId: 'shiftId',
     amount: 'amount',
@@ -121475,16 +122077,6 @@ export namespace Prisma {
     postedAt: 'postedAt',
     status: 'status',
     inputSnapshot: 'inputSnapshot'
-  } = {
-    id: 'id',
-    payPeriodStart: 'payPeriodStart',
-    payPeriodEnd: 'payPeriodEnd',
-    xeroPayrunId: 'xeroPayrunId',
-    createdBy: 'createdBy',
-    createdAt: 'createdAt',
-    postedAt: 'postedAt',
-    status: 'status',
-    inputSnapshot: 'inputSnapshot'
   };
 
   export type PayrollRunScalarFieldEnum = (typeof PayrollRunScalarFieldEnum)[keyof typeof PayrollRunScalarFieldEnum]
@@ -121497,29 +122089,12 @@ export namespace Prisma {
     tokenSet: 'tokenSet',
     updatedAt: 'updatedAt',
     createdAt: 'createdAt'
-  } = {
-    id: 'id',
-    tenantId: 'tenantId',
-    tenantName: 'tenantName',
-    tokenSet: 'tokenSet',
-    updatedAt: 'updatedAt',
-    createdAt: 'createdAt'
   };
 
   export type XeroConnectionScalarFieldEnum = (typeof XeroConnectionScalarFieldEnum)[keyof typeof XeroConnectionScalarFieldEnum]
 
 
   export const XeroPayrollConfigScalarFieldEnum: {
-    id: 'id',
-    tenantId: 'tenantId',
-    earningsRateIdOrdinaryHours: 'earningsRateIdOrdinaryHours',
-    earningsRateIdReimbursement: 'earningsRateIdReimbursement',
-    earningsRateIdMileage: 'earningsRateIdMileage',
-    payrollCalendarId: 'payrollCalendarId',
-    defaultMileageRate: 'defaultMileageRate',
-    updatedAt: 'updatedAt',
-    createdAt: 'createdAt'
-  } = {
     id: 'id',
     tenantId: 'tenantId',
     earningsRateIdOrdinaryHours: 'earningsRateIdOrdinaryHours',
@@ -121588,76 +122163,12 @@ export namespace Prisma {
     deliveryDateSource: 'deliveryDateSource',
     needsSchedulingReview: 'needsSchedulingReview',
     region: 'region'
-  } = {
-    id: 'id',
-    shopifyId: 'shopifyId',
-    orderNumber: 'orderNumber',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
-    processedAt: 'processedAt',
-    cancelledAt: 'cancelledAt',
-    closedAt: 'closedAt',
-    totalPrice: 'totalPrice',
-    subtotalPrice: 'subtotalPrice',
-    totalTax: 'totalTax',
-    currency: 'currency',
-    financialStatus: 'financialStatus',
-    fulfillmentStatus: 'fulfillmentStatus',
-    tags: 'tags',
-    note: 'note',
-    customerEmail: 'customerEmail',
-    customerFirstName: 'customerFirstName',
-    customerLastName: 'customerLastName',
-    customerPhone: 'customerPhone',
-    shippingAddress: 'shippingAddress',
-    billingAddress: 'billingAddress',
-    lineItems: 'lineItems',
-    source: 'source',
-    hasLocalEdits: 'hasLocalEdits',
-    syncedAt: 'syncedAt',
-    dbCreatedAt: 'dbCreatedAt',
-    dbUpdatedAt: 'dbUpdatedAt',
-    noteAttributes: 'noteAttributes',
-    deliveryDate: 'deliveryDate',
-    deliveryTime: 'deliveryTime',
-    pickupDate: 'pickupDate',
-    pickupTime: 'pickupTime',
-    deliveryInstructions: 'deliveryInstructions',
-    travelTime: 'travelTime',
-    leaveTime: 'leaveTime',
-    driverId: 'driverId',
-    carId: 'carId',
-    deliverySequence: 'deliverySequence',
-    isDispatched: 'isDispatched',
-    dispatchedAt: 'dispatchedAt',
-    lastSmsSent: 'lastSmsSent',
-    smsHistory: 'smsHistory',
-    internalNote: 'internalNote',
-    customerNote: 'customerNote',
-    fulfillmentClientNote: 'fulfillmentClientNote',
-    deliveryDateResolved: 'deliveryDateResolved',
-    deliveryDateResolvedSource: 'deliveryDateResolvedSource',
-    deliveryDateResolvedAt: 'deliveryDateResolvedAt',
-    deliveryDateTime: 'deliveryDateTime',
-    deliveryDateSource: 'deliveryDateSource',
-    needsSchedulingReview: 'needsSchedulingReview',
-    region: 'region'
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
 
 
   export const OrderChangeLogScalarFieldEnum: {
-    id: 'id',
-    orderId: 'orderId',
-    action: 'action',
-    changedAt: 'changedAt',
-    changedByUserId: 'changedByUserId',
-    changedByName: 'changedByName',
-    changedByEmail: 'changedByEmail',
-    changes: 'changes',
-    source: 'source'
-  } = {
     id: 'id',
     orderId: 'orderId',
     action: 'action',
@@ -121679,36 +122190,12 @@ export namespace Prisma {
     parsedOrderId: 'parsedOrderId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    rawData: 'rawData',
-    syncedAt: 'syncedAt',
-    parsedOrderId: 'parsedOrderId',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type ShopifyOrderScalarFieldEnum = (typeof ShopifyOrderScalarFieldEnum)[keyof typeof ShopifyOrderScalarFieldEnum]
 
 
   export const ParsedOrderScalarFieldEnum: {
-    id: 'id',
-    shopifyOrderId: 'shopifyOrderId',
-    orderNumber: 'orderNumber',
-    deliveryTime: 'deliveryTime',
-    deliveryDate: 'deliveryDate',
-    deliveryAddress: 'deliveryAddress',
-    customerName: 'customerName',
-    customerCompany: 'customerCompany',
-    customerPhone: 'customerPhone',
-    orderNotes: 'orderNotes',
-    travelTime: 'travelTime',
-    leaveTime: 'leaveTime',
-    driverId: 'driverId',
-    isDispatched: 'isDispatched',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     shopifyOrderId: 'shopifyOrderId',
     orderNumber: 'orderNumber',
@@ -121747,23 +122234,6 @@ export namespace Prisma {
     option2: 'option2',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    parsedOrderId: 'parsedOrderId',
-    sku: 'sku',
-    title: 'title',
-    quantity: 'quantity',
-    price: 'price',
-    handle: 'handle',
-    meat1: 'meat1',
-    meat2: 'meat2',
-    serveware: 'serveware',
-    ovenTimer1: 'ovenTimer1',
-    ovenTimer2: 'ovenTimer2',
-    option1: 'option1',
-    option2: 'option2',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type ParsedLineItemScalarFieldEnum = (typeof ParsedLineItemScalarFieldEnum)[keyof typeof ParsedLineItemScalarFieldEnum]
@@ -121777,28 +122247,12 @@ export namespace Prisma {
     fetchedAt: 'fetchedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    shopifyOrderId: 'shopifyOrderId',
-    shopifyOrderName: 'shopifyOrderName',
-    payload: 'payload',
-    fetchedAt: 'fetchedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type RawShopifyOrderScalarFieldEnum = (typeof RawShopifyOrderScalarFieldEnum)[keyof typeof RawShopifyOrderScalarFieldEnum]
 
 
   export const RawShopifyCustomerScalarFieldEnum: {
-    id: 'id',
-    shopifyCustomerId: 'shopifyCustomerId',
-    email: 'email',
-    payload: 'payload',
-    fetchedAt: 'fetchedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     shopifyCustomerId: 'shopifyCustomerId',
     email: 'email',
@@ -121832,27 +122286,6 @@ export namespace Prisma {
     lifecycleOverrideNote: 'lifecycleOverrideNote',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    companyId: 'companyId',
-    canonicalCompanyName: 'canonicalCompanyName',
-    companyNameVariants: 'companyNameVariants',
-    primaryDomain: 'primaryDomain',
-    alternateDomains: 'alternateDomains',
-    primaryAddress: 'primaryAddress',
-    city: 'city',
-    region: 'region',
-    country: 'country',
-    confidenceScore: 'confidenceScore',
-    totalOrders: 'totalOrders',
-    totalRevenue: 'totalRevenue',
-    firstOrderDate: 'firstOrderDate',
-    lastOrderDate: 'lastOrderDate',
-    isStrategicOverride: 'isStrategicOverride',
-    isVipOverride: 'isVipOverride',
-    lifecyclePausedUntil: 'lifecyclePausedUntil',
-    lifecycleOverrideNote: 'lifecycleOverrideNote',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
@@ -121863,34 +122296,12 @@ export namespace Prisma {
     reason: 'reason',
     addedBy: 'addedBy',
     createdAt: 'createdAt'
-  } = {
-    domain: 'domain',
-    reason: 'reason',
-    addedBy: 'addedBy',
-    createdAt: 'createdAt'
   };
 
   export type GenericDomainScalarFieldEnum = (typeof GenericDomainScalarFieldEnum)[keyof typeof GenericDomainScalarFieldEnum]
 
 
   export const CompanyContactScalarFieldEnum: {
-    contactId: 'contactId',
-    companyId: 'companyId',
-    shopifyCustomerId: 'shopifyCustomerId',
-    firstName: 'firstName',
-    lastName: 'lastName',
-    email: 'email',
-    phone: 'phone',
-    role: 'role',
-    firstOrderDate: 'firstOrderDate',
-    lastOrderDate: 'lastOrderDate',
-    totalOrders: 'totalOrders',
-    totalSpend: 'totalSpend',
-    isPrimaryContact: 'isPrimaryContact',
-    lifecycleOptOut: 'lifecycleOptOut',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     contactId: 'contactId',
     companyId: 'companyId',
     shopifyCustomerId: 'shopifyCustomerId',
@@ -121931,43 +122342,12 @@ export namespace Prisma {
     matchReason: 'matchReason',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    companyOrderId: 'companyOrderId',
-    companyId: 'companyId',
-    shopifyOrderId: 'shopifyOrderId',
-    shopifyCustomerId: 'shopifyCustomerId',
-    orderDate: 'orderDate',
-    orderTotal: 'orderTotal',
-    orderSubtotal: 'orderSubtotal',
-    discounts: 'discounts',
-    refunds: 'refunds',
-    products: 'products',
-    deliveryAddress: 'deliveryAddress',
-    billingAddress: 'billingAddress',
-    sourceChannel: 'sourceChannel',
-    matchMethod: 'matchMethod',
-    confidenceScore: 'confidenceScore',
-    matchReason: 'matchReason',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type CompanyOrderScalarFieldEnum = (typeof CompanyOrderScalarFieldEnum)[keyof typeof CompanyOrderScalarFieldEnum]
 
 
   export const CompanyMatchReviewScalarFieldEnum: {
-    reviewId: 'reviewId',
-    proposedCompanyId: 'proposedCompanyId',
-    proposedCompanyName: 'proposedCompanyName',
-    existingCompanyId: 'existingCompanyId',
-    existingCompanyName: 'existingCompanyName',
-    matchReason: 'matchReason',
-    confidenceScore: 'confidenceScore',
-    orderIds: 'orderIds',
-    status: 'status',
-    createdAt: 'createdAt',
-    reviewedAt: 'reviewedAt'
-  } = {
     reviewId: 'reviewId',
     proposedCompanyId: 'proposedCompanyId',
     proposedCompanyName: 'proposedCompanyName',
@@ -121996,29 +122376,12 @@ export namespace Prisma {
     reason: 'reason',
     createdBy: 'createdBy',
     createdAt: 'createdAt'
-  } = {
-    auditId: 'auditId',
-    actionType: 'actionType',
-    oldCompanyId: 'oldCompanyId',
-    newCompanyId: 'newCompanyId',
-    shopifyCustomerId: 'shopifyCustomerId',
-    shopifyOrderId: 'shopifyOrderId',
-    oldValue: 'oldValue',
-    newValue: 'newValue',
-    reason: 'reason',
-    createdBy: 'createdBy',
-    createdAt: 'createdAt'
   };
 
   export type CompanyAssignmentAuditScalarFieldEnum = (typeof CompanyAssignmentAuditScalarFieldEnum)[keyof typeof CompanyAssignmentAuditScalarFieldEnum]
 
 
   export const RecoveryActionOptionScalarFieldEnum: {
-    optionId: 'optionId',
-    label: 'label',
-    createdBy: 'createdBy',
-    createdAt: 'createdAt'
-  } = {
     optionId: 'optionId',
     label: 'label',
     createdBy: 'createdBy',
@@ -122035,36 +122398,12 @@ export namespace Prisma {
     note: 'note',
     createdBy: 'createdBy',
     createdAt: 'createdAt'
-  } = {
-    recoveryActionId: 'recoveryActionId',
-    companyId: 'companyId',
-    actionLabel: 'actionLabel',
-    note: 'note',
-    createdBy: 'createdBy',
-    createdAt: 'createdAt'
   };
 
   export type CompanyRecoveryActionScalarFieldEnum = (typeof CompanyRecoveryActionScalarFieldEnum)[keyof typeof CompanyRecoveryActionScalarFieldEnum]
 
 
   export const CompanyMetricsMonthlyScalarFieldEnum: {
-    id: 'id',
-    companyId: 'companyId',
-    canonicalCompanyName: 'canonicalCompanyName',
-    month: 'month',
-    ordersCount: 'ordersCount',
-    revenue: 'revenue',
-    averageOrderValue: 'averageOrderValue',
-    uniqueContacts: 'uniqueContacts',
-    firstOrderDate: 'firstOrderDate',
-    lastOrderDate: 'lastOrderDate',
-    lifetimeOrders: 'lifetimeOrders',
-    lifetimeRevenue: 'lifetimeRevenue',
-    monthsSinceLastOrder: 'monthsSinceLastOrder',
-    companyStatus: 'companyStatus',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     companyId: 'companyId',
     canonicalCompanyName: 'canonicalCompanyName',
@@ -122104,47 +122443,12 @@ export namespace Prisma {
     customerStatus: 'customerStatus',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    companyId: 'companyId',
-    shopifyCustomerId: 'shopifyCustomerId',
-    customerEmail: 'customerEmail',
-    customerName: 'customerName',
-    month: 'month',
-    ordersCount: 'ordersCount',
-    revenue: 'revenue',
-    averageOrderValue: 'averageOrderValue',
-    firstOrderDate: 'firstOrderDate',
-    lastOrderDate: 'lastOrderDate',
-    lifetimeOrders: 'lifetimeOrders',
-    lifetimeRevenue: 'lifetimeRevenue',
-    monthsSinceLastOrder: 'monthsSinceLastOrder',
-    customerStatus: 'customerStatus',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type CustomerMetricsMonthlyScalarFieldEnum = (typeof CustomerMetricsMonthlyScalarFieldEnum)[keyof typeof CustomerMetricsMonthlyScalarFieldEnum]
 
 
   export const ShopifyProductScalarFieldEnum: {
-    id: 'id',
-    shopifyProductId: 'shopifyProductId',
-    productTitle: 'productTitle',
-    displayName: 'displayName',
-    heroImageUrl: 'heroImageUrl',
-    shopifyVendor: 'shopifyVendor',
-    shopifyMarket: 'shopifyMarket',
-    isActive: 'isActive',
-    baseIngredients: 'baseIngredients',
-    isPartyPackDefault: 'isPartyPackDefault',
-    bundleDefaultItems: 'bundleDefaultItems',
-    bakery: 'bakery',
-    dietaryMarker: 'dietaryMarker',
-    portionSize: 'portionSize',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     shopifyProductId: 'shopifyProductId',
     productTitle: 'productTitle',
@@ -122175,25 +122479,12 @@ export namespace Prisma {
     notes: 'notes',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    name: 'name',
-    kind: 'kind',
-    items: 'items',
-    noIngredients: 'noIngredients',
-    notes: 'notes',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type CostingOptionScalarFieldEnum = (typeof CostingOptionScalarFieldEnum)[keyof typeof CostingOptionScalarFieldEnum]
 
 
   export const CostingOptionAliasScalarFieldEnum: {
-    id: 'id',
-    value: 'value',
-    optionId: 'optionId'
-  } = {
     id: 'id',
     value: 'value',
     optionId: 'optionId'
@@ -122207,44 +122498,12 @@ export namespace Prisma {
     productId: 'productId',
     optionId: 'optionId',
     quantity: 'quantity'
-  } = {
-    id: 'id',
-    productId: 'productId',
-    optionId: 'optionId',
-    quantity: 'quantity'
   };
 
   export type ProductOptionQuantityScalarFieldEnum = (typeof ProductOptionQuantityScalarFieldEnum)[keyof typeof ProductOptionQuantityScalarFieldEnum]
 
 
   export const ProductVariantScalarFieldEnum: {
-    id: 'id',
-    productId: 'productId',
-    variantId: 'variantId',
-    shopifySku: 'shopifySku',
-    shopifyName: 'shopifyName',
-    shopifyTitle: 'shopifyTitle',
-    shopifyPrice: 'shopifyPrice',
-    shopifyInventory: 'shopifyInventory',
-    displayName: 'displayName',
-    meat1: 'meat1',
-    meat2: 'meat2',
-    timer1: 'timer1',
-    timer2: 'timer2',
-    option1: 'option1',
-    option2: 'option2',
-    meats: 'meats',
-    timers: 'timers',
-    options: 'options',
-    serveware: 'serveware',
-    isDraft: 'isDraft',
-    isPartyPack: 'isPartyPack',
-    bundleItems: 'bundleItems',
-    ingredients: 'ingredients',
-    totalCost: 'totalCost',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     productId: 'productId',
     variantId: 'variantId',
@@ -122285,37 +122544,12 @@ export namespace Prisma {
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    name: 'name',
-    title: 'title',
-    description: 'description',
-    recipientEmail: 'recipientEmail',
-    isActive: 'isActive',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type EmailSettingScalarFieldEnum = (typeof EmailSettingScalarFieldEnum)[keyof typeof EmailSettingScalarFieldEnum]
 
 
   export const FulfillmentCommsSettingScalarFieldEnum: {
-    id: 'id',
-    key: 'key',
-    title: 'title',
-    enabled: 'enabled',
-    triggerRules: 'triggerRules',
-    recentWindowDays: 'recentWindowDays',
-    selectedSenderKey: 'selectedSenderKey',
-    senderProfiles: 'senderProfiles',
-    emailSubject: 'emailSubject',
-    defaultBodyCopy: 'defaultBodyCopy',
-    testRecipientEmail: 'testRecipientEmail',
-    liveMode: 'liveMode',
-    notes: 'notes',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     key: 'key',
     title: 'title',
@@ -122350,33 +122584,12 @@ export namespace Prisma {
     notes: 'notes',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    key: 'key',
-    title: 'title',
-    enabled: 'enabled',
-    sendHourNZ: 'sendHourNZ',
-    sendMinuteNZ: 'sendMinuteNZ',
-    selectedSenderKey: 'selectedSenderKey',
-    senderProfiles: 'senderProfiles',
-    regionalBodyCopy: 'regionalBodyCopy',
-    testRecipientEmail: 'testRecipientEmail',
-    notes: 'notes',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type DayPriorEmailSettingScalarFieldEnum = (typeof DayPriorEmailSettingScalarFieldEnum)[keyof typeof DayPriorEmailSettingScalarFieldEnum]
 
 
   export const OrderNotificationOptOutScalarFieldEnum: {
-    id: 'id',
-    email: 'email',
-    reason: 'reason',
-    source: 'source',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     email: 'email',
     reason: 'reason',
@@ -122399,41 +122612,12 @@ export namespace Prisma {
     errorMessage: 'errorMessage',
     sentAt: 'sentAt',
     createdAt: 'createdAt'
-  } = {
-    id: 'id',
-    orderId: 'orderId',
-    notificationDate: 'notificationDate',
-    notificationType: 'notificationType',
-    recipientEmail: 'recipientEmail',
-    senderEmail: 'senderEmail',
-    status: 'status',
-    errorMessage: 'errorMessage',
-    sentAt: 'sentAt',
-    createdAt: 'createdAt'
   };
 
   export type OrderNotificationSendLogScalarFieldEnum = (typeof OrderNotificationSendLogScalarFieldEnum)[keyof typeof OrderNotificationSendLogScalarFieldEnum]
 
 
   export const LifecycleCommsSettingScalarFieldEnum: {
-    id: 'id',
-    key: 'key',
-    title: 'title',
-    enabled: 'enabled',
-    liveMode: 'liveMode',
-    automationEnabled: 'automationEnabled',
-    bulkSendingEnabled: 'bulkSendingEnabled',
-    requireAdminApproval: 'requireAdminApproval',
-    testRecipientEmail: 'testRecipientEmail',
-    selectedSenderKey: 'selectedSenderKey',
-    senderProfiles: 'senderProfiles',
-    emailTypeConfig: 'emailTypeConfig',
-    fallbackHeaderImagePath: 'fallbackHeaderImagePath',
-    rewardRuleConfig: 'rewardRuleConfig',
-    notes: 'notes',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     key: 'key',
     title: 'title',
@@ -122471,21 +122655,6 @@ export namespace Prisma {
     sortOrder: 'sortOrder',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    rewardCatalogId: 'rewardCatalogId',
-    rewardName: 'rewardName',
-    rewardType: 'rewardType',
-    defaultCode: 'defaultCode',
-    codePrefix: 'codePrefix',
-    perceivedValue: 'perceivedValue',
-    estimatedActualCost: 'estimatedActualCost',
-    minimumSpend: 'minimumSpend',
-    expiryDays: 'expiryDays',
-    enabled: 'enabled',
-    eligibleEmailTypes: 'eligibleEmailTypes',
-    sortOrder: 'sortOrder',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type RewardCatalogScalarFieldEnum = (typeof RewardCatalogScalarFieldEnum)[keyof typeof RewardCatalogScalarFieldEnum]
@@ -122505,44 +122674,12 @@ export namespace Prisma {
     notes: 'notes',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    rewardIssueId: 'rewardIssueId',
-    companyId: 'companyId',
-    contactId: 'contactId',
-    rewardCatalogId: 'rewardCatalogId',
-    code: 'code',
-    status: 'status',
-    issuedAt: 'issuedAt',
-    expiryDate: 'expiryDate',
-    sourceType: 'sourceType',
-    sourceRuleKey: 'sourceRuleKey',
-    notes: 'notes',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type RewardIssueScalarFieldEnum = (typeof RewardIssueScalarFieldEnum)[keyof typeof RewardIssueScalarFieldEnum]
 
 
   export const LifecycleEmailSendLogScalarFieldEnum: {
-    lifecycleEmailSendLogId: 'lifecycleEmailSendLogId',
-    companyId: 'companyId',
-    contactId: 'contactId',
-    orderId: 'orderId',
-    rewardIssueId: 'rewardIssueId',
-    emailType: 'emailType',
-    notificationDate: 'notificationDate',
-    recipientEmail: 'recipientEmail',
-    senderEmail: 'senderEmail',
-    status: 'status',
-    reason: 'reason',
-    metadata: 'metadata',
-    approvedBy: 'approvedBy',
-    approvedAt: 'approvedAt',
-    sendMode: 'sendMode',
-    sentAt: 'sentAt',
-    createdAt: 'createdAt'
-  } = {
     lifecycleEmailSendLogId: 'lifecycleEmailSendLogId',
     companyId: 'companyId',
     contactId: 'contactId',
@@ -122581,42 +122718,12 @@ export namespace Prisma {
     lastActionBy: 'lastActionBy',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    postPurchaseFollowupId: 'postPurchaseFollowupId',
-    orderId: 'orderId',
-    shopifyOrderId: 'shopifyOrderId',
-    companyId: 'companyId',
-    contactId: 'contactId',
-    status: 'status',
-    blockedReason: 'blockedReason',
-    selectedEmailType: 'selectedEmailType',
-    selectedRewardIssueId: 'selectedRewardIssueId',
-    selectedRewardCatalogId: 'selectedRewardCatalogId',
-    selectedVoucherTemplateId: 'selectedVoucherTemplateId',
-    lastActionAt: 'lastActionAt',
-    lastActionBy: 'lastActionBy',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type PostPurchaseFollowupScalarFieldEnum = (typeof PostPurchaseFollowupScalarFieldEnum)[keyof typeof PostPurchaseFollowupScalarFieldEnum]
 
 
   export const PostPurchaseFollowupActionScalarFieldEnum: {
-    postPurchaseFollowupActionId: 'postPurchaseFollowupActionId',
-    postPurchaseFollowupId: 'postPurchaseFollowupId',
-    orderId: 'orderId',
-    actionType: 'actionType',
-    actionStatus: 'actionStatus',
-    emailType: 'emailType',
-    rewardIssueId: 'rewardIssueId',
-    rewardCatalogId: 'rewardCatalogId',
-    reason: 'reason',
-    metadata: 'metadata',
-    actedBy: 'actedBy',
-    actedAt: 'actedAt',
-    createdAt: 'createdAt'
-  } = {
     postPurchaseFollowupActionId: 'postPurchaseFollowupActionId',
     postPurchaseFollowupId: 'postPurchaseFollowupId',
     orderId: 'orderId',
@@ -122644,33 +122751,12 @@ export namespace Prisma {
     reason: 'reason',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    orderId: 'orderId',
-    notificationDate: 'notificationDate',
-    overrideRecipientEmail: 'overrideRecipientEmail',
-    excluded: 'excluded',
-    reason: 'reason',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type DayPriorOrderOverrideScalarFieldEnum = (typeof DayPriorOrderOverrideScalarFieldEnum)[keyof typeof DayPriorOrderOverrideScalarFieldEnum]
 
 
   export const WLGMessageScalarFieldEnum: {
-    id: 'id',
-    content: 'content',
-    createdBy: 'createdBy',
-    createdByName: 'createdByName',
-    createdAt: 'createdAt',
-    status: 'status',
-    statusChangedAt: 'statusChangedAt',
-    mentionedStaffIds: 'mentionedStaffIds',
-    mentionedOrders: 'mentionedOrders',
-    parentId: 'parentId',
-    stockOrderId: 'stockOrderId'
-  } = {
     id: 'id',
     content: 'content',
     createdBy: 'createdBy',
@@ -122697,32 +122783,12 @@ export namespace Prisma {
     notes: 'notes',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    city: 'city',
-    name: 'name',
-    sku: 'sku',
-    supplier: 'supplier',
-    qty: 'qty',
-    notes: 'notes',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type CartItemScalarFieldEnum = (typeof CartItemScalarFieldEnum)[keyof typeof CartItemScalarFieldEnum]
 
 
   export const StockItemScalarFieldEnum: {
-    id: 'id',
-    name: 'name',
-    description: 'description',
-    supplierId: 'supplierId',
-    sku: 'sku',
-    priceExGst: 'priceExGst',
-    isActive: 'isActive',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     name: 'name',
     description: 'description',
@@ -122747,32 +122813,12 @@ export namespace Prisma {
     totalIncGst: 'totalIncGst',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    createdBy: 'createdBy',
-    createdByName: 'createdByName',
-    status: 'status',
-    subtotalExGst: 'subtotalExGst',
-    gst15: 'gst15',
-    totalIncGst: 'totalIncGst',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type StockOrderScalarFieldEnum = (typeof StockOrderScalarFieldEnum)[keyof typeof StockOrderScalarFieldEnum]
 
 
   export const StockOrderItemScalarFieldEnum: {
-    id: 'id',
-    orderId: 'orderId',
-    stockItemId: 'stockItemId',
-    nameSnapshot: 'nameSnapshot',
-    descriptionSnapshot: 'descriptionSnapshot',
-    supplierNameSnapshot: 'supplierNameSnapshot',
-    unitPriceExGst: 'unitPriceExGst',
-    qty: 'qty',
-    lineTotalExGst: 'lineTotalExGst'
-  } = {
     id: 'id',
     orderId: 'orderId',
     stockItemId: 'stockItemId',
@@ -122795,14 +122841,6 @@ export namespace Prisma {
     regoExpiry: 'regoExpiry',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    name: 'name',
-    rego: 'rego',
-    wofExpiry: 'wofExpiry',
-    regoExpiry: 'regoExpiry',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type CarScalarFieldEnum = (typeof CarScalarFieldEnum)[keyof typeof CarScalarFieldEnum]
@@ -122815,36 +122853,12 @@ export namespace Prisma {
     isCompleted: 'isCompleted',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    userId: 'userId',
-    content: 'content',
-    isCompleted: 'isCompleted',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type DashboardTodoScalarFieldEnum = (typeof DashboardTodoScalarFieldEnum)[keyof typeof DashboardTodoScalarFieldEnum]
 
 
   export const DataDriverScalarFieldEnum: {
-    id: 'id',
-    fullName: 'fullName',
-    phone: 'phone',
-    email: 'email',
-    status: 'status',
-    availability: 'availability',
-    vehicleMake: 'vehicleMake',
-    vehicleModel: 'vehicleModel',
-    vehiclePlate: 'vehiclePlate',
-    vehiclePhotoUrl: 'vehiclePhotoUrl',
-    licencePhotoUrl: 'licencePhotoUrl',
-    bankAccountEnc: 'bankAccountEnc',
-    baseSuburb: 'baseSuburb',
-    internalNotes: 'internalNotes',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     fullName: 'fullName',
     phone: 'phone',
@@ -122874,36 +122888,12 @@ export namespace Prisma {
     reviewerId: 'reviewerId',
     decision: 'decision',
     adminNotes: 'adminNotes'
-  } = {
-    id: 'id',
-    driverId: 'driverId',
-    submittedAt: 'submittedAt',
-    reviewedAt: 'reviewedAt',
-    reviewerId: 'reviewerId',
-    decision: 'decision',
-    adminNotes: 'adminNotes'
   };
 
   export type DataDriverApplicationScalarFieldEnum = (typeof DataDriverApplicationScalarFieldEnum)[keyof typeof DataDriverApplicationScalarFieldEnum]
 
 
   export const DeliveryJobScalarFieldEnum: {
-    id: 'id',
-    orderId: 'orderId',
-    pickupAddress: 'pickupAddress',
-    dropoffAddress: 'dropoffAddress',
-    deliveryWindowStart: 'deliveryWindowStart',
-    deliveryWindowEnd: 'deliveryWindowEnd',
-    payout: 'payout',
-    notes: 'notes',
-    status: 'status',
-    assignedDriverId: 'assignedDriverId',
-    deliveredAt: 'deliveredAt',
-    deliveredNote: 'deliveredNote',
-    deliveredProofUrl: 'deliveredProofUrl',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     orderId: 'orderId',
     pickupAddress: 'pickupAddress',
@@ -122931,13 +122921,6 @@ export namespace Prisma {
     status: 'status',
     offeredAt: 'offeredAt',
     respondedAt: 'respondedAt'
-  } = {
-    id: 'id',
-    jobId: 'jobId',
-    driverId: 'driverId',
-    status: 'status',
-    offeredAt: 'offeredAt',
-    respondedAt: 'respondedAt'
   };
 
   export type JobOfferScalarFieldEnum = (typeof JobOfferScalarFieldEnum)[keyof typeof JobOfferScalarFieldEnum]
@@ -122950,26 +122933,12 @@ export namespace Prisma {
     actor: 'actor',
     data: 'data',
     timestamp: 'timestamp'
-  } = {
-    id: 'id',
-    jobId: 'jobId',
-    eventType: 'eventType',
-    actor: 'actor',
-    data: 'data',
-    timestamp: 'timestamp'
   };
 
   export type JobEventScalarFieldEnum = (typeof JobEventScalarFieldEnum)[keyof typeof JobEventScalarFieldEnum]
 
 
   export const FcpPlanScalarFieldEnum: {
-    id: 'id',
-    version: 'version',
-    name: 'name',
-    status: 'status',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     version: 'version',
     name: 'name',
@@ -122990,34 +122959,12 @@ export namespace Prisma {
     applies: 'applies',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    planId: 'planId',
-    code: 'code',
-    title: 'title',
-    colourGroup: 'colourGroup',
-    applies: 'applies',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type FcpCardScalarFieldEnum = (typeof FcpCardScalarFieldEnum)[keyof typeof FcpCardScalarFieldEnum]
 
 
   export const FcpRuleScalarFieldEnum: {
-    id: 'id',
-    cardId: 'cardId',
-    code: 'code',
-    name: 'name',
-    description: 'description',
-    triggerType: 'triggerType',
-    frequency: 'frequency',
-    severity: 'severity',
-    isActive: 'isActive',
-    config: 'config',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     cardId: 'cardId',
     code: 'code',
@@ -123045,35 +122992,12 @@ export namespace Prisma {
     metadata: 'metadata',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    name: 'name',
-    type: 'type',
-    code: 'code',
-    location: 'location',
-    isActive: 'isActive',
-    metadata: 'metadata',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type FcpAssetScalarFieldEnum = (typeof FcpAssetScalarFieldEnum)[keyof typeof FcpAssetScalarFieldEnum]
 
 
   export const FcpTaskScalarFieldEnum: {
-    id: 'id',
-    ruleId: 'ruleId',
-    status: 'status',
-    dueAt: 'dueAt',
-    assignedToId: 'assignedToId',
-    orderId: 'orderId',
-    assetId: 'assetId',
-    incidentId: 'incidentId',
-    context: 'context',
-    completedAt: 'completedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     ruleId: 'ruleId',
     status: 'status',
@@ -123101,35 +123025,12 @@ export namespace Prisma {
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    ruleId: 'ruleId',
-    code: 'code',
-    name: 'name',
-    description: 'description',
-    schema: 'schema',
-    isActive: 'isActive',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type FcpRecordTypeScalarFieldEnum = (typeof FcpRecordTypeScalarFieldEnum)[keyof typeof FcpRecordTypeScalarFieldEnum]
 
 
   export const FcpRecordScalarFieldEnum: {
-    id: 'id',
-    ruleId: 'ruleId',
-    recordTypeId: 'recordTypeId',
-    taskId: 'taskId',
-    assetId: 'assetId',
-    orderId: 'orderId',
-    status: 'status',
-    data: 'data',
-    recordedById: 'recordedById',
-    recordedAt: 'recordedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     ruleId: 'ruleId',
     recordTypeId: 'recordTypeId',
@@ -123161,38 +123062,12 @@ export namespace Prisma {
     closedAt: 'closedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    ruleId: 'ruleId',
-    assetId: 'assetId',
-    orderId: 'orderId',
-    title: 'title',
-    description: 'description',
-    severity: 'severity',
-    status: 'status',
-    openedAt: 'openedAt',
-    resolvedAt: 'resolvedAt',
-    closedAt: 'closedAt',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type FcpIncidentScalarFieldEnum = (typeof FcpIncidentScalarFieldEnum)[keyof typeof FcpIncidentScalarFieldEnum]
 
 
   export const FcpPeriodicCleaningTaskScalarFieldEnum: {
-    id: 'id',
-    taskName: 'taskName',
-    area: 'area',
-    notes: 'notes',
-    frequency: 'frequency',
-    isActive: 'isActive',
-    applyToCars: 'applyToCars',
-    applyToAssetType: 'applyToAssetType',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
-    lastGeneratedAt: 'lastGeneratedAt'
-  } = {
     id: 'id',
     taskName: 'taskName',
     area: 'area',
@@ -123221,18 +123096,6 @@ export namespace Prisma {
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    type: 'type',
-    companyName: 'companyName',
-    contactPerson: 'contactPerson',
-    website: 'website',
-    about: 'about',
-    phoneNumber: 'phoneNumber',
-    email: 'email',
-    isActive: 'isActive',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type FcpContactScalarFieldEnum = (typeof FcpContactScalarFieldEnum)[keyof typeof FcpContactScalarFieldEnum]
@@ -123247,30 +123110,25 @@ export namespace Prisma {
     createdByName: 'createdByName',
     createdAt: 'createdAt',
     dismissedAt: 'dismissedAt'
-  } = {
-    id: 'id',
-    region: 'region',
-    date: 'date',
-    message: 'message',
-    createdByEmail: 'createdByEmail',
-    createdByName: 'createdByName',
-    createdAt: 'createdAt',
-    dismissedAt: 'dismissedAt'
   };
 
   export type CalendarDayAlertScalarFieldEnum = (typeof CalendarDayAlertScalarFieldEnum)[keyof typeof CalendarDayAlertScalarFieldEnum]
 
 
-  export const DeliveryAddressNoteScalarFieldEnum: {
+  export const VoiceAlertScalarFieldEnum: {
     id: 'id',
-    normalizedAddressKey: 'normalizedAddressKey',
-    scopeDomain: 'scopeDomain',
-    scopeEmail: 'scopeEmail',
-    addressLabel: 'addressLabel',
-    note: 'note',
-    createdBy: 'createdBy',
-    createdAt: 'createdAt'
-  } = {
+    recipient: 'recipient',
+    message: 'message',
+    createdByEmail: 'createdByEmail',
+    createdByName: 'createdByName',
+    createdAt: 'createdAt',
+    acknowledgedAt: 'acknowledgedAt'
+  };
+
+  export type VoiceAlertScalarFieldEnum = (typeof VoiceAlertScalarFieldEnum)[keyof typeof VoiceAlertScalarFieldEnum]
+
+
+  export const DeliveryAddressNoteScalarFieldEnum: {
     id: 'id',
     normalizedAddressKey: 'normalizedAddressKey',
     scopeDomain: 'scopeDomain',
@@ -123295,17 +123153,6 @@ export namespace Prisma {
     lockedAt: 'lockedAt',
     lockedByUserId: 'lockedByUserId',
     lockedByName: 'lockedByName'
-  } = {
-    id: 'id',
-    date: 'date',
-    revenueExGst: 'revenueExGst',
-    costOfSales: 'costOfSales',
-    orderCount: 'orderCount',
-    cogsCoveragePct: 'cogsCoveragePct',
-    breakdown: 'breakdown',
-    lockedAt: 'lockedAt',
-    lockedByUserId: 'lockedByUserId',
-    lockedByName: 'lockedByName'
   };
 
   export type DailyCogsLockScalarFieldEnum = (typeof DailyCogsLockScalarFieldEnum)[keyof typeof DailyCogsLockScalarFieldEnum]
@@ -123318,37 +123165,12 @@ export namespace Prisma {
     notes: 'notes',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    partName: 'partName',
-    items: 'items',
-    notes: 'notes',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type VariantPartAlignmentScalarFieldEnum = (typeof VariantPartAlignmentScalarFieldEnum)[keyof typeof VariantPartAlignmentScalarFieldEnum]
 
 
   export const IngredientScalarFieldEnum: {
-    id: 'id',
-    name: 'name',
-    canonicalUnit: 'canonicalUnit',
-    hasGluten: 'hasGluten',
-    hasDairy: 'hasDairy',
-    hasSoy: 'hasSoy',
-    hasOnionGarlic: 'hasOnionGarlic',
-    hasSesame: 'hasSesame',
-    hasNuts: 'hasNuts',
-    hasEgg: 'hasEgg',
-    isVegetarian: 'isVegetarian',
-    isVegan: 'isVegan',
-    isHalal: 'isHalal',
-    status: 'status',
-    notes: 'notes',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     name: 'name',
     canonicalUnit: 'canonicalUnit',
@@ -123385,20 +123207,6 @@ export namespace Prisma {
     active: 'active',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    ingredientId: 'ingredientId',
-    source: 'source',
-    sourceId: 'sourceId',
-    rank: 'rank',
-    unitsPerPack: 'unitsPerPack',
-    sizePerUnit: 'sizePerUnit',
-    sizeUnit: 'sizeUnit',
-    packVerified: 'packVerified',
-    packConfidence: 'packConfidence',
-    active: 'active',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type IngredientSupplierLinkScalarFieldEnum = (typeof IngredientSupplierLinkScalarFieldEnum)[keyof typeof IngredientSupplierLinkScalarFieldEnum]
@@ -123413,34 +123221,12 @@ export namespace Prisma {
     ingestionId: 'ingestionId',
     effectiveAt: 'effectiveAt',
     createdAt: 'createdAt'
-  } = {
-    id: 'id',
-    linkId: 'linkId',
-    packPrice: 'packPrice',
-    unitCost: 'unitCost',
-    source: 'source',
-    ingestionId: 'ingestionId',
-    effectiveAt: 'effectiveAt',
-    createdAt: 'createdAt'
   };
 
   export type PricePointScalarFieldEnum = (typeof PricePointScalarFieldEnum)[keyof typeof PricePointScalarFieldEnum]
 
 
   export const EmailIngestionScalarFieldEnum: {
-    id: 'id',
-    supplier: 'supplier',
-    fromAddress: 'fromAddress',
-    subject: 'subject',
-    receivedAt: 'receivedAt',
-    status: 'status',
-    parser: 'parser',
-    rowsParsed: 'rowsParsed',
-    rowsMatched: 'rowsMatched',
-    rowsUnmatched: 'rowsUnmatched',
-    report: 'report',
-    createdAt: 'createdAt'
-  } = {
     id: 'id',
     supplier: 'supplier',
     fromAddress: 'fromAddress',
@@ -123468,33 +123254,12 @@ export namespace Prisma {
     status: 'status',
     createdAt: 'createdAt',
     resolvedAt: 'resolvedAt'
-  } = {
-    id: 'id',
-    type: 'type',
-    refType: 'refType',
-    refId: 'refId',
-    message: 'message',
-    data: 'data',
-    status: 'status',
-    createdAt: 'createdAt',
-    resolvedAt: 'resolvedAt'
   };
 
   export type PriceAlertScalarFieldEnum = (typeof PriceAlertScalarFieldEnum)[keyof typeof PriceAlertScalarFieldEnum]
 
 
   export const CostOverrideScalarFieldEnum: {
-    id: 'id',
-    scope: 'scope',
-    refId: 'refId',
-    unitCost: 'unitCost',
-    unit: 'unit',
-    reason: 'reason',
-    createdBy: 'createdBy',
-    active: 'active',
-    createdAt: 'createdAt',
-    expiresAt: 'expiresAt'
-  } = {
     id: 'id',
     scope: 'scope',
     refId: 'refId',
@@ -123519,28 +123284,12 @@ export namespace Prisma {
     variantsUpdated: 'variantsUpdated',
     coveragePct: 'coveragePct',
     missing: 'missing'
-  } = {
-    id: 'id',
-    trigger: 'trigger',
-    startedAt: 'startedAt',
-    durationMs: 'durationMs',
-    componentsUpdated: 'componentsUpdated',
-    variantsUpdated: 'variantsUpdated',
-    coveragePct: 'coveragePct',
-    missing: 'missing'
   };
 
   export type RecalcRunScalarFieldEnum = (typeof RecalcRunScalarFieldEnum)[keyof typeof RecalcRunScalarFieldEnum]
 
 
   export const IngredientMergeSuggestionScalarFieldEnum: {
-    id: 'id',
-    ingredientIds: 'ingredientIds',
-    reason: 'reason',
-    score: 'score',
-    status: 'status',
-    createdAt: 'createdAt'
-  } = {
     id: 'id',
     ingredientIds: 'ingredientIds',
     reason: 'reason',
@@ -123560,28 +123309,12 @@ export namespace Prisma {
     digestEmail: 'digestEmail',
     digestEnabled: 'digestEnabled',
     cogsLockFromDate: 'cogsLockFromDate'
-  } = {
-    id: 'id',
-    targetMargin: 'targetMargin',
-    backupCheaperPct: 'backupCheaperPct',
-    spikePct: 'spikePct',
-    digestEmail: 'digestEmail',
-    digestEnabled: 'digestEnabled',
-    cogsLockFromDate: 'cogsLockFromDate'
   };
 
   export type PricingSettingsScalarFieldEnum = (typeof PricingSettingsScalarFieldEnum)[keyof typeof PricingSettingsScalarFieldEnum]
 
 
   export const PriceSheetScalarFieldEnum: {
-    id: 'id',
-    name: 'name',
-    notes: 'notes',
-    isActive: 'isActive',
-    createdBy: 'createdBy',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  } = {
     id: 'id',
     name: 'name',
     notes: 'notes',
@@ -123608,29 +123341,12 @@ export namespace Prisma {
     unitCostUnit: 'unitCostUnit',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
-  } = {
-    id: 'id',
-    sheetId: 'sheetId',
-    source: 'source',
-    sourceId: 'sourceId',
-    supplierName: 'supplierName',
-    packPrice: 'packPrice',
-    unitsPerPack: 'unitsPerPack',
-    sizePerUnit: 'sizePerUnit',
-    sizeUnit: 'sizeUnit',
-    unitCost: 'unitCost',
-    unitCostUnit: 'unitCostUnit',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
   };
 
   export type PriceSheetEntryScalarFieldEnum = (typeof PriceSheetEntryScalarFieldEnum)[keyof typeof PriceSheetEntryScalarFieldEnum]
 
 
   export const SortOrder: {
-    asc: 'asc',
-    desc: 'desc'
-  } = {
     asc: 'asc',
     desc: 'desc'
   };
@@ -123641,9 +123357,6 @@ export namespace Prisma {
   export const NullableJsonNullValueInput: {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull
-  } = {
-    DbNull: typeof DbNull,
-    JsonNull: typeof JsonNull
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
@@ -123651,17 +123364,12 @@ export namespace Prisma {
 
   export const JsonNullValueInput: {
     JsonNull: typeof JsonNull
-  } = {
-    JsonNull: typeof JsonNull
   };
 
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
-    default: 'default',
-    insensitive: 'insensitive'
-  } = {
     default: 'default',
     insensitive: 'insensitive'
   };
@@ -123672,19 +123380,12 @@ export namespace Prisma {
   export const NullsOrder: {
     first: 'first',
     last: 'last'
-  } = {
-    first: 'first',
-    last: 'last'
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   export const JsonNullValueFilter: {
-    DbNull: typeof DbNull,
-    JsonNull: typeof JsonNull,
-    AnyNull: typeof AnyNull
-  } = {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull,
     AnyNull: typeof AnyNull
@@ -131517,6 +131218,68 @@ export namespace Prisma {
     createdByName?: StringNullableWithAggregatesFilter<"CalendarDayAlert"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CalendarDayAlert"> | Date | string
     dismissedAt?: DateTimeNullableWithAggregatesFilter<"CalendarDayAlert"> | Date | string | null
+  }
+
+  export type VoiceAlertWhereInput = {
+    AND?: VoiceAlertWhereInput | VoiceAlertWhereInput[]
+    OR?: VoiceAlertWhereInput[]
+    NOT?: VoiceAlertWhereInput | VoiceAlertWhereInput[]
+    id?: StringFilter<"VoiceAlert"> | string
+    recipient?: StringFilter<"VoiceAlert"> | string
+    message?: StringFilter<"VoiceAlert"> | string
+    createdByEmail?: StringNullableFilter<"VoiceAlert"> | string | null
+    createdByName?: StringNullableFilter<"VoiceAlert"> | string | null
+    createdAt?: DateTimeFilter<"VoiceAlert"> | Date | string
+    acknowledgedAt?: DateTimeNullableFilter<"VoiceAlert"> | Date | string | null
+  }
+
+  export type VoiceAlertOrderByWithRelationInput = {
+    id?: SortOrder
+    recipient?: SortOrder
+    message?: SortOrder
+    createdByEmail?: SortOrderInput | SortOrder
+    createdByName?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+  }
+
+  export type VoiceAlertWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: VoiceAlertWhereInput | VoiceAlertWhereInput[]
+    OR?: VoiceAlertWhereInput[]
+    NOT?: VoiceAlertWhereInput | VoiceAlertWhereInput[]
+    recipient?: StringFilter<"VoiceAlert"> | string
+    message?: StringFilter<"VoiceAlert"> | string
+    createdByEmail?: StringNullableFilter<"VoiceAlert"> | string | null
+    createdByName?: StringNullableFilter<"VoiceAlert"> | string | null
+    createdAt?: DateTimeFilter<"VoiceAlert"> | Date | string
+    acknowledgedAt?: DateTimeNullableFilter<"VoiceAlert"> | Date | string | null
+  }, "id">
+
+  export type VoiceAlertOrderByWithAggregationInput = {
+    id?: SortOrder
+    recipient?: SortOrder
+    message?: SortOrder
+    createdByEmail?: SortOrderInput | SortOrder
+    createdByName?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+    _count?: VoiceAlertCountOrderByAggregateInput
+    _max?: VoiceAlertMaxOrderByAggregateInput
+    _min?: VoiceAlertMinOrderByAggregateInput
+  }
+
+  export type VoiceAlertScalarWhereWithAggregatesInput = {
+    AND?: VoiceAlertScalarWhereWithAggregatesInput | VoiceAlertScalarWhereWithAggregatesInput[]
+    OR?: VoiceAlertScalarWhereWithAggregatesInput[]
+    NOT?: VoiceAlertScalarWhereWithAggregatesInput | VoiceAlertScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"VoiceAlert"> | string
+    recipient?: StringWithAggregatesFilter<"VoiceAlert"> | string
+    message?: StringWithAggregatesFilter<"VoiceAlert"> | string
+    createdByEmail?: StringNullableWithAggregatesFilter<"VoiceAlert"> | string | null
+    createdByName?: StringNullableWithAggregatesFilter<"VoiceAlert"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"VoiceAlert"> | Date | string
+    acknowledgedAt?: DateTimeNullableWithAggregatesFilter<"VoiceAlert"> | Date | string | null
   }
 
   export type DeliveryAddressNoteWhereInput = {
@@ -141311,6 +141074,76 @@ export namespace Prisma {
     dismissedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type VoiceAlertCreateInput = {
+    id?: string
+    recipient: string
+    message: string
+    createdByEmail?: string | null
+    createdByName?: string | null
+    createdAt?: Date | string
+    acknowledgedAt?: Date | string | null
+  }
+
+  export type VoiceAlertUncheckedCreateInput = {
+    id?: string
+    recipient: string
+    message: string
+    createdByEmail?: string | null
+    createdByName?: string | null
+    createdAt?: Date | string
+    acknowledgedAt?: Date | string | null
+  }
+
+  export type VoiceAlertUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    createdByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type VoiceAlertUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    createdByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type VoiceAlertCreateManyInput = {
+    id?: string
+    recipient: string
+    message: string
+    createdByEmail?: string | null
+    createdByName?: string | null
+    createdAt?: Date | string
+    acknowledgedAt?: Date | string | null
+  }
+
+  export type VoiceAlertUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    createdByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type VoiceAlertUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recipient?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    createdByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdByName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type DeliveryAddressNoteCreateInput = {
     id?: string
     normalizedAddressKey: string
@@ -147753,6 +147586,36 @@ export namespace Prisma {
     createdByName?: SortOrder
     createdAt?: SortOrder
     dismissedAt?: SortOrder
+  }
+
+  export type VoiceAlertCountOrderByAggregateInput = {
+    id?: SortOrder
+    recipient?: SortOrder
+    message?: SortOrder
+    createdByEmail?: SortOrder
+    createdByName?: SortOrder
+    createdAt?: SortOrder
+    acknowledgedAt?: SortOrder
+  }
+
+  export type VoiceAlertMaxOrderByAggregateInput = {
+    id?: SortOrder
+    recipient?: SortOrder
+    message?: SortOrder
+    createdByEmail?: SortOrder
+    createdByName?: SortOrder
+    createdAt?: SortOrder
+    acknowledgedAt?: SortOrder
+  }
+
+  export type VoiceAlertMinOrderByAggregateInput = {
+    id?: SortOrder
+    recipient?: SortOrder
+    message?: SortOrder
+    createdByEmail?: SortOrder
+    createdByName?: SortOrder
+    createdAt?: SortOrder
+    acknowledgedAt?: SortOrder
   }
 
   export type DeliveryAddressNoteCountOrderByAggregateInput = {
