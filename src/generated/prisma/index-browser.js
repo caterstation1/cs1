@@ -464,6 +464,17 @@ exports.Prisma.RosterAssignmentTaskScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.RosterAdminNoteScalarFieldEnum = {
+  id: 'id',
+  region: 'region',
+  date: 'date',
+  note: 'note',
+  updatedByEmail: 'updatedByEmail',
+  updatedByName: 'updatedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.ReimbursementScalarFieldEnum = {
   id: 'id',
   shiftId: 'shiftId',
@@ -1730,6 +1741,7 @@ exports.Prisma.ModelName = {
   ShiftTask: 'ShiftTask',
   RosterAssignment: 'RosterAssignment',
   RosterAssignmentTask: 'RosterAssignmentTask',
+  RosterAdminNote: 'RosterAdminNote',
   Reimbursement: 'Reimbursement',
   PayrollRun: 'PayrollRun',
   XeroConnection: 'XeroConnection',

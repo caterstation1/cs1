@@ -116,6 +116,14 @@ export type RosterAssignment = $Result.DefaultSelection<Prisma.$RosterAssignment
  */
 export type RosterAssignmentTask = $Result.DefaultSelection<Prisma.$RosterAssignmentTaskPayload>
 /**
+ * Model RosterAdminNote
+ * Free-text staffing note for one roster day, readable only by admin/owner.
+ * Holds the caveats that belong beside the grid rather than on any one shift
+ * ("Ollie off", "Jack can't work past 1pm"). One note per region per day, so
+ * editing it replaces what was there.
+ */
+export type RosterAdminNote = $Result.DefaultSelection<Prisma.$RosterAdminNotePayload>
+/**
  * Model Reimbursement
  * 
  */
@@ -1127,6 +1135,16 @@ export class PrismaClient<
     * ```
     */
   get rosterAssignmentTask(): Prisma.RosterAssignmentTaskDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.rosterAdminNote`: Exposes CRUD operations for the **RosterAdminNote** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more RosterAdminNotes
+    * const rosterAdminNotes = await prisma.rosterAdminNote.findMany()
+    * ```
+    */
+  get rosterAdminNote(): Prisma.RosterAdminNoteDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.reimbursement`: Exposes CRUD operations for the **Reimbursement** model.
@@ -2347,6 +2365,7 @@ export namespace Prisma {
     ShiftTask: 'ShiftTask',
     RosterAssignment: 'RosterAssignment',
     RosterAssignmentTask: 'RosterAssignmentTask',
+    RosterAdminNote: 'RosterAdminNote',
     Reimbursement: 'Reimbursement',
     PayrollRun: 'PayrollRun',
     XeroConnection: 'XeroConnection',
@@ -2441,7 +2460,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "smsTemplate" | "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "bakeryCostAlignment" | "produceCoProduct" | "supplier" | "component" | "componentImage" | "product" | "productCustomData" | "productWithCustomData" | "productRule" | "staff" | "shiftType" | "shift" | "staffLocationPing" | "shiftTask" | "rosterAssignment" | "rosterAssignmentTask" | "reimbursement" | "payrollRun" | "xeroConnection" | "xeroPayrollConfig" | "order" | "orderChangeLog" | "shopifyOrder" | "parsedOrder" | "parsedLineItem" | "rawShopifyOrder" | "rawShopifyCustomer" | "company" | "genericDomain" | "companyContact" | "companyOrder" | "companyMatchReview" | "companyAssignmentAudit" | "recoveryActionOption" | "companyRecoveryAction" | "companyMetricsMonthly" | "customerMetricsMonthly" | "shopifyProduct" | "costingOption" | "costingOptionAlias" | "productOptionQuantity" | "productVariant" | "emailSetting" | "fulfillmentCommsSetting" | "dayPriorEmailSetting" | "orderNotificationOptOut" | "orderNotificationSendLog" | "lifecycleCommsSetting" | "rewardCatalog" | "rewardIssue" | "lifecycleEmailSendLog" | "postPurchaseFollowup" | "postPurchaseFollowupAction" | "dayPriorOrderOverride" | "wLGMessage" | "cartItem" | "stockItem" | "stockOrder" | "stockOrderItem" | "car" | "dashboardTodo" | "dataDriver" | "dataDriverApplication" | "deliveryJob" | "jobOffer" | "jobEvent" | "fcpPlan" | "fcpCard" | "fcpRule" | "fcpAsset" | "fcpTask" | "fcpRecordType" | "fcpRecord" | "fcpIncident" | "fcpPeriodicCleaningTask" | "fcpContact" | "calendarDayAlert" | "voiceAlert" | "deliveryAddressNote" | "dailyCogsLock" | "variantPartAlignment" | "ingredient" | "ingredientSupplierLink" | "pricePoint" | "emailIngestion" | "priceAlert" | "costOverride" | "recalcRun" | "ingredientMergeSuggestion" | "pricingSettings" | "priceSheet" | "priceSheetEntry"
+      modelProps: "smsTemplate" | "gilmoursProduct" | "bidfoodProduct" | "otherProduct" | "bakeryCostAlignment" | "produceCoProduct" | "supplier" | "component" | "componentImage" | "product" | "productCustomData" | "productWithCustomData" | "productRule" | "staff" | "shiftType" | "shift" | "staffLocationPing" | "shiftTask" | "rosterAssignment" | "rosterAssignmentTask" | "rosterAdminNote" | "reimbursement" | "payrollRun" | "xeroConnection" | "xeroPayrollConfig" | "order" | "orderChangeLog" | "shopifyOrder" | "parsedOrder" | "parsedLineItem" | "rawShopifyOrder" | "rawShopifyCustomer" | "company" | "genericDomain" | "companyContact" | "companyOrder" | "companyMatchReview" | "companyAssignmentAudit" | "recoveryActionOption" | "companyRecoveryAction" | "companyMetricsMonthly" | "customerMetricsMonthly" | "shopifyProduct" | "costingOption" | "costingOptionAlias" | "productOptionQuantity" | "productVariant" | "emailSetting" | "fulfillmentCommsSetting" | "dayPriorEmailSetting" | "orderNotificationOptOut" | "orderNotificationSendLog" | "lifecycleCommsSetting" | "rewardCatalog" | "rewardIssue" | "lifecycleEmailSendLog" | "postPurchaseFollowup" | "postPurchaseFollowupAction" | "dayPriorOrderOverride" | "wLGMessage" | "cartItem" | "stockItem" | "stockOrder" | "stockOrderItem" | "car" | "dashboardTodo" | "dataDriver" | "dataDriverApplication" | "deliveryJob" | "jobOffer" | "jobEvent" | "fcpPlan" | "fcpCard" | "fcpRule" | "fcpAsset" | "fcpTask" | "fcpRecordType" | "fcpRecord" | "fcpIncident" | "fcpPeriodicCleaningTask" | "fcpContact" | "calendarDayAlert" | "voiceAlert" | "deliveryAddressNote" | "dailyCogsLock" | "variantPartAlignment" | "ingredient" | "ingredientSupplierLink" | "pricePoint" | "emailIngestion" | "priceAlert" | "costOverride" | "recalcRun" | "ingredientMergeSuggestion" | "pricingSettings" | "priceSheet" | "priceSheetEntry"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3922,6 +3941,80 @@ export namespace Prisma {
           count: {
             args: Prisma.RosterAssignmentTaskCountArgs<ExtArgs>
             result: $Utils.Optional<RosterAssignmentTaskCountAggregateOutputType> | number
+          }
+        }
+      }
+      RosterAdminNote: {
+        payload: Prisma.$RosterAdminNotePayload<ExtArgs>
+        fields: Prisma.RosterAdminNoteFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.RosterAdminNoteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.RosterAdminNoteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload>
+          }
+          findFirst: {
+            args: Prisma.RosterAdminNoteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.RosterAdminNoteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload>
+          }
+          findMany: {
+            args: Prisma.RosterAdminNoteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload>[]
+          }
+          create: {
+            args: Prisma.RosterAdminNoteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload>
+          }
+          createMany: {
+            args: Prisma.RosterAdminNoteCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.RosterAdminNoteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload>[]
+          }
+          delete: {
+            args: Prisma.RosterAdminNoteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload>
+          }
+          update: {
+            args: Prisma.RosterAdminNoteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload>
+          }
+          deleteMany: {
+            args: Prisma.RosterAdminNoteDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.RosterAdminNoteUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.RosterAdminNoteUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload>[]
+          }
+          upsert: {
+            args: Prisma.RosterAdminNoteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RosterAdminNotePayload>
+          }
+          aggregate: {
+            args: Prisma.RosterAdminNoteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRosterAdminNote>
+          }
+          groupBy: {
+            args: Prisma.RosterAdminNoteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RosterAdminNoteGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.RosterAdminNoteCountArgs<ExtArgs>
+            result: $Utils.Optional<RosterAdminNoteCountAggregateOutputType> | number
           }
         }
       }
@@ -9653,6 +9746,7 @@ export namespace Prisma {
     shiftTask?: ShiftTaskOmit
     rosterAssignment?: RosterAssignmentOmit
     rosterAssignmentTask?: RosterAssignmentTaskOmit
+    rosterAdminNote?: RosterAdminNoteOmit
     reimbursement?: ReimbursementOmit
     payrollRun?: PayrollRunOmit
     xeroConnection?: XeroConnectionOmit
@@ -34653,6 +34747,1040 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: RosterAssignmentTaskInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model RosterAdminNote
+   */
+
+  export type AggregateRosterAdminNote = {
+    _count: RosterAdminNoteCountAggregateOutputType | null
+    _min: RosterAdminNoteMinAggregateOutputType | null
+    _max: RosterAdminNoteMaxAggregateOutputType | null
+  }
+
+  export type RosterAdminNoteMinAggregateOutputType = {
+    id: string | null
+    region: string | null
+    date: string | null
+    note: string | null
+    updatedByEmail: string | null
+    updatedByName: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RosterAdminNoteMaxAggregateOutputType = {
+    id: string | null
+    region: string | null
+    date: string | null
+    note: string | null
+    updatedByEmail: string | null
+    updatedByName: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RosterAdminNoteCountAggregateOutputType = {
+    id: number
+    region: number
+    date: number
+    note: number
+    updatedByEmail: number
+    updatedByName: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type RosterAdminNoteMinAggregateInputType = {
+    id?: true
+    region?: true
+    date?: true
+    note?: true
+    updatedByEmail?: true
+    updatedByName?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RosterAdminNoteMaxAggregateInputType = {
+    id?: true
+    region?: true
+    date?: true
+    note?: true
+    updatedByEmail?: true
+    updatedByName?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type RosterAdminNoteCountAggregateInputType = {
+    id?: true
+    region?: true
+    date?: true
+    note?: true
+    updatedByEmail?: true
+    updatedByName?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type RosterAdminNoteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RosterAdminNote to aggregate.
+     */
+    where?: RosterAdminNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAdminNotes to fetch.
+     */
+    orderBy?: RosterAdminNoteOrderByWithRelationInput | RosterAdminNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: RosterAdminNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAdminNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAdminNotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned RosterAdminNotes
+    **/
+    _count?: true | RosterAdminNoteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: RosterAdminNoteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: RosterAdminNoteMaxAggregateInputType
+  }
+
+  export type GetRosterAdminNoteAggregateType<T extends RosterAdminNoteAggregateArgs> = {
+        [P in keyof T & keyof AggregateRosterAdminNote]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRosterAdminNote[P]>
+      : GetScalarType<T[P], AggregateRosterAdminNote[P]>
+  }
+
+
+
+
+  export type RosterAdminNoteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RosterAdminNoteWhereInput
+    orderBy?: RosterAdminNoteOrderByWithAggregationInput | RosterAdminNoteOrderByWithAggregationInput[]
+    by: RosterAdminNoteScalarFieldEnum[] | RosterAdminNoteScalarFieldEnum
+    having?: RosterAdminNoteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: RosterAdminNoteCountAggregateInputType | true
+    _min?: RosterAdminNoteMinAggregateInputType
+    _max?: RosterAdminNoteMaxAggregateInputType
+  }
+
+  export type RosterAdminNoteGroupByOutputType = {
+    id: string
+    region: string
+    date: string
+    note: string
+    updatedByEmail: string | null
+    updatedByName: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: RosterAdminNoteCountAggregateOutputType | null
+    _min: RosterAdminNoteMinAggregateOutputType | null
+    _max: RosterAdminNoteMaxAggregateOutputType | null
+  }
+
+  type GetRosterAdminNoteGroupByPayload<T extends RosterAdminNoteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<RosterAdminNoteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof RosterAdminNoteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], RosterAdminNoteGroupByOutputType[P]>
+            : GetScalarType<T[P], RosterAdminNoteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type RosterAdminNoteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    region?: boolean
+    date?: boolean
+    note?: boolean
+    updatedByEmail?: boolean
+    updatedByName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["rosterAdminNote"]>
+
+  export type RosterAdminNoteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    region?: boolean
+    date?: boolean
+    note?: boolean
+    updatedByEmail?: boolean
+    updatedByName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["rosterAdminNote"]>
+
+  export type RosterAdminNoteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    region?: boolean
+    date?: boolean
+    note?: boolean
+    updatedByEmail?: boolean
+    updatedByName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["rosterAdminNote"]>
+
+  export type RosterAdminNoteSelectScalar = {
+    id?: boolean
+    region?: boolean
+    date?: boolean
+    note?: boolean
+    updatedByEmail?: boolean
+    updatedByName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type RosterAdminNoteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "region" | "date" | "note" | "updatedByEmail" | "updatedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["rosterAdminNote"]>
+
+  export type $RosterAdminNotePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RosterAdminNote"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      region: string
+      date: string
+      note: string
+      updatedByEmail: string | null
+      updatedByName: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["rosterAdminNote"]>
+    composites: {}
+  }
+
+  type RosterAdminNoteGetPayload<S extends boolean | null | undefined | RosterAdminNoteDefaultArgs> = $Result.GetResult<Prisma.$RosterAdminNotePayload, S>
+
+  type RosterAdminNoteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RosterAdminNoteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RosterAdminNoteCountAggregateInputType | true
+    }
+
+  export interface RosterAdminNoteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RosterAdminNote'], meta: { name: 'RosterAdminNote' } }
+    /**
+     * Find zero or one RosterAdminNote that matches the filter.
+     * @param {RosterAdminNoteFindUniqueArgs} args - Arguments to find a RosterAdminNote
+     * @example
+     * // Get one RosterAdminNote
+     * const rosterAdminNote = await prisma.rosterAdminNote.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends RosterAdminNoteFindUniqueArgs>(args: SelectSubset<T, RosterAdminNoteFindUniqueArgs<ExtArgs>>): Prisma__RosterAdminNoteClient<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one RosterAdminNote that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {RosterAdminNoteFindUniqueOrThrowArgs} args - Arguments to find a RosterAdminNote
+     * @example
+     * // Get one RosterAdminNote
+     * const rosterAdminNote = await prisma.rosterAdminNote.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends RosterAdminNoteFindUniqueOrThrowArgs>(args: SelectSubset<T, RosterAdminNoteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RosterAdminNoteClient<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RosterAdminNote that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAdminNoteFindFirstArgs} args - Arguments to find a RosterAdminNote
+     * @example
+     * // Get one RosterAdminNote
+     * const rosterAdminNote = await prisma.rosterAdminNote.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends RosterAdminNoteFindFirstArgs>(args?: SelectSubset<T, RosterAdminNoteFindFirstArgs<ExtArgs>>): Prisma__RosterAdminNoteClient<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first RosterAdminNote that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAdminNoteFindFirstOrThrowArgs} args - Arguments to find a RosterAdminNote
+     * @example
+     * // Get one RosterAdminNote
+     * const rosterAdminNote = await prisma.rosterAdminNote.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends RosterAdminNoteFindFirstOrThrowArgs>(args?: SelectSubset<T, RosterAdminNoteFindFirstOrThrowArgs<ExtArgs>>): Prisma__RosterAdminNoteClient<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more RosterAdminNotes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAdminNoteFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all RosterAdminNotes
+     * const rosterAdminNotes = await prisma.rosterAdminNote.findMany()
+     * 
+     * // Get first 10 RosterAdminNotes
+     * const rosterAdminNotes = await prisma.rosterAdminNote.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const rosterAdminNoteWithIdOnly = await prisma.rosterAdminNote.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends RosterAdminNoteFindManyArgs>(args?: SelectSubset<T, RosterAdminNoteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a RosterAdminNote.
+     * @param {RosterAdminNoteCreateArgs} args - Arguments to create a RosterAdminNote.
+     * @example
+     * // Create one RosterAdminNote
+     * const RosterAdminNote = await prisma.rosterAdminNote.create({
+     *   data: {
+     *     // ... data to create a RosterAdminNote
+     *   }
+     * })
+     * 
+     */
+    create<T extends RosterAdminNoteCreateArgs>(args: SelectSubset<T, RosterAdminNoteCreateArgs<ExtArgs>>): Prisma__RosterAdminNoteClient<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many RosterAdminNotes.
+     * @param {RosterAdminNoteCreateManyArgs} args - Arguments to create many RosterAdminNotes.
+     * @example
+     * // Create many RosterAdminNotes
+     * const rosterAdminNote = await prisma.rosterAdminNote.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends RosterAdminNoteCreateManyArgs>(args?: SelectSubset<T, RosterAdminNoteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many RosterAdminNotes and returns the data saved in the database.
+     * @param {RosterAdminNoteCreateManyAndReturnArgs} args - Arguments to create many RosterAdminNotes.
+     * @example
+     * // Create many RosterAdminNotes
+     * const rosterAdminNote = await prisma.rosterAdminNote.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many RosterAdminNotes and only return the `id`
+     * const rosterAdminNoteWithIdOnly = await prisma.rosterAdminNote.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends RosterAdminNoteCreateManyAndReturnArgs>(args?: SelectSubset<T, RosterAdminNoteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a RosterAdminNote.
+     * @param {RosterAdminNoteDeleteArgs} args - Arguments to delete one RosterAdminNote.
+     * @example
+     * // Delete one RosterAdminNote
+     * const RosterAdminNote = await prisma.rosterAdminNote.delete({
+     *   where: {
+     *     // ... filter to delete one RosterAdminNote
+     *   }
+     * })
+     * 
+     */
+    delete<T extends RosterAdminNoteDeleteArgs>(args: SelectSubset<T, RosterAdminNoteDeleteArgs<ExtArgs>>): Prisma__RosterAdminNoteClient<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one RosterAdminNote.
+     * @param {RosterAdminNoteUpdateArgs} args - Arguments to update one RosterAdminNote.
+     * @example
+     * // Update one RosterAdminNote
+     * const rosterAdminNote = await prisma.rosterAdminNote.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends RosterAdminNoteUpdateArgs>(args: SelectSubset<T, RosterAdminNoteUpdateArgs<ExtArgs>>): Prisma__RosterAdminNoteClient<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more RosterAdminNotes.
+     * @param {RosterAdminNoteDeleteManyArgs} args - Arguments to filter RosterAdminNotes to delete.
+     * @example
+     * // Delete a few RosterAdminNotes
+     * const { count } = await prisma.rosterAdminNote.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends RosterAdminNoteDeleteManyArgs>(args?: SelectSubset<T, RosterAdminNoteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RosterAdminNotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAdminNoteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many RosterAdminNotes
+     * const rosterAdminNote = await prisma.rosterAdminNote.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends RosterAdminNoteUpdateManyArgs>(args: SelectSubset<T, RosterAdminNoteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more RosterAdminNotes and returns the data updated in the database.
+     * @param {RosterAdminNoteUpdateManyAndReturnArgs} args - Arguments to update many RosterAdminNotes.
+     * @example
+     * // Update many RosterAdminNotes
+     * const rosterAdminNote = await prisma.rosterAdminNote.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more RosterAdminNotes and only return the `id`
+     * const rosterAdminNoteWithIdOnly = await prisma.rosterAdminNote.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends RosterAdminNoteUpdateManyAndReturnArgs>(args: SelectSubset<T, RosterAdminNoteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one RosterAdminNote.
+     * @param {RosterAdminNoteUpsertArgs} args - Arguments to update or create a RosterAdminNote.
+     * @example
+     * // Update or create a RosterAdminNote
+     * const rosterAdminNote = await prisma.rosterAdminNote.upsert({
+     *   create: {
+     *     // ... data to create a RosterAdminNote
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the RosterAdminNote we want to update
+     *   }
+     * })
+     */
+    upsert<T extends RosterAdminNoteUpsertArgs>(args: SelectSubset<T, RosterAdminNoteUpsertArgs<ExtArgs>>): Prisma__RosterAdminNoteClient<$Result.GetResult<Prisma.$RosterAdminNotePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of RosterAdminNotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAdminNoteCountArgs} args - Arguments to filter RosterAdminNotes to count.
+     * @example
+     * // Count the number of RosterAdminNotes
+     * const count = await prisma.rosterAdminNote.count({
+     *   where: {
+     *     // ... the filter for the RosterAdminNotes we want to count
+     *   }
+     * })
+    **/
+    count<T extends RosterAdminNoteCountArgs>(
+      args?: Subset<T, RosterAdminNoteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], RosterAdminNoteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a RosterAdminNote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAdminNoteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends RosterAdminNoteAggregateArgs>(args: Subset<T, RosterAdminNoteAggregateArgs>): Prisma.PrismaPromise<GetRosterAdminNoteAggregateType<T>>
+
+    /**
+     * Group by RosterAdminNote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {RosterAdminNoteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends RosterAdminNoteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: RosterAdminNoteGroupByArgs['orderBy'] }
+        : { orderBy?: RosterAdminNoteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, RosterAdminNoteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRosterAdminNoteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the RosterAdminNote model
+   */
+  readonly fields: RosterAdminNoteFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for RosterAdminNote.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__RosterAdminNoteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the RosterAdminNote model
+   */
+  interface RosterAdminNoteFieldRefs {
+    readonly id: FieldRef<"RosterAdminNote", 'String'>
+    readonly region: FieldRef<"RosterAdminNote", 'String'>
+    readonly date: FieldRef<"RosterAdminNote", 'String'>
+    readonly note: FieldRef<"RosterAdminNote", 'String'>
+    readonly updatedByEmail: FieldRef<"RosterAdminNote", 'String'>
+    readonly updatedByName: FieldRef<"RosterAdminNote", 'String'>
+    readonly createdAt: FieldRef<"RosterAdminNote", 'DateTime'>
+    readonly updatedAt: FieldRef<"RosterAdminNote", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * RosterAdminNote findUnique
+   */
+  export type RosterAdminNoteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * Filter, which RosterAdminNote to fetch.
+     */
+    where: RosterAdminNoteWhereUniqueInput
+  }
+
+  /**
+   * RosterAdminNote findUniqueOrThrow
+   */
+  export type RosterAdminNoteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * Filter, which RosterAdminNote to fetch.
+     */
+    where: RosterAdminNoteWhereUniqueInput
+  }
+
+  /**
+   * RosterAdminNote findFirst
+   */
+  export type RosterAdminNoteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * Filter, which RosterAdminNote to fetch.
+     */
+    where?: RosterAdminNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAdminNotes to fetch.
+     */
+    orderBy?: RosterAdminNoteOrderByWithRelationInput | RosterAdminNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RosterAdminNotes.
+     */
+    cursor?: RosterAdminNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAdminNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAdminNotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RosterAdminNotes.
+     */
+    distinct?: RosterAdminNoteScalarFieldEnum | RosterAdminNoteScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAdminNote findFirstOrThrow
+   */
+  export type RosterAdminNoteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * Filter, which RosterAdminNote to fetch.
+     */
+    where?: RosterAdminNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAdminNotes to fetch.
+     */
+    orderBy?: RosterAdminNoteOrderByWithRelationInput | RosterAdminNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for RosterAdminNotes.
+     */
+    cursor?: RosterAdminNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAdminNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAdminNotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of RosterAdminNotes.
+     */
+    distinct?: RosterAdminNoteScalarFieldEnum | RosterAdminNoteScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAdminNote findMany
+   */
+  export type RosterAdminNoteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * Filter, which RosterAdminNotes to fetch.
+     */
+    where?: RosterAdminNoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of RosterAdminNotes to fetch.
+     */
+    orderBy?: RosterAdminNoteOrderByWithRelationInput | RosterAdminNoteOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing RosterAdminNotes.
+     */
+    cursor?: RosterAdminNoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` RosterAdminNotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` RosterAdminNotes.
+     */
+    skip?: number
+    distinct?: RosterAdminNoteScalarFieldEnum | RosterAdminNoteScalarFieldEnum[]
+  }
+
+  /**
+   * RosterAdminNote create
+   */
+  export type RosterAdminNoteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * The data needed to create a RosterAdminNote.
+     */
+    data: XOR<RosterAdminNoteCreateInput, RosterAdminNoteUncheckedCreateInput>
+  }
+
+  /**
+   * RosterAdminNote createMany
+   */
+  export type RosterAdminNoteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many RosterAdminNotes.
+     */
+    data: RosterAdminNoteCreateManyInput | RosterAdminNoteCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * RosterAdminNote createManyAndReturn
+   */
+  export type RosterAdminNoteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * The data used to create many RosterAdminNotes.
+     */
+    data: RosterAdminNoteCreateManyInput | RosterAdminNoteCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * RosterAdminNote update
+   */
+  export type RosterAdminNoteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * The data needed to update a RosterAdminNote.
+     */
+    data: XOR<RosterAdminNoteUpdateInput, RosterAdminNoteUncheckedUpdateInput>
+    /**
+     * Choose, which RosterAdminNote to update.
+     */
+    where: RosterAdminNoteWhereUniqueInput
+  }
+
+  /**
+   * RosterAdminNote updateMany
+   */
+  export type RosterAdminNoteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update RosterAdminNotes.
+     */
+    data: XOR<RosterAdminNoteUpdateManyMutationInput, RosterAdminNoteUncheckedUpdateManyInput>
+    /**
+     * Filter which RosterAdminNotes to update
+     */
+    where?: RosterAdminNoteWhereInput
+    /**
+     * Limit how many RosterAdminNotes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * RosterAdminNote updateManyAndReturn
+   */
+  export type RosterAdminNoteUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * The data used to update RosterAdminNotes.
+     */
+    data: XOR<RosterAdminNoteUpdateManyMutationInput, RosterAdminNoteUncheckedUpdateManyInput>
+    /**
+     * Filter which RosterAdminNotes to update
+     */
+    where?: RosterAdminNoteWhereInput
+    /**
+     * Limit how many RosterAdminNotes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * RosterAdminNote upsert
+   */
+  export type RosterAdminNoteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * The filter to search for the RosterAdminNote to update in case it exists.
+     */
+    where: RosterAdminNoteWhereUniqueInput
+    /**
+     * In case the RosterAdminNote found by the `where` argument doesn't exist, create a new RosterAdminNote with this data.
+     */
+    create: XOR<RosterAdminNoteCreateInput, RosterAdminNoteUncheckedCreateInput>
+    /**
+     * In case the RosterAdminNote was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<RosterAdminNoteUpdateInput, RosterAdminNoteUncheckedUpdateInput>
+  }
+
+  /**
+   * RosterAdminNote delete
+   */
+  export type RosterAdminNoteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
+    /**
+     * Filter which RosterAdminNote to delete.
+     */
+    where: RosterAdminNoteWhereUniqueInput
+  }
+
+  /**
+   * RosterAdminNote deleteMany
+   */
+  export type RosterAdminNoteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which RosterAdminNotes to delete
+     */
+    where?: RosterAdminNoteWhereInput
+    /**
+     * Limit how many RosterAdminNotes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * RosterAdminNote without action
+   */
+  export type RosterAdminNoteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RosterAdminNote
+     */
+    select?: RosterAdminNoteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RosterAdminNote
+     */
+    omit?: RosterAdminNoteOmit<ExtArgs> | null
   }
 
 
@@ -122055,6 +123183,20 @@ export namespace Prisma {
   export type RosterAssignmentTaskScalarFieldEnum = (typeof RosterAssignmentTaskScalarFieldEnum)[keyof typeof RosterAssignmentTaskScalarFieldEnum]
 
 
+  export const RosterAdminNoteScalarFieldEnum: {
+    id: 'id',
+    region: 'region',
+    date: 'date',
+    note: 'note',
+    updatedByEmail: 'updatedByEmail',
+    updatedByName: 'updatedByName',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type RosterAdminNoteScalarFieldEnum = (typeof RosterAdminNoteScalarFieldEnum)[keyof typeof RosterAdminNoteScalarFieldEnum]
+
+
   export const ReimbursementScalarFieldEnum: {
     id: 'id',
     shiftId: 'shiftId',
@@ -125786,6 +126928,74 @@ export namespace Prisma {
     description?: StringNullableWithAggregatesFilter<"RosterAssignmentTask"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"RosterAssignmentTask"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"RosterAssignmentTask"> | Date | string
+  }
+
+  export type RosterAdminNoteWhereInput = {
+    AND?: RosterAdminNoteWhereInput | RosterAdminNoteWhereInput[]
+    OR?: RosterAdminNoteWhereInput[]
+    NOT?: RosterAdminNoteWhereInput | RosterAdminNoteWhereInput[]
+    id?: StringFilter<"RosterAdminNote"> | string
+    region?: StringFilter<"RosterAdminNote"> | string
+    date?: StringFilter<"RosterAdminNote"> | string
+    note?: StringFilter<"RosterAdminNote"> | string
+    updatedByEmail?: StringNullableFilter<"RosterAdminNote"> | string | null
+    updatedByName?: StringNullableFilter<"RosterAdminNote"> | string | null
+    createdAt?: DateTimeFilter<"RosterAdminNote"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAdminNote"> | Date | string
+  }
+
+  export type RosterAdminNoteOrderByWithRelationInput = {
+    id?: SortOrder
+    region?: SortOrder
+    date?: SortOrder
+    note?: SortOrder
+    updatedByEmail?: SortOrderInput | SortOrder
+    updatedByName?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAdminNoteWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    region_date?: RosterAdminNoteRegionDateCompoundUniqueInput
+    AND?: RosterAdminNoteWhereInput | RosterAdminNoteWhereInput[]
+    OR?: RosterAdminNoteWhereInput[]
+    NOT?: RosterAdminNoteWhereInput | RosterAdminNoteWhereInput[]
+    region?: StringFilter<"RosterAdminNote"> | string
+    date?: StringFilter<"RosterAdminNote"> | string
+    note?: StringFilter<"RosterAdminNote"> | string
+    updatedByEmail?: StringNullableFilter<"RosterAdminNote"> | string | null
+    updatedByName?: StringNullableFilter<"RosterAdminNote"> | string | null
+    createdAt?: DateTimeFilter<"RosterAdminNote"> | Date | string
+    updatedAt?: DateTimeFilter<"RosterAdminNote"> | Date | string
+  }, "id" | "region_date">
+
+  export type RosterAdminNoteOrderByWithAggregationInput = {
+    id?: SortOrder
+    region?: SortOrder
+    date?: SortOrder
+    note?: SortOrder
+    updatedByEmail?: SortOrderInput | SortOrder
+    updatedByName?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: RosterAdminNoteCountOrderByAggregateInput
+    _max?: RosterAdminNoteMaxOrderByAggregateInput
+    _min?: RosterAdminNoteMinOrderByAggregateInput
+  }
+
+  export type RosterAdminNoteScalarWhereWithAggregatesInput = {
+    AND?: RosterAdminNoteScalarWhereWithAggregatesInput | RosterAdminNoteScalarWhereWithAggregatesInput[]
+    OR?: RosterAdminNoteScalarWhereWithAggregatesInput[]
+    NOT?: RosterAdminNoteScalarWhereWithAggregatesInput | RosterAdminNoteScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"RosterAdminNote"> | string
+    region?: StringWithAggregatesFilter<"RosterAdminNote"> | string
+    date?: StringWithAggregatesFilter<"RosterAdminNote"> | string
+    note?: StringWithAggregatesFilter<"RosterAdminNote"> | string
+    updatedByEmail?: StringNullableWithAggregatesFilter<"RosterAdminNote"> | string | null
+    updatedByName?: StringNullableWithAggregatesFilter<"RosterAdminNote"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"RosterAdminNote"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"RosterAdminNote"> | Date | string
   }
 
   export type ReimbursementWhereInput = {
@@ -134808,6 +136018,83 @@ export namespace Prisma {
     rosterAssignmentId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAdminNoteCreateInput = {
+    id?: string
+    region: string
+    date: string
+    note: string
+    updatedByEmail?: string | null
+    updatedByName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAdminNoteUncheckedCreateInput = {
+    id?: string
+    region: string
+    date: string
+    note: string
+    updatedByEmail?: string | null
+    updatedByName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAdminNoteUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    note?: StringFieldUpdateOperationsInput | string
+    updatedByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAdminNoteUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    note?: StringFieldUpdateOperationsInput | string
+    updatedByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAdminNoteCreateManyInput = {
+    id?: string
+    region: string
+    date: string
+    note: string
+    updatedByEmail?: string | null
+    updatedByName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RosterAdminNoteUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    note?: StringFieldUpdateOperationsInput | string
+    updatedByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedByName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RosterAdminNoteUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    region?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    note?: StringFieldUpdateOperationsInput | string
+    updatedByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    updatedByName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -144073,6 +145360,44 @@ export namespace Prisma {
     rosterAssignmentId?: SortOrder
     title?: SortOrder
     description?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAdminNoteRegionDateCompoundUniqueInput = {
+    region: string
+    date: string
+  }
+
+  export type RosterAdminNoteCountOrderByAggregateInput = {
+    id?: SortOrder
+    region?: SortOrder
+    date?: SortOrder
+    note?: SortOrder
+    updatedByEmail?: SortOrder
+    updatedByName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAdminNoteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    region?: SortOrder
+    date?: SortOrder
+    note?: SortOrder
+    updatedByEmail?: SortOrder
+    updatedByName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type RosterAdminNoteMinOrderByAggregateInput = {
+    id?: SortOrder
+    region?: SortOrder
+    date?: SortOrder
+    note?: SortOrder
+    updatedByEmail?: SortOrder
+    updatedByName?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }

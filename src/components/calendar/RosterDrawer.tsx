@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { format } from 'date-fns'
 import { CalendarClock, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { RosterAdminNote } from '@/components/calendar/RosterAdminNote'
 
 const DAY_START_MINUTES = 6 * 60
 const DAY_END_MINUTES = 20 * 60
@@ -561,6 +562,8 @@ export function RosterDrawer({
         {!loading && assignments.length === 0 && (
           <div className="mt-3 text-xs text-muted-foreground">Nobody is rostered on this day yet.</div>
         )}
+
+        <RosterAdminNote selectedDate={selectedDate} region="AKL" />
       </div>
 
       <div className="shrink-0 space-y-3 border-t px-4 py-3">

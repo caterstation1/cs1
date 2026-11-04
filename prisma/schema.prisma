@@ -431,6 +431,23 @@ model RosterAssignmentTask {
   @@index([rosterAssignmentId])
 }
 
+/// Free-text staffing note for one roster day, readable only by admin/owner.
+/// Holds the caveats that belong beside the grid rather than on any one shift
+/// ("Ollie off", "Jack can't work past 1pm"). One note per region per day, so
+/// editing it replaces what was there.
+model RosterAdminNote {
+  id             String   @id @default(cuid())
+  region         String
+  date           String   // YYYY-MM-DD
+  note           String
+  updatedByEmail String?
+  updatedByName  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([region, date])
+}
+
 // New: Reimbursements
 model Reimbursement {
   id          String   @id @default(uuid())
