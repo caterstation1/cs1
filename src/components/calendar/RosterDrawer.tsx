@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { CalendarClock, Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { RosterAdminNote } from '@/components/calendar/RosterAdminNote'
+import { RosterDrawerLabourTarget } from '@/components/calendar/RosterDrawerLabourTarget'
 
 const DAY_START_MINUTES = 6 * 60
 const DAY_END_MINUTES = 20 * 60
@@ -120,6 +121,7 @@ export function RosterDrawer({
   const [staffId, setStaffId] = useState('')
   const [selection, setSelection] = useState<{ startSlot: number; endSlot: number } | null>(null)
   const [drag, setDrag] = useState<{ anchorSlot: number; cursorSlot: number } | null>(null)
+  const [labourRefresh, setLabourRefresh] = useState(0)
 
   const trackRef = useRef<HTMLDivElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -391,6 +393,7 @@ export function RosterDrawer({
       }
       const created = (await response.json()) as RosterAssignment
       await fetchAssignments()
+      setLabourRefresh((token) => token + 1)
       const name = created.staff
         ? `${created.staff.firstName} ${created.staff.lastName}`
         : staff.find((member) => member.id === staffId)?.firstName || 'Staff'
@@ -462,6 +465,8 @@ export function RosterDrawer({
             Loading roster…
           </div>
         )}
+
+        <RosterDrawerLabourTarget selectedDate={selectedDate} refreshToken={labourRefresh} />
 
         <div className="flex select-none">
           <div className="relative w-14 shrink-0" style={{ height: SLOT_COUNT * SLOT_HEIGHT }}>

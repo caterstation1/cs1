@@ -42,6 +42,18 @@ export async function canViewRosterLabourCost(): Promise<boolean> {
   return !!email && ROSTER_LABOUR_COST_EMAILS.has(email)
 }
 
+// The same named people, without the owner-role fallback above.
+//
+// The calendar roster drawer shows the figures to Sofia alone — deliberately
+// narrower than the weekly roster page, which owners can also read. Asked for
+// that way, so dropping the role check here is the point rather than an
+// oversight: widening this to 'owner' would quietly undo it.
+export async function isRosterLabourCostNamedUser(): Promise<boolean> {
+  const session = await getServerSession(authOptions as any)
+  const email = String((session as any)?.user?.email || '').trim().toLowerCase()
+  return !!email && ROSTER_LABOUR_COST_EMAILS.has(email)
+}
+
 
 
 
