@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { parseLocalDate } from '@/lib/date-utils'
 import { isWellingtonOrder } from '@/lib/region'
+import { resolveAddonPlacement } from '@/lib/line-item-kind'
 
 // B&B (Bread & Butcher) weekly owing summary.
 // Butcher: daily C/H protein counts (runsheet logic) priced per-kg from Other tab.
@@ -298,7 +299,7 @@ export async function GET(req: NextRequest) {
         if (!vv) continue
 
         // Butcher: protein counts from meat initials (runsheet logic), excluding addons
-        if (!isAddonSku(vv.shopifySku) && !isAddonSku(it.sku)) {
+        if (!resolveAddonPlacement(isAddonSku(vv.shopifySku) || isAddonSku(it.sku), vv)) {
           const initials = effectiveMeats(vv)
             .map(s => s.trim()[0]?.toUpperCase())
             .filter(Boolean)

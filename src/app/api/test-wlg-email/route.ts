@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import nodemailer from 'nodemailer'
 import { formatWLGOutlookEmail } from '@/lib/email-formatter'
+import { resolveAddonPlacement } from '@/lib/line-item-kind'
 import { format, addDays } from 'date-fns'
 
 // Create email transporter
@@ -58,9 +59,9 @@ function isWLGOrder(order: any): boolean {
   return false
 }
 
-// Helper function to check if SKU is an addon
-function isAddon(sku?: string): boolean {
-  return !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
+// Addon unless the variant overrides where the line sits; see line-item-kind.
+function isAddon(sku?: string, product?: { lineKind?: string | null } | null): boolean {
+  return resolveAddonPlacement(!!sku && (sku.startsWith('ADD') || sku.startsWith('AA')), product)
 }
 
 // Helper function to parse line items
@@ -180,7 +181,7 @@ export async function POST(request: NextRequest) {
           const qty = Number(item.quantity || 0)
           const product = item.sku ? productsMap[item.sku] : undefined
 
-          if (isAddon(item.sku)) {
+          if (isAddon(item.sku, product)) {
             // For addons, use the actual item title from the order
             addonItems.push({
               name: item.title || item.name || 'Unknown Addon',

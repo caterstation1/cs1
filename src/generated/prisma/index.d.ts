@@ -65126,6 +65126,7 @@ export namespace Prisma {
     option2: string | null
     serveware: boolean | null
     isDraft: boolean | null
+    lineKind: string | null
     isPartyPack: boolean | null
     totalCost: number | null
     createdAt: Date | null
@@ -65150,6 +65151,7 @@ export namespace Prisma {
     option2: string | null
     serveware: boolean | null
     isDraft: boolean | null
+    lineKind: string | null
     isPartyPack: boolean | null
     totalCost: number | null
     createdAt: Date | null
@@ -65177,6 +65179,7 @@ export namespace Prisma {
     options: number
     serveware: number
     isDraft: number
+    lineKind: number
     isPartyPack: number
     bundleItems: number
     ingredients: number
@@ -65221,6 +65224,7 @@ export namespace Prisma {
     option2?: true
     serveware?: true
     isDraft?: true
+    lineKind?: true
     isPartyPack?: true
     totalCost?: true
     createdAt?: true
@@ -65245,6 +65249,7 @@ export namespace Prisma {
     option2?: true
     serveware?: true
     isDraft?: true
+    lineKind?: true
     isPartyPack?: true
     totalCost?: true
     createdAt?: true
@@ -65272,6 +65277,7 @@ export namespace Prisma {
     options?: true
     serveware?: true
     isDraft?: true
+    lineKind?: true
     isPartyPack?: true
     bundleItems?: true
     ingredients?: true
@@ -65388,6 +65394,7 @@ export namespace Prisma {
     options: JsonValue | null
     serveware: boolean
     isDraft: boolean
+    lineKind: string | null
     isPartyPack: boolean
     bundleItems: JsonValue | null
     ingredients: JsonValue | null
@@ -65436,6 +65443,7 @@ export namespace Prisma {
     options?: boolean
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: boolean
     isPartyPack?: boolean
     bundleItems?: boolean
     ingredients?: boolean
@@ -65466,6 +65474,7 @@ export namespace Prisma {
     options?: boolean
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: boolean
     isPartyPack?: boolean
     bundleItems?: boolean
     ingredients?: boolean
@@ -65496,6 +65505,7 @@ export namespace Prisma {
     options?: boolean
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: boolean
     isPartyPack?: boolean
     bundleItems?: boolean
     ingredients?: boolean
@@ -65526,6 +65536,7 @@ export namespace Prisma {
     options?: boolean
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: boolean
     isPartyPack?: boolean
     bundleItems?: boolean
     ingredients?: boolean
@@ -65534,7 +65545,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ProductVariantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "variantId" | "shopifySku" | "shopifyName" | "shopifyTitle" | "shopifyPrice" | "shopifyInventory" | "displayName" | "meat1" | "meat2" | "timer1" | "timer2" | "option1" | "option2" | "meats" | "timers" | "options" | "serveware" | "isDraft" | "isPartyPack" | "bundleItems" | "ingredients" | "totalCost" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariant"]>
+  export type ProductVariantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "variantId" | "shopifySku" | "shopifyName" | "shopifyTitle" | "shopifyPrice" | "shopifyInventory" | "displayName" | "meat1" | "meat2" | "timer1" | "timer2" | "option1" | "option2" | "meats" | "timers" | "options" | "serveware" | "isDraft" | "lineKind" | "isPartyPack" | "bundleItems" | "ingredients" | "totalCost" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariant"]>
   export type ProductVariantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ShopifyProductDefaultArgs<ExtArgs>
   }
@@ -65571,6 +65582,11 @@ export namespace Prisma {
       options: Prisma.JsonValue | null
       serveware: boolean
       isDraft: boolean
+      /**
+       * Forces where the line sits on the order card: "addon" | "product".
+       * Null derives placement from the SKU, see src/lib/line-item-kind.ts.
+       */
+      lineKind: string | null
       isPartyPack: boolean
       bundleItems: Prisma.JsonValue | null
       ingredients: Prisma.JsonValue | null
@@ -66021,6 +66037,7 @@ export namespace Prisma {
     readonly options: FieldRef<"ProductVariant", 'Json'>
     readonly serveware: FieldRef<"ProductVariant", 'Boolean'>
     readonly isDraft: FieldRef<"ProductVariant", 'Boolean'>
+    readonly lineKind: FieldRef<"ProductVariant", 'String'>
     readonly isPartyPack: FieldRef<"ProductVariant", 'Boolean'>
     readonly bundleItems: FieldRef<"ProductVariant", 'Json'>
     readonly ingredients: FieldRef<"ProductVariant", 'Json'>
@@ -123666,6 +123683,7 @@ export namespace Prisma {
     options: 'options',
     serveware: 'serveware',
     isDraft: 'isDraft',
+    lineKind: 'lineKind',
     isPartyPack: 'isPartyPack',
     bundleItems: 'bundleItems',
     ingredients: 'ingredients',
@@ -129329,6 +129347,7 @@ export namespace Prisma {
     options?: JsonNullableFilter<"ProductVariant">
     serveware?: BoolFilter<"ProductVariant"> | boolean
     isDraft?: BoolFilter<"ProductVariant"> | boolean
+    lineKind?: StringNullableFilter<"ProductVariant"> | string | null
     isPartyPack?: BoolFilter<"ProductVariant"> | boolean
     bundleItems?: JsonNullableFilter<"ProductVariant">
     ingredients?: JsonNullableFilter<"ProductVariant">
@@ -129359,6 +129378,7 @@ export namespace Prisma {
     options?: SortOrderInput | SortOrder
     serveware?: SortOrder
     isDraft?: SortOrder
+    lineKind?: SortOrderInput | SortOrder
     isPartyPack?: SortOrder
     bundleItems?: SortOrderInput | SortOrder
     ingredients?: SortOrderInput | SortOrder
@@ -129392,6 +129412,7 @@ export namespace Prisma {
     options?: JsonNullableFilter<"ProductVariant">
     serveware?: BoolFilter<"ProductVariant"> | boolean
     isDraft?: BoolFilter<"ProductVariant"> | boolean
+    lineKind?: StringNullableFilter<"ProductVariant"> | string | null
     isPartyPack?: BoolFilter<"ProductVariant"> | boolean
     bundleItems?: JsonNullableFilter<"ProductVariant">
     ingredients?: JsonNullableFilter<"ProductVariant">
@@ -129422,6 +129443,7 @@ export namespace Prisma {
     options?: SortOrderInput | SortOrder
     serveware?: SortOrder
     isDraft?: SortOrder
+    lineKind?: SortOrderInput | SortOrder
     isPartyPack?: SortOrder
     bundleItems?: SortOrderInput | SortOrder
     ingredients?: SortOrderInput | SortOrder
@@ -129459,6 +129481,7 @@ export namespace Prisma {
     options?: JsonNullableWithAggregatesFilter<"ProductVariant">
     serveware?: BoolWithAggregatesFilter<"ProductVariant"> | boolean
     isDraft?: BoolWithAggregatesFilter<"ProductVariant"> | boolean
+    lineKind?: StringNullableWithAggregatesFilter<"ProductVariant"> | string | null
     isPartyPack?: BoolWithAggregatesFilter<"ProductVariant"> | boolean
     bundleItems?: JsonNullableWithAggregatesFilter<"ProductVariant">
     ingredients?: JsonNullableWithAggregatesFilter<"ProductVariant">
@@ -138803,6 +138826,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: string | null
     isPartyPack?: boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -138833,6 +138857,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: string | null
     isPartyPack?: boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -138861,6 +138886,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: BoolFieldUpdateOperationsInput | boolean
     isDraft?: BoolFieldUpdateOperationsInput | boolean
+    lineKind?: NullableStringFieldUpdateOperationsInput | string | null
     isPartyPack?: BoolFieldUpdateOperationsInput | boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -138891,6 +138917,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: BoolFieldUpdateOperationsInput | boolean
     isDraft?: BoolFieldUpdateOperationsInput | boolean
+    lineKind?: NullableStringFieldUpdateOperationsInput | string | null
     isPartyPack?: BoolFieldUpdateOperationsInput | boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -138920,6 +138947,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: string | null
     isPartyPack?: boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -138948,6 +138976,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: BoolFieldUpdateOperationsInput | boolean
     isDraft?: BoolFieldUpdateOperationsInput | boolean
+    lineKind?: NullableStringFieldUpdateOperationsInput | string | null
     isPartyPack?: BoolFieldUpdateOperationsInput | boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -138977,6 +139006,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: BoolFieldUpdateOperationsInput | boolean
     isDraft?: BoolFieldUpdateOperationsInput | boolean
+    lineKind?: NullableStringFieldUpdateOperationsInput | string | null
     isPartyPack?: BoolFieldUpdateOperationsInput | boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -146925,6 +146955,7 @@ export namespace Prisma {
     options?: SortOrder
     serveware?: SortOrder
     isDraft?: SortOrder
+    lineKind?: SortOrder
     isPartyPack?: SortOrder
     bundleItems?: SortOrder
     ingredients?: SortOrder
@@ -146959,6 +146990,7 @@ export namespace Prisma {
     option2?: SortOrder
     serveware?: SortOrder
     isDraft?: SortOrder
+    lineKind?: SortOrder
     isPartyPack?: SortOrder
     totalCost?: SortOrder
     createdAt?: SortOrder
@@ -146983,6 +147015,7 @@ export namespace Prisma {
     option2?: SortOrder
     serveware?: SortOrder
     isDraft?: SortOrder
+    lineKind?: SortOrder
     isPartyPack?: SortOrder
     totalCost?: SortOrder
     createdAt?: SortOrder
@@ -158329,6 +158362,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: string | null
     isPartyPack?: boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -158357,6 +158391,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: string | null
     isPartyPack?: boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -158437,6 +158472,7 @@ export namespace Prisma {
     options?: JsonNullableFilter<"ProductVariant">
     serveware?: BoolFilter<"ProductVariant"> | boolean
     isDraft?: BoolFilter<"ProductVariant"> | boolean
+    lineKind?: StringNullableFilter<"ProductVariant"> | string | null
     isPartyPack?: BoolFilter<"ProductVariant"> | boolean
     bundleItems?: JsonNullableFilter<"ProductVariant">
     ingredients?: JsonNullableFilter<"ProductVariant">
@@ -164863,6 +164899,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: boolean
     isDraft?: boolean
+    lineKind?: string | null
     isPartyPack?: boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -164897,6 +164934,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: BoolFieldUpdateOperationsInput | boolean
     isDraft?: BoolFieldUpdateOperationsInput | boolean
+    lineKind?: NullableStringFieldUpdateOperationsInput | string | null
     isPartyPack?: BoolFieldUpdateOperationsInput | boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -164925,6 +164963,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: BoolFieldUpdateOperationsInput | boolean
     isDraft?: BoolFieldUpdateOperationsInput | boolean
+    lineKind?: NullableStringFieldUpdateOperationsInput | string | null
     isPartyPack?: BoolFieldUpdateOperationsInput | boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue
@@ -164953,6 +164992,7 @@ export namespace Prisma {
     options?: NullableJsonNullValueInput | InputJsonValue
     serveware?: BoolFieldUpdateOperationsInput | boolean
     isDraft?: BoolFieldUpdateOperationsInput | boolean
+    lineKind?: NullableStringFieldUpdateOperationsInput | string | null
     isPartyPack?: BoolFieldUpdateOperationsInput | boolean
     bundleItems?: NullableJsonNullValueInput | InputJsonValue
     ingredients?: NullableJsonNullValueInput | InputJsonValue

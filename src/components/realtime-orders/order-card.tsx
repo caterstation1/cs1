@@ -26,6 +26,7 @@ import { resolveBundleItems } from '@/lib/product-service'
 import {
   isAddonLine,
   isServewareLine,
+  normalizeLineKind,
   orderHasStandaloneServeware,
   showsServewareMarker,
 } from '@/lib/line-item-kind'
@@ -80,6 +81,8 @@ interface Product {
   option2?: string
   serveware: boolean
   isDraft: boolean
+  /** 'addon' | 'product' forces order card placement; null derives it from the SKU. */
+  lineKind?: string | null
   
   // Component/costing data
   ingredients?: any
@@ -143,12 +146,19 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     const parsed = parseInt(String(value ?? ''), 10)
     return Number.isNaN(parsed) ? 0 : parsed
   }
+  // A travel time of 0 (or a negative number) is a legitimate value, so only an
+  // empty/absent field counts as "never entered".
+  const hasTravelTimeValue = (value: string | number | undefined | null): boolean => {
+    const raw = String(value ?? '').trim()
+    return raw !== '' && !Number.isNaN(parseInt(raw, 10))
+  }
   const [isExpanded, setIsExpanded] = useState(false)
   const [deliveryTime, setDeliveryTime] = useState(order.deliveryTime || '')
   const [leaveTime, setLeaveTime] = useState(order.leaveTime || '')
   const [travelTime, setTravelTime] = useState<number>(parseTravelTime(order.travelTime))
   const [travelTimeDraft, setTravelTimeDraft] = useState<string>(String(parseTravelTime(order.travelTime)))
   const [isTravelTimeEditing, setIsTravelTimeEditing] = useState(false)
+  const [travelTimeIsSet, setTravelTimeIsSet] = useState<boolean>(() => hasTravelTimeValue(order.travelTime))
   const [driverId, setDriverId] = useState<string>('')
   const [deliverySequence, setDeliverySequence] = useState<number | null>(order.deliverySequence ?? null)
   const [drivers, setDrivers] = useState<Staff[]>([])
@@ -376,11 +386,16 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
 
   const nonAddonDisplayRowCount = useMemo(() => {
     return expandedDisplayLineItems.reduce((count: number, item: any) => {
-      const product = productForLine(item)
-      if (isAddonLine(item, product) || isServewareLine(item, product)) return count
+      // Placement can be overridden per order line, so classify off the merged product.
+      const product = getEffectiveLineProduct(
+        item,
+        products as unknown as Record<string, Record<string, unknown>>,
+        item._lineIndex !== undefined ? (lineItems[item._lineIndex] as LineItemWithOverrides) : undefined
+      )
+      if (isAddonLine(item, product as any) || isServewareLine(item, product as any)) return count
       return count + Math.max(1, Number(item.quantity || 1))
     }, 0)
-  }, [expandedDisplayLineItems, productForLine])
+  }, [expandedDisplayLineItems, products, lineItems])
 
   const internalNoteReserveClass = useMemo(() => {
     const text = [order.customerNote, order.internalNote]
@@ -527,6 +542,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     if (order.travelTime) {
       const parsedTravelTime = parseTravelTime(order.travelTime)
       setTravelTime(parsedTravelTime)
+      setTravelTimeIsSet(true)
       if (!isTravelTimeEditing) {
         setTravelTimeDraft(String(parsedTravelTime))
       }
@@ -645,6 +661,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
             const parsedTravelTime = parseTravelTime(savedTravelTime)
             setTravelTime(parsedTravelTime)
             setTravelTimeDraft(String(parsedTravelTime))
+            setTravelTimeIsSet(true)
             // Also update the database with the saved travel time
             handleUpdate({ travelTime: parsedTravelTime.toString() })
           }
@@ -851,6 +868,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
 
       setTravelTime(parsedTravelTime)
       setHasManualTravelTime(true)
+      setTravelTimeIsSet(true)
 
       // Recalculate leave time only when the edit is committed.
       let leave = deliveryTime
@@ -1091,6 +1109,8 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
     option1: z.string().optional(),
     option2: z.string().optional(),
     serveware: z.boolean().optional(),
+    // '' means "derive placement from the SKU"; see src/lib/line-item-kind.ts
+    lineKind: z.enum(['', 'addon', 'product']).optional(),
   });
 
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
@@ -1164,9 +1184,20 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       option1: '',
       option2: '',
       serveware: false,
+      lineKind: '' as '' | 'addon' | 'product',
     },
     mode: 'onChange',
   });
+
+  /** Where "Auto" would put this line, so the picker can name the SKU-derived default. */
+  const autoPlacementLabel = useMemo(() => {
+    if (!editingProduct) return 'main product'
+    const isAddon = isAddonLine(
+      { sku: editingProduct.shopifySku, title: editingProduct.shopifyTitle },
+      { ...editingProduct, lineKind: null }
+    )
+    return isAddon ? 'addon' : 'main product'
+  }, [editingProduct]);
 
   const openProductEditModal = async (
     product: any,
@@ -1233,6 +1264,8 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
       option1: (ov?.option1 ?? latestProduct.option1) || '',
       option2: (ov?.option2 ?? latestProduct.option2) || '',
       serveware: ov?.serveware !== undefined ? !!ov.serveware : !!latestProduct.serveware,
+      lineKind:
+        normalizeLineKind(ov?.lineKind !== undefined ? ov.lineKind : latestProduct.lineKind) ?? '',
     });
     setEditingProduct(latestProduct);
     setIsProductEditModalOpen(true);
@@ -1254,6 +1287,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
         ...data,
         timer1: toTimerValue(data.timer1),
         timer2: toTimerValue(data.timer2),
+        lineKind: normalizeLineKind(data.lineKind),
       }
 
       const response = await fetch(`/api/products/variant/${data.variantId}`, {
@@ -1328,6 +1362,7 @@ export default function OrderCard({ order, onUpdate, products, refreshProducts, 
         option1: data.option1,
         option2: data.option2,
         serveware: data.serveware,
+        lineKind: normalizeLineKind(data.lineKind),
       }
       const parsed: LineItemWithOverrides[] = lineItems.map((row: LineItemWithOverrides) => ({
         ...row,
@@ -1886,7 +1921,7 @@ ${itemsSummary}`
                 products as unknown as Record<string, Record<string, unknown>>,
                 sourceLine
               ) as Product | null;
-              if (!isAddonLine(item, baseProduct)) return null
+              if (!isAddonLine(item, product)) return null
               return (
                 <ContextMenu key={index}>
                   <ContextMenuTrigger asChild>
@@ -2128,7 +2163,7 @@ ${itemsSummary}`
               
               // Skip addon products (child addons will now be excluded too) and
               // standalone serveware, which only marks the rows below with SW.
-              if (isAddonLine(item, baseProduct) || isServewareLine(item, baseProduct)) return null
+              if (isAddonLine(item, product) || isServewareLine(item, product)) return null
               // Create an array of items based on quantity (pack children already multiplied)
               return Array(item.quantity).fill(null).map((_, itemIndex) => {
                 // Only calculate timer times if we have a valid product with timers
@@ -3115,6 +3150,18 @@ ${itemsSummary}`
               <div>
                 <Label htmlFor="timer2">Timer 2</Label>
                 <Input id="timer2" type="number" {...productForm.register('timer2', { valueAsNumber: true })} />
+              </div>
+              <div className="col-span-2 mt-2">
+                <Label htmlFor="lineKind">Order card placement</Label>
+                <select
+                  id="lineKind"
+                  {...productForm.register('lineKind')}
+                  className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm"
+                >
+                  <option value="">Auto from SKU (currently {autoPlacementLabel})</option>
+                  <option value="product">Main product</option>
+                  <option value="addon">Addon</option>
+                </select>
               </div>
               <div className="col-span-2 flex items-center gap-3 mt-2">
                 <input id="serveware" type="checkbox" {...productForm.register('serveware')} className="h-5 w-5 accent-blue-600 rounded border-gray-300" />

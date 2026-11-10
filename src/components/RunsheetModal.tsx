@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { fetchProducts } from '@/lib/product-service'
 import { resolveBundleItems } from '@/lib/product-service'
+import { resolveAddonPlacement } from '@/lib/line-item-kind'
 
 interface RunsheetModalProps {
   isOpen: boolean
@@ -22,7 +23,8 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
   const [nextDayProductsMap, setNextDayProductsMap] = useState<Record<string, any>>({})
   const [rosterAssignments, setRosterAssignments] = useState<any[]>([])
 
-  const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
+  const isAddon = (sku?: string, product?: { lineKind?: string | null } | null) =>
+    resolveAddonPlacement(!!sku && (sku.startsWith('ADD') || sku.startsWith('AA')), product)
   
   const isWLGOrder = (order: any): boolean => {
     // 1) Check note_attributes City
@@ -129,7 +131,7 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
               if (!childProduct) continue
               const totalQty = qty * Math.max(1, Number(child.quantity || 1))
               // Addons list
-              if (isAddon(childProduct?.shopifySku)) {
+              if (isAddon(childProduct?.shopifySku, childProduct)) {
                 const key = childProduct?.productDisplayName?.trim() ? childProduct.productDisplayName : (childProduct?.displayName?.trim() ? childProduct.displayName : (childProduct?.shopifyName && childProduct.shopifyName !== 'Default Title' ? childProduct.shopifyName : childProduct?.shopifyTitle))
                 if (!addonsMap[key]) addonsMap[key] = { total: 0, am: 0 }
                 addonsMap[key].total += totalQty
@@ -152,7 +154,7 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
             continue
           }
         }
-        if (isAddon(it.sku)) {
+        if (isAddon(it.sku, product)) {
           // Prefer productDisplayName for addons too
           const key = product?.productDisplayName?.trim() ? product.productDisplayName : (product?.displayName?.trim() ? product.displayName : (product?.shopifyName && product.shopifyName !== 'Default Title' ? product.shopifyName : it.title))
           if (!addonsMap[key]) addonsMap[key] = { total: 0, am: 0 }
@@ -322,7 +324,7 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
         const qty = Number(it.quantity || 0)
         const variantId = it.variant_id?.toString() || it.variantId?.toString()
         const product = variantId ? productsLookup[variantId] : undefined
-        if (!product || isAddon(it.sku)) continue
+        if (!product || isAddon(it.sku, product)) continue
 
         // Expand party pack bundles into child items (client-side UI runsheet)
         const bundleChildren = resolveBundleItems(product)
@@ -402,7 +404,7 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
         const qty = Number(it.quantity || 0)
         const variantId = it.variant_id?.toString() || it.variantId?.toString()
         const product = variantId ? (nextDayProductsMap[variantId] || productsMap[variantId]) : undefined
-        if (!product || isAddon(it.sku)) continue
+        if (!product || isAddon(it.sku, product)) continue
         const initials = [product?.meat1, product?.meat2].filter(Boolean).map((s: string) => s!.trim()[0]?.toUpperCase()).filter(Boolean)
         for (const init of initials) {
           if (!proteins[init]) proteins[init] = { am: 0, pm: 0, total: 0 }
@@ -446,7 +448,7 @@ export function RunsheetModal({ isOpen, onClose, date, orders, productsMap, isWL
           item?.title ||
           'Product'
 
-        if (isAddon(sku)) {
+        if (isAddon(sku, product)) {
           addons.push(`${qty}x ${displayName}`)
           continue
         }

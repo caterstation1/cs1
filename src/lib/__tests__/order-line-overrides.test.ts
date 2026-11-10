@@ -36,6 +36,15 @@ const base = {
   assert.deepEqual(merged.meats, ['Chicken', '', null])
 }
 
+// Order card placement rides along as an override, including clearing a
+// catalog-level choice back to the SKU-derived default.
+{
+  const merged = applyOverridesToProduct({ ...base, lineKind: null }, { lineKind: 'addon' })!
+  assert.equal(merged.lineKind, 'addon')
+  const cleared = applyOverridesToProduct({ ...base, lineKind: 'addon' }, { lineKind: null })!
+  assert.equal(cleared.lineKind, null)
+}
+
 // No overrides is a plain copy.
 {
   const merged = applyOverridesToProduct(base, undefined)!

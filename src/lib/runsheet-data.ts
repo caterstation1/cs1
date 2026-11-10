@@ -1,6 +1,7 @@
 import { prisma } from './prisma'
 import { isWellingtonOrder } from './region'
 import { resolveBundleItems } from './product-service'
+import { resolveAddonPlacement } from './line-item-kind'
 import { format, addDays } from 'date-fns'
 
 interface ComponentCatalog {
@@ -12,7 +13,8 @@ interface ComponentCatalog {
 
 export async function fetchRunsheetData(date: Date, isWLG: boolean = false, excludeDispatched: boolean = false) {
   // Helper functions
-  const isAddon = (sku?: string) => !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
+  const isAddon = (sku?: string, product?: { lineKind?: string | null } | null) =>
+    resolveAddonPlacement(!!sku && (sku.startsWith('ADD') || sku.startsWith('AA')), product)
   
   const firstTimeTo24 = (range: string) => {
     try {
@@ -194,7 +196,7 @@ export async function fetchRunsheetData(date: Date, isWLG: boolean = false, excl
         continue // skip pack itself
       }
 
-      if (isAddon(it.sku)) {
+      if (isAddon(it.sku, product)) {
         const key = product?.productDisplayName?.trim() || product?.shopifyName || it.title
         if (!addonsMap[key]) addonsMap[key] = { total: 0, am: 0 }
         addonsMap[key].total += qty
@@ -260,7 +262,7 @@ export async function fetchRunsheetData(date: Date, isWLG: boolean = false, excl
       const qty = Number(it.quantity || 0)
       const variantId = it.variant_id?.toString() || it.variantId?.toString()
       const product = variantId ? productsMap[variantId] : undefined
-      if (!product || isAddon(it.sku)) continue
+      if (!product || isAddon(it.sku, product)) continue
       // Expand bundles for task computation too
       const bundleChildren = resolveBundleItems(product)
       if (bundleChildren.length > 0) {
@@ -410,7 +412,7 @@ export async function fetchRunsheetData(date: Date, isWLG: boolean = false, excl
         const qty = Number(it.quantity || 0)
         const variantId = it.variant_id?.toString() || it.variantId?.toString()
         const product = variantId ? (nextDayProductsMap[variantId] || productsMap[variantId]) : undefined
-        if (!product || isAddon(it.sku)) continue
+        if (!product || isAddon(it.sku, product)) continue
         const initials = [product?.meat1, product?.meat2].filter(Boolean).map((s: string) => s!.trim()[0]?.toUpperCase()).filter(Boolean)
         for (const init of initials) {
           if (!nextProteins[init]) nextProteins[init] = { am: 0, pm: 0, total: 0 }
@@ -443,7 +445,7 @@ export async function fetchRunsheetData(date: Date, isWLG: boolean = false, excl
         const qty = Number(it.quantity || 0)
         const variantId = it.variant_id?.toString() || it.variantId?.toString()
         const product = variantId ? (nextDayProductsMap[variantId] || productsMap[variantId]) : undefined
-        if (!product || isAddon(it.sku)) continue
+        if (!product || isAddon(it.sku, product)) continue
         
         const baseIngs = Array.isArray(product.baseIngredients) ? product.baseIngredients : []
         const variantIngs = Array.isArray(product.ingredients) ? product.ingredients : []

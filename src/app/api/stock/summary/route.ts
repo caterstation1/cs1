@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { parseLocalDate } from '@/lib/date-utils'
 import { buildComponentMap, expandToRawLeaves } from '@/lib/components-expander'
 import { isWellingtonOrder } from '@/lib/region'
+import { resolveAddonPlacement } from '@/lib/line-item-kind'
 
 type DayKey = string // 'yyyy-MM-dd'
 
@@ -219,8 +220,9 @@ export async function GET(req: NextRequest) {
         const sku = String(it.sku || vv?.shopifySku || '')
         const title = String(vv?.shopifyName || vv?.shopifyTitle || it.title || '')
         const display = (vv?.product?.displayName || vv?.displayName || '').trim() || title
+        const isAddon = resolveAddonPlacement(isAddonSku(sku), vv)
 
-        if (isAddonSku(sku)) {
+        if (isAddon) {
           bump(addons, display, dayIdx, ei.quantity)
         } else if (!ei.parentPack) {
           bump(products, display, dayIdx, ei.quantity)
@@ -228,7 +230,7 @@ export async function GET(req: NextRequest) {
           // pack child contributes to products too
           bump(products, display, dayIdx, ei.quantity)
         }
-        if (!isAddonSku(sku)) {
+        if (!isAddon) {
           const hero = vv?.product?.heroImageUrl
           if (hero && display && !productImages[display]) productImages[display] = hero
         }

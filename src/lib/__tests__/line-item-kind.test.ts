@@ -5,6 +5,8 @@ import {
   isCaterCase,
   isServewareLine,
   isServewareSelected,
+  normalizeLineKind,
+  resolveAddonPlacement,
   orderHasStandaloneServeware,
   showsServewareMarker,
 } from '../line-item-kind'
@@ -33,6 +35,28 @@ assert.equal(isCaterCase({ sku: 'WLG-TK20-CCY', title: 'Taco Kit - 20 - 25ppl.' 
 assert.equal(isAddonLine({ sku: 'CC02', title: 'TaterTots CaterCase' }), true)
 assert.equal(isAddonLine({ sku: 'ADD-TFN', title: 'ADDON: Side of Tofu' }), true)
 assert.equal(isAddonLine({ sku: 'SK20-BY', title: 'Mini Slider Station' }), false)
+
+// An explicit lineKind beats whatever the SKU says, in both directions
+const donutKit = { sku: 'BAD20-N', title: 'Build-a-Donut Station' }
+assert.equal(isAddonLine(donutKit, { lineKind: 'addon' }), true)
+assert.equal(isAddonLine({ sku: 'ADD-TFN' }, { lineKind: 'product' }), false)
+assert.equal(isAddonLine({ sku: 'CC02', title: 'TaterTots CaterCase' }, { lineKind: 'product' }), false)
+// Blank or unrecognised values fall back to the SKU
+assert.equal(isAddonLine({ sku: 'ADD-TFN' }, { lineKind: '' }), true)
+assert.equal(isAddonLine(donutKit, { lineKind: 'nonsense' }), false)
+
+assert.equal(normalizeLineKind('addon'), 'addon')
+assert.equal(normalizeLineKind('Product'), 'product')
+assert.equal(normalizeLineKind(''), null)
+assert.equal(normalizeLineKind(undefined), null)
+
+// The runsheet/labels/stock surfaces keep their own SKU rule and only borrow
+// the override, so a CaterCase stays a product there unless told otherwise.
+assert.equal(resolveAddonPlacement(false, { shopifySku: 'CC02' }), false)
+assert.equal(resolveAddonPlacement(true, null), true)
+assert.equal(resolveAddonPlacement(true, { lineKind: 'product' }), false)
+assert.equal(resolveAddonPlacement(false, { lineKind: 'addon' }), true)
+assert.equal(resolveAddonPlacement(false, { lineKind: '' }), false)
 
 // Serveware sold as its own line
 const servewareYes = { sku: '', title: 'Serveware', variant_title: 'Yes Serveware' }

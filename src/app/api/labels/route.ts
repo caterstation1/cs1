@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { resolveBundleItems } from '@/lib/product-service'
 import { getDayWindowForYmd } from '@/lib/calendar-query'
 import { parseLocalDate } from '@/lib/date-utils'
+import { resolveAddonPlacement } from '@/lib/line-item-kind'
+import { applyOverridesToProduct, getOverridesForDisplayRow } from '@/lib/order-line-overrides'
 
 function stripDateTimeFromNote(note: string | null | undefined): string {
   if (!note) return ''
@@ -424,7 +426,9 @@ export async function GET(request: NextRequest) {
                 quantity: qty * Math.max(1, parseInt(String(child.quantity || '1'), 10)),
                 title: childProduct?.displayName || childProduct?.shopifyName || item.title,
                 sku: childProduct?.shopifySku || item.sku,
-                _isPackChild: true
+                _isPackChild: true,
+                // Identifies which childOrderOverrides entry applies to this row.
+                _childVariantId: child.variantId
               })
             }
           } else {
@@ -437,9 +441,20 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // split addons by SKU prefix ADD or AA
-      const addons = expandedItems.filter((it) => typeof it.sku === 'string' && (it.sku.startsWith('ADD') || it.sku.startsWith('AA')))
-      const products = expandedItems.filter((it) => !(typeof it.sku === 'string' && (it.sku.startsWith('ADD') || it.sku.startsWith('AA'))))
+      // Addons come off the ADD/AA SKU prefix unless placement was overridden on
+      // the variant or on this order's line. Each expanded row carries the
+      // order's override blobs, so the row doubles as its own source line.
+      const isAddonItem = (it: any) => {
+        const vid = it.variant_id?.toString?.() || it.variantId?.toString?.() || ''
+        const merged = applyOverridesToProduct(
+          vid ? productsMap[vid] : null,
+          getOverridesForDisplayRow(it, it)
+        )
+        const skuDerived = typeof it.sku === 'string' && (it.sku.startsWith('ADD') || it.sku.startsWith('AA'))
+        return resolveAddonPlacement(skuDerived, merged as any)
+      }
+      const addons = expandedItems.filter(isAddonItem)
+      const products = expandedItems.filter((it) => !isAddonItem(it))
 
       const addonNames = addons.map((it) => {
         // For addons, we need to get the displayName from the custom data

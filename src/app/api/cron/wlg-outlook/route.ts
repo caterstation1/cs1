@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer'
 import { formatWLGOutlookEmail } from '@/lib/email-formatter'
 import { format, addDays } from 'date-fns'
 import { isWellingtonOrder } from '@/lib/region'
+import { resolveAddonPlacement } from '@/lib/line-item-kind'
 
 // Create email transporter
 const transporter = nodemailer.createTransport({
@@ -14,9 +15,9 @@ const transporter = nodemailer.createTransport({
   },
 })
 
-// Helper function to check if SKU is an addon
-function isAddon(sku?: string): boolean {
-  return !!sku && (sku.startsWith('ADD') || sku.startsWith('AA'))
+// Addon unless the variant overrides where the line sits; see line-item-kind.
+function isAddon(sku?: string, product?: { lineKind?: string | null } | null): boolean {
+  return resolveAddonPlacement(!!sku && (sku.startsWith('ADD') || sku.startsWith('AA')), product)
 }
 
 // Helper function to parse line items
@@ -145,7 +146,7 @@ export async function GET(request: NextRequest) {
           const qty = Number(item.quantity || 0)
           const product = item.sku ? productsMap[item.sku] : undefined
 
-          if (isAddon(item.sku)) {
+          if (isAddon(item.sku, product)) {
             // For addons, use the actual item title from the order
             addonItems.push({
               name: item.title || item.name || 'Unknown Addon',

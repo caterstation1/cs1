@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { computeVariantCost } from '@/lib/pricing/persist';
 import { mirrorScalarsToArrays, type ScalarEdit } from '@/lib/variant-part-edit';
+import { normalizeLineKind } from '@/lib/line-item-kind';
 
 /**
  * Re-derives and stores this variant's cost after its recipe changed.
@@ -133,6 +134,7 @@ export async function GET(
       option2: variant.option2,
       serveware: variant.serveware,
       isDraft: variant.isDraft,
+      lineKind: variant.lineKind,
       ingredients: variant.ingredients,
       totalCost: combinedTotal > 0 ? combinedTotal : Number(variant.totalCost || 0),
       isPartyPack: (variant as any).isPartyPack ?? false,
@@ -234,6 +236,7 @@ export async function PUT(
       option2: variant.option2,
       serveware: variant.serveware,
       isDraft: variant.isDraft,
+      lineKind: variant.lineKind,
       ingredients: variant.ingredients,
       totalCost: recostedTotal ?? variant.totalCost,
       isPartyPack: (variant as any).isPartyPack ?? false,
@@ -267,7 +270,7 @@ export async function PATCH(
     const allowedFields = [
       'displayName', 'meat1', 'meat2', 'timer1', 'timer2', 
       'option1', 'option2', 'meats', 'timers', 'options', 'serveware', 'isDraft', 'ingredients',
-      'isPartyPack', 'bundleItems'
+      'isPartyPack', 'bundleItems', 'lineKind'
     ];
 
     const filteredData = Object.keys(data).reduce((acc, key) => {
@@ -336,6 +339,10 @@ export async function PATCH(
     }
     if ('serveware' in filteredData) {
       filteredData.serveware = Boolean(filteredData.serveware);
+    }
+    // "" / "auto" from the picker means "go back to deriving placement from the SKU".
+    if ('lineKind' in filteredData) {
+      filteredData.lineKind = normalizeLineKind(filteredData.lineKind);
     }
     if ('displayName' in filteredData && typeof filteredData.displayName === 'string') {
       filteredData.displayName = filteredData.displayName.trim();
@@ -436,6 +443,7 @@ export async function PATCH(
       option2: variant.option2,
       serveware: variant.serveware,
       isDraft: variant.isDraft,
+      lineKind: variant.lineKind,
       ingredients: variant.ingredients,
       totalCost: recostedTotal ?? variant.totalCost,
       isPartyPack: (variant as any).isPartyPack ?? false,

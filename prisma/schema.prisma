@@ -1057,6 +1057,9 @@ model ProductVariant {
   options          Json?
   serveware        Boolean  @default(false)
   isDraft          Boolean  @default(false)
+  /// Forces where the line sits on the order card: "addon" | "product".
+  /// Null derives placement from the SKU, see src/lib/line-item-kind.ts.
+  lineKind         String?
   // Party pack (bundle) support
   isPartyPack      Boolean  @default(false)
   bundleItems      Json?

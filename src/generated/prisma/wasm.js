@@ -869,6 +869,7 @@ exports.Prisma.ProductVariantScalarFieldEnum = {
   options: 'options',
   serveware: 'serveware',
   isDraft: 'isDraft',
+  lineKind: 'lineKind',
   isPartyPack: 'isPartyPack',
   bundleItems: 'bundleItems',
   ingredients: 'ingredients',

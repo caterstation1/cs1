@@ -10,10 +10,35 @@ export type LineItemLike = {
   variantTitle?: string | null
 }
 
+/** An explicit placement chosen by staff, overriding the SKU-derived one. */
+export type LineKind = 'addon' | 'product'
+
 export type ProductLike = {
   shopifySku?: string | null
   shopifyTitle?: string | null
   serveware?: boolean | null
+  lineKind?: string | null
+}
+
+export function normalizeLineKind(value: unknown): LineKind | null {
+  const kind = String(value ?? '').trim().toLowerCase()
+  return kind === 'addon' || kind === 'product' ? kind : null
+}
+
+/**
+ * Applies the placement override on top of a caller's own SKU rule.
+ *
+ * The runsheet, labels and the stock/BnB summaries each derive addons from the
+ * ADD/AA prefix alone and deliberately do not share the order card's CaterCase
+ * handling. This lets them honour an explicit `lineKind` without inheriting the
+ * rest of `isAddonLine`.
+ */
+export function resolveAddonPlacement(
+  skuDerived: boolean,
+  product?: ProductLike | null
+): boolean {
+  const forced = normalizeLineKind(product?.lineKind)
+  return forced ? forced === 'addon' : skuDerived
 }
 
 export function isAddonSku(sku?: string | null): boolean {
@@ -36,8 +61,16 @@ export function isCaterCase(line: LineItemLike, product?: ProductLike | null): b
   return /catercase/i.test(String(line.title || product?.shopifyTitle || ''))
 }
 
-/** True for anything that should render in the addon row, not the product list. */
+/**
+ * True for anything that should render in the addon row, not the product list.
+ *
+ * A `lineKind` set on the variant (or as an order-only override) wins outright:
+ * SKUs carry the station/addon split by convention only, and some products need
+ * to sit on the other side of the card without their SKU being renamed.
+ */
 export function isAddonLine(line: LineItemLike, product?: ProductLike | null): boolean {
+  const forced = normalizeLineKind(product?.lineKind)
+  if (forced) return forced === 'addon'
   if (isAddonSku(line.sku) || isAddonSku(product?.shopifySku)) return true
   return isCaterCase(line, product)
 }

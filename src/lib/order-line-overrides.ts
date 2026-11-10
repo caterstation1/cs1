@@ -11,6 +11,8 @@ export type OrderProductOverrides = {
   option1?: string
   option2?: string
   serveware?: boolean
+  /** 'addon' | 'product', or null to fall back to the SKU-derived placement. */
+  lineKind?: string | null
 }
 
 export type LineItemWithOverrides = {
@@ -39,6 +41,7 @@ export function applyOverridesToProduct(
   if (ov.option1 !== undefined) merged.option1 = ov.option1
   if (ov.option2 !== undefined) merged.option2 = ov.option2
   if (ov.serveware !== undefined) merged.serveware = ov.serveware
+  if (ov.lineKind !== undefined) merged.lineKind = ov.lineKind
 
   // Slots 0/1 are the overridable pair; anything beyond belongs to an extra
   // title part ("A / B / C") and has to survive the merge.
